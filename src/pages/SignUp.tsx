@@ -2,10 +2,55 @@ import { useState } from "react";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SignUp = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // For showing errors
+  const [isLoading, setIsLoading] = useState<boolean>(false); // To handle loading state
+  const navigate = useNavigate();
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true); // Set loading state
+
+    // Prepare the request body
+    const userData = {
+      email,
+      name,
+      phoneNumber,
+      password,
+      role:"customer",
+    };
+
+    try {
+      const response = await fetch("http://localhost:5050/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (data.isSuccess) {
+        // On success, you can redirect the user or show a success message
+        navigate("/login"); // Redirect to login page after successful registration
+      } else {
+        setErrorMessage("Registration failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      setErrorMessage("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false); // Reset loading state
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -24,18 +69,44 @@ const SignUp = () => {
         </p>
 
         {/* Sign Up Form */}
-        <form className="mt-6">
+        <form onSubmit={handleSignUp} className="mt-6">
+          {/* Email Input */}
           <label className="block text-gray-700">Email</label>
           <input
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
             placeholder="Enter your email"
           />
 
+          {/* Name Input */}
+          <label className="block text-gray-700 mt-4">Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your name"
+          />
+
+          {/* Phone Number Input */}
+          <label className="block text-gray-700 mt-4">Phone Number</label>
+          <input
+            type="text"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your phone number"
+          />
+
+          {/* Password Input */}
           <label className="block text-gray-700 mt-4">Password</label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your password"
             />
@@ -47,8 +118,19 @@ const SignUp = () => {
             </span>
           </div>
 
-          <button className="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
-            Sign Up
+
+          {/* Show error message if exists */}
+          {errorMessage && (
+            <div className="mt-4 text-red-500 text-center">{errorMessage}</div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          >
+            {isLoading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
 
