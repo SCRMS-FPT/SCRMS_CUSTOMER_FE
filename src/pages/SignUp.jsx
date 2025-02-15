@@ -5,26 +5,25 @@ import { FaFacebook } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
 const SignUp = () => {
-  const [email, setEmail] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // For showing errors
-  const [isLoading, setIsLoading] = useState<boolean>(false); // To handle loading state
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    setIsLoading(true); // Set loading state
+    setIsLoading(true);
 
-    // Prepare the request body
     const userData = {
       email,
       name,
       phoneNumber,
       password,
-      role:"customer",
+      role: "customer",
     };
 
     try {
@@ -39,8 +38,7 @@ const SignUp = () => {
       const data = await response.json();
 
       if (data.isSuccess) {
-        // On success, you can redirect the user or show a success message
-        navigate("/login"); // Redirect to login page after successful registration
+        navigate("/login");
       } else {
         setErrorMessage("Registration failed. Please try again.");
       }
@@ -48,12 +46,12 @@ const SignUp = () => {
       console.error("Error during registration:", error);
       setErrorMessage("An error occurred. Please try again.");
     } finally {
-      setIsLoading(false); // Reset loading state
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 bg-[url('/src/assets/soccer.jpg')] bg-cover bg-center">
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-4">

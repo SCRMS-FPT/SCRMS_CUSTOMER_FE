@@ -2,7 +2,7 @@ import React from 'react';
 import { Search } from 'lucide-react';
 import { Card,Button, CardContent } from '@mui/material';
 
-const Home: React.FC = () => {
+const Home = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}

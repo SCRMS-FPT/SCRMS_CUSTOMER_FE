@@ -5,38 +5,28 @@ import { useNavigate } from 'react-router-dom';
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
 import { IoEyeOffOutline, IoEyeOutline } from 'react-icons/io5';
-import { ThunkDispatch } from 'redux-thunk';
-import { RootState } from '../store';  // Adjust this import according to your store setup
-import { AnyAction } from 'redux';
 
 const Login = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, AnyAction>>(); // Type the dispatch
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     if (email.trim() !== '' && password.trim() !== '') {
       try {
-        // Dispatch the login action and await the result
         await dispatch(login({ email, password })).unwrap();
-        navigate('/'); 
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error('Login failed:', error.message); // Log the error message
-        } else {
-          console.error('Login failed: Unknown error');
-        }
-        // Handle error display, e.g., show a toast or alert
+        navigate('/');
+      } catch (error) {
+        console.error('Login failed:', error);
       }
     }
   };
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-gray-100 bg-[url('/src/assets/soccer.jpg')] bg-cover bg-center">
-      <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
-
+      {/* <div className="absolute inset-0 backdrop-blur-sm"></div> */}
       <div className="relative bg-white p-8 rounded-lg shadow-lg max-w-md w-full z-10">
         <h2 className="text-2xl font-semibold text-center">Log In</h2>
         <p className="text-center text-gray-500 mt-2">
