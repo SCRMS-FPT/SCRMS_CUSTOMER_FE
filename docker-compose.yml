@@ -1,0 +1,6 @@
+version: "1"
+services:
+  web:
+    build: .
+    ports:
+      - "3000:80" # Host port 3000 map tới container port 80
