@@ -5,12 +5,21 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import MatchFinder from "./pages/MatchFinder";
 import CourtFeedback from "./pages/CourtFeedback";
+import HomeTest from "./pages/HomeTest";
 
 function App() {
   return (
     <Routes>
       <Route
         path="/"
+        element={
+          <Layout>
+            <HomeTest />
+          </Layout>
+        }
+      />
+      <Route
+        path="/home"
         element={
           <Layout>
             <Home />
