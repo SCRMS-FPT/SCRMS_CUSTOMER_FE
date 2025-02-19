@@ -1,0 +1,58 @@
+/* Remove default border and padding */
+.react-calendar {
+    border: none !important;
+    font-family: Arial, sans-serif;
+    width: 100%;
+}
+
+/* Calendar Header (Month & Year) */
+.react-calendar__navigation {
+    display: flex;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 0;
+}
+
+/* Days of the Week */
+.react-calendar__month-view__weekdays {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: bold;
+    color: #4a5568; /* Tailwind gray-700 */
+}
+
+/* Individual Days */
+.react-calendar__tile {
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+}
+
+/* Selected Day */
+.react-calendar__tile--active {
+    background-color: #77c043 !important; /* Green highlight */
+    color: white !important;
+    border-radius: 50%;
+}
+
+/* Hover Effect */
+.react-calendar__tile:hover {
+    background-color: #e5e7eb;
+    border-radius: 50%;
+}
+
+/* 🔥 Make past dates text gray, but no background */
+.react-calendar__tile--disabled {
+    color: #a0aec0 !important; /* Tailwind gray-400 */
+    pointer-events: none; /* Make unclickable */
+    background: none !important; /* Remove any background */
+}
+
+/* Center Calendar */
+.custom-calendar {
+    max-width: 280px;
+    margin: auto;
+}

@@ -6,6 +6,7 @@ import SignUp from "./pages/SignUp";
 import MatchFinder from "./pages/MatchFinder";
 import CourtFeedback from "./pages/CourtFeedback";
 import HomeTest from "./pages/HomeTest";
+import CourtList from "./pages/CourtList";
 
 function App() {
   return (
@@ -23,6 +24,14 @@ function App() {
         element={
           <Layout>
             <Home />
+          </Layout>
+        }
+      />
+      <Route
+        path="/list"
+        element={
+          <Layout>
+            <CourtList />
           </Layout>
         }
       />
