@@ -7,6 +7,7 @@ import MatchFinder from "./pages/MatchFinder";
 import CourtFeedback from "./pages/CourtFeedback";
 import HomeTest from "./pages/HomeTest";
 import CourtList from "./pages/CourtList";
+import CourtDetails from "./pages/CourtDetails";
 
 function App() {
   return (
@@ -28,10 +29,18 @@ function App() {
         }
       />
       <Route
-        path="/list"
+        path="/court/list"
         element={
           <Layout>
             <CourtList />
+          </Layout>
+        }
+      />
+      <Route
+        path="/court/:id" // Add new route for court details
+        element={
+          <Layout>
+            <CourtDetails />
           </Layout>
         }
       />

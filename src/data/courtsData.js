@@ -1,3 +1,5 @@
+import basketballCourt01 from "../assets/basketball_court_01.jpg";
+
 const courtsData = [
     {
         id: 1,
@@ -5,13 +7,20 @@ const courtsData = [
         city: "Manama",
         address: "123 University Road, Manama, Bahrain",
         availableHours: { start: "08:00", end: "22:00" },
+        description: "The Kingdom University sports complex is a state-of-the-art facility that offers a variety of sports activities. The basketball court is one of the most popular spots in the complex.",
         durations: [60, 90, 120],
         price: 10.5,
         sport: ["Basketball", "Football", "Volleyball"],
         image: "/images/court1.jpg",
+        image_details: [
+            basketballCourt01,
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 5,
         date: "2025-02-20",
-        status: "available"
+        status: "available",
+        ownerId: 101
     },
     {
         id: 2,
@@ -19,10 +28,16 @@ const courtsData = [
         city: "Riffa",
         address: "456 Sports Street, Riffa, Bahrain",
         availableHours: { start: "09:00", end: "23:00" },
+        description: "",
         durations: [60, 90],
         price: 15.0,
         sport: ["Basketball", "Tennis"],
         image: "/images/court2.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.8,
         date: "2025-02-18",
         status: "unavailable"
@@ -33,10 +48,16 @@ const courtsData = [
         city: "Muharraq",
         address: "789 Champion Avenue, Muharraq, Bahrain",
         availableHours: { start: "07:00", end: "21:00" },
+        description: "Champion's Dome is known for its excellent facilities and vibrant sports community.",
         durations: [90, 120],
         price: 12.75,
         sport: ["Volleyball", "Football"],
         image: "/images/court3.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.6,
         date: "2025-02-15",
         status: "available"
@@ -47,10 +68,16 @@ const courtsData = [
         city: "Manama",
         address: "321 Prestige Road, Manama, Bahrain",
         availableHours: { start: "06:00", end: "22:00" },
+        description: "",
         durations: [60, 120],
         price: 18.0,
         sport: ["Tennis", "Basketball"],
         image: "/images/court4.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.9,
         date: "2025-02-22",
         status: "unavailable"
@@ -61,10 +88,16 @@ const courtsData = [
         city: "Isa Town",
         address: "654 Victory Lane, Isa Town, Bahrain",
         availableHours: { start: "10:00", end: "20:00" },
+        description: "Victory Sports Hall offers a wide range of sports facilities and is a favorite among locals.",
         durations: [60, 90, 120],
         price: 14.25,
         sport: ["Badminton", "Basketball"],
         image: "/images/court5.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.5,
         date: "2025-02-19",
         status: "available"
@@ -75,10 +108,16 @@ const courtsData = [
         city: "Hamad Town",
         address: "987 Legends Street, Hamad Town, Bahrain",
         availableHours: { start: "07:30", end: "22:30" },
+        description: "",
         durations: [60, 90],
         price: 16.75,
         sport: ["Football", "Tennis"],
         image: "/images/court6.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.7,
         date: "2025-02-17",
         status: "available"
@@ -89,10 +128,16 @@ const courtsData = [
         city: "Riffa",
         address: "369 Olympic Road, Riffa, Bahrain",
         availableHours: { start: "08:00", end: "23:00" },
+        description: "Olympic Sports Complex is a premier destination for sports enthusiasts.",
         durations: [60, 90, 120],
         price: 20.0,
         sport: ["Basketball", "Volleyball", "Badminton"],
         image: "/images/court7.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 5,
         date: "2025-02-21",
         status: "unavailable"
@@ -103,10 +148,16 @@ const courtsData = [
         city: "Muharraq",
         address: "147 Stars Avenue, Muharraq, Bahrain",
         availableHours: { start: "06:00", end: "21:00" },
+        description: "",
         durations: [90, 120],
         price: 11.0,
         sport: ["Tennis", "Badminton"],
         image: "/images/court8.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.4,
         date: "2025-02-16",
         status: "available"
@@ -117,10 +168,16 @@ const courtsData = [
         city: "Sitra",
         address: "852 Dome Drive, Sitra, Bahrain",
         availableHours: { start: "09:00", end: "22:00" },
+        description: "The Dome Sports Hub is known for its excellent facilities and vibrant sports community.",
         durations: [60, 120],
         price: 13.5,
         sport: ["Football", "Volleyball"],
         image: "/images/court9.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.6,
         date: "2025-02-23",
         status: "available"
@@ -131,10 +188,16 @@ const courtsData = [
         city: "Manama",
         address: "753 Falcon Street, Manama, Bahrain",
         availableHours: { start: "07:00", end: "21:30" },
+        description: "",
         durations: [60, 90],
         price: 17.0,
         sport: ["Basketball", "Football"],
         image: "/images/court10.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.8,
         date: "2025-02-14",
         status: "unavailable"
@@ -145,10 +208,16 @@ const courtsData = [
         city: "Hamad Town",
         address: "369 Pro League Ave, Hamad Town, Bahrain",
         availableHours: { start: "08:00", end: "20:00" },
+        description: "Pro League Courts is a favorite among professional athletes.",
         durations: [90, 120],
         price: 15.5,
         sport: ["Volleyball", "Tennis"],
         image: "/images/court11.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.7,
         date: "2025-02-20",
         status: "available"
@@ -159,10 +228,16 @@ const courtsData = [
         city: "Isa Town",
         address: "159 Arena Boulevard, Isa Town, Bahrain",
         availableHours: { start: "24:00", end: "24:00" },
+        description: "",
         durations: [60, 90, 120],
         price: 22.0,
         sport: ["Basketball", "Badminton", "Football"],
         image: "/images/court12.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 5,
         date: "2025-02-25",
         status: "available"
@@ -173,10 +248,16 @@ const courtsData = [
         city: "Sitra",
         address: "951 Sports City Road, Sitra, Bahrain",
         availableHours: { start: "07:00", end: "23:00" },
+        description: "Bahrain Sports City is a premier destination for sports enthusiasts.",
         durations: [60, 90, 120],
         price: 19.5,
         sport: ["Football", "Tennis", "Volleyball"],
         image: "/images/court13.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.9,
         date: "2025-02-24",
         status: "unavailable"
@@ -187,10 +268,16 @@ const courtsData = [
         city: "Manama",
         address: "111 Sunrise Street, Manama, Bahrain",
         availableHours: { start: "06:00", end: "22:00" },
+        description: "",
         durations: [60, 90, 120],
         price: 12.0,
         sport: ["Basketball", "Tennis"],
         image: "/images/court14.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.6,
         date: "2025-02-20",
         status: "available"
@@ -201,10 +288,16 @@ const courtsData = [
         city: "Riffa",
         address: "222 Victory Road, Riffa, Bahrain",
         availableHours: { start: "09:00", end: "23:00" },
+        description: "Victory Arena offers a wide range of sports facilities and is a favorite among locals.",
         durations: [60, 90],
         price: 16.5,
         sport: ["Football", "Volleyball"],
         image: "/images/court15.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.8,
         date: "2025-02-22",
         status: "available"
@@ -215,10 +308,16 @@ const courtsData = [
         city: "Muharraq",
         address: "333 Champion Street, Muharraq, Bahrain",
         availableHours: { start: "07:00", end: "21:00" },
+        description: "",
         durations: [90, 120],
         price: 14.0,
         sport: ["Badminton", "Basketball"],
         image: "/images/court16.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.7,
         date: "2025-02-18",
         status: "available"
@@ -229,10 +328,16 @@ const courtsData = [
         city: "Sitra",
         address: "444 City Lane, Sitra, Bahrain",
         availableHours: { start: "08:00", end: "22:00" },
+        description: "City Sports Complex is known for its excellent facilities and vibrant sports community.",
         durations: [60, 120],
         price: 17.5,
         sport: ["Basketball", "Football", "Tennis"],
         image: "/images/court17.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.9,
         date: "2025-02-19",
         status: "available"
@@ -243,10 +348,16 @@ const courtsData = [
         city: "Isa Town",
         address: "555 Golden Street, Isa Town, Bahrain",
         availableHours: { start: "10:00", end: "20:00" },
+        description: "",
         durations: [60, 90, 120],
         price: 13.75,
         sport: ["Volleyball", "Tennis"],
         image: "/images/court18.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.5,
         date: "2025-02-21",
         status: "available"
@@ -257,10 +368,16 @@ const courtsData = [
         city: "Hamad Town",
         address: "666 Legends Avenue, Hamad Town, Bahrain",
         availableHours: { start: "07:30", end: "22:30" },
+        description: "Legends Hall is a favorite among professional athletes.",
         durations: [60, 90],
         price: 18.0,
         sport: ["Football", "Badminton"],
         image: "/images/court19.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.7,
         date: "2025-02-24",
         status: "available"
@@ -271,10 +388,16 @@ const courtsData = [
         city: "Riffa",
         address: "777 Olympus Drive, Riffa, Bahrain",
         availableHours: { start: "08:00", end: "23:00" },
+        description: "",
         durations: [60, 90, 120],
         price: 20.0,
         sport: ["Basketball", "Volleyball"],
         image: "/images/court20.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 5,
         date: "2025-02-26",
         status: "available"
@@ -285,10 +408,16 @@ const courtsData = [
         city: "Muharraq",
         address: "888 Coastal Road, Muharraq, Bahrain",
         availableHours: { start: "06:00", end: "21:00" },
+        description: "Coastal Sports Hub is known for its excellent facilities and vibrant sports community.",
         durations: [90, 120],
         price: 11.5,
         sport: ["Tennis", "Badminton"],
         image: "/images/court21.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.4,
         date: "2025-02-27",
         status: "available"
@@ -299,10 +428,16 @@ const courtsData = [
         city: "Sitra",
         address: "999 Dome Lane, Sitra, Bahrain",
         availableHours: { start: "09:00", end: "22:00" },
+        description: "",
         durations: [60, 120],
         price: 14.0,
         sport: ["Football", "Volleyball"],
         image: "/images/court22.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.6,
         date: "2025-02-28",
         status: "available"
@@ -313,10 +448,16 @@ const courtsData = [
         city: "Manama",
         address: "101 Falcon Street, Manama, Bahrain",
         availableHours: { start: "07:00", end: "21:30" },
+        description: "Falcon Sports Club offers a wide range of sports facilities and is a favorite among locals.",
         durations: [60, 90],
         price: 19.0,
         sport: ["Basketball", "Football"],
         image: "/images/court23.jpg",
+        image_details: [
+            "/images/court1.jpg",
+            "/images/court2.jpg",
+            "/images/court3.jpg"
+        ],
         rating: 4.8,
         date: "2025-02-29",
         status: "available"

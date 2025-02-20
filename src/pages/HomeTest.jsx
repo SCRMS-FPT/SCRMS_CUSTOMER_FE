@@ -1,6 +1,5 @@
 import React from "react";
 import HeroSection from "../components/HeroSection";
-import FilterForm from "../components/FilterForm";
 import SportsCarousel from "../components/SportCarousel";
 import FeaturedVenues from "../components/FeaturedVenues";
 import TopSocialGames from "../components/TopSocialGames";
