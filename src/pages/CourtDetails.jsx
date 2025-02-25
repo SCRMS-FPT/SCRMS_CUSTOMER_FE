@@ -159,7 +159,7 @@ const CourtDetails = () => {
             <BookingModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                slots={bookedSlots}
+                slots={bookedSlotsx``}
                 onBook={(slot) => alert(`Booking confirmed for ${slot.time}`)}
             />
 

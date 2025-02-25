@@ -8,6 +8,7 @@ import CourtFeedback from "./pages/CourtFeedback";
 import HomeTest from "./pages/HomeTest";
 import BrowseCourts from "./pages/BrowseCourts";
 import CourtDetails from "./pages/CourtDetails";
+import CourtCalendar from "./pages/CourtCalendar";
 
 function App() {
   return (
@@ -41,6 +42,14 @@ function App() {
         element={
           <Layout>
             <CourtDetails />
+          </Layout>
+        }
+      />
+      <Route
+        path="/court/calendar/:id" 
+        element={
+          <Layout>
+            <CourtCalendar />
           </Layout>
         }
       />
