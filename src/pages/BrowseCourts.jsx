@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import SearchBarList from "../components/SearchBarList";
 
 
-const CourtList = () => {
+const BrowseCourts = () => {
     const [selectedSport, setSelectedSport] = useState("All Sports"); // Default to "All Sports"
     const [selectedDuration, setSelectedDuration] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
@@ -215,4 +215,4 @@ const CourtList = () => {
     );
 };
 
-export default CourtList;
+export default BrowseCourts;

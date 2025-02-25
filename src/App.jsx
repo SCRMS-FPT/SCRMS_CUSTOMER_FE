@@ -6,7 +6,7 @@ import SignUp from "./pages/SignUp";
 import MatchFinder from "./pages/MatchFinder";
 import CourtFeedback from "./pages/CourtFeedback";
 import HomeTest from "./pages/HomeTest";
-import CourtList from "./pages/CourtList";
+import BrowseCourts from "./pages/BrowseCourts";
 import CourtDetails from "./pages/CourtDetails";
 
 function App() {
@@ -29,10 +29,10 @@ function App() {
         }
       />
       <Route
-        path="/court/list"
+        path="/browse-courts"
         element={
           <Layout>
-            <CourtList />
+            <BrowseCourts />
           </Layout>
         }
       />
