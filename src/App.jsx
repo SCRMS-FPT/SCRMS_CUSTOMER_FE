@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import MatchFinder from "./pages/MatchFinder";
 import CourtFeedback from "./pages/CourtFeedback";
+import CoachList from "./pages/CoachList";
 
 function App() {
   return (
@@ -46,6 +47,14 @@ function App() {
         element={
           <Layout>
             <CourtFeedback />
+          </Layout>
+        }
+      />
+      <Route
+        path="/coaches"
+        element={
+          <Layout>
+            <CoachList />
           </Layout>
         }
       />
