@@ -5,6 +5,10 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import MatchFinder from "./pages/MatchFinder";
 import CourtFeedback from "./pages/CourtFeedback";
+import HomeTest from "./pages/HomeTest";
+import BrowseCourts from "./pages/BrowseCourts";
+import CourtDetails from "./pages/CourtDetails";
+import CourtCalendar from "./pages/CourtCalendar";
 
 function App() {
   return (
@@ -13,7 +17,39 @@ function App() {
         path="/"
         element={
           <Layout>
+            <HomeTest />
+          </Layout>
+        }
+      />
+      <Route
+        path="/home"
+        element={
+          <Layout>
             <Home />
+          </Layout>
+        }
+      />
+      <Route
+        path="/browse-courts"
+        element={
+          <Layout>
+            <BrowseCourts />
+          </Layout>
+        }
+      />
+      <Route
+        path="/court/:id" // Add new route for court details
+        element={
+          <Layout>
+            <CourtDetails />
+          </Layout>
+        }
+      />
+      <Route
+        path="/court/calendar/:id" 
+        element={
+          <Layout>
+            <CourtCalendar />
           </Layout>
         }
       />
