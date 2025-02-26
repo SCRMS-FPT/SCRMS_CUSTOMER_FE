@@ -9,6 +9,7 @@ import HomeTest from "./pages/HomeTest";
 import BrowseCourts from "./pages/BrowseCourts";
 import CourtDetails from "./pages/CourtDetails";
 import CourtCalendar from "./pages/CourtCalendar";
+import CoachList from "./pages/CoachList";
 
 function App() {
   return (
@@ -46,7 +47,7 @@ function App() {
         }
       />
       <Route
-        path="/court/calendar/:id" 
+        path="/court/calendar/:id"
         element={
           <Layout>
             <CourtCalendar />
@@ -82,6 +83,14 @@ function App() {
         element={
           <Layout>
             <CourtFeedback />
+          </Layout>
+        }
+      />
+      <Route
+        path="/coaches"
+        element={
+          <Layout>
+            <CoachList />
           </Layout>
         }
       />
