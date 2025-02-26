@@ -10,6 +10,7 @@ import BrowseCourts from "./pages/BrowseCourts";
 import CourtDetails from "./pages/CourtDetails";
 import CourtCalendar from "./pages/CourtCalendar";
 import CoachList from "./pages/CoachList";
+import CoachDetails from "./pages/CoachDetails";
 
 function App() {
   return (
@@ -91,6 +92,14 @@ function App() {
         element={
           <Layout>
             <CoachList />
+          </Layout>
+        }
+      />
+      <Route
+        path="/coach/:id"
+        element={
+          <Layout>
+            <CoachDetails />
           </Layout>
         }
       />

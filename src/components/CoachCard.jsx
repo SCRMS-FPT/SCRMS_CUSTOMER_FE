@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { FaMapMarkerAlt, FaDollarSign, FaFutbol, FaBasketballBall, FaSwimmer, FaTableTennis, FaVolleyballBall, FaRunning, FaDumbbell, FaGolfBall } from "react-icons/fa";
 
 const CoachCard = ({ coach }) => {
@@ -27,7 +28,7 @@ const CoachCard = ({ coach }) => {
     };
 
     return (
-        <div className="border rounded-lg overflow-hidden shadow-lg mb-4 flex">
+        <Link to={`/coach/${coach.id}`} className="block border rounded-lg overflow-hidden shadow-lg mb-4 flex hover:bg-gray-100 transition duration-200">
             <img src={coach.image} alt={coach.name} className="w-60 h-50 object-cover m-4" />
             <div className="p-4 flex-1">
                 <h3 className="text-lg font-semibold mb-2">{coach.name}</h3>
@@ -45,7 +46,7 @@ const CoachCard = ({ coach }) => {
                 </div>
                 <p className="text-gray-600">{coach.description}</p>
             </div>
-        </div>
+        </Link>
     );
 };
 
