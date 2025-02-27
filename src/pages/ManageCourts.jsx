@@ -82,7 +82,10 @@ const ManageCourts = ({ court, onSave, onCancel }) => {
 
 
     return (
+        <div className="mt-10">
+            
         <div className="max-w-4xl mx-auto p-6 bg-white shadow-xl rounded-lg border border-gray-200">
+        <h1 className="text-center text-2xl font-semibold mb-6">Update Court Information</h1>
             {/* Image Upload & Court Info */}
             <div className="flex gap-6">
                 {/* Image Upload - Full Height */}
@@ -314,6 +317,7 @@ const ManageCourts = ({ court, onSave, onCancel }) => {
                 }}
                 src={previewImage}
             />
+        </div>
         </div>
     );
 };
