@@ -9,8 +9,10 @@ import HomeTest from "./pages/HomeTest";
 import BrowseCourts from "./pages/BrowseCourts";
 import CourtDetails from "./pages/CourtDetails";
 import CourtCalendar from "./pages/CourtCalendar";
+import ManageCourts from "./pages/ManageCourts";
 import CoachList from "./pages/CoachList";
 import CoachDetails from "./pages/CoachDetails";
+
 
 function App() {
   return (
@@ -52,6 +54,14 @@ function App() {
         element={
           <Layout>
             <CourtCalendar />
+          </Layout>
+        }
+      />
+      <Route
+        path="/manage-courts/:id"
+        element={
+          <Layout>
+            <ManageCourts />
           </Layout>
         }
       />
