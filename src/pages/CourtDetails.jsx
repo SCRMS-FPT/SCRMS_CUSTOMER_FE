@@ -14,20 +14,19 @@ import BookingModal from "../components/bookingModal";
 
 const CourtDetails = () => {
     const { id } = useParams(); // Get court ID from URL
-    const court = courts.find(c => c.id === parseInt(id)); // Find court by ID
+    const court = courts.find(c => c.id === id || c.id === parseInt(id)); // ✅ Ensure ID comparison works
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedDuration, setSelectedDuration] = useState(null);
-    const [currentImage, setCurrentImage] = useState(0);
-    
     const [isModalOpen, setIsModalOpen] = useState(false);
+
     const bookedSlots = {
         "Thu-11 AM": true,
         "Fri-2 PM": true,
         "Sat-3 PM": true,
-    }; // Sample data for available slots
+    };
 
     if (!court) {
-        return <div className="text-center text-red-500">Court not found!</div>;
+        return <div className="text-center text-red-500 font-bold text-xl">⚠️ Court not found!</div>;
     }
 
     const hasImages = court.image_details && court.image_details.length > 0;
@@ -77,16 +76,16 @@ const CourtDetails = () => {
                     <FaClock /> Available: {court.availableHours.start} - {court.availableHours.end}
                 </p>
                 <p className="text-green-600 flex items-center gap-2">
-                    <FaDollarSign /> Price: ${court.price}
+                    <FaDollarSign /> <span className="font-semibold">{court.price}</span>
                 </p>
                 <p className="text-yellow-500 flex items-center gap-2">
-                    <FaStar /> {court.rating} Stars
+                    <FaStar /> <span className="text-xl font-semibold">{court.rating}</span>
                 </p>
 
                 {/* Sport Tags */}
                 <div className="flex gap-2 mt-2">
                     {court.sport.map((sport, index) => (
-                        <span key={index} className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-sm">
+                        <span key={`sport-${index}`} className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-sm">
                             {sport}
                         </span>
                     ))}
@@ -125,7 +124,6 @@ const CourtDetails = () => {
                         <p className="text-gray-500">Contact information is not available.</p>
                     )}
                 </div>
-
             </div>
 
             {/* Right Side (Datepicker + Booking) */}
@@ -148,20 +146,20 @@ const CourtDetails = () => {
                 </div>
 
                 {/* Open Modal Button */}
-            <button
-                className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
-                onClick={() => setIsModalOpen(true)}
-            >
-                Show Available Slots
-            </button>
+                <button
+                    className="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
+                    onClick={() => setIsModalOpen(true)}
+                >
+                    Show Available Slots
+                </button>
 
-            {/* Booking Modal */}
-            <BookingModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                slots={bookedSlotsx``}
-                onBook={(slot) => alert(`Booking confirmed for ${slot.time}`)}
-            />
+                {/* Booking Modal */}
+                <BookingModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    slots={bookedSlots} // ✅ Fixed typo
+                    onBook={(slot) => alert(`Booking confirmed for ${slot.time}`)}
+                />
 
                 {/* Google Maps Location */}
                 <div className="mt-4">
