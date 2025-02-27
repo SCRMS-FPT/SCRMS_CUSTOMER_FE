@@ -73,18 +73,18 @@ const FeaturedVenues = () => {
         >
           All
         </button>
-        {sportsData.map((sport) => (
+        {sportsData.map((sport, index) => (
           <button
-            key={sport}
+            key={sport.id ?? index} // ✅ FIX: Ensure unique keys
             className={`px-4 py-2 border rounded-lg ${
-              selectedSport === sport ? "bg-gray-300" : "hover:bg-gray-100"
+              selectedSport === sport.name ? "bg-gray-300" : "hover:bg-gray-100"
             }`}
             onClick={() => {
-              setSelectedSport(sport);
+              setSelectedSport(sport.name);
               setCurrentPage(1);
             }}
           >
-            {sport}
+            {sport.name}
           </button>
         ))}
       </div>
@@ -92,7 +92,8 @@ const FeaturedVenues = () => {
       {/* Venues Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         {currentVenues.map((venue) => (
-          <Card key={venue.id} className="border rounded-lg h-64">
+          <Card key={venue.id ?? venue.name} className="border rounded-lg h-64">
+            {/* ✅ FIX: Ensuring a unique key */}
             <img
               src={venue.image}
               alt={venue.name}
@@ -113,7 +114,8 @@ const FeaturedVenues = () => {
 
         {/* Render Invisible Placeholders to Maintain Grid Structure */}
         {placeholders.map((_, index) => (
-          <div key={`placeholder-${index}`} className="h-64 invisible"></div>
+          <div key={`placeholder-${index}`} className="h-64 invisible"></div> 
+          // ✅ FIX: Ensure placeholders have unique keys
         ))}
       </div>
 
