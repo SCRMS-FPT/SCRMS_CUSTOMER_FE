@@ -9,6 +9,7 @@ import HomeTest from "./pages/HomeTest";
 import BrowseCourts from "./pages/BrowseCourts";
 import CourtDetails from "./pages/CourtDetails";
 import CourtCalendar from "./pages/CourtCalendar";
+import ManageCourts from "./pages/ManageCourts";
 
 function App() {
   return (
@@ -50,6 +51,14 @@ function App() {
         element={
           <Layout>
             <CourtCalendar />
+          </Layout>
+        }
+      />
+      <Route
+        path="/manage-courts/:id"
+        element={
+          <Layout>
+            <ManageCourts />
           </Layout>
         }
       />
