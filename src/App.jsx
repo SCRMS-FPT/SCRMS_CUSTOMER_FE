@@ -10,6 +10,9 @@ import BrowseCourts from "./pages/BrowseCourts";
 import CourtDetails from "./pages/CourtDetails";
 import CourtCalendar from "./pages/CourtCalendar";
 import ManageCourts from "./pages/ManageCourts";
+import CoachList from "./pages/CoachList";
+import CoachDetails from "./pages/CoachDetails";
+
 
 function App() {
   return (
@@ -47,7 +50,7 @@ function App() {
         }
       />
       <Route
-        path="/court/calendar/:id" 
+        path="/court/calendar/:id"
         element={
           <Layout>
             <CourtCalendar />
@@ -91,6 +94,22 @@ function App() {
         element={
           <Layout>
             <CourtFeedback />
+          </Layout>
+        }
+      />
+      <Route
+        path="/coaches"
+        element={
+          <Layout>
+            <CoachList />
+          </Layout>
+        }
+      />
+      <Route
+        path="/coach/:id"
+        element={
+          <Layout>
+            <CoachDetails />
           </Layout>
         }
       />
