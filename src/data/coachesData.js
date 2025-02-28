@@ -25,6 +25,15 @@ const coachesData = [
             { date: "2025-02-20", time: "10:00", booked: false },
             { date: "2025-02-20", time: "14:00", booked: true },
             { date: "2025-02-21", time: "09:00", booked: false },
+            { date: "2025-02-22", time: "10:00", booked: false },
+            { date: "2025-02-23", time: "14:00", booked: true },
+            { date: "2025-02-24", time: "09:00", booked: false },
+            { date: "2025-02-20", time: "10:00", booked: true },
+            { date: "2025-02-20", time: "14:00", booked: true },
+            { date: "2025-02-21", time: "09:00", booked: true },
+            { date: "2025-02-22", time: "10:00", booked: true },
+            { date: "2025-02-23", time: "14:00", booked: true },
+            { date: "2025-02-24", time: "09:00", booked: false },
         ]
     },
     {
@@ -53,6 +62,9 @@ const coachesData = [
             { date: "2025-02-18", time: "11:00", booked: false },
             { date: "2025-02-18", time: "15:00", booked: true },
             { date: "2025-02-19", time: "10:00", booked: false },
+            { date: "2025-02-27", time: "11:00", booked: false },
+            { date: "2025-02-28", time: "15:00", booked: true },
+            { date: "2025-02-20", time: "10:00", booked: false },
         ]
     },
     {

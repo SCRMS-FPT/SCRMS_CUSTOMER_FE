@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import coachesData from "../data/coachesData";
 import CoachImageCarousel from "../components/CoachImageCarousel";
 import CoachInfo from "../components/CoachInfo";
@@ -11,11 +11,16 @@ import CoachFeedback from "../components/CoachFeedback";
 
 const CoachDetails = () => {
     const { id } = useParams(); // Get coach ID from URL
+    const navigate = useNavigate(); // Hook for navigation
     const coach = coachesData.find(c => c.id === parseInt(id)); // Find coach by ID
     const [feedbacks, setFeedbacks] = useState([]);
 
     const handleAddFeedback = (feedback) => {
         setFeedbacks([...feedbacks, feedback]);
+    };
+
+    const handleBookSession = () => {
+        navigate(`/book-coach/${id}`);
     };
 
     if (!coach) {
@@ -38,6 +43,12 @@ const CoachDetails = () => {
                         fee={coach.fee}
                         rating={coach.rating}
                     />
+                    <button
+                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                        onClick={handleBookSession}
+                    >
+                        Book Now
+                    </button>
                     <CoachSpecialties specialties={coach.specialties} />
                     <CoachDescription description={coach.description} />
                     <CoachContact
