@@ -13,6 +13,7 @@ import ManageCourts from "./pages/ManageCourts";
 import CoachList from "./pages/CoachList";
 import CoachDetails from "./pages/CoachDetails";
 import BookCoachSession from "./pages/BookCoachSession";
+import CourtReport from "./pages/CourtReport";
 
 
 function App() {
@@ -120,6 +121,14 @@ function App() {
           <Layout>
             <BookCoachSession />
           </Layout>
+        }
+      />
+      <Route
+        path="/reports"
+        element={
+          // <Layout>
+            <CourtReport />
+          // </Layout>
         }
       />
     </Routes>
