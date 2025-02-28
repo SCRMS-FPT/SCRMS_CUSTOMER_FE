@@ -20,7 +20,7 @@ const SearchCoachList = ({ onSearch }) => {
         <div
             className="bg-cover bg-center h-150 flex items-center justify-center"
             style={{
-                backgroundImage: "url('/src/assets/HLV/br.jpg')",
+                backgroundImage: "url('/src/assets/HLV/banner-1.jpg')",
                 backgroundSize: "cover", // Change this line to make the image cover the entire div
                 backgroundRepeat: "no-repeat" // Ensure the image does not repeat
             }}

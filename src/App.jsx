@@ -12,6 +12,7 @@ import CourtCalendar from "./pages/CourtCalendar";
 import ManageCourts from "./pages/ManageCourts";
 import CoachList from "./pages/CoachList";
 import CoachDetails from "./pages/CoachDetails";
+import BookCoachSession from "./pages/BookCoachSession";
 
 
 function App() {
@@ -110,6 +111,14 @@ function App() {
         element={
           <Layout>
             <CoachDetails />
+          </Layout>
+        }
+      />
+      <Route
+        path="/book-coach/:id"
+        element={
+          <Layout>
+            <BookCoachSession />
           </Layout>
         }
       />
