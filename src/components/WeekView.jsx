@@ -33,7 +33,7 @@ const WeekView = ({ bookedSchedules = [], width = "70vw", height = "70vh" }) => 
 
     return (
         <div className="relative border border-gray-300 rounded-lg shadow-lg overflow-hidden pt-6 pb-16" style={{ width, height }}>
-            {/* Fixed Week Header (Inside Component) */}
+            {/* Fixed Week Header */}
             <div className="absolute top-0 left-0 right-0 bg-white border-b border-gray-300 text-center text-gray-700 font-semibold z-10">
                 <div className="grid grid-cols-8 p-4">
                     <div className="text-left pl-2">📅 All-day</div>
@@ -49,7 +49,7 @@ const WeekView = ({ bookedSchedules = [], width = "70vw", height = "70vh" }) => 
             </div>
 
             {/* Scrollable Content */}
-            <div className="overflow-auto mt-16 h-full">
+            <div className="overflow-auto mt-16 h-full relative">
                 <div className="grid grid-cols-8 relative">
                     {/* Time Labels (Fixed Left Column) */}
                     <div className="w-16 flex flex-col bg-white z-10 border-r border-gray-300">
@@ -87,13 +87,17 @@ const WeekView = ({ bookedSchedules = [], width = "70vw", height = "70vh" }) => 
 
                 {/* Current Time Indicator */}
                 <div
-                    className="absolute left-16 right-0 h-[1px] bg-red-500"
+                    className="absolute left-16 right-0 flex items-center"
                     style={{ top: `${currentTimePosition}px` }}
                 >
-                    <span className="absolute -top-3 bg-red-500 text-white px-1 py-1 rounded text-xs font-semibold">
+                    {/* Red Line */}
+                    <div className="w-full h-[2px] bg-red-500 relative"></div>
+
+                    {/* Time Label */}
+                    <div className="absolute bg-red-500 text-white px-2 py-1 rounded text-xs font-semibold">
                         {currentHour % 12 || 12}:{currentMinutes < 10 ? `0${currentMinutes}` : currentMinutes}
                         {currentHour >= 12 ? " PM" : " AM"}
-                    </span>
+                    </div>
                 </div>
             </div>
         </div>
