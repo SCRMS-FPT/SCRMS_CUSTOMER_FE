@@ -1,56 +1,69 @@
+// src/store/userSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { Client, LoginUserRequest } from "../API/ClientApi";
 
-// Async login function to handle API request
+// Async thunk dùng để gọi API login qua ApiClient
 export const login = createAsyncThunk(
   "user/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await fetch("http://localhost:5050/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userName: credentials.email,
-          password: credentials.password,
-        }),
+      const apiClient = new Client("https://localhost:7105");
+      const loginRequest = new LoginUserRequest({
+        email: credentials.email,
+        password: credentials.password,
       });
 
-      const data = await response.json();
+      // Gọi API login và nhận dữ liệu JSON chứa token và thông tin user
+      const data = await apiClient.login(loginRequest);
 
-      if (data.isSuccess) {
-        // Save the token and userName to localStorage
-        localStorage.setItem("token", data.result.token);
-        localStorage.setItem("userName", data.result.user.name);
-        return {
-          token: data.result.token,
-          userName: data.result.user.name,
-        };
-      } else {
-        return rejectWithValue(data.message || "Login failed");
-      }
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userProfile", JSON.stringify(data.user));
+
+      return { token: data.token, userProfile: data.user };
     } catch (error) {
-      console.log("Error:", error);
-      return rejectWithValue("Login failed");
+      return rejectWithValue(error.message || "Login failed");
     }
   }
 );
 
 const initialState = {
   token: localStorage.getItem("token") || "",
-  userName: localStorage.getItem("userName") || "",
+  userProfile: localStorage.getItem("userProfile")
+    ? JSON.parse(localStorage.getItem("userProfile"))
+    : null,
+  status: "idle",
+  error: null,
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    // Nếu muốn có action logout
+    logout(state) {
+      state.token = "";
+      state.userProfile = null;
+      localStorage.removeItem("token");
+      localStorage.removeItem("userProfile");
+    },
+  },
   extraReducers: (builder) => {
-    builder.addCase(login.fulfilled, (state, action) => {
-      state.token = action.payload.token;
-      state.userName = action.payload.userName;
-    });
+    builder
+      .addCase(login.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.token = action.payload.token;
+        state.userProfile = action.payload.userProfile;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || action.error.message;
+      });
   },
 });
 
+export const { logout } = userSlice.actions;
 export default userSlice.reducer;
