@@ -3,15 +3,28 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../styles/customCalendar.css"; // Custom styles for Tailwind
 
-const CustomDatePicker = () => {
-    const [selectedDate, setSelectedDate] = useState(null); // No default selection
-
+const CustomDatePicker = ({ selectedDate, setSelectedDate }) => {
     // Function to disable past dates
     const isTileDisabled = ({ date }) => date < new Date().setHours(0, 0, 0, 0);
 
     // Handle date selection (toggle select/unselect)
     const handleDateChange = (date) => {
-        setSelectedDate((prev) => (prev && prev.toDateString() === date.toDateString() ? null : date));
+        // **Fix: Ensure the selected date is in local timezone**
+        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+        const newDate =
+            selectedDate && selectedDate.toDateString() === localDate.toDateString()
+                ? null
+                : localDate;
+
+        setSelectedDate(newDate);
+
+        // **Console Log to Check Selected Date (Fixed)**
+        if (newDate) {
+            console.log("📅 Date Selected:", newDate.toLocaleDateString("en-CA")); // YYYY-MM-DD format
+        } else {
+            console.log("❌ No Date Selected (Cleared)");
+        }
     };
 
     return (

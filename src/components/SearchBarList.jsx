@@ -1,41 +1,42 @@
 import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import sportsData from "../data/sportsData"; // Import sports data
-import venuesData from "../data/venuesData"; // Import venues data
+import { DollarOutlined, CloseOutlined } from "@ant-design/icons";
+import { Modal, Slider, Dropdown } from "antd";
+import sportsData from "../data/sportsData";
+import courtsData from "../data/courtsData";
 import soccerBg from "../assets/soccer_04.jpg";
 
 const SearchBarList = ({ onSearch }) => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedSport, setSelectedSport] = useState(sportsData[0]); // Default to "All Sports"
+    const [selectedSport, setSelectedSport] = useState(sportsData[0]);
     const [selectedCity, setSelectedCity] = useState("All Cities");
-    const [isSportDropdownOpen, setIsSportDropdownOpen] = useState(false);
+    const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
+    const [priceRange, setPriceRange] = useState([0, 100]);
 
-    // Extract unique cities from venuesData
-    const cityOptions = [
-        "All Cities",
-        ...new Set(venuesData.map((venue) => venue.location)),
-    ];
+    // Extract unique cities from courtsData
+    const cityOptions = ["All Cities", ...new Set(courtsData.map((court) => court.city))];
 
     const handleSearch = () => {
-        const filteredVenues = venuesData.filter((venue) => {
-            const matchesName =
-                venue.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                searchTerm === "";
-
-            const matchesSport =
-                selectedSport.name === "All Sports" || venue.sport === selectedSport.name;
-
-            const matchesCity =
-                selectedCity === "All Cities" || venue.location === selectedCity;
-
-            return matchesName && matchesSport && matchesCity;
+        setSearchTerm((prev) => {
+            const updatedSearchTerm = prev;
+            onSearch(updatedSearchTerm, selectedSport.name, selectedCity, priceRange);
+            return prev;
         });
-
-        onSearch(filteredVenues);
     };
 
-    return (
+    // Convert sportsData into Ant Design Dropdown `items` format
+    const sportItems = sportsData.map((sport) => ({
+        key: sport.name,
+        label: (
+            <div className="flex items-center space-x-2 p-2 cursor-pointer"
+                onClick={() => setSelectedSport(sport)}>
+                <img src={sport.icon} alt={sport.name} className="w-6 h-6" />
+                <span>{sport.name}</span>
+            </div>
+        ),
+    }));
 
+    return (
         <div className="w-full h-[40vh] bg-cover bg-center flex justify-center items-center"
             style={{ backgroundImage: `url(${soccerBg})` }}>
 
@@ -51,35 +52,24 @@ const SearchBarList = ({ onSearch }) => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                </div>
 
-                {/* Sports Dropdown */}
-                <div className="relative">
                     <button
-                        className="bg-gray-100 p-2 rounded-lg flex items-center justify-center w-10"
-                        onClick={() => setIsSportDropdownOpen(!isSportDropdownOpen)}
+                        className="right-2 text-gray-500 hover:text-gray-700"
+                        onClick={() => setSearchTerm("")}
                     >
-                        <img src={selectedSport.icon} alt={selectedSport.name} className="w-6 h-6" />
+                        <CloseOutlined />
                     </button>
 
-                    {isSportDropdownOpen && (
-                        <div className="absolute bg-white shadow-lg rounded-lg mt-2 w-48 z-10 max-h-60 overflow-y-auto">
-                            {sportsData.map((sport) => (
-                                <div
-                                    key={sport.name}
-                                    className="flex items-center space-x-2 p-2 hover:bg-gray-200 cursor-pointer"
-                                    onClick={() => {
-                                        setSelectedSport(sport);
-                                        setIsSportDropdownOpen(false);
-                                    }}
-                                >
-                                    <img src={sport.icon} alt={sport.name} className="w-6 h-6" />
-                                    <span>{sport.name}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 </div>
+
+                {/* Sports Dropdown (Updated) */}
+                <Dropdown menu={{ items: sportItems }} trigger={["click"]} dropdownRender={(menu) => (
+                    <div className="max-h-60 overflow-y-auto">{menu}</div>
+                )}>
+                    <button className="bg-gray-100 p-2 rounded-lg flex items-center justify-center w-10">
+                        <img src={selectedSport.icon} alt={selectedSport.name} className="w-6 h-6" />
+                    </button>
+                </Dropdown>
 
                 {/* City Dropdown */}
                 <div className="relative">
@@ -96,6 +86,33 @@ const SearchBarList = ({ onSearch }) => {
                     </select>
                 </div>
 
+                {/* Price Filter Button */}
+                <button
+                    className="bg-gray-100 p-2 rounded-lg flex items-center justify-center w-10"
+                    onClick={() => setIsPriceModalOpen(true)}
+                >
+                    <DollarOutlined className="text-gray-700 text-xl" />
+                </button>
+
+                {/* Price Modal */}
+                <Modal
+                    title="Select Price Range"
+                    open={isPriceModalOpen}
+                    onOk={() => setIsPriceModalOpen(false)}
+                    onCancel={() => setIsPriceModalOpen(false)}
+                    okText="Apply"
+                >
+                    <Slider
+                        range
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={priceRange}
+                        onChange={setPriceRange}
+                    />
+                    <p className="text-center mt-2 text-gray-700">{`$${priceRange[0]} - $${priceRange[1]}`}</p>
+                </Modal>
+
                 {/* Search Button */}
                 <button
                     onClick={handleSearch}
@@ -105,7 +122,6 @@ const SearchBarList = ({ onSearch }) => {
                 </button>
             </div>
         </div>
-
     );
 };
 
