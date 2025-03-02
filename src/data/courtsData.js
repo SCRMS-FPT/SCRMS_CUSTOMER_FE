@@ -461,6 +461,106 @@ const courtsData = [
         rating: 4.8,
         date: "2025-02-29",
         status: "available"
+    },
+    {
+        id: 16,
+        name: "Royal Sports Academy",
+        city: "Manama",
+        address: "777 Royal Avenue, Manama, Bahrain",
+        availableHours: { start: "08:00", end: "21:00" },
+        description: "A premium sports facility with modern courts and top-notch amenities.",
+        durations: [60, 90, 120],
+        price: 18.5,
+        sport: ["Basketball", "Tennis"],
+        image: "/images/court16.jpg",
+        image_details: [
+            "/images/court16_1.jpg",
+            "/images/court16_2.jpg",
+            "/images/court16_3.jpg"
+        ],
+        rating: 4.7,
+        date: "2025-03-03",
+        status: "available"
+    },
+    {
+        id: 17,
+        name: "Eagle Sports Hub",
+        city: "Riffa",
+        address: "555 Eagle Street, Riffa, Bahrain",
+        availableHours: { start: "07:30", end: "22:30" },
+        description: "A favorite spot for sports enthusiasts, featuring multiple courts for different activities.",
+        durations: [60, 90],
+        price: 14.75,
+        sport: ["Basketball", "Volleyball", "Football"],
+        image: "/images/court17.jpg",
+        image_details: [
+            "/images/court17_1.jpg",
+            "/images/court17_2.jpg",
+            "/images/court17_3.jpg"
+        ],
+        rating: 4.8,
+        date: "2025-03-03",
+        status: "available"
+    },
+    {
+        id: 18,
+        name: "Titan Sports Complex",
+        city: "Hamad Town",
+        address: "888 Titan Boulevard, Hamad Town, Bahrain",
+        availableHours: { start: "06:00", end: "23:00" },
+        description: "A well-equipped sports complex with professional-grade basketball courts.",
+        durations: [60, 120],
+        price: 20.0,
+        sport: ["Basketball", "Badminton"],
+        image: "/images/court18.jpg",
+        image_details: [
+            "/images/court18_1.jpg",
+            "/images/court18_2.jpg",
+            "/images/court18_3.jpg"
+        ],
+        rating: 5,
+        date: "2025-03-03",
+        status: "unavailable"
+    },
+    {
+        id: 19,
+        name: "Champion Elite Courts",
+        city: "Isa Town",
+        address: "123 Elite Street, Isa Town, Bahrain",
+        availableHours: { start: "09:00", end: "21:30" },
+        description: "An elite training facility for aspiring basketball players.",
+        durations: [60, 90, 120],
+        price: 19.5,
+        sport: ["Basketball", "Tennis"],
+        image: "/images/court19.jpg",
+        image_details: [
+            "/images/court19_1.jpg",
+            "/images/court19_2.jpg",
+            "/images/court19_3.jpg"
+        ],
+        rating: 4.9,
+        date: "2025-03-03",
+        status: "available"
+    },
+    {
+        id: 20,
+        name: "Sunset Sports Arena",
+        city: "Muharraq",
+        address: "321 Sunset Lane, Muharraq, Bahrain",
+        availableHours: { start: "08:30", end: "22:00" },
+        description: "A modern facility with scenic views and well-maintained courts.",
+        durations: [60, 90],
+        price: 15.0,
+        sport: ["Basketball", "Football"],
+        image: "/images/court20.jpg",
+        image_details: [
+            "/images/court20_1.jpg",
+            "/images/court20_2.jpg",
+            "/images/court20_3.jpg"
+        ],
+        rating: 4.6,
+        date: "2025-03-02",
+        status: "available"
     }
 ];
 
