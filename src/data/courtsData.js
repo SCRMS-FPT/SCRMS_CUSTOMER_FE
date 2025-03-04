@@ -9,7 +9,7 @@ const courtsData = [
         availableHours: { start: "08:00", end: "22:00" },
         description: "The Kingdom University sports complex is a state-of-the-art facility that offers a variety of sports activities. The basketball court is one of the most popular spots in the complex.",
         durations: [60, 90, 120],
-        price: 10.5,
+        pricePerHour: 10.5,
         sport: ["Basketball", "Football", "Volleyball"],
         image: "/images/court1.jpg",
         image_details: [
@@ -18,7 +18,7 @@ const courtsData = [
             "/images/court3.jpg"
         ],
         rating: 5,
-        date: "2025-02-20",
+        dateRange: { start: "2025-02-20", end: "2025-03-06" },
         status: "available",
         ownerId: 101
     },
@@ -30,7 +30,7 @@ const courtsData = [
         availableHours: { start: "09:00", end: "23:00" },
         description: "",
         durations: [60, 90],
-        price: 15.0,
+        pricePerHour: 15.0,
         sport: ["Basketball", "Tennis"],
         image: "/images/court2.jpg",
         image_details: [
@@ -39,7 +39,7 @@ const courtsData = [
             "/images/court3.jpg"
         ],
         rating: 4.8,
-        date: "2025-02-18",
+        dateRange: { start: "2025-02-18", end: "2025-03-06" },
         status: "unavailable"
     },
     {
@@ -50,7 +50,7 @@ const courtsData = [
         availableHours: { start: "07:00", end: "21:00" },
         description: "Champion's Dome is known for its excellent facilities and vibrant sports community.",
         durations: [90, 120],
-        price: 12.75,
+        pricePerHour: 12.75,
         sport: ["Volleyball", "Football"],
         image: "/images/court3.jpg",
         image_details: [
@@ -59,7 +59,7 @@ const courtsData = [
             "/images/court3.jpg"
         ],
         rating: 4.6,
-        date: "2025-02-15",
+        dateRange: { start: "2025-02-15", end: "2025-03-06" },
         status: "available"
     },
     {
@@ -70,7 +70,7 @@ const courtsData = [
         availableHours: { start: "06:00", end: "22:00" },
         description: "",
         durations: [60, 120],
-        price: 18.0,
+        pricePerHour: 18.0,
         sport: ["Tennis", "Basketball"],
         image: "/images/court4.jpg",
         image_details: [
@@ -79,7 +79,7 @@ const courtsData = [
             "/images/court3.jpg"
         ],
         rating: 4.9,
-        date: "2025-02-22",
+        dateRange: { start: "2025-02-22", end: "2025-03-06" },
         status: "unavailable"
     },
     {
@@ -90,7 +90,7 @@ const courtsData = [
         availableHours: { start: "10:00", end: "20:00" },
         description: "Victory Sports Hall offers a wide range of sports facilities and is a favorite among locals.",
         durations: [60, 90, 120],
-        price: 14.25,
+        pricePerHour: 14.25,
         sport: ["Badminton", "Basketball"],
         image: "/images/court5.jpg",
         image_details: [
@@ -99,7 +99,7 @@ const courtsData = [
             "/images/court3.jpg"
         ],
         rating: 4.5,
-        date: "2025-02-19",
+        dateRange: { start: "2025-02-19", end: "2025-03-06" },
         status: "available"
     },
     {
@@ -110,7 +110,7 @@ const courtsData = [
         availableHours: { start: "07:30", end: "22:30" },
         description: "",
         durations: [60, 90],
-        price: 16.75,
+        pricePerHour: 16.75,
         sport: ["Football", "Tennis"],
         image: "/images/court6.jpg",
         image_details: [
@@ -119,7 +119,7 @@ const courtsData = [
             "/images/court3.jpg"
         ],
         rating: 4.7,
-        date: "2025-02-17",
+        dateRange: { start: "2025-02-17", end: "2025-03-06" },
         status: "available"
     },
     {
@@ -130,7 +130,7 @@ const courtsData = [
         availableHours: { start: "08:00", end: "23:00" },
         description: "Olympic Sports Complex is a premier destination for sports enthusiasts.",
         durations: [60, 90, 120],
-        price: 20.0,
+        pricePerHour: 20.0,
         sport: ["Basketball", "Volleyball", "Badminton"],
         image: "/images/court7.jpg",
         image_details: [
@@ -139,7 +139,7 @@ const courtsData = [
             "/images/court3.jpg"
         ],
         rating: 5,
-        date: "2025-02-21",
+        dateRange: { start: "2025-02-21", end: "2025" },
         status: "unavailable"
     },
     {
@@ -307,10 +307,10 @@ const courtsData = [
         name: "Champion Grounds",
         city: "Muharraq",
         address: "333 Champion Street, Muharraq, Bahrain",
-        availableHours: { start: "07:00", end: "21:00" },
+        availableHours: { start: "07:00", end: "21:00" }, // Court working hours
         description: "",
-        durations: [90, 120],
-        price: 14.0,
+        durations: [90, 120], // Available match durations
+        pricePerHour: 14.0,
         sport: ["Badminton", "Basketball"],
         image: "/images/court16.jpg",
         image_details: [
@@ -319,9 +319,9 @@ const courtsData = [
             "/images/court3.jpg"
         ],
         rating: 4.7,
-        date: "2025-02-18",
+        dateRange: { start: "2025-02-18", end: "2025-03-06" }, // Available date range
         status: "available"
-    },
+    },    
     {
         id: 17,
         name: "City Sports Complex",
@@ -479,7 +479,7 @@ const courtsData = [
             "/images/court16_3.jpg"
         ],
         rating: 4.7,
-        date: "2025-03-03",
+        date: "2025-03-04",
         status: "available"
     },
     {
@@ -499,7 +499,7 @@ const courtsData = [
             "/images/court17_3.jpg"
         ],
         rating: 4.8,
-        date: "2025-03-03",
+        date: "2025-03-04",
         status: "available"
     },
     {
@@ -519,7 +519,7 @@ const courtsData = [
             "/images/court18_3.jpg"
         ],
         rating: 5,
-        date: "2025-03-03",
+        date: "2025-03-05",
         status: "unavailable"
     },
     {
@@ -539,7 +539,7 @@ const courtsData = [
             "/images/court19_3.jpg"
         ],
         rating: 4.9,
-        date: "2025-03-03",
+        date: "2025-03-04",
         status: "available"
     },
     {
@@ -559,7 +559,7 @@ const courtsData = [
             "/images/court20_3.jpg"
         ],
         rating: 4.6,
-        date: "2025-03-02",
+        date: "2025-03-04",
         status: "available"
     }
 ];

@@ -31,9 +31,12 @@ const BrowseCourts = () => {
     };
 
     useEffect(() => {
-        const defaultFilteredCourts = courtsData.filter(
-            (court) => court.status === "available" && court.date >= today
-        );
+        const defaultFilteredCourts = courtsData.filter((court) => {
+            if (court.status !== "available") return false;
+
+            // Ensure today is within the court's available date range
+            return court.dateRange && court.dateRange.start <= today && court.dateRange.end >= today;
+        });
         setFilteredCourts(defaultFilteredCourts);
     }, []);
 
@@ -43,8 +46,10 @@ const BrowseCourts = () => {
         const filtered = courtsData.filter((court) => {
             if (court.status !== "available") return false;
 
-            // **Exclude past courts**
-            if (court.date && court.date < today) return false;
+            // **Ensure court's date range includes today**
+            if (!court.dateRange || court.dateRange.start > today || court.dateRange.end < today) {
+                return false;
+            }
 
             // **Search Term Filtering (Court Name)**
             if (searchTerm && String(searchTerm).toLowerCase().trim() !== "") {
@@ -55,8 +60,8 @@ const BrowseCourts = () => {
 
             // **Date Filtering**
             if (selectedDate) {
-                const formattedCourtDate = new Date(court.date).toLocaleDateString("en-CA"); // Ensure consistent format
-                if (formattedCourtDate !== selectedDate.toLocaleDateString("en-CA")) {
+                const selectedDateStr = selectedDate.toLocaleDateString("en-CA");; // Convert selected date to YYYY-MM-DD
+                if (selectedDateStr < court.dateRange.start || selectedDateStr > court.dateRange.end) {
                     return false;
                 }
             }
@@ -216,19 +221,19 @@ const BrowseCourts = () => {
                         </div>
 
                         {/* Clear & Filter Buttons */}
-                        <div className="flex justify-center gap-x-4 mt-6">
+                        <div className="flex justify-center gap-x-4 mt-8">
                             <button
                                 onClick={clearFilters}
                                 className="border px-6 py-2 w-46 rounded-md text-gray-700 hover:bg-gray-100 transition-all"
                             >
                                 Clear
                             </button>
-                            <button
+                            {/* <button
                                 onClick={applyFilters}
                                 className="bg-green-600 text-white px-6 py-2 w-46 rounded-md hover:bg-green-700 transition-all"
                             >
                                 Filter
-                            </button>
+                            </button> */}
                         </div>
                     </div>
                 </div>

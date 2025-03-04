@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import sportsData from "../data/sportsData"; // Import sports data for icons
 
 const CourtCard = ({ court }) => {
+    const navigate = useNavigate();
+
     // Function to get the corresponding sport icon
     const getSportIcon = (sportName) => {
         const sport = sportsData.find((s) => s.name === sportName);
@@ -9,17 +12,24 @@ const CourtCard = ({ court }) => {
     };
 
     // Format date for better readability (e.g., "Feb 20, 2024")
-    const formatDate = (dateString) => {
-        if (!dateString) return null;
+    const today = new Date().toISOString().split("T")[0];
+    const formatDateRange = (dateRange) => {
+        if (!dateRange || !dateRange.start || !dateRange.end) return "Not Available";
         const options = { year: "numeric", month: "short", day: "numeric" };
-        return new Date(dateString).toLocaleDateString("en-US", options);
+        return `${new Date(dateRange.start).toLocaleDateString("en-US", options)} - ${new Date(dateRange.end).toLocaleDateString("en-US", options)}`;
     };
 
     // Determine if the court is unavailable
-    const isUnavailable = !court.date || court.status === "unavailable";
+    const isUnavailable =
+    !court.dateRange || court.status === "unavailable" ||
+    court.dateRange.start > today || court.dateRange.end < today;
+
+    const handleClick = () => {
+        navigate(`/court/${court.id}`);
+    }
 
     return (
-        <div className={`bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden mb-4 flex transition-all hover:shadow-lg ${isUnavailable ? "opacity-50" : ""}`}>
+        <div className={`bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden mb-4 flex transition-all hover:shadow-lg ${isUnavailable ? "opacity-50" : ""}`} onClick={handleClick}>
             {/* Court Image */}
             <img src={court.image} alt={court.name} className="w-1/3 h-48 object-cover" />
 
@@ -37,7 +47,7 @@ const CourtCard = ({ court }) => {
                     {isUnavailable ? (
                         <p className="text-red-600 font-bold bg-red-100 px-2 py-1 rounded-md w-max">🚫 Unavailable</p>
                     ) : (
-                        <p className="text-blue-600 font-medium">📅 {formatDate(court.date)}</p>
+                        <p className="text-blue-600 font-medium">📅 {formatDateRange(court.dateRange)}</p>
                     )}
                 </div>
 
@@ -46,7 +56,7 @@ const CourtCard = ({ court }) => {
                     <>
                         {/* Price & Rating */}
                         <div className="flex justify-between items-center mt-2">
-                            <span className="text-green-600 font-bold">Price {court.price} $</span>
+                            <span className="text-green-600 font-bold">Price {court.pricePerHour} $</span>
                             <span className="text-orange-500">⭐ {court.rating}</span>
                         </div>
 

@@ -14,6 +14,7 @@ import CoachList from "./pages/CoachList";
 import CoachDetails from "./pages/CoachDetails";
 import BookCoachSession from "./pages/BookCoachSession";
 import CourtReport from "./pages/CourtReport";
+import BookCourt from "./pages/BookCourt";
 
 
 function App() {
@@ -48,6 +49,14 @@ function App() {
         element={
           <Layout>
             <CourtDetails />
+          </Layout>
+        }
+      />
+      <Route
+        path="/book-court/:id" // Add new route for court details
+        element={
+          <Layout>
+            <BookCourt />
           </Layout>
         }
       />
