@@ -31,9 +31,12 @@ const BrowseCourts = () => {
     };
 
     useEffect(() => {
-        const defaultFilteredCourts = courtsData.filter(
-            (court) => court.status === "available" && court.date >= today
-        );
+        const defaultFilteredCourts = courtsData.filter((court) => {
+            if (court.status !== "available") return false;
+
+            // Ensure today is within the court's available date range
+            return court.dateRange && court.dateRange.start <= today && court.dateRange.end >= today;
+        });
         setFilteredCourts(defaultFilteredCourts);
     }, []);
 
@@ -43,8 +46,10 @@ const BrowseCourts = () => {
         const filtered = courtsData.filter((court) => {
             if (court.status !== "available") return false;
 
-            // **Exclude past courts**
-            if (court.date && court.date < today) return false;
+            // **Ensure court's date range includes today**
+            if (!court.dateRange || court.dateRange.start > today || court.dateRange.end < today) {
+                return false;
+            }
 
             // **Search Term Filtering (Court Name)**
             if (searchTerm && String(searchTerm).toLowerCase().trim() !== "") {
@@ -55,8 +60,8 @@ const BrowseCourts = () => {
 
             // **Date Filtering**
             if (selectedDate) {
-                const formattedCourtDate = new Date(court.date).toLocaleDateString("en-CA"); // Ensure consistent format
-                if (formattedCourtDate !== selectedDate.toLocaleDateString("en-CA")) {
+                const selectedDateStr = selectedDate.toLocaleDateString("en-CA");; // Convert selected date to YYYY-MM-DD
+                if (selectedDateStr < court.dateRange.start || selectedDateStr > court.dateRange.end) {
                     return false;
                 }
             }

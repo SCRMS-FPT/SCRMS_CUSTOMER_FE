@@ -12,14 +12,17 @@ const CourtCard = ({ court }) => {
     };
 
     // Format date for better readability (e.g., "Feb 20, 2024")
-    const formatDate = (dateString) => {
-        if (!dateString) return null;
+    const today = new Date().toISOString().split("T")[0];
+    const formatDateRange = (dateRange) => {
+        if (!dateRange || !dateRange.start || !dateRange.end) return "Not Available";
         const options = { year: "numeric", month: "short", day: "numeric" };
-        return new Date(dateString).toLocaleDateString("en-US", options);
+        return `${new Date(dateRange.start).toLocaleDateString("en-US", options)} - ${new Date(dateRange.end).toLocaleDateString("en-US", options)}`;
     };
 
     // Determine if the court is unavailable
-    const isUnavailable = !court.date || court.status === "unavailable";
+    const isUnavailable =
+    !court.dateRange || court.status === "unavailable" ||
+    court.dateRange.start > today || court.dateRange.end < today;
 
     const handleClick = () => {
         navigate(`/court/${court.id}`);
@@ -44,7 +47,7 @@ const CourtCard = ({ court }) => {
                     {isUnavailable ? (
                         <p className="text-red-600 font-bold bg-red-100 px-2 py-1 rounded-md w-max">🚫 Unavailable</p>
                     ) : (
-                        <p className="text-blue-600 font-medium">📅 {formatDate(court.date)}</p>
+                        <p className="text-blue-600 font-medium">📅 {formatDateRange(court.dateRange)}</p>
                     )}
                 </div>
 
@@ -53,7 +56,7 @@ const CourtCard = ({ court }) => {
                     <>
                         {/* Price & Rating */}
                         <div className="flex justify-between items-center mt-2">
-                            <span className="text-green-600 font-bold">Price {court.price} $</span>
+                            <span className="text-green-600 font-bold">Price {court.pricePerHour} $</span>
                             <span className="text-orange-500">⭐ {court.rating}</span>
                         </div>
 
