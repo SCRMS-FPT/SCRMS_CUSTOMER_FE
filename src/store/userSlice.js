@@ -1,13 +1,13 @@
 // src/store/userSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Client, LoginUserRequest } from "../API/ClientApi";
+import { Client, LoginUserRequest } from "../API/IdentityApi";
 
 // Async thunk dùng để gọi API login qua ApiClient
 export const login = createAsyncThunk(
   "user/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const apiClient = new Client("https://localhost:7105");
+      const apiClient = new Client();
       const loginRequest = new LoginUserRequest({
         email: credentials.email,
         password: credentials.password,
