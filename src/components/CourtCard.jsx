@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import sportsData from "../data/sportsData"; // Import sports data for icons
 
 const CourtCard = ({ court }) => {
+    const navigate = useNavigate();
+
     // Function to get the corresponding sport icon
     const getSportIcon = (sportName) => {
         const sport = sportsData.find((s) => s.name === sportName);
@@ -18,8 +21,12 @@ const CourtCard = ({ court }) => {
     // Determine if the court is unavailable
     const isUnavailable = !court.date || court.status === "unavailable";
 
+    const handleClick = () => {
+        navigate(`/court/${court.id}`);
+    }
+
     return (
-        <div className={`bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden mb-4 flex transition-all hover:shadow-lg ${isUnavailable ? "opacity-50" : ""}`}>
+        <div className={`bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden mb-4 flex transition-all hover:shadow-lg ${isUnavailable ? "opacity-50" : ""}`} onClick={handleClick}>
             {/* Court Image */}
             <img src={court.image} alt={court.name} className="w-1/3 h-48 object-cover" />
 

@@ -11,6 +11,8 @@ import DatePicker from "../components/CustomDatePicker";
 import { FaMapMarkerAlt, FaClock, FaDollarSign, FaStar, FaImage } from "react-icons/fa";
 import placeholderImage from "../assets/image_error.png";
 import BookingModal from "../components/bookingModal";
+import { Modal } from "antd";
+import bookedSchedule from "../data/bookedSchedule";
 
 const CourtDetails = () => {
     const { id } = useParams(); // Get court ID from URL
@@ -18,12 +20,6 @@ const CourtDetails = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedDuration, setSelectedDuration] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const bookedSlots = {
-        "Thu-11 AM": true,
-        "Fri-2 PM": true,
-        "Sat-3 PM": true,
-    };
 
     if (!court) {
         return <div className="text-center text-red-500 font-bold text-xl">⚠️ Court not found!</div>;
@@ -76,7 +72,7 @@ const CourtDetails = () => {
                     <FaClock /> Available: {court.availableHours.start} - {court.availableHours.end}
                 </p>
                 <p className="text-green-600 flex items-center gap-2">
-                    <FaDollarSign /> <span className="font-semibold">{court.price}</span>
+                    <FaDollarSign /> <span className="text-xl font-semibold">{court.pricePerHour}</span>
                 </p>
                 <p className="text-yellow-500 flex items-center gap-2">
                     <FaStar /> <span className="text-xl font-semibold">{court.rating}</span>
@@ -153,13 +149,26 @@ const CourtDetails = () => {
                     Show Available Slots
                 </button>
 
-                {/* Booking Modal */}
-                <BookingModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    slots={bookedSlots} // ✅ Fixed typo
-                    onBook={(slot) => alert(`Booking confirmed for ${slot.time}`)}
-                />
+                <Modal
+                    open={isModalOpen}
+                    onCancel={() => setIsModalOpen(false)}
+                    footer={null}
+                    centered
+                    className="backdrop-blur-sm" // ✅ Blurred background
+                    width="80vw" // Adjust modal size
+                >
+                    <BookingModal bookedSchedules={bookedSchedule} court={court}/>
+
+                    {/* Redirect Button */}
+                    <div className="flex justify-center mt-4">
+                        <button
+                            onClick={() => window.location.href = `/book-court/${court.id}`}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
+                        >
+                            Proceed to Booking
+                        </button>
+                    </div>
+                </Modal>
 
                 {/* Google Maps Location */}
                 <div className="mt-4">

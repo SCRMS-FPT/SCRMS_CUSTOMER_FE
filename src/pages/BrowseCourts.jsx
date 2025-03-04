@@ -216,19 +216,19 @@ const BrowseCourts = () => {
                         </div>
 
                         {/* Clear & Filter Buttons */}
-                        <div className="flex justify-center gap-x-4 mt-6">
+                        <div className="flex justify-center gap-x-4 mt-8">
                             <button
                                 onClick={clearFilters}
                                 className="border px-6 py-2 w-46 rounded-md text-gray-700 hover:bg-gray-100 transition-all"
                             >
                                 Clear
                             </button>
-                            <button
+                            {/* <button
                                 onClick={applyFilters}
                                 className="bg-green-600 text-white px-6 py-2 w-46 rounded-md hover:bg-green-700 transition-all"
                             >
                                 Filter
-                            </button>
+                            </button> */}
                         </div>
                     </div>
                 </div>
