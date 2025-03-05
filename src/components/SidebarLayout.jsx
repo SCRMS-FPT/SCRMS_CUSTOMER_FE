@@ -4,15 +4,15 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     HomeOutlined,
-    UserOutlined,
+    CalendarOutlined,
     BarChartOutlined,
-    ShoppingCartOutlined,
-    ShoppingOutlined,
-    FolderOutlined,
-    MessageOutlined,
+    BankOutlined,
+    ScheduleOutlined,
+    TagOutlined,
+    TeamOutlined,
+    BellOutlined,
     SettingOutlined,
-    StarOutlined,
-    HistoryOutlined,
+    FileTextOutlined,
     LogoutOutlined,
 } from "@ant-design/icons";
 
@@ -30,20 +30,20 @@ const SidebarLayout = ({ children }) => {
     };
 
     const menuItems = [
-        { key: "1", icon: <HomeOutlined />, label: "Dashboard" },
-        { key: "2", icon: <UserOutlined />, label: "Profile" },
-        { key: "3", icon: <BarChartOutlined />, label: "Leaderboard" },
-        { key: "4", icon: <ShoppingCartOutlined />, label: "Order" },
-        { key: "5", icon: <ShoppingOutlined />, label: "Product" },
-        { key: "6", icon: <FolderOutlined />, label: "Sales Report" },
-        { key: "7", icon: <MessageOutlined />, label: "Message" },
-        { key: "8", icon: <StarOutlined />, label: "Favourite" },
-        { key: "9", icon: <HistoryOutlined />, label: "History" },
+        { key: "1", icon: <HomeOutlined />, label: "Dashboard" },             // 📊 Overview
+        { key: "2", icon: <BankOutlined />, label: "Manage Courts" },        // 🏟️ List of courts
+        { key: "3", icon: <CalendarOutlined />, label: "Bookings" },         // 📅 View/manage bookings
+        { key: "4", icon: <BarChartOutlined />, label: "Revenue & Reports" },// 📈 Earnings & trends
+        { key: "5", icon: <ScheduleOutlined />, label: "Availability" },     // 🕒 Manage court hours
+        { key: "6", icon: <TagOutlined />, label: "Promotions & Discounts" },// 🎟️ Manage offers
+        { key: "7", icon: <TeamOutlined />, label: "Customers" },            // 👥 View customer info
+        { key: "8", icon: <BellOutlined />, label: "Notifications" },        // 🔔 Alerts & messages
     ];
 
     const bottomMenuItems = [
-        { key: "10", icon: <SettingOutlined />, label: "Settings" },
-        { key: "11", icon: <LogoutOutlined />, label: "Signout", danger: true },
+        { key: "9", icon: <SettingOutlined />, label: "Settings" },            // ⚙️ Profile & business settings
+        { key: "10", icon: <FileTextOutlined />, label: "Reports & Exports" }, // 📄 Financial reports
+        { key: "11", icon: <LogoutOutlined />, label: "Signout", danger: true }, // 🚪 Logout
     ];
 
     return (
