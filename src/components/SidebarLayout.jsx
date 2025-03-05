@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Layout, Menu, Button, Switch } from "antd";
+import { Layout, Menu, Button, Switch, notification  } from "antd";
 import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
@@ -18,9 +18,8 @@ import {
 
 const { Sider, Content } = Layout;
 
-const SidebarLayout = ({ children }) => {
+const SidebarLayout = ({ selectedTab, setSelectedTab, children }) => {
     const [collapsed, setCollapsed] = useState(false);
-    const [selectedKey, setSelectedKey] = useState("1");
     const [isDarkMode, setIsDarkMode] = useState(false);
 
     const sidebarStyle = {
@@ -28,23 +27,36 @@ const SidebarLayout = ({ children }) => {
         color: isDarkMode ? "#D1D5DB" : "#111827",
         transition: "all 0.3s ease-in-out",
     };
-
+    const availableTabs = ["dashboard", "courts", "bookings", "reports"];
     const menuItems = [
-        { key: "1", icon: <HomeOutlined />, label: "Dashboard" },             // 📊 Overview
-        { key: "2", icon: <BankOutlined />, label: "Manage Courts" },        // 🏟️ List of courts
-        { key: "3", icon: <CalendarOutlined />, label: "Bookings" },         // 📅 View/manage bookings
-        { key: "4", icon: <BarChartOutlined />, label: "Revenue & Reports" },// 📈 Earnings & trends
-        { key: "5", icon: <ScheduleOutlined />, label: "Availability" },     // 🕒 Manage court hours
-        { key: "6", icon: <TagOutlined />, label: "Promotions & Discounts" },// 🎟️ Manage offers
-        { key: "7", icon: <TeamOutlined />, label: "Customers" },            // 👥 View customer info
-        { key: "8", icon: <BellOutlined />, label: "Notifications" },        // 🔔 Alerts & messages
+        { key: "dashboard", icon: <HomeOutlined />, label: "Dashboard" },               // 📊 Overview
+        { key: "courts", icon: <BankOutlined />, label: "Manage Courts" },              // 🏟️ List of courts
+        { key: "bookings", icon: <CalendarOutlined />, label: "Bookings" },             // 📅 View/manage bookings
+        { key: "reports", icon: <BarChartOutlined />, label: "Revenue & Reports" },     // 📈 Earnings & trends
+        { key: "availability", icon: <ScheduleOutlined />, label: "Availability" },     // 🕒 Manage court hours
+        { key: "promotions", icon: <TagOutlined />, label: "Promotions & Discounts" },  // 🎟️ Manage offers
+        { key: "customers", icon: <TeamOutlined />, label: "Customers" },               // 👥 View customer info
+        { key: "notifications", icon: <BellOutlined />, label: "Notifications" },       // 🔔 Alerts & messages
     ];
 
     const bottomMenuItems = [
-        { key: "9", icon: <SettingOutlined />, label: "Settings" },            // ⚙️ Profile & business settings
-        { key: "10", icon: <FileTextOutlined />, label: "Reports & Exports" }, // 📄 Financial reports
-        { key: "11", icon: <LogoutOutlined />, label: "Signout", danger: true }, // 🚪 Logout
+        { key: "settings", icon: <SettingOutlined />, label: "Settings" },            // ⚙️ Profile & business settings
+        { key: "export", icon: <FileTextOutlined />, label: "Reports & Exports" },    // 📄 Financial reports
+        { key: "logout", icon: <LogoutOutlined />, label: "Signout", danger: true },  // 🚪 Logout
     ];
+
+    const handleMenuClick = (e) => {
+        const key = e.key;
+        if (availableTabs.includes(key)) {
+            setSelectedTab(key);
+        } else {
+            notification.warning({
+                message: "Operation Unavailable",
+                description: "This feature is currently not available.",
+                placement: "topRight",
+            });
+        }
+    };
 
     return (
         <Layout style={{ minHeight: "100vh" }}>
@@ -88,8 +100,8 @@ const SidebarLayout = ({ children }) => {
                 <Menu
                     theme={isDarkMode ? "dark" : "light"}
                     mode="inline"
-                    selectedKeys={[selectedKey]}
-                    onClick={(e) => setSelectedKey(e.key)}
+                    selectedKeys={[selectedTab]}
+                    onClick={handleMenuClick}
                     items={menuItems}
                     style={{
                         flex: 1,
@@ -124,8 +136,8 @@ const SidebarLayout = ({ children }) => {
             </Sider>
 
             {/* Main Content */}
-            <Layout style={{ marginLeft: collapsed ? 80 : 220, transition: "margin-left 0.3s ease" }}>
-                <Content
+            <Layout  style={{ marginLeft: collapsed ? 80 : 220, transition: "margin-left 0.3s ease" }}>
+                <Content 
                     style={{
                         padding: "20px",
                         transition: "all 0.3s ease-in-out",

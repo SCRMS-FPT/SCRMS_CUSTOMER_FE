@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from "react";
 import { Card, Statistic, Row, Col, Progress, Table, Tag, Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import { Line } from "react-chartjs-2";
-import SidebarLayout from "./SidebarLayout"; // Import sidebar layout
 import "chart.js/auto";
 import UpcomingBookings from "./UpcomingBookings";
 
@@ -97,158 +96,156 @@ const CourtStatistics = () => {
     };
 
     return (
-        <SidebarLayout>
-            <div className="p-4">
-                <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100 flex justify-between items-center">
-                    Court Statistics
-                    <Button type="primary" icon={<DownloadOutlined />} onClick={() => console.log("Exporting data...")}>
-                        Export
-                    </Button>
-                </h1>
+        <div className="p-4">
+            <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100 flex justify-between items-center">
+                <span className="text-3xl">Court Statistics</span>
+                <Button type="primary" icon={<DownloadOutlined />} onClick={() => console.log("Exporting data...")}>
+                    Export
+                </Button>
+            </h1>
 
-                {/* Dashboard Cards */}
-                <Row gutter={[16, 16]} className="mb-6">
-                    {/* Total Revenue */}
-                    <Col xs={12} sm={12} md={6} lg={6}>
-                        <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
-                            <Statistic title="Total Revenue" value={`$${stats.totalRevenue}`} valueStyle={{ color: "#facc15" }} />
-                        </Card>
-                    </Col>
+            {/* Dashboard Cards */}
+            <Row gutter={[16, 16]} className="mb-6">
+                {/* Total Revenue */}
+                <Col xs={12} sm={12} md={6} lg={6}>
+                    <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
+                        <Statistic title="Total Revenue" value={`$${stats.totalRevenue}`} valueStyle={{ color: "#facc15" }} />
+                    </Card>
+                </Col>
 
-                    {/* Total Bookings */}
-                    <Col xs={12} sm={12} md={6} lg={6}>
-                        <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
-                            <Statistic title="Total Bookings" value={stats.totalBookings} valueStyle={{ color: "#38bdf8" }} />
-                        </Card>
-                    </Col>
+                {/* Total Bookings */}
+                <Col xs={12} sm={12} md={6} lg={6}>
+                    <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
+                        <Statistic title="Total Bookings" value={stats.totalBookings} valueStyle={{ color: "#38bdf8" }} />
+                    </Card>
+                </Col>
 
-                    {/* Average Rating */}
-                    <Col xs={12} sm={12} md={6} lg={6}>
-                        <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
-                            <Statistic title="Average Rating" value={stats.avgRating} valueStyle={{ color: "#10b981" }} suffix="/ 5" />
-                            <Progress percent={(stats.avgRating / 5) * 100} status="active" showInfo={false} />
-                        </Card>
-                    </Col>
+                {/* Average Rating */}
+                <Col xs={12} sm={12} md={6} lg={6}>
+                    <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
+                        <Statistic title="Average Rating" value={stats.avgRating} valueStyle={{ color: "#10b981" }} suffix="/ 5" />
+                        <Progress percent={(stats.avgRating / 5) * 100} status="active" showInfo={false} />
+                    </Card>
+                </Col>
 
-                    {/* New Customers */}
-                    <Col xs={12} sm={12} md={6} lg={6}>
-                        <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
-                            <Statistic title="New Customers" value={12} valueStyle={{ color: "#10b981" }} />
-                        </Card>
-                    </Col>
-                </Row>
-
+                {/* New Customers */}
+                <Col xs={12} sm={12} md={6} lg={6}>
+                    <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
+                        <Statistic title="New Customers" value={12} valueStyle={{ color: "#10b981" }} />
+                    </Card>
+                </Col>
+            </Row>
 
 
-                {/* Charts */}
-                <Row
-                    gutter={[16, 16]} // Add spacing between items (for stacked mobile view)
-                    className="my-6"
-                    style={{ display: "flex", flexWrap: "wrap" }}
-                >
-                    {/* Booking Trend */}
-                    <Col xs={24} sm={24} md={12} lg={10}>
-                        <Card
-                            className="dark:bg-gray-800 dark:text-white"
-                            style={{
-                                minHeight: "320px", // Adjusts for smaller screens
-                                height: "100%", // Makes it stretch when possible
-                            }}
-                        >
-                            <h2 className="text-lg font-bold mb-2">Booking Trend</h2>
-                            <Line data={bookingData} />
-                        </Card>
-                    </Col>
 
-                    {/* Revenue Trend */}
-                    <Col xs={24} sm={24} md={12} lg={10}>
-                        <Card
-                            className="dark:bg-gray-800 dark:text-white"
-                            style={{
-                                minHeight: "320px",
-                                height: "100%",
-                            }}
-                        >
-                            <h2 className="text-lg font-bold mb-2">Revenue Trend</h2>
-                            <Line data={revenueData} />
-                        </Card>
-                    </Col>
-
-                    {/* Upcoming Bookings */}
-                    <Col xs={24} sm={24} md={24} lg={4}>
-                        <UpcomingBookings />
-                    </Col>
-                </Row>
-
-                {/* Recent Orders Section */}
-                <Card className="dark:bg-gray-800 dark:text-white">
-                    <h2 className="text-lg font-bold mb-4">Recent Orders</h2>
-                    <Table
-                        dataSource={stats.recentOrders}
-                        columns={[
-                            {
-                                title: "No.",
-                                dataIndex: "orderNumber",
-                                key: "orderNumber",
-                            },
-                            {
-                                title: "Date/Time",
-                                dataIndex: "date",
-                                key: "date",
-                            },
-                            {
-                                title: "Customer",
-                                dataIndex: "customer",
-                                key: "customer",
-                            },
-                            {
-                                title: "Items",
-                                dataIndex: "items",
-                                key: "items",
-                                render: (items) => `${items} items`,
-                            },
-                            {
-                                title: "Paid",
-                                dataIndex: "paid",
-                                key: "paid",
-                            },
-                            {
-                                title: "Status",
-                                dataIndex: "status",
-                                key: "status",
-                                render: (status) => {
-                                    let color = status === "Pending" ? "gold" : "green";
-                                    return <Tag color={color}>{status}</Tag>;
-                                },
-                            },
-                            {
-                                title: "Total",
-                                dataIndex: "total",
-                                key: "total",
-                                render: (total) => `$${total.toLocaleString()}`,
-                            },
-                        ]}
-                        pagination={false}
+            {/* Charts */}
+            <Row
+                gutter={[16, 16]} // Add spacing between items (for stacked mobile view)
+                className="my-6"
+                style={{ display: "flex", flexWrap: "wrap" }}
+            >
+                {/* Booking Trend */}
+                <Col xs={24} sm={24} md={12} lg={10}>
+                    <Card
                         className="dark:bg-gray-800 dark:text-white"
-                    />
-                </Card>
-                <div className="my-6" />
-                {/* Customer Feedback */}
-                <Card className="dark:bg-gray-800 dark:text-white mt-6">
-                    <h2 className="text-lg font-bold mb-2">Customer Feedback</h2>
-                    <Table
-                        dataSource={stats.feedbacks}
-                        columns={[
-                            { title: "User", dataIndex: "user", key: "user" },
-                            { title: "Rating", dataIndex: "rating", key: "rating" },
-                            { title: "Comment", dataIndex: "comment", key: "comment" },
-                        ]}
-                        pagination={false}
+                        style={{
+                            minHeight: "320px", // Adjusts for smaller screens
+                            height: "100%", // Makes it stretch when possible
+                        }}
+                    >
+                        <h2 className="text-lg font-bold mb-2">Booking Trend</h2>
+                        <Line data={bookingData} />
+                    </Card>
+                </Col>
+
+                {/* Revenue Trend */}
+                <Col xs={24} sm={24} md={12} lg={10}>
+                    <Card
                         className="dark:bg-gray-800 dark:text-white"
-                    />
-                </Card>
-            </div>
-        </SidebarLayout>
+                        style={{
+                            minHeight: "320px",
+                            height: "100%",
+                        }}
+                    >
+                        <h2 className="text-lg font-bold mb-2">Revenue Trend</h2>
+                        <Line data={revenueData} />
+                    </Card>
+                </Col>
+
+                {/* Upcoming Bookings */}
+                <Col xs={24} sm={24} md={24} lg={4}>
+                    <UpcomingBookings />
+                </Col>
+            </Row>
+
+            {/* Recent Orders Section */}
+            <Card className="dark:bg-gray-800 dark:text-white">
+                <h2 className="text-lg font-bold mb-4">Recent Orders</h2>
+                <Table
+                    dataSource={stats.recentOrders}
+                    columns={[
+                        {
+                            title: "No.",
+                            dataIndex: "orderNumber",
+                            key: "orderNumber",
+                        },
+                        {
+                            title: "Date/Time",
+                            dataIndex: "date",
+                            key: "date",
+                        },
+                        {
+                            title: "Customer",
+                            dataIndex: "customer",
+                            key: "customer",
+                        },
+                        {
+                            title: "Items",
+                            dataIndex: "items",
+                            key: "items",
+                            render: (items) => `${items} items`,
+                        },
+                        {
+                            title: "Paid",
+                            dataIndex: "paid",
+                            key: "paid",
+                        },
+                        {
+                            title: "Status",
+                            dataIndex: "status",
+                            key: "status",
+                            render: (status) => {
+                                let color = status === "Pending" ? "gold" : "green";
+                                return <Tag color={color}>{status}</Tag>;
+                            },
+                        },
+                        {
+                            title: "Total",
+                            dataIndex: "total",
+                            key: "total",
+                            render: (total) => `$${total.toLocaleString()}`,
+                        },
+                    ]}
+                    pagination={false}
+                    className="dark:bg-gray-800 dark:text-white"
+                />
+            </Card>
+            <div className="my-6" />
+            {/* Customer Feedback */}
+            <Card className="dark:bg-gray-800 dark:text-white mt-6">
+                <h2 className="text-lg font-bold mb-2">Customer Feedback</h2>
+                <Table
+                    dataSource={stats.feedbacks}
+                    columns={[
+                        { title: "User", dataIndex: "user", key: "user" },
+                        { title: "Rating", dataIndex: "rating", key: "rating" },
+                        { title: "Comment", dataIndex: "comment", key: "comment" },
+                    ]}
+                    pagination={false}
+                    className="dark:bg-gray-800 dark:text-white"
+                />
+            </Card>
+        </div>
     );
 };
 
