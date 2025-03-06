@@ -3,6 +3,7 @@ import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { notification } from "antd"; 
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -14,9 +15,18 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const showUnavailableNotification = () => {
+    notification.info({
+      message: "Feature Unavailable",
+      description: "This login method is currently unavailable. Please use email and password.",
+      placement: "topRight",
+    });
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null);
 
     const userData = {
       email,
@@ -27,7 +37,7 @@ const SignUp = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5050/api/auth/register", {
+      const response = await fetch("https://your-api-url.com/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,10 +47,10 @@ const SignUp = () => {
 
       const data = await response.json();
 
-      if (data.isSuccess) {
+      if (response.ok) {
         navigate("/login");
       } else {
-        setErrorMessage("Registration failed. Please try again.");
+        setErrorMessage(data.message || "Registration failed. Please try again.");
       }
     } catch (error) {
       console.error("Error during registration:", error);
@@ -76,6 +86,7 @@ const SignUp = () => {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
             placeholder="Enter your email"
+            required
           />
 
           {/* Name Input */}
@@ -86,6 +97,7 @@ const SignUp = () => {
             onChange={(e) => setName(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
             placeholder="Enter your name"
+            required
           />
 
           {/* Phone Number Input */}
@@ -96,6 +108,7 @@ const SignUp = () => {
             onChange={(e) => setPhoneNumber(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
             placeholder="Enter your phone number"
+            required
           />
 
           {/* Password Input */}
@@ -107,6 +120,7 @@ const SignUp = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your password"
+              required
             />
             <span
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
@@ -116,8 +130,7 @@ const SignUp = () => {
             </span>
           </div>
 
-
-          {/* Show error message if exists */}
+          {/* Error Message */}
           {errorMessage && (
             <div className="mt-4 text-red-500 text-center">{errorMessage}</div>
           )}
@@ -126,7 +139,7 @@ const SignUp = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+            className="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
             {isLoading ? "Signing Up..." : "Sign Up"}
           </button>
@@ -134,11 +147,11 @@ const SignUp = () => {
 
         {/* Social Login */}
         <div className="mt-6 text-center text-gray-500">or</div>
-        <button className="flex items-center justify-center w-full mt-4 border border-gray-300 py-2 rounded-lg hover:bg-gray-100">
+        <button className="flex items-center justify-center w-full mt-4 border border-gray-300 py-2 rounded-lg hover:bg-gray-100"   onClick={showUnavailableNotification}>
           <FaFacebook className="text-blue-600 mr-2" />
           Continue with Facebook
         </button>
-        <button className="flex items-center justify-center w-full mt-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-100">
+        <button className="flex items-center justify-center w-full mt-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-100"   onClick={showUnavailableNotification}>
           <FcGoogle className="mr-2" />
           Continue with Google
         </button>

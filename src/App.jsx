@@ -15,6 +15,8 @@ import CoachDetails from "./pages/CoachDetails";
 import BookCoachSession from "./pages/BookCoachSession";
 import CourtReport from "./pages/CourtReport";
 import BookCourt from "./pages/BookCourt";
+import Support from "./pages/Support";
+import ForgotPassword from "./pages/ForgotPassword";
 
 
 function App() {
@@ -89,6 +91,22 @@ function App() {
         element={
           <Layout>
             <SignUp />
+          </Layout>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <Layout>
+            <ForgotPassword />
+          </Layout>
+        }
+      />
+       <Route
+        path="/support"
+        element={
+          <Layout>
+            <Support />
           </Layout>
         }
       />

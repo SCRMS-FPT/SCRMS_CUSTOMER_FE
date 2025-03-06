@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { login } from "../store/userSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
+import { Client } from "../API/IdentityApi";
+import { API_IDENTITY_URL } from "../API/config";
+import { notification } from "antd";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,10 +16,21 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const showUnavailableNotification = () => {
+    notification.info({
+      message: "Feature Unavailable",
+      description: "This login method is currently unavailable. Please use email and password.",
+      placement: "topRight",
+    });
+  };
+
   const handleLogin = async () => {
     if (email.trim() && password.trim()) {
+      const client = new Client(API_IDENTITY_URL);
+
       try {
-        await dispatch(login({ email, password })).unwrap();
+        await client.login({ email, password });
+        dispatch(login({ email })); // Dispatch user data if needed
         navigate("/");
       } catch (error) {
         console.error("Login failed:", error);
@@ -31,7 +45,9 @@ const Login = () => {
         <h2 className="text-2xl font-semibold text-center">Log In</h2>
         <p className="text-center text-gray-500 mt-2">
           Don&#39;t have a Courtsite account yet?{" "}
-          <span className="text-blue-500 cursor-pointer">Sign Up</span>
+          <Link to="/signup" className="text-blue-600 font-medium">
+            Sign Up
+          </Link>
         </p>
 
         <div className="mt-6">
@@ -67,9 +83,9 @@ const Login = () => {
           </button>
         </div>
 
-        <p className="text-right text-blue-500 text-sm mt-2 cursor-pointer">
-          Forgot Password?
-        </p>
+        <Link to="/forgot-password" >
+          <p className="text-right text-blue-500 text-sm mt-2 cursor-pointer">Forgot Password?</p>
+        </Link>
 
         <button
           onClick={handleLogin}
@@ -90,11 +106,11 @@ const Login = () => {
           <hr className="flex-grow border-gray-300" />
         </div>
 
-        <button className="w-full flex items-center justify-center border p-2 rounded mt-2 hover:bg-gray-100">
+        <button className="w-full flex items-center justify-center border p-2 rounded mt-2 hover:bg-gray-100" onClick={showUnavailableNotification}>
           <FaFacebook size={20} className="text-blue-600 mr-2" /> Continue with
           Facebook
         </button>
-        <button className="w-full flex items-center justify-center border p-2 rounded mt-2 hover:bg-gray-100">
+        <button className="w-full flex items-center justify-center border p-2 rounded mt-2 hover:bg-gray-100" onClick={showUnavailableNotification}>
           <FcGoogle size={20} className="mr-2" /> Continue with Google
         </button>
       </div>
