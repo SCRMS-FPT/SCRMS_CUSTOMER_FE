@@ -17,6 +17,9 @@ import CourtReport from "./pages/CourtReport";
 import BookCourt from "./pages/BookCourt";
 import Support from "./pages/Support";
 import ForgotPassword from "./pages/ForgotPassword";
+import NewSlotPage from "./pages/NewSlotPage";
+import UpdateSlotPage from "./pages/UpdateSlotPage";
+import SlotListPage from "./pages/SlotListPage";
 
 
 function App() {
@@ -75,6 +78,30 @@ function App() {
         element={
           <Layout>
             <ManageCourts />
+          </Layout>
+        }
+      />
+      <Route
+        path="/slots/new"
+        element={
+          <Layout>
+            <NewSlotPage />
+          </Layout>
+        }
+      />
+      <Route
+        path="/slots/edit/:id"
+        element={
+          <Layout>
+            <UpdateSlotPage />
+          </Layout>
+        }
+      />
+      <Route
+        path="/slots/list"
+        element={
+          <Layout>
+            <SlotListPage />
           </Layout>
         }
       />
