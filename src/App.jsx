@@ -20,7 +20,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import NewSlotPage from "./pages/NewSlotPage";
 import UpdateSlotPage from "./pages/UpdateSlotPage";
 import SlotListPage from "./pages/SlotListPage";
-
+import MatchingPage from "./pages/MatchingPage";
 
 function App() {
   return (
@@ -129,19 +129,11 @@ function App() {
           </Layout>
         }
       />
-       <Route
+      <Route
         path="/support"
         element={
           <Layout>
             <Support />
-          </Layout>
-        }
-      />
-      <Route
-        path="/match-opponents"
-        element={
-          <Layout>
-            <MatchFinder />
           </Layout>
         }
       />
@@ -181,10 +173,11 @@ function App() {
         path="/reports"
         element={
           // <Layout>
-            <CourtReport />
+          <CourtReport />
           // </Layout>
         }
       />
+      <Route path="/match-opponents" element={<MatchingPage />} />
     </Routes>
   );
 }
