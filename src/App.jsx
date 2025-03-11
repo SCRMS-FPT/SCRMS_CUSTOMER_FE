@@ -20,6 +20,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import NewSlotPage from "./pages/NewSlotPage";
 import UpdateSlotPage from "./pages/UpdateSlotPage";
 import SlotListPage from "./pages/SlotListPage";
+import { Book } from "lucide-react";
+import BookingListPage from "./pages/BookingListPage";
 
 
 function App() {
@@ -102,6 +104,14 @@ function App() {
         element={
           <Layout>
             <SlotListPage />
+          </Layout>
+        }
+      />
+      <Route
+        path="/booking/list"
+        element={
+          <Layout>
+              <BookingListPage />
           </Layout>
         }
       />
