@@ -4,6 +4,7 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { notification } from "antd"; 
+import { Client } from "../API/IdentityApi";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -37,24 +38,23 @@ const SignUp = () => {
     };
 
     try {
-      const response = await fetch("https://your-api-url.com/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
+      const client = new Client(); // ✅ Create API client instance
+      await client.register(userData); // ✅ Call register API
+
+      notification.success({
+        message: "Registration Successful",
+        description: "Your account has been created. Please log in.",
+        placement: "topRight",
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        navigate("/login");
-      } else {
-        setErrorMessage(data.message || "Registration failed. Please try again.");
-      }
+      navigate("/login"); // ✅ Redirect to login page
     } catch (error) {
-      console.error("Error during registration:", error);
       setErrorMessage("An error occurred. Please try again.");
+      notification.error({
+        message: "Registration Failed",
+        description: error.message || "An error occurred. Please try again.",
+        placement: "topRight",
+      });
     } finally {
       setIsLoading(false);
     }
