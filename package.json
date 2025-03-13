@@ -10,10 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@coreui/icons-react": "^2.3.0",
+    "@coreui/react": "^5.5.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@hookform/resolvers": "^4.1.0",
-    "@mui/material": "^6.4.4",
+    "@mui/material": "^6.4.7",
     "@reduxjs/toolkit": "^2.5.1",
     "@tailwindcss/vite": "^4.0.3",
     "antd": "^5.24.2",
