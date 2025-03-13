@@ -22,6 +22,8 @@ import UpdateSlotPage from "./pages/UpdateSlotPage";
 import SlotListPage from "./pages/SlotListPage";
 import { Book } from "lucide-react";
 import BookingListPage from "./pages/BookingListPage";
+import SportsCenter from "./pages/SportsCenter";
+
 
 
 function App() {
@@ -111,7 +113,7 @@ function App() {
         path="/booking/list"
         element={
           <Layout>
-              <BookingListPage />
+            <BookingListPage />
           </Layout>
         }
       />
@@ -139,7 +141,7 @@ function App() {
           </Layout>
         }
       />
-       <Route
+      <Route
         path="/support"
         element={
           <Layout>
@@ -180,6 +182,14 @@ function App() {
         }
       />
       <Route
+        path="/sports-center"
+        element={
+          <Layout>
+            <SportsCenter />
+          </Layout>
+        }
+      />
+      <Route
         path="/book-coach/:id"
         element={
           <Layout>
@@ -191,7 +201,7 @@ function App() {
         path="/reports"
         element={
           // <Layout>
-            <CourtReport />
+          <CourtReport />
           // </Layout>
         }
       />
