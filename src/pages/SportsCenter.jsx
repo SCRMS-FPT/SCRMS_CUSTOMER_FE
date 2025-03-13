@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Button, Modal, Form } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import sportsCentersData from '../data/sportsCenter';
+import { sportsCentersData } from '../data/sportsCentersData'; // Updated import
 import SportsCenterTable from '../components/SportsCenterTable';
 import SportsCenterForm from '../components/SportsCenterForm';
 import SportsCenterSearch from '../components/SportsCenterSearch';
 
 const SportsCenter = () => {
-    const [sportsCenters, setSportsCenters] = useState(sportsCentersData);
+    const [sportsCenters, setSportsCenters] = useState(sportsCentersData); // Updated state initialization
     const [newEntries, setNewEntries] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);

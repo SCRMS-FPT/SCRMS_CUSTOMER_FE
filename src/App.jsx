@@ -23,6 +23,7 @@ import SlotListPage from "./pages/SlotListPage";
 import { Book } from "lucide-react";
 import BookingListPage from "./pages/BookingListPage";
 import SportsCenter from "./pages/SportsCenter";
+import CourtsManage from "./pages/CourtsManage"
 
 
 
@@ -189,6 +190,15 @@ function App() {
           </Layout>
         }
       />
+      <Route
+        path="/CourtsManage"
+        element={
+          <Layout>
+            <CourtsManage />
+          </Layout>
+        }
+      />
+
       <Route
         path="/book-coach/:id"
         element={
