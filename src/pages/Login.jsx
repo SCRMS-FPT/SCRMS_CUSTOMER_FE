@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../store/userSlice";
 import { useNavigate, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
@@ -13,8 +13,11 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { status, error } = useSelector((state) => state.user);
 
   const showUnavailableNotification = () => {
     notification.info({
@@ -25,16 +28,29 @@ const Login = () => {
   };
 
   const handleLogin = async () => {
-    if (email.trim() && password.trim()) {
-      const client = new Client(API_IDENTITY_URL);
+    if (!email.trim() || !password.trim()) {
+      notification.warning({
+        message: "Missing Credentials",
+        description: "Please enter your email and password.",
+        placement: "topRight",
+      });
+      return;
+    }
 
-      try {
-        await client.login({ email, password });
-        dispatch(login({ email })); // Dispatch user data if needed
-        navigate("/");
-      } catch (error) {
-        console.error("Login failed:", error);
-      }
+    try {
+      await dispatch(login({ email, password })).unwrap(); // Dispatch login action
+      notification.success({
+        message: "Login Successful",
+        description: "You have successfully logged in!",
+        placement: "topRight",
+      });
+      navigate("/"); // Redirect to home page
+    } catch (errorMessage) {
+      notification.error({
+        message: "Login Failed",
+        description: errorMessage || "Invalid credentials.",
+        placement: "topRight",
+      });
     }
   };
 
@@ -87,9 +103,12 @@ const Login = () => {
           <p className="text-right text-blue-500 text-sm mt-2 cursor-pointer">Forgot Password?</p>
         </Link>
 
+        {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+
         <button
           onClick={handleLogin}
           className="w-full bg-blue-600 text-white p-2 rounded mt-4 hover:bg-blue-700"
+          disabled={status === "loading"}
         >
           Log In
         </button>

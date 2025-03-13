@@ -13,8 +13,13 @@ export const login = createAsyncThunk(
         password: credentials.password,
       });
 
-      // Gọi API login và nhận dữ liệu JSON chứa token và thông tin user
       const data = await apiClient.login(loginRequest);
+      console.log("Login Response:", data); // ✅ Debug Log
+
+      // Ensure data is valid before accessing properties
+      if (!data || !data.token || !data.user) {
+        return rejectWithValue("Invalid login response");
+      }
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("userProfile", JSON.stringify(data.user));
