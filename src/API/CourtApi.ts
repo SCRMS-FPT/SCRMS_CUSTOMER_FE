@@ -512,6 +512,69 @@ export class Client {
     }
 
     /**
+     * Lấy lịch khả dụng của sân
+     * @return OK
+     */
+    getCourtAvailability(id: string, startDate: Date, endDate: Date): Promise<GetCourtAvailabilityResult> {
+        let url_ = this.baseUrl + "/api/courts/{id}/availability?";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        if (startDate === undefined || startDate === null)
+            throw new Error("The parameter 'startDate' must be defined and cannot be null.");
+        else
+            url_ += "startDate=" + encodeURIComponent(startDate ? "" + startDate.toISOString() : "") + "&";
+        if (endDate === undefined || endDate === null)
+            throw new Error("The parameter 'endDate' must be defined and cannot be null.");
+        else
+            url_ += "endDate=" + encodeURIComponent(endDate ? "" + endDate.toISOString() : "") + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourtAvailability(_response);
+        });
+    }
+
+    protected processGetCourtAvailability(response: Response): Promise<GetCourtAvailabilityResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetCourtAvailabilityResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<GetCourtAvailabilityResult>(null as any);
+    }
+
+    /**
      * Lấy danh sách khuyến mãi của sân
      * @return OK
      */
@@ -2711,6 +2774,58 @@ export interface ICreateSportResponse {
     id?: string;
 }
 
+export class DailySchedule implements IDailySchedule {
+    date?: Date;
+    dayOfWeek?: number;
+    timeSlots?: TimeSlot[] | undefined;
+
+    constructor(data?: IDailySchedule) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.dayOfWeek = _data["dayOfWeek"];
+            if (Array.isArray(_data["timeSlots"])) {
+                this.timeSlots = [] as any;
+                for (let item of _data["timeSlots"])
+                    this.timeSlots!.push(TimeSlot.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): DailySchedule {
+        data = typeof data === 'object' ? data : {};
+        let result = new DailySchedule();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["dayOfWeek"] = this.dayOfWeek;
+        if (Array.isArray(this.timeSlots)) {
+            data["timeSlots"] = [];
+            for (let item of this.timeSlots)
+                data["timeSlots"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IDailySchedule {
+    date?: Date;
+    dayOfWeek?: number;
+    timeSlots?: TimeSlot[] | undefined;
+}
+
 export class DeleteCourtResponse implements IDeleteCourtResponse {
     isSuccess?: boolean;
 
@@ -2955,6 +3070,58 @@ export interface IGetBookingsResult {
     totalCount?: number;
 }
 
+export class GetCourtAvailabilityResult implements IGetCourtAvailabilityResult {
+    courtId?: string;
+    slotDuration?: number;
+    schedule?: DailySchedule[] | undefined;
+
+    constructor(data?: IGetCourtAvailabilityResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courtId = _data["courtId"];
+            this.slotDuration = _data["slotDuration"];
+            if (Array.isArray(_data["schedule"])) {
+                this.schedule = [] as any;
+                for (let item of _data["schedule"])
+                    this.schedule!.push(DailySchedule.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetCourtAvailabilityResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCourtAvailabilityResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courtId"] = this.courtId;
+        data["slotDuration"] = this.slotDuration;
+        if (Array.isArray(this.schedule)) {
+            data["schedule"] = [];
+            for (let item of this.schedule)
+                data["schedule"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGetCourtAvailabilityResult {
+    courtId?: string;
+    slotDuration?: number;
+    schedule?: DailySchedule[] | undefined;
+}
+
 export class GetCourtDetailsResponse implements IGetCourtDetailsResponse {
     court?: CourtDTO;
 
@@ -3169,6 +3336,46 @@ export interface IProblemDetails {
     instance?: string | undefined;
 
     [key: string]: any;
+}
+
+export class PromotionInfo implements IPromotionInfo {
+    discountType?: string | undefined;
+    discountValue?: number;
+
+    constructor(data?: IPromotionInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.discountType = _data["discountType"];
+            this.discountValue = _data["discountValue"];
+        }
+    }
+
+    static fromJS(data: any): PromotionInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new PromotionInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["discountType"] = this.discountType;
+        data["discountValue"] = this.discountValue;
+        return data;
+    }
+}
+
+export interface IPromotionInfo {
+    discountType?: string | undefined;
+    discountValue?: number;
 }
 
 export class SportCenterDTO implements ISportCenterDTO {
@@ -3437,6 +3644,62 @@ export interface ISportDTO {
     name?: string | undefined;
     description?: string | undefined;
     icon?: string | undefined;
+}
+
+export class TimeSlot implements ITimeSlot {
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    price?: number;
+    status?: string | undefined;
+    promotion?: PromotionInfo;
+    bookedBy?: string | undefined;
+
+    constructor(data?: ITimeSlot) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
+            this.price = _data["price"];
+            this.status = _data["status"];
+            this.promotion = _data["promotion"] ? PromotionInfo.fromJS(_data["promotion"]) : <any>undefined;
+            this.bookedBy = _data["bookedBy"];
+        }
+    }
+
+    static fromJS(data: any): TimeSlot {
+        data = typeof data === 'object' ? data : {};
+        let result = new TimeSlot();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
+        data["price"] = this.price;
+        data["status"] = this.status;
+        data["promotion"] = this.promotion ? this.promotion.toJSON() : <any>undefined;
+        data["bookedBy"] = this.bookedBy;
+        return data;
+    }
+}
+
+export interface ITimeSlot {
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    price?: number;
+    status?: string | undefined;
+    promotion?: PromotionInfo;
+    bookedBy?: string | undefined;
 }
 
 export class UpdateCourtPromotionRequest implements IUpdateCourtPromotionRequest {
