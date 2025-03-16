@@ -23,6 +23,7 @@ import SlotListPage from "./pages/SlotListPage";
 import { Book } from "lucide-react";
 import BookingListPage from "./pages/BookingListPage";
 import SportsCenter from "./pages/SportsCenter";
+import Feedback from "./pages/Feedback";
 import CourtsManage from "./pages/CourtsManage"
 
 
@@ -159,10 +160,18 @@ function App() {
         }
       />
       <Route
-        path="/feedback/:courtId"
+        path="/court-feedback/:courtId"
         element={
           <Layout>
             <CourtFeedback />
+          </Layout>
+        }
+      />
+      <Route
+        path="/feedback/:courtId"
+        element={
+          <Layout>
+            <Feedback />
           </Layout>
         }
       />
