@@ -1432,6 +1432,7 @@ export class BookingCreateDTO implements IBookingCreateDTO {
     bookingDate?: Date;
     totalPrice?: number;
     note?: string | undefined;
+    depositAmount?: number;
     bookingDetails?: BookingDetailCreateDTO[] | undefined;
 
     constructor(data?: IBookingCreateDTO) {
@@ -1449,6 +1450,7 @@ export class BookingCreateDTO implements IBookingCreateDTO {
             this.bookingDate = _data["bookingDate"] ? new Date(_data["bookingDate"].toString()) : <any>undefined;
             this.totalPrice = _data["totalPrice"];
             this.note = _data["note"];
+            this.depositAmount = _data["depositAmount"];
             if (Array.isArray(_data["bookingDetails"])) {
                 this.bookingDetails = [] as any;
                 for (let item of _data["bookingDetails"])
@@ -1470,6 +1472,7 @@ export class BookingCreateDTO implements IBookingCreateDTO {
         data["bookingDate"] = this.bookingDate ? this.bookingDate.toISOString() : <any>undefined;
         data["totalPrice"] = this.totalPrice;
         data["note"] = this.note;
+        data["depositAmount"] = this.depositAmount;
         if (Array.isArray(this.bookingDetails)) {
             data["bookingDetails"] = [];
             for (let item of this.bookingDetails)
@@ -1484,6 +1487,7 @@ export interface IBookingCreateDTO {
     bookingDate?: Date;
     totalPrice?: number;
     note?: string | undefined;
+    depositAmount?: number;
     bookingDetails?: BookingDetailCreateDTO[] | undefined;
 }
 
@@ -1594,10 +1598,12 @@ export interface IBookingDetailDto {
 export class BookingDto implements IBookingDto {
     id?: string;
     userId?: string;
-    bookingDate?: Date;
     totalTime?: number;
     totalPrice?: number;
+    remainingBalance?: number;
+    initialDeposit?: number;
     status?: string | undefined;
+    bookingDate?: Date;
     note?: string | undefined;
     createdAt?: Date;
     lastModified?: Date | undefined;
@@ -1616,10 +1622,12 @@ export class BookingDto implements IBookingDto {
         if (_data) {
             this.id = _data["id"];
             this.userId = _data["userId"];
-            this.bookingDate = _data["bookingDate"] ? new Date(_data["bookingDate"].toString()) : <any>undefined;
             this.totalTime = _data["totalTime"];
             this.totalPrice = _data["totalPrice"];
+            this.remainingBalance = _data["remainingBalance"];
+            this.initialDeposit = _data["initialDeposit"];
             this.status = _data["status"];
+            this.bookingDate = _data["bookingDate"] ? new Date(_data["bookingDate"].toString()) : <any>undefined;
             this.note = _data["note"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
@@ -1642,10 +1650,12 @@ export class BookingDto implements IBookingDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["userId"] = this.userId;
-        data["bookingDate"] = this.bookingDate ? this.bookingDate.toISOString() : <any>undefined;
         data["totalTime"] = this.totalTime;
         data["totalPrice"] = this.totalPrice;
+        data["remainingBalance"] = this.remainingBalance;
+        data["initialDeposit"] = this.initialDeposit;
         data["status"] = this.status;
+        data["bookingDate"] = this.bookingDate ? this.bookingDate.toISOString() : <any>undefined;
         data["note"] = this.note;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
@@ -1661,10 +1671,12 @@ export class BookingDto implements IBookingDto {
 export interface IBookingDto {
     id?: string;
     userId?: string;
-    bookingDate?: Date;
     totalTime?: number;
     totalPrice?: number;
+    remainingBalance?: number;
+    initialDeposit?: number;
     status?: string | undefined;
+    bookingDate?: Date;
     note?: string | undefined;
     createdAt?: Date;
     lastModified?: Date | undefined;
@@ -1676,16 +1688,18 @@ export enum BookingStatus {
     _1 = 1,
     _2 = 2,
     _3 = 3,
+    _4 = 4,
 }
 
 export class CourtCreateDTO implements ICourtCreateDTO {
     courtName?: string | undefined;
-    sportCenterId?: string;
     sportId?: string;
+    sportCenterId?: string;
     description?: string | undefined;
     facilities?: FacilityDTO[] | undefined;
-    courtType?: number;
     slotDuration?: string;
+    minDepositPercentage?: number;
+    courtType?: number;
     courtSchedules?: CourtScheduleDTO[] | undefined;
 
     constructor(data?: ICourtCreateDTO) {
@@ -1700,16 +1714,17 @@ export class CourtCreateDTO implements ICourtCreateDTO {
     init(_data?: any) {
         if (_data) {
             this.courtName = _data["courtName"];
-            this.sportCenterId = _data["sportCenterId"];
             this.sportId = _data["sportId"];
+            this.sportCenterId = _data["sportCenterId"];
             this.description = _data["description"];
             if (Array.isArray(_data["facilities"])) {
                 this.facilities = [] as any;
                 for (let item of _data["facilities"])
                     this.facilities!.push(FacilityDTO.fromJS(item));
             }
-            this.courtType = _data["courtType"];
             this.slotDuration = _data["slotDuration"];
+            this.minDepositPercentage = _data["minDepositPercentage"];
+            this.courtType = _data["courtType"];
             if (Array.isArray(_data["courtSchedules"])) {
                 this.courtSchedules = [] as any;
                 for (let item of _data["courtSchedules"])
@@ -1728,16 +1743,17 @@ export class CourtCreateDTO implements ICourtCreateDTO {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["courtName"] = this.courtName;
-        data["sportCenterId"] = this.sportCenterId;
         data["sportId"] = this.sportId;
+        data["sportCenterId"] = this.sportCenterId;
         data["description"] = this.description;
         if (Array.isArray(this.facilities)) {
             data["facilities"] = [];
             for (let item of this.facilities)
                 data["facilities"].push(item.toJSON());
         }
-        data["courtType"] = this.courtType;
         data["slotDuration"] = this.slotDuration;
+        data["minDepositPercentage"] = this.minDepositPercentage;
+        data["courtType"] = this.courtType;
         if (Array.isArray(this.courtSchedules)) {
             data["courtSchedules"] = [];
             for (let item of this.courtSchedules)
@@ -1749,12 +1765,13 @@ export class CourtCreateDTO implements ICourtCreateDTO {
 
 export interface ICourtCreateDTO {
     courtName?: string | undefined;
-    sportCenterId?: string;
     sportId?: string;
+    sportCenterId?: string;
     description?: string | undefined;
     facilities?: FacilityDTO[] | undefined;
-    courtType?: number;
     slotDuration?: string;
+    minDepositPercentage?: number;
+    courtType?: number;
     courtSchedules?: CourtScheduleDTO[] | undefined;
 }
 
@@ -1768,6 +1785,7 @@ export class CourtDTO implements ICourtDTO {
     slotDuration?: string;
     status?: CourtStatus;
     courtType?: CourtType;
+    minDepositPercentage?: number;
     sportName?: string | undefined;
     sportCenterName?: string | undefined;
     createdAt?: Date;
@@ -1797,6 +1815,7 @@ export class CourtDTO implements ICourtDTO {
             this.slotDuration = _data["slotDuration"];
             this.status = _data["status"];
             this.courtType = _data["courtType"];
+            this.minDepositPercentage = _data["minDepositPercentage"];
             this.sportName = _data["sportName"];
             this.sportCenterName = _data["sportCenterName"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
@@ -1826,6 +1845,7 @@ export class CourtDTO implements ICourtDTO {
         data["slotDuration"] = this.slotDuration;
         data["status"] = this.status;
         data["courtType"] = this.courtType;
+        data["minDepositPercentage"] = this.minDepositPercentage;
         data["sportName"] = this.sportName;
         data["sportCenterName"] = this.sportCenterName;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
@@ -1844,6 +1864,7 @@ export interface ICourtDTO {
     slotDuration?: string;
     status?: CourtStatus;
     courtType?: CourtType;
+    minDepositPercentage?: number;
     sportName?: string | undefined;
     sportCenterName?: string | undefined;
     createdAt?: Date;
@@ -2127,14 +2148,14 @@ export enum CourtType {
 }
 
 export class CourtUpdateDTO implements ICourtUpdateDTO {
-    id?: string;
     courtName?: string | undefined;
     sportId?: string;
     description?: string | undefined;
     facilities?: FacilityDTO[] | undefined;
-    courtType?: number;
     slotDuration?: string;
     status?: number;
+    courtType?: number;
+    minDepositPercentage?: number;
 
     constructor(data?: ICourtUpdateDTO) {
         if (data) {
@@ -2147,7 +2168,6 @@ export class CourtUpdateDTO implements ICourtUpdateDTO {
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
             this.courtName = _data["courtName"];
             this.sportId = _data["sportId"];
             this.description = _data["description"];
@@ -2156,9 +2176,10 @@ export class CourtUpdateDTO implements ICourtUpdateDTO {
                 for (let item of _data["facilities"])
                     this.facilities!.push(FacilityDTO.fromJS(item));
             }
-            this.courtType = _data["courtType"];
             this.slotDuration = _data["slotDuration"];
             this.status = _data["status"];
+            this.courtType = _data["courtType"];
+            this.minDepositPercentage = _data["minDepositPercentage"];
         }
     }
 
@@ -2171,7 +2192,6 @@ export class CourtUpdateDTO implements ICourtUpdateDTO {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
         data["courtName"] = this.courtName;
         data["sportId"] = this.sportId;
         data["description"] = this.description;
@@ -2180,22 +2200,23 @@ export class CourtUpdateDTO implements ICourtUpdateDTO {
             for (let item of this.facilities)
                 data["facilities"].push(item.toJSON());
         }
-        data["courtType"] = this.courtType;
         data["slotDuration"] = this.slotDuration;
         data["status"] = this.status;
+        data["courtType"] = this.courtType;
+        data["minDepositPercentage"] = this.minDepositPercentage;
         return data;
     }
 }
 
 export interface ICourtUpdateDTO {
-    id?: string;
     courtName?: string | undefined;
     sportId?: string;
     description?: string | undefined;
     facilities?: FacilityDTO[] | undefined;
-    courtType?: number;
     slotDuration?: string;
     status?: number;
+    courtType?: number;
+    minDepositPercentage?: number;
 }
 
 export class CreateBookingRequest implements ICreateBookingRequest {
