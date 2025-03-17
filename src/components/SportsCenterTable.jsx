@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table, Button } from 'antd';
+import { Link } from 'react-router-dom';
 
 const SportsCenterTable = ({ data, onEdit, onDelete }) => {
     const columns = [
@@ -7,6 +8,7 @@ const SportsCenterTable = ({ data, onEdit, onDelete }) => {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
+            render: (text, record) => <Link to={`/courts-manage/${record.centerId}`}>{text}</Link>,
         },
         {
             title: 'Address',

@@ -1,75 +1,88 @@
 "use client"
 
-import { useState } from "react"
-import { courtsData } from "../data/courtsData1"
-import { sportsCentersData } from "../data/sportsCentersData" // Sửa đường dẫn import
-import CourtList from "../components/CourtList"
-import CourtDetail from "../components/CourtDetail"
-import CourtForm from "../components/CourtForm"
-import { Search } from "lucide-react"
-import "../styles/CourtsManage.css"
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { courtsData } from "../data/courtsData1";
+import { sportsCentersData } from "../data/sportsCentersData";
+import CourtList from "../components/CourtList";
+import CourtDetail from "../components/CourtDetail";
+import CourtForm from "../components/CourtForm";
+import { Search } from "lucide-react";
+import "../styles/CourtsManage.css";
 
 const CourtsManage = () => {
-  const [courts, setCourts] = useState(courtsData)
-  const [selectedCourt, setSelectedCourt] = useState(null)
-  const [isEditing, setIsEditing] = useState(false)
-  const [isAdding, setIsAdding] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
+  const { centerId } = useParams();
+  const [courts, setCourts] = useState([]);
+  const [selectedCourt, setSelectedCourt] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    if (centerId) {
+      // Lọc các sân thể thao dựa trên centerId
+      const filteredCourts = courtsData.filter(court => court.sports_center_id === centerId);
+      setCourts(filteredCourts);
+    } else {
+      // Hiển thị tất cả các sân nếu không có centerId
+      setCourts(courtsData);
+    }
+  }, [centerId]);
 
   const filteredCourts = courts.filter(
     (court) =>
       court.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       court.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      court.court_type.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      court.court_type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleSelectCourt = (courtId) => {
-    const court = courts.find((court) => court.courtId === courtId)
-    setSelectedCourt(court)
-    setIsEditing(false)
-    setIsAdding(false)
-  }
+    const court = courts.find((court) => court.courtId === courtId);
+    setSelectedCourt(court);
+    setIsEditing(false);
+    setIsAdding(false);
+  };
 
   const handleEditCourt = () => {
-    setIsEditing(true)
-    setIsAdding(false)
-  }
+    setIsEditing(true);
+    setIsAdding(false);
+  };
 
   const handleAddCourt = () => {
-    setSelectedCourt(null)
-    setIsEditing(false)
-    setIsAdding(true)
-  }
+    setSelectedCourt(null);
+    setIsEditing(false);
+    setIsAdding(true);
+  };
 
   const handleSaveCourt = (courtData) => {
     if (isAdding) {
       // Generate a new ID for the court
-      const newCourtId = `c${courts.length + 1}`
-      const newCourt = { ...courtData, courtId: newCourtId }
-      setCourts([...courts, newCourt])
-      setSelectedCourt(newCourt)
+      const newCourtId = `c${courts.length + 1}`;
+      const newCourt = { ...courtData, courtId: newCourtId, sports_center_id: centerId };
+      setCourts([...courts, newCourt]);
+      setSelectedCourt(newCourt);
     } else if (isEditing && selectedCourt) {
       // Update existing court
       const updatedCourts = courts.map((court) =>
-        court.courtId === selectedCourt.courtId ? { ...courtData, courtId: selectedCourt.courtId } : court,
-      )
-      setCourts(updatedCourts)
-      setSelectedCourt({ ...courtData, courtId: selectedCourt.courtId })
+        court.courtId === selectedCourt.courtId ? { ...courtData, courtId: selectedCourt.courtId, sports_center_id: centerId } : court
+      );
+      setCourts(updatedCourts);
+      setSelectedCourt({ ...courtData, courtId: selectedCourt.courtId, sports_center_id: centerId });
     }
-    setIsEditing(false)
-    setIsAdding(false)
-  }
+    setIsEditing(false);
+    setIsAdding(false);
+  };
 
   const handleDeleteCourt = (courtId) => {
-    const updatedCourts = courts.filter((court) => court.courtId !== courtId)
-    setCourts(updatedCourts)
-    setSelectedCourt(null)
-  }
+    const updatedCourts = courts.filter((court) => court.courtId !== courtId);
+    setCourts(updatedCourts);
+    setSelectedCourt(null);
+  };
 
   const handleCancel = () => {
-    setIsEditing(false)
-    setIsAdding(false)
-  }
+    setIsEditing(false);
+    setIsAdding(false);
+  };
 
   return (
     <div className="courts-manage-page">
@@ -143,8 +156,8 @@ const CourtsManage = () => {
         </div>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default CourtsManage
+export default CourtsManage;
 

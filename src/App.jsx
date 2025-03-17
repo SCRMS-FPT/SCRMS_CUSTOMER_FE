@@ -24,6 +24,7 @@ import { Book } from "lucide-react";
 import BookingListPage from "./pages/BookingListPage";
 import SportsCenter from "./pages/SportsCenter";
 import CourtsManage from "./pages/CourtsManage"
+import PromotionManagement from "./pages/PromotionManagementPage"
 
 
 
@@ -191,7 +192,15 @@ function App() {
         }
       />
       <Route
-        path="/CourtsManage"
+        path="/courts-manage"
+        element={
+          <Layout>
+            <CourtsManage />
+          </Layout>
+        }
+      />
+      <Route
+        path="/courts-manage/:centerId"
         element={
           <Layout>
             <CourtsManage />
@@ -199,11 +208,30 @@ function App() {
         }
       />
 
+
       <Route
         path="/book-coach/:id"
         element={
           <Layout>
             <BookCoachSession />
+          </Layout>
+        }
+      />
+
+      <Route
+        path="/PromotionManagement"
+        element={
+          <Layout>
+            <PromotionManagement />
+          </Layout>
+        }
+      />
+
+      <Route
+        path="/PromotionManagement/:courtId"
+        element={
+          <Layout>
+            <PromotionManagement />
           </Layout>
         }
       />
