@@ -1,13 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Save, X, Calendar, Tag, Percent, DollarSign, AlignLeft, Info, MapPin } from "lucide-react"
+import { Save, X, Calendar, Tag, Percent, DollarSign, AlignLeft, Info, MapPin, Building } from "lucide-react"
 import { courtsData } from "../data/courtsData1"
+import { sportsCentersData } from "../data/sportsCentersData"
 
 const PromotionForm = ({ promotion, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
     promotionId: "",
     courtId: "",
+    sports_center_id: "",
     description: "",
     discount_type: "percentage",
     discount_value: "",
@@ -17,6 +19,8 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedCourt, setSelectedCourt] = useState(null)
+  const [selectedCenter, setSelectedCenter] = useState(null)
+  const [filteredCourts, setFilteredCourts] = useState([])
 
   useEffect(() => {
     if (promotion) {
@@ -26,9 +30,21 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
         valid_to: formatDateForInput(promotion.valid_to),
       })
 
-      // Find the selected court
+      // Find the selected court and center
       const court = courtsData.find((c) => c.courtId === promotion.courtId)
       setSelectedCourt(court)
+
+      const center = sportsCentersData.find((c) => c.centerId === promotion.sports_center_id)
+      setSelectedCenter(center)
+
+      // Filter courts by selected center
+      if (promotion.sports_center_id) {
+        const courts = courtsData.filter((c) => c.sports_center_id === promotion.sports_center_id)
+        setFilteredCourts(courts)
+      }
+    } else {
+      // Set all courts as filtered courts initially
+      setFilteredCourts(courtsData)
     }
   }, [promotion])
 
@@ -52,10 +68,43 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
       })
     }
 
+    // Handle sports center selection
+    if (name === "sports_center_id") {
+      const center = sportsCentersData.find((c) => c.centerId === value)
+      setSelectedCenter(center)
+
+      // Filter courts by selected center
+      if (value) {
+        const courts = courtsData.filter((c) => c.sports_center_id === value)
+        setFilteredCourts(courts)
+
+        // Reset court selection
+        setFormData((prev) => ({
+          ...prev,
+          courtId: "",
+        }))
+        setSelectedCourt(null)
+      } else {
+        setFilteredCourts(courtsData)
+      }
+    }
+
     // Update selected court when courtId changes
     if (name === "courtId") {
       const court = courtsData.find((c) => c.courtId === value)
       setSelectedCourt(court)
+
+      // Auto-select the sports center if not already selected
+      if (court && !formData.sports_center_id) {
+        const center = sportsCentersData.find((c) => c.centerId === court.sports_center_id)
+        if (center) {
+          setSelectedCenter(center)
+          setFormData((prev) => ({
+            ...prev,
+            sports_center_id: center.centerId,
+          }))
+        }
+      }
     }
   }
 
@@ -64,6 +113,10 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
 
     if (!formData.promotionId.trim()) {
       newErrors.promotionId = "Vui lòng nhập mã khuyến mãi"
+    }
+
+    if (!formData.sports_center_id) {
+      newErrors.sports_center_id = "Vui lòng chọn trung tâm thể thao"
     }
 
     if (!formData.courtId) {
@@ -154,8 +207,8 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
                     id="promotionId"
                     name="promotionId"
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.promotionId
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                       }`}
                     value={formData.promotionId}
                     onChange={handleChange}
@@ -163,6 +216,35 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
                     placeholder="Nhập mã khuyến mãi"
                   />
                   {errors.promotionId && <p className="mt-1 text-sm text-red-600">{errors.promotionId}</p>}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="sports_center_id">
+                  <div className="flex items-center">
+                    <Building className="h-4 w-4 mr-1 text-gray-500" />
+                    Trung tâm thể thao
+                  </div>
+                </label>
+                <div className="relative">
+                  <select
+                    id="sports_center_id"
+                    name="sports_center_id"
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.sports_center_id
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      }`}
+                    value={formData.sports_center_id}
+                    onChange={handleChange}
+                  >
+                    <option value="">-- Chọn trung tâm thể thao --</option>
+                    {sportsCentersData.map((center) => (
+                      <option key={center.centerId} value={center.centerId}>
+                        {center.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.sports_center_id && <p className="mt-1 text-sm text-red-600">{errors.sports_center_id}</p>}
                 </div>
               </div>
 
@@ -178,20 +260,24 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
                     id="courtId"
                     name="courtId"
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.courtId
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                       }`}
                     value={formData.courtId}
                     onChange={handleChange}
+                    disabled={!formData.sports_center_id}
                   >
                     <option value="">-- Chọn sân --</option>
-                    {courtsData.map((court) => (
+                    {filteredCourts.map((court) => (
                       <option key={court.courtId} value={court.courtId}>
                         {court.name} - {court.court_type}
                       </option>
                     ))}
                   </select>
                   {errors.courtId && <p className="mt-1 text-sm text-red-600">{errors.courtId}</p>}
+                  {!formData.sports_center_id && !errors.courtId && (
+                    <p className="mt-1 text-sm text-gray-500">Vui lòng chọn trung tâm thể thao trước</p>
+                  )}
                 </div>
               </div>
 
@@ -240,8 +326,8 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
                     id="discount_value"
                     name="discount_value"
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.discount_value
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                       }`}
                     value={formData.discount_value}
                     onChange={handleChange}
@@ -266,8 +352,8 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
                       id="valid_from"
                       name="valid_from"
                       className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.valid_from
-                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                         }`}
                       value={formData.valid_from}
                       onChange={handleChange}
@@ -289,8 +375,8 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
                       id="valid_to"
                       name="valid_to"
                       className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.valid_to
-                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                         }`}
                       value={formData.valid_to}
                       onChange={handleChange}
@@ -315,8 +401,8 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
                     name="description"
                     rows="4"
                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.description
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                       }`}
                     value={formData.description}
                     onChange={handleChange}
@@ -325,6 +411,30 @@ const PromotionForm = ({ promotion, onSave, onCancel }) => {
                   {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
                 </div>
               </div>
+
+              {/* Sports Center Preview */}
+              {selectedCenter && (
+                <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">Thông tin trung tâm thể thao</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500">Tên trung tâm:</span>
+                      <span className="text-sm font-medium">{selectedCenter.name}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500">Địa chỉ:</span>
+                      <span className="text-sm font-medium">{selectedCenter.address}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500">Số điện thoại:</span>
+                      <span className="text-sm font-medium">{selectedCenter.phone_number}</span>
+                    </div>
+                    <div className="text-sm text-gray-500 mt-2">
+                      <p className="text-xs italic">{selectedCenter.description}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Court Preview */}
               {selectedCourt && (

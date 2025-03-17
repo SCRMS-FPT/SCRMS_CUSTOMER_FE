@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Filter, X, MapPin } from "lucide-react"
+import { Search, Filter, X, MapPin, Building } from "lucide-react"
 import { courtsData } from "../data/courtsData1"
+import { sportsCentersData } from "../data/sportsCentersData"
 
 const PromotionSearch = ({ onSearch, onFilter }) => {
   const [searchTerm, setSearchTerm] = useState("")
@@ -10,6 +11,8 @@ const PromotionSearch = ({ onSearch, onFilter }) => {
   const [activeFilters, setActiveFilters] = useState([])
   const [showFilters, setShowFilters] = useState(false)
   const [selectedCourt, setSelectedCourt] = useState("")
+  const [selectedCenter, setSelectedCenter] = useState("")
+  const [filteredCourts, setFilteredCourts] = useState(courtsData)
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -45,6 +48,35 @@ const PromotionSearch = ({ onSearch, onFilter }) => {
     }
   }
 
+  const handleCenterFilter = () => {
+    if (selectedCenter) {
+      const center = sportsCentersData.find((c) => c.centerId === selectedCenter)
+      if (center) {
+        addFilter("sports_center_id", selectedCenter, `Trung tâm: ${center.name}`)
+        setSelectedCenter("")
+
+        // Filter courts by selected center
+        const courts = courtsData.filter((c) => c.sports_center_id === selectedCenter)
+        setFilteredCourts(courts)
+      }
+    } else {
+      setFilteredCourts(courtsData)
+    }
+  }
+
+  const handleCenterChange = (e) => {
+    const centerId = e.target.value
+    setSelectedCenter(centerId)
+
+    if (centerId) {
+      const courts = courtsData.filter((c) => c.sports_center_id === centerId)
+      setFilteredCourts(courts)
+      setSelectedCourt("")
+    } else {
+      setFilteredCourts(courtsData)
+    }
+  }
+
   return (
     <div className="bg-white p-5 rounded-lg shadow-md mb-6">
       <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
@@ -71,6 +103,7 @@ const PromotionSearch = ({ onSearch, onFilter }) => {
             <option value="description">Mô tả</option>
             <option value="discount_type">Loại giảm giá</option>
             <option value="courtId">Sân áp dụng</option>
+            <option value="sports_center_id">Trung tâm thể thao</option>
           </select>
         </div>
         <div className="flex gap-2">
@@ -182,6 +215,38 @@ const PromotionSearch = ({ onSearch, onFilter }) => {
             </div>
           </div>
 
+          {/* Sports Center filter */}
+          <div className="mt-4">
+            <h4 className="text-sm font-medium mb-2">Lọc theo trung tâm thể thao</h4>
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Building className="h-4 w-4 text-gray-400" />
+                </div>
+                <select
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={selectedCenter}
+                  onChange={handleCenterChange}
+                >
+                  <option value="">-- Chọn trung tâm thể thao --</option>
+                  {sportsCentersData.map((center) => (
+                    <option key={center.centerId} value={center.centerId}>
+                      {center.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                type="button"
+                onClick={handleCenterFilter}
+                disabled={!selectedCenter}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Thêm
+              </button>
+            </div>
+          </div>
+
           {/* Court filter */}
           <div className="mt-4">
             <h4 className="text-sm font-medium mb-2">Lọc theo sân</h4>
@@ -196,7 +261,7 @@ const PromotionSearch = ({ onSearch, onFilter }) => {
                   onChange={(e) => setSelectedCourt(e.target.value)}
                 >
                   <option value="">-- Chọn sân --</option>
-                  {courtsData.map((court) => (
+                  {filteredCourts.map((court) => (
                     <option key={court.courtId} value={court.courtId}>
                       {court.name} - {court.court_type}
                     </option>
