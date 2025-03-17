@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
-import { PlusCircle, Tag, Percent, Calendar, BarChart3, RefreshCw, MapPin } from "lucide-react"
+import { PlusCircle, Tag, Percent, Calendar, BarChart3, RefreshCw, MapPin, Building } from "lucide-react"
 import PromotionSearch from "../components/PromotionSearch"
 import PromotionTable from "../components/PromotionTable"
 import PromotionForm from "../components/PromotionForm"
 import { promotionsData } from "../data/promotionsData"
 import { courtsData } from "../data/courtsData1"
+import { sportsCentersData } from "../data/sportsCentersData"
 
 const PromotionManagementPage = () => {
-  const { courtId } = useParams()
+  const { courtId, centerId } = useParams()
   const [promotions, setPromotions] = useState([])
   const [filteredPromotions, setFilteredPromotions] = useState([])
   const [selectedPromotion, setSelectedPromotion] = useState(null)
@@ -30,13 +31,21 @@ const PromotionManagementPage = () => {
       try {
         // Simulate network delay
         await new Promise((resolve) => setTimeout(resolve, 800))
-        setPromotions(promotionsData)
+
+        let filtered = [...promotionsData]
+
+        // Filter by courtId if provided
         if (courtId) {
-          const filtered = promotionsData.filter((promotion) => promotion.courtId === courtId)
-          setFilteredPromotions(filtered)
-        } else {
-          setFilteredPromotions(promotionsData)
+          filtered = filtered.filter((promotion) => promotion.courtId === courtId)
         }
+
+        // Filter by centerId if provided
+        if (centerId) {
+          filtered = filtered.filter((promotion) => promotion.sports_center_id === centerId)
+        }
+
+        setPromotions(promotionsData)
+        setFilteredPromotions(filtered)
       } catch (error) {
         console.error("Error fetching promotions:", error)
       } finally {
@@ -45,7 +54,7 @@ const PromotionManagementPage = () => {
     }
 
     fetchData()
-  }, [courtId])
+  }, [courtId, centerId])
 
   useEffect(() => {
     // Calculate total pages
@@ -76,6 +85,10 @@ const PromotionManagementPage = () => {
         // Search by court name
         const court = courtsData.find((c) => c.courtId === promotion.courtId)
         return court && court.name.toLowerCase().includes(searchTerm.toLowerCase())
+      } else if (searchType === "sports_center_id") {
+        // Search by sports center name
+        const center = sportsCentersData.find((c) => c.centerId === promotion.sports_center_id)
+        return center && center.name.toLowerCase().includes(searchTerm.toLowerCase())
       } else {
         return String(promotion[searchType]).toLowerCase().includes(searchTerm.toLowerCase())
       }
@@ -113,6 +126,10 @@ const PromotionManagementPage = () => {
 
         if (filter.type === "courtId") {
           return promotion.courtId === filter.value
+        }
+
+        if (filter.type === "sports_center_id") {
+          return promotion.sports_center_id === filter.value
         }
 
         if (filter.type === "discount_value") {
@@ -218,7 +235,17 @@ const PromotionManagementPage = () => {
     // Count unique courts with promotions
     const uniqueCourts = new Set(promotions.map((p) => p.courtId)).size
 
-    return { active, expired, upcoming, total: promotions.length, uniqueCourts }
+    // Count unique sports centers with promotions
+    const uniqueCenters = new Set(promotions.map((p) => p.sports_center_id)).size
+
+    return {
+      active,
+      expired,
+      upcoming,
+      total: promotions.length,
+      uniqueCourts,
+      uniqueCenters,
+    }
   }
 
   // Tính toán thông tin phân trang
@@ -267,7 +294,7 @@ const PromotionManagementPage = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
           <div className="rounded-full bg-blue-100 p-3 mr-4">
             <Tag className="h-6 w-6 text-blue-600" />
@@ -311,6 +338,15 @@ const PromotionManagementPage = () => {
           <div>
             <p className="text-sm text-gray-500">Sân có KM</p>
             <p className="text-2xl font-semibold">{stats.uniqueCourts}</p>
+          </div>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-md flex items-center">
+          <div className="rounded-full bg-purple-100 p-3 mr-4">
+            <Building className="h-6 w-6 text-purple-600" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Trung tâm có KM</p>
+            <p className="text-2xl font-semibold">{stats.uniqueCenters}</p>
           </div>
         </div>
       </div>

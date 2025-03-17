@@ -15,8 +15,10 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Building,
 } from "lucide-react"
 import { courtsData } from "../data/courtsData1"
+import { sportsCentersData } from "../data/sportsCentersData"
 
 const PromotionTable = ({ promotions, onEdit, onDelete, pagination, onPageChange, onItemsPerPageChange }) => {
   const { currentPage, totalPages, itemsPerPage, totalItems, startItem, endItem } = pagination
@@ -77,6 +79,11 @@ const PromotionTable = ({ promotions, onEdit, onDelete, pagination, onPageChange
       : { label: "Đã đóng", color: "bg-red-100 text-red-800" }
   }
 
+  const getSportsCenterName = (centerId) => {
+    const center = sportsCentersData.find((center) => center.centerId === centerId)
+    return center ? center.name : "Không xác định"
+  }
+
   // Tạo mảng các số trang để hiển thị
   const getPageNumbers = () => {
     const pageNumbers = []
@@ -124,6 +131,9 @@ const PromotionTable = ({ promotions, onEdit, onDelete, pagination, onPageChange
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã KM</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Trung tâm
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Sân áp dụng
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mô tả</th>
@@ -155,6 +165,14 @@ const PromotionTable = ({ promotions, onEdit, onDelete, pagination, onPageChange
                       <div className="flex items-center">
                         <Tag className="h-4 w-4 text-blue-500 mr-2" />
                         <span className="text-sm font-medium text-gray-900">{promotion.promotionId}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <Building className="h-4 w-4 text-purple-500 mr-2" />
+                        <span className="text-sm font-medium text-gray-900">
+                          {getSportsCenterName(promotion.sports_center_id)}
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -237,7 +255,7 @@ const PromotionTable = ({ promotions, onEdit, onDelete, pagination, onPageChange
               })
             ) : (
               <tr>
-                <td colSpan="8" className="px-6 py-10 text-center text-gray-500">
+                <td colSpan="9" className="px-6 py-10 text-center text-gray-500">
                   <div className="flex flex-col items-center">
                     <AlertCircle className="h-10 w-10 text-gray-400 mb-2" />
                     <p>Không tìm thấy khuyến mãi nào</p>
@@ -311,8 +329,8 @@ const PromotionTable = ({ promotions, onEdit, onDelete, pagination, onPageChange
                       key={pageNum}
                       onClick={() => onPageChange(pageNum)}
                       className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === pageNum
-                        ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                        : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                          ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                          : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                         }`}
                     >
                       {pageNum}
