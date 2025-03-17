@@ -3,7 +3,7 @@ export const courtsData = [
     {
         courtId: "c1",
         name: "Sân A",
-        sports_center_id: "uuid-sportscenter-123",
+        sports_center_id: "centerId1",
         sport_id: "uuid-sport-xyz",
         description: "Sân cỏ tự nhiên, 100m², có chiếu sáng.",
         court_type: "Ngoài trời",
@@ -21,7 +21,7 @@ export const courtsData = [
     {
         courtId: "c2",
         name: "Sân B",
-        sports_center_id: "uuid-sportscenter-123",
+        sports_center_id: "centerId1",
         sport_id: "uuid-sport-abc",
         description: "Sân cỏ nhân tạo, 80m², có mái che.",
         court_type: "Trong nhà",
@@ -39,7 +39,7 @@ export const courtsData = [
     {
         courtId: "c3",
         name: "Sân C",
-        sports_center_id: "uuid-sportscenter-456",
+        sports_center_id: "centerId1",
         sport_id: "uuid-sport-xyz",
         description: "Sân xi măng, 120m², phù hợp cho các giải đấu.",
         court_type: "Ngoài trời",
@@ -129,7 +129,7 @@ export const courtsData = [
     {
         courtId: "c8",
         name: "Sân H",
-        sports_center_id: "uuid-sportscenter-789",
+        sports_center_id: "centerId2",
         sport_id: "uuid-sport-abc",
         description: "Sân gỗ, 100m², có điều hòa không khí và chiếu sáng.",
         court_type: "Trong nhà",
@@ -147,7 +147,7 @@ export const courtsData = [
     {
         courtId: "c9",
         name: "Sân I",
-        sports_center_id: "uuid-sportscenter-456",
+        sports_center_id: "centerId2",
         sport_id: "uuid-sport-xyz",
         description: "Sân xi măng, 140m², có chiếu sáng và phòng thay đồ.",
         court_type: "Ngoài trời",
@@ -165,7 +165,7 @@ export const courtsData = [
     {
         courtId: "c10",
         name: "Sân J",
-        sports_center_id: "uuid-sportscenter-123",
+        sports_center_id: "centerId2",
         sport_id: "uuid-sport-abc",
         description: "Sân cỏ nhân tạo, 120m², có chiếu sáng và mái che.",
         court_type: "Trong nhà",
