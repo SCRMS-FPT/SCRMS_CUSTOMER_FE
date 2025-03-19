@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout";
+import Layout from "@/components/Layout";
 
 import HomeView from "@/pages/GeneralView/HomeView";
 import LoginView from "@/pages/GeneralView/LoginView";
@@ -50,6 +50,8 @@ import Feedback from "@/pages/Feedback";
 import CourtsManage from "@/pages/CourtsManage";
 import PromotionManagement from "./pages/PromotionManagementPage"
 import TransactionHistoryPage from "./pages/TransactionHistoryPage"
+import FindCourtBySportView from "./pages/UserView/FindCourtBySportView";
+import court_mock_data from "./data/court_mock_data";
 
 function App() {
   return (
@@ -63,7 +65,7 @@ function App() {
           </Layout>
         }
       />
-      <Route
+            <Route
         path="/home"
         element={
           <Layout>
@@ -119,6 +121,22 @@ function App() {
           </Layout>
         }
       />
+            <Route
+        path="/courts/sport"
+        element={
+          <Layout className="bg-gray-50">
+            <FindCourtBySportView data={court_mock_data} />
+          </Layout>
+        }
+      />
+      <Route
+          path="/courts/sport/:sportType"
+          element={
+            <Layout className="bg-gray-50">
+              <FindCourtBySportView data={court_mock_data} />
+            </Layout>
+          }
+        />
       <Route
         path="/court/:id"
         element={
@@ -154,7 +172,7 @@ function App() {
           </Layout>
         }
       />
-      
+
       <Route
         path="/user/dashboard"
         element={
