@@ -1,10 +1,10 @@
-import Navbar from "./navbar";
+import Navbar from "./Navbar";
 
-const Layout = ({ children }) => {
+const Layout = ({ children, className = "" }) => {
   return (
     <div>
       <Navbar />
-      <main className="">{children}</main>
+      <main className={className}>{children}</main>
     </div>
   );
 };
