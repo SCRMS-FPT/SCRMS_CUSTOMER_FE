@@ -49,6 +49,7 @@ import SportsCenter from "@/pages/SportsCenter";
 import Feedback from "@/pages/Feedback";
 import CourtsManage from "@/pages/CourtsManage";
 import PromotionManagement from "./pages/PromotionManagementPage"
+import TransactionHistoryPage from "./pages/TransactionHistoryPage"
 
 function App() {
   return (
@@ -367,6 +368,14 @@ function App() {
         element={
           <Layout>
             <PromotionManagement />
+          </Layout>
+        }
+      />
+      <Route
+        path="/History"
+        element={
+          <Layout>
+            <TransactionHistoryPage />
           </Layout>
         }
       />
