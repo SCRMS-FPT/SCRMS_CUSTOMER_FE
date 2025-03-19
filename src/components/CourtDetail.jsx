@@ -1,14 +1,20 @@
 "use client"
 import sportsData from "../data/sportsData";
+import { useNavigate } from "react-router-dom";
 
 const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
-  const { name, description, court_type, facilities, images, status, sports_center_id, sport_id } = court
+  const { name, description, court_type, facilities, images, status, sports_center_id, sport_id } = court;
+  const navigate = useNavigate();
 
   // Tìm thông tin trung tâm thể thao
-  const sportsCenter = sportsCenters.find((center) => center.centerId === sports_center_id)
+  const sportsCenter = sportsCenters.find((center) => center.centerId === sports_center_id);
 
   // Tìm thông tin môn thể thao (sport_id bây giờ là tên môn thể thao)
-  const sport = sportsData.find((sport) => sport.name === sport_id)
+  const sport = sportsData.find((sport) => sport.name === sport_id);
+
+  const handlePromotionClick = () => {
+    navigate(`/PromotionManagement/${court.courtId}`);
+  };
 
   return (
     <div className="court-detail">
@@ -20,6 +26,9 @@ const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
           </button>
           <button className="delete-btn" onClick={onDelete}>
             Xóa
+          </button>
+          <button className="promotion-btn" onClick={handlePromotionClick}>
+            Khuyến Mãi
           </button>
         </div>
       </div>
@@ -100,8 +109,8 @@ const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CourtDetail
+export default CourtDetail;
 

@@ -13,7 +13,7 @@ export const sportsCentersData = [
   },
   {
     centerId: "centerId2",
-    name: "Khu thể thao ABC",
+    name: "Khu thể thao ABC1",
     phone_number: "0123456789",
     address: "123 Đường XYZ, Quận 1",
     location: {
