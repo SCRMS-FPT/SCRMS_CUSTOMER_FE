@@ -25,6 +25,7 @@ import BookingListPage from "./pages/BookingListPage";
 import SportsCenter from "./pages/SportsCenter";
 import CourtsManage from "./pages/CourtsManage"
 import PromotionManagement from "./pages/PromotionManagementPage"
+import TransactionHistoryPage from "./pages/TransactionHistoryPage"
 
 
 
@@ -232,6 +233,14 @@ function App() {
         element={
           <Layout>
             <PromotionManagement />
+          </Layout>
+        }
+      />
+      <Route
+        path="/History"
+        element={
+          <Layout>
+            <TransactionHistoryPage />
           </Layout>
         }
       />
