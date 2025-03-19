@@ -8,6 +8,9 @@ import {
   BookOutlined,
   ScheduleOutlined,
   BarChartOutlined,
+  HomeOutlined,
+  SettingOutlined,
+  LogoutOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
 } from "@ant-design/icons";
@@ -28,10 +31,32 @@ const CoachSidebar = ({ children }) => {
     { key: "/coach/analytics", icon: <BarChartOutlined />, label: "Analytics" },
   ];
 
+  const bottomMenuItems = [
+    { key: "/home", icon: <HomeOutlined />, label: "Return to Homepage" },
+    { key: "/settings", icon: <SettingOutlined />, label: "View Profile Settings" },
+    { key: "/logout", icon: <LogoutOutlined />, label: "Sign Out" },
+  ];
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      {/* Sidebar */}
-      <Sider collapsible collapsed={collapsed} trigger={null} width={220} theme="light">
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        trigger={null}
+        width={220}
+        theme="light"
+        style={{
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          height: "100vh",
+          overflow: "hidden",
+          borderRight: "1px solid #ddd",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <div className="flex justify-between items-center p-4">
           <h2 className={`text-lg font-bold ${collapsed ? "hidden" : "block"}`}>Coach Dashboard</h2>
           <Button
@@ -41,18 +66,43 @@ const CoachSidebar = ({ children }) => {
           />
         </div>
 
-        <Menu mode="inline" selectedKeys={[location.pathname]} style={{ height: "100%", borderRight: 0 }}>
+        {/* Sidebar Menu */}
+        <Menu mode="inline" selectedKeys={[location.pathname]} style={{ flex: 1, borderRight: 0 }}>
           {menuItems.map((item) => (
             <Menu.Item key={item.key} icon={item.icon}>
               <Link to={item.key}>{item.label}</Link>
             </Menu.Item>
           ))}
         </Menu>
+
+        {/* Bottom Menu (Fixed to Bottom) */}
+        <div style={{ position: "absolute", bottom: 0, width: "100%" }}>
+          <Menu mode="inline" selectedKeys={[location.pathname]}>
+            {bottomMenuItems.map((item) => (
+              <Menu.Item key={item.key} icon={item.icon}>
+                <Link to={item.key}>{item.label}</Link>
+              </Menu.Item>
+            ))}
+          </Menu>
+        </div>
       </Sider>
 
-      {/* Main Content Area */}
-      <Layout style={{ marginLeft: collapsed ? 20 : 10, transition: "margin-left 0.3s ease" }}>
-        <Content style={{ padding: "20px" }}>{children}</Content>
+      {/* Scrollable Content Area */}
+      <Layout
+        style={{
+          marginLeft: collapsed ? 80 : 220,
+          transition: "margin-left 0.3s ease",
+        }}
+      >
+        <Content
+          style={{
+            padding: "20px",
+            overflowY: "auto",
+            height: "100vh",
+          }}
+        >
+          {children}
+        </Content>
       </Layout>
     </Layout>
   );

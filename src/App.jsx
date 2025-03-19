@@ -62,6 +62,14 @@ function App() {
         }
       />
       <Route
+        path="/home"
+        element={
+          <Layout>
+            <HomeView />
+          </Layout>
+        }
+      />
+      <Route
         path="/login"
         element={
           <Layout>
