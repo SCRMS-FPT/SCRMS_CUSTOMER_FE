@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import CustomDatePicker from "../components/CustomDatePicker";
-import sportsData from "../data/sportsData";
-import CourtCard from "../components/CourtCard";
-import courtsData from "../data/courtsData";
+import CustomDatePicker from "@/components/BrowseCourtView/CustomDatePicker";
+import sportsData from "@/data/sportsData";
+import CourtCard from "@/components/BrowseCourtView/CourtCard";
+import courtsData from "@/data/courtsData";
 import { useEffect } from "react";
-import SearchBarList from "../components/SearchBarList";
+import SearchBarList from "@/components/BrowseCourtView/SearchBarList";
 import { TimePicker } from 'antd';
 import dayjs from "dayjs";
 
 
-
-const BrowseCourts = () => {
+const BrowseCourtsView = () => {
     const today = new Date().toISOString().split("T")[0]; // 📅 Get today's date (YYYY-MM-DD)
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -291,4 +290,4 @@ const BrowseCourts = () => {
     );
 };
 
-export default BrowseCourts;
+export default BrowseCourtsView;

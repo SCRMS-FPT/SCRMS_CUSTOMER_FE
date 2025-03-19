@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 
 // Import images from src/assets
-import img1 from "../assets/badminton_01.png";
-import img2 from "../assets/gym_01.jpg";
-import img3 from "../assets/soccer_01.jpg";
-import img4 from "../assets/swimming_01.jpg";
-import img5 from "../assets/soccer_02.jpg";
-import img6 from "../assets/tennis_01.jpg";
-import FilterForm from "./FilterForm";
+import img1 from "@/assets/badminton_01.png";
+import img2 from "@/assets/gym_01.jpg";
+import img3 from "@/assets/soccer_01.jpg";
+import img4 from "@/assets/swimming_01.jpg";
+import img5 from "@/assets/soccer_02.jpg";
+import img6 from "@/assets/tennis_01.jpg";
+import FilterForm from "@/components/FilterForm";
 
 const HeroSection = () => {
   const images = [img1, img2, img3, img4, img5, img6];

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@mui/material";
-import socialGames from "../data/socialGames"; // Importing data
+import socialGames from "@/data/socialGames"; // Importing data
 
 const TopSocialGames = () => {
   const [selectedSport, setSelectedSport] = useState("All");

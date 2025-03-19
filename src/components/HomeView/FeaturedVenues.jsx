@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, Button } from "@mui/material";
-import sportsData from "../data/sportsData"; // Importing sports list
-import venuesData from "../data/venuesData"; // Importing venues list
+import sportsData from "@/data/sportsData"; // Importing sports list
+import venuesData from "@/data/venuesData"; // Importing venues list
 
 const FeaturedVenues = () => {
   const [selectedSport, setSelectedSport] = useState("All");

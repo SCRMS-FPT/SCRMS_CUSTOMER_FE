@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import "../styles/customCalendar.css"; // Custom styles for Tailwind
+import "@/styles/customCalendar.css"; // Custom styles for Tailwind
 
 const CustomDatePicker = ({ selectedDate, setSelectedDate }) => {
     // Function to disable past dates

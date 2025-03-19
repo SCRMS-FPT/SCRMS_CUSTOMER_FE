@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import sportsData from "../data/sportsData"; // Import sports data for icons
+import sportsData from "@/data/sportsData"; // Import sports data for icons
 
 const CourtCard = ({ court }) => {
     const navigate = useNavigate();

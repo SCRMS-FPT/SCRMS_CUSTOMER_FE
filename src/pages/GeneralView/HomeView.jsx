@@ -1,13 +1,13 @@
 import React from "react";
-import HeroSection from "../components/HeroSection";
-import SportsCarousel from "../components/SportCarousel";
-import FeaturedVenues from "../components/FeaturedVenues";
-import TopSocialGames from "../components/TopSocialGames";
-import InfoCardSection from "../components/InfoCardSection";
-import infoCardsData from "../data/infoCardsData";
-import basketballCourtBg from "../assets/basketball_court_01.jpg";
+import HeroSection from "@/components/HomeView/HeroSection";
+import SportsCarousel from "@/components/HomeView/SportCarousel";
+import FeaturedVenues from "@/components/HomeView/FeaturedVenues";
+import TopSocialGames from "@/components/HomeView/TopSocialGames";
+import InfoCardSection from "@/components/HomeView/InfoCardSection";
+import infoCardsData from "@/data/infoCardsData";
+import basketballCourtBg from "@/assets/basketball_court_01.jpg";
 
-const HomeTest = () => {
+const HomeView = () => {
   return (
     <div className="bg-white">
       <HeroSection />
@@ -32,4 +32,4 @@ const HomeTest = () => {
   );
 };
 
-export default HomeTest;
+export default HomeView;

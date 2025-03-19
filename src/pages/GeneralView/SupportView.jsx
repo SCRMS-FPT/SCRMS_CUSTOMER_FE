@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 
-const Support = () => {
+const SupportView = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [faqOpen, setFaqOpen] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -138,4 +138,4 @@ const Support = () => {
   );
 };
 
-export default Support;
+export default SupportView;

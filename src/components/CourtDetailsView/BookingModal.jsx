@@ -1,5 +1,5 @@
 import React from "react";
-import WeekBookedCard from "./WeekBookedCard";
+import WeekBookedCard from "@/components/WeekBookedCard";
 import { startOfWeek, addDays, format } from "date-fns";
 
 const BookingModal = ({ bookedSchedules = [], court, width = "70vw", height = "70vh" }) => {

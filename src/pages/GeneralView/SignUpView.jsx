@@ -4,9 +4,9 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { notification } from "antd"; 
-import { Client } from "../API/IdentityApi";
+import { Client } from "@/API/IdentityApi";
 
-const SignUp = () => {
+const SignUpView = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -160,4 +160,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default SignUpView;

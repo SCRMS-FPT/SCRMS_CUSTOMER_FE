@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { bookingSchema } from "../utils/validationSchema";
+import { bookingSchema } from "@/utils/validationSchema";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Radio, Input, Select, DatePicker, Button, Checkbox, Alert, Modal, notification } from "antd";
@@ -7,14 +7,14 @@ import { ExclamationCircleOutlined, DollarCircleOutlined, QrcodeOutlined, ClockC
 import { isAfter, isBefore, parse, format, addMinutes, isSameMinute } from "date-fns";
 import { Book } from "lucide-react";
 import Lottie from "lottie-react";
-import placeholderImage from "../assets/image_error.png";
-import successAnimation from "../assets/animations/success_animation.json";
+import placeholderImage from "@/assets/image_error.png";
+import successAnimation from "@/assets/animations/success_animation.json";
 const { Option } = Select;
 
-import courts from "../data/courtsData";
-import bookedSchedule from "../data/bookedSchedule";
+import courts from "@/data/courtsData";
+import bookedSchedule from "@/data/bookedSchedule";
 
-const BookCourt = () => {
+const BookCourtView = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedDuration, setSelectedDuration] = useState(null);
     const [fullName, setFullName] = useState("");
@@ -366,4 +366,4 @@ const BookCourt = () => {
     );
 };
 
-export default BookCourt;
+export default BookCourtView;

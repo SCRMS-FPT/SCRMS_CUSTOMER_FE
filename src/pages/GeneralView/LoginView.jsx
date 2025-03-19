@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../store/userSlice";
+import { login } from "@/store/userSlice";
 import { useNavigate, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
-import { Client } from "../API/IdentityApi";
-import { API_IDENTITY_URL } from "../API/config";
+import { Client } from "@/API/IdentityApi";
+import { API_IDENTITY_URL } from "@/API/config";
 import { notification } from "antd";
 
-const Login = () => {
+const LoginView = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -137,4 +137,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginView;
