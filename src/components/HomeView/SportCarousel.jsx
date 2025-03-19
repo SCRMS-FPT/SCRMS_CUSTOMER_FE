@@ -5,12 +5,12 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-import img1 from "../assets/football.png";
-import img2 from "../assets/tennis.jpg";
-import img3 from "../assets/adventure_sport.jpg";
-import img4 from "../assets/esport.jpg";
-import img5 from "../assets/swimming.jpg";
-import img6 from "../assets/personal_trainers.jpg";
+import img1 from "@/assets/football.png";
+import img2 from "@/assets/tennis.jpg";
+import img3 from "@/assets/adventure_sport.jpg";
+import img4 from "@/assets/esport.jpg";
+import img5 from "@/assets/swimming.jpg";
+import img6 from "@/assets/personal_trainers.jpg";
 
 const sportsData = [
     { img: img1, name: "Football" },

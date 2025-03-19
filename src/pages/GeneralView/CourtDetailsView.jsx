@@ -1,20 +1,20 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import courts from "../data/courtsData";
-import ownersData from "../data/ownersData";
+import courts from "@/data/courtsData";
+import ownersData from "@/data/ownersData";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import DatePicker from "../components/CustomDatePicker";
+import DatePicker from "@/components/BrowseCourtView/CustomDatePicker";
 import { FaMapMarkerAlt, FaClock, FaDollarSign, FaStar, FaImage } from "react-icons/fa";
-import placeholderImage from "../assets/image_error.png";
-import BookingModal from "../components/bookingModal";
+import placeholderImage from "@/assets/image_error.png";
+import BookingModal from "@/components/CourtDetailsView/bookingModal";
 import { Modal } from "antd";
-import bookedSchedule from "../data/bookedSchedule";
+import bookedSchedule from "@/data/bookedSchedule";
 
-const CourtDetails = () => {
+const CourtDetailsView = () => {
     const { id } = useParams(); // Get court ID from URL
     const court = courts.find(c => c.id === id || c.id === parseInt(id)); // ✅ Ensure ID comparison works
     const [selectedDate, setSelectedDate] = useState(null);
@@ -192,4 +192,4 @@ const CourtDetails = () => {
     );
 };
 
-export default CourtDetails;
+export default CourtDetailsView;

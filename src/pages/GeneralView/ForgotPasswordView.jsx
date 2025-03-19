@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Input, Button, notification } from "antd";
 import { MailOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
-import { Client } from "../API/IdentityApi";
-import { API_IDENTITY_URL } from "../API/config";
+import { Client } from "@/API/IdentityApi";
+import { API_IDENTITY_URL } from "@/API/config";
 
-const ForgotPassword = () => {
+const ForgotPasswordView = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -83,4 +83,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default ForgotPasswordView;

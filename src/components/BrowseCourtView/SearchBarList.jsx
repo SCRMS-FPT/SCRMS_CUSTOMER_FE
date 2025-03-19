@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { DollarOutlined, CloseOutlined } from "@ant-design/icons";
 import { Modal, Slider, Dropdown } from "antd";
-import sportsData from "../data/sportsData";
-import courtsData from "../data/courtsData";
-import soccerBg from "../assets/soccer_04.jpg";
+import sportsData from "@/data/sportsData";
+import courtsData from "@/data/courtsData";
+import soccerBg from "@/assets/soccer_04.jpg";
 
 const SearchBarList = ({ onSearch }) => {
     const [searchTerm, setSearchTerm] = useState("");
