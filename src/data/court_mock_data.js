@@ -1,6 +1,6 @@
 export const courtsData = [
     {
-      court_id: "C001",
+      court_id: "court_001",
       name: "Court 1",
       sport_type: "Tennis",
       venue: {
@@ -49,7 +49,7 @@ export const courtsData = [
       rules: ["No food or drinks on the court", "Proper sports attire required"],
     },
     {
-      court_id: "C002",
+      court_id: "court_002",
       name: "Court 2",
       sport_type: "Basketball",
       venue: {
@@ -79,7 +79,7 @@ export const courtsData = [
       rules: ["No dunking", "Respect referees"],
     },
     {
-      court_id: "C003",
+      court_id: "court_003",
       name: "Court 3",
       sport_type: "Soccer",
       venue: {
@@ -109,7 +109,7 @@ export const courtsData = [
       rules: ["No metal cleats", "Use designated entry points"],
     },
     {
-      court_id: "C004",
+      court_id: "court_004",
       name: "Court 4",
       sport_type: "Badminton",
       venue: {
