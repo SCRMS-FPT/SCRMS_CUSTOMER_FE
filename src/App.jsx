@@ -8,6 +8,7 @@ import SupportView from "@/pages/GeneralView/SupportView";
 import ForgotPasswordView from "@/pages/GeneralView/ForgotPasswordView";
 import BrowseCourtsView from "@/pages/GeneralView/BrowseCourtsView";
 import FindCourtBySportView from "@/pages/UserView/FindCourtBySportView";
+import FindCourtByVenueView from "@/pages/UserView/FindCourtByVenueView";
 import CourtDetailsView from "@/pages/GeneralView/CourtDetailsView";
 
 
@@ -18,6 +19,7 @@ import UserTeamMatchingManagementView from "@/pages/UserView/UserTeamMatchingMan
 import UserCoachingManagementView from "@/pages/UserView/UserCoachingManagementView";
 
 import CourtOwnerDashboardView from "@/pages/CourtOwnerView/CourtOwnerDashboardView";
+import CourtOwnerVenueListView from "@/pages/CourtOwnerView/CourtOwnerVenueListView";
 import CourtOwnerCourtListView from "@/pages/CourtOwnerView/CourtOwnerCourtListView";
 import CourtOwnerBookingView from "@/pages/CourtOwnerView/CourtOwnerBookingView";
 import CourtOwnerScheduleView from "@/pages/CourtOwnerView/CourtOwnerScheduleView";
@@ -52,8 +54,9 @@ import CourtsManage from "@/pages/CourtsManage";
 import PromotionManagement from "./pages/PromotionManagementPage"
 import TransactionHistoryPage from "./pages/TransactionHistoryPage"
 
-import court_mock_data from "./data/court_mock_data";
-import FindCourtByVenueView from "./pages/UserView/FindCourtByVenueView";
+import court_mock_data from "@/data/court_mock_data";
+
+
 
 function App() {
   return (
@@ -214,6 +217,12 @@ function App() {
         path="/court-owner/dashboard"
         element={
           <CourtOwnerDashboardView />
+        }
+      />
+      <Route
+        path="/court-owner/venues"
+        element={
+          <CourtOwnerVenueListView />
         }
       />
       <Route

@@ -5,6 +5,7 @@ import {
   BankOutlined,
   CalendarOutlined,
   FileTextOutlined,
+  GoldOutlined,
   ScheduleOutlined,
   BarChartOutlined,
   HomeOutlined,
@@ -23,6 +24,7 @@ const CourtOwnerSidebar = ({ children }) => {
 
   const menuItems = [
     { key: "/court-owner/dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
+    { key: "/court-owner/venues", icon: <GoldOutlined />, label: "My Venues" },
     { key: "/court-owner/courts", icon: <BankOutlined />, label: "My Courts" },
     { key: "/court-owner/bookings", icon: <CalendarOutlined />, label: "Manage Bookings" },
     { key: "/court-owner/schedule", icon: <ScheduleOutlined />, label: "Schedule Management" },
