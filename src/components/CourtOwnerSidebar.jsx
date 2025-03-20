@@ -8,6 +8,8 @@ import {
   ScheduleOutlined,
   BarChartOutlined,
   HomeOutlined,
+  CommentOutlined,
+  DollarOutlined,
   SettingOutlined,
   LogoutOutlined,
   MenuUnfoldOutlined,
@@ -27,6 +29,8 @@ const CourtOwnerSidebar = ({ children }) => {
     { key: "/court-owner/courts", icon: <BankOutlined />, label: <Link to="/court-owner/courts">My Courts</Link> },
     { key: "/court-owner/bookings", icon: <CalendarOutlined />, label: <Link to="/court-owner/bookings">Manage Bookings</Link> },
     { key: "/court-owner/schedule", icon: <ScheduleOutlined />, label: <Link to="/court-owner/schedule">Schedule Management</Link> },
+    { key: "/court-owner/promotions", icon: <DollarOutlined />, label: <Link to="/court-owner/promotions">Promotions</Link> },
+    { key: "/court-owner/notifications", icon: <CommentOutlined />, label: <Link to="/court-owner/notifications">Notifications & Message</Link> },
     { key: "/court-owner/reports", icon: <BarChartOutlined />, label: <Link to="/court-owner/reports">Revenue & Reports</Link> },
   ];
 
