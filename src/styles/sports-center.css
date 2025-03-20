@@ -1,0 +1,120 @@
+/* Add this CSS file to your project and import it in your main CSS or in the SportsCenter component */
+
+.sports-center-container {
+    min-height: 100vh;
+    background-color: #f5f7fa;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.hero-section {
+    position: relative;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.hero-section:after {
+    content: "";
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 40px;
+    background-color: #fff;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.content-container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    padding: 24px;
+}
+
+.dashboard-card {
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Table styles */
+.ant-table-wrapper {
+    width: 100%;
+}
+
+.ant-table {
+    width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 60px 16px;
+        height: 400px;
+    }
+
+    .hero-section h1 {
+        font-size: 36px;
+    }
+
+    .hero-section p {
+        font-size: 16px;
+    }
+
+    .content-container {
+        padding: 16px;
+    }
+}
+
+/* Animation for table rows */
+.ant-table-tbody>tr {
+    transition: all 0.3s ease;
+}
+
+.ant-table-tbody>tr:hover {
+    background-color: #e6f7ff !important;
+    transform: scale(1.01);
+}
+
+/* Custom styling for buttons */
+.ant-btn-primary {
+    background: linear-gradient(to right, #1890ff, #096dd9);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.ant-btn-primary:hover {
+    background: linear-gradient(to right, #40a9ff, #1890ff);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+}
+
+/* Form styling */
+.ant-form {
+    width: 100%;
+}
+
+.ant-form-item-label>label {
+    font-weight: 500;
+    color: #262626;
+}
+
+.ant-input,
+.ant-input-affix-wrapper {
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.ant-input:focus,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    transform: translateY(-2px);
+}
