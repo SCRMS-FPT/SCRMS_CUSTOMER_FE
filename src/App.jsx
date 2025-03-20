@@ -20,6 +20,8 @@ import UserCoachingManagementView from "@/pages/UserView/UserCoachingManagementV
 
 import CourtOwnerDashboardView from "@/pages/CourtOwnerView/CourtOwnerDashboardView";
 import CourtOwnerVenueListView from "@/pages/CourtOwnerView/CourtOwnerVenueListView";
+import CourtOwnerVenueDetailView from "@/pages/CourtOwnerView/CourtOwnerVenueDetailView";
+import CourtOwnerVenueCreateView from "@/pages/CourtOwnerView/CourtOwnerVenueCreateView";
 import CourtOwnerCourtListView from "@/pages/CourtOwnerView/CourtOwnerCourtListView";
 import CourtOwnerBookingView from "@/pages/CourtOwnerView/CourtOwnerBookingView";
 import CourtOwnerScheduleView from "@/pages/CourtOwnerView/CourtOwnerScheduleView";
@@ -55,7 +57,7 @@ import PromotionManagement from "./pages/PromotionManagementPage"
 import TransactionHistoryPage from "./pages/TransactionHistoryPage"
 
 import court_mock_data from "@/data/court_mock_data";
-import CourtOwnerVenueDetailView from "./pages/CourtOwnerView/CourtOwnerVenueDetailView";
+
 
 
 
@@ -230,6 +232,12 @@ function App() {
         path="/court-owner/venues/:venueId"
         element={
           <CourtOwnerVenueDetailView />
+        }
+      />
+      <Route
+        path="/court-owner/venues/create"
+        element={
+          <CourtOwnerVenueCreateView />
         }
       />
       <Route

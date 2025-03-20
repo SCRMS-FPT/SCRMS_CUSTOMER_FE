@@ -99,8 +99,10 @@ const CourtOwnerVenueListView = () => {
 
   return (
     <CourtOwnerSidebar>
-      <Card title="My Venues" extra={<Button type="primary">Add New Venue</Button>}>
-        <Table dataSource={venuesData} rowKey="id" columns={columns} pagination={{ pageSize: 10 }}/>
+      <Card title="My Venues" extra={<Button type="primary" onClick={() => navigate("/court-owner/venues/create")}>
+        Add New Venue
+      </Button>}>
+        <Table dataSource={venuesData} rowKey="id" columns={columns} pagination={{ pageSize: 10 }} />
       </Card>
     </CourtOwnerSidebar>
   );
