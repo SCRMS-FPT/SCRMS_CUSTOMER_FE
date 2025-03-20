@@ -9,7 +9,7 @@ import ForgotPasswordView from "@/pages/GeneralView/ForgotPasswordView";
 import BrowseCourtsView from "@/pages/GeneralView/BrowseCourtsView";
 import FindCourtBySportView from "@/pages/UserView/FindCourtBySportView";
 import FindCourtByVenueView from "@/pages/UserView/FindCourtByVenueView";
-import CourtDetailsView from "@/pages/GeneralView/CourtDetailsView";
+import CourtDetailsView from "@/pages/GeneralView/SportCenterDetailView";
 
 
 import BookCourtView from "@/pages/UserView/BookCourtView";
