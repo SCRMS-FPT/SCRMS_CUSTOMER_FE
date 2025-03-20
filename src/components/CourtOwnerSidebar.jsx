@@ -4,7 +4,7 @@ import {
   DashboardOutlined,
   BankOutlined,
   CalendarOutlined,
-  FileTextOutlined,
+  GoldOutlined,
   ScheduleOutlined,
   BarChartOutlined,
   HomeOutlined,
@@ -22,18 +22,18 @@ const CourtOwnerSidebar = ({ children }) => {
   const location = useLocation();
 
   const menuItems = [
-    { key: "/court-owner/dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
-    { key: "/court-owner/courts", icon: <BankOutlined />, label: "My Courts" },
-    { key: "/court-owner/bookings", icon: <CalendarOutlined />, label: "Manage Bookings" },
-    { key: "/court-owner/schedule", icon: <ScheduleOutlined />, label: "Schedule Management" },
-    { key: "/court-owner/reports", icon: <BarChartOutlined />, label: "Revenue & Reports" },
+    { key: "/court-owner/dashboard", icon: <DashboardOutlined />, label: <Link to="/court-owner/dashboard">Dashboard</Link> },
+    { key: "/court-owner/venues", icon: <GoldOutlined />, label: <Link to="/court-owner/venues">My Venues</Link> },
+    { key: "/court-owner/courts", icon: <BankOutlined />, label: <Link to="/court-owner/courts">My Courts</Link> },
+    { key: "/court-owner/bookings", icon: <CalendarOutlined />, label: <Link to="/court-owner/bookings">Manage Bookings</Link> },
+    { key: "/court-owner/schedule", icon: <ScheduleOutlined />, label: <Link to="/court-owner/schedule">Schedule Management</Link> },
+    { key: "/court-owner/reports", icon: <BarChartOutlined />, label: <Link to="/court-owner/reports">Revenue & Reports</Link> },
   ];
 
-
   const bottomMenuItems = [
-    { key: "/home", icon: <HomeOutlined />, label: "Return to Homepage" },
-    { key: "/settings", icon: <SettingOutlined />, label: "View Profile Settings" },
-    { key: "/logout", icon: <LogoutOutlined />, label: "Sign Out" },
+    { key: "/home", icon: <HomeOutlined />, label: <Link to="/home">Return to Homepage</Link> },
+    { key: "/settings", icon: <SettingOutlined />, label: <Link to="/settings">View Profile Settings</Link> },
+    { key: "/logout", icon: <LogoutOutlined />, label: <Link to="/logout">Sign Out</Link> },
   ];
 
   return (
@@ -59,23 +59,11 @@ const CourtOwnerSidebar = ({ children }) => {
           />
         </div>
 
-        <Menu mode="inline" selectedKeys={[location.pathname]} style={{ height: "100%", borderRight: 0 }}>
-          {menuItems.map((item) => (
-            <Menu.Item key={item.key} icon={item.icon}>
-              <Link to={item.key}>{item.label}</Link>
-            </Menu.Item>
-          ))}
-        </Menu>
+        <Menu mode="inline" selectedKeys={[location.pathname]} style={{ height: "100%", borderRight: 0 }} items={menuItems} />
 
         {/* Bottom Menu (Fixed to Bottom) */}
         <div style={{ position: "absolute", bottom: 0, width: "100%" }}>
-          <Menu mode="inline" selectedKeys={[location.pathname]}>
-            {bottomMenuItems.map((item) => (
-              <Menu.Item key={item.key} icon={item.icon}>
-                <Link to={item.key}>{item.label}</Link>
-              </Menu.Item>
-            ))}
-          </Menu>
+          <Menu mode="inline" selectedKeys={[location.pathname]} items={bottomMenuItems} />
         </div>
       </Sider>
 

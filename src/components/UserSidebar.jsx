@@ -4,7 +4,6 @@ import {
   DashboardOutlined,
   CalendarOutlined,
   UsergroupAddOutlined,
-  TeamOutlined,
   BookOutlined,
   HomeOutlined,
   SettingOutlined,
@@ -21,32 +20,39 @@ const UserSidebar = ({ children }) => {
   const location = useLocation();
 
   const menuItems = [
-    { key: "/user/dashboard", icon: <DashboardOutlined />, label: "User Dashboard" },
-    { key: "/user/bookings", icon: <CalendarOutlined />, label: "Court Booking" },
-    { key: "/user/matching", icon: <UsergroupAddOutlined />, label: "Team Matching" },
-    { key: "/user/coachings", icon: <BookOutlined />, label: "Coaching" },
+    { key: "/user/dashboard", icon: <DashboardOutlined />, label: <Link to="/user/dashboard">User Dashboard</Link> },
+    { key: "/user/bookings", icon: <CalendarOutlined />, label: <Link to="/user/bookings">Court Booking</Link> },
+    { key: "/user/matching", icon: <UsergroupAddOutlined />, label: <Link to="/user/matching">Team Matching</Link> },
+    { key: "/user/coachings", icon: <BookOutlined />, label: <Link to="/user/coachings">Coaching</Link> },
   ];
 
   const bottomMenuItems = [
-    { key: "/home", icon: <HomeOutlined />, label: "Return to Homepage" },
-    { key: "/settings", icon: <SettingOutlined />, label: "View Profile Settings" },
-    { key: "/logout", icon: <LogoutOutlined />, label: "Sign Out" },
+    { key: "/home", icon: <HomeOutlined />, label: <Link to="/home">Return to Homepage</Link> },
+    { key: "/settings", icon: <SettingOutlined />, label: <Link to="/settings">View Profile Settings</Link> },
+    { key: "/logout", icon: <LogoutOutlined />, label: <Link to="/logout">Sign Out</Link> },
   ];
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
-      <Sider collapsible collapsed={collapsed} trigger={null} width={220} theme="light" style={{
-        position: "fixed",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        height: "100vh",
-        overflow: "hidden",
-        borderRight: "1px solid #ddd",
-        display: "flex",
-        flexDirection: "column",
-      }}>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        trigger={null}
+        width={220}
+        theme="light"
+        style={{
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          height: "100vh",
+          overflow: "hidden",
+          borderRight: "1px solid #ddd",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <div className="flex justify-between items-center p-4">
           <h2 className={`text-lg font-bold ${collapsed ? "hidden" : "block"}`}>User Dashboard</h2>
           <Button
@@ -56,23 +62,12 @@ const UserSidebar = ({ children }) => {
           />
         </div>
 
-        <Menu mode="inline" selectedKeys={[location.pathname]} style={{ height: "100%", borderRight: 0 }}>
-          {menuItems.map((item) => (
-            <Menu.Item key={item.key} icon={item.icon}>
-              <Link to={item.key}>{item.label}</Link>
-            </Menu.Item>
-          ))}
-        </Menu>
+        {/* Sidebar Menu */}
+        <Menu mode="inline" selectedKeys={[location.pathname]} style={{ height: "100%", borderRight: 0 }} items={menuItems} />
 
         {/* Bottom Menu (Fixed to Bottom) */}
         <div style={{ position: "absolute", bottom: 0, width: "100%" }}>
-          <Menu mode="inline" selectedKeys={[location.pathname]}>
-            {bottomMenuItems.map((item) => (
-              <Menu.Item key={item.key} icon={item.icon}>
-                <Link to={item.key}>{item.label}</Link>
-              </Menu.Item>
-            ))}
-          </Menu>
+          <Menu mode="inline" selectedKeys={[location.pathname]} items={bottomMenuItems} />
         </div>
       </Sider>
 

@@ -5,7 +5,6 @@ import {
   CalendarOutlined,
   FolderOutlined,
   TeamOutlined,
-  BookOutlined,
   ScheduleOutlined,
   BarChartOutlined,
   HomeOutlined,
@@ -23,18 +22,18 @@ const CoachSidebar = ({ children }) => {
   const location = useLocation();
 
   const menuItems = [
-    { key: "/coach/dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
-    { key: "/coach/sessions", icon: <ScheduleOutlined />, label: "Training Sessions" },
-    { key: "/coach/schedule", icon: <CalendarOutlined />, label: "Coaching Schedule" },
-    { key: "/coach/trainees", icon: <TeamOutlined />, label: "Trainees" },
-    { key: "/coach/packages", icon: <FolderOutlined />, label: "Training Packages" },
-    { key: "/coach/analytics", icon: <BarChartOutlined />, label: "Analytics" },
+    { key: "/coach/dashboard", icon: <DashboardOutlined />, label: <Link to="/coach/dashboard">Dashboard</Link> },
+    { key: "/coach/sessions", icon: <ScheduleOutlined />, label: <Link to="/coach/sessions">Training Sessions</Link> },
+    { key: "/coach/schedule", icon: <CalendarOutlined />, label: <Link to="/coach/schedule">Coaching Schedule</Link> },
+    { key: "/coach/trainees", icon: <TeamOutlined />, label: <Link to="/coach/trainees">Trainees</Link> },
+    { key: "/coach/packages", icon: <FolderOutlined />, label: <Link to="/coach/packages">Training Packages</Link> },
+    { key: "/coach/analytics", icon: <BarChartOutlined />, label: <Link to="/coach/analytics">Analytics</Link> },
   ];
 
   const bottomMenuItems = [
-    { key: "/home", icon: <HomeOutlined />, label: "Return to Homepage" },
-    { key: "/settings", icon: <SettingOutlined />, label: "View Profile Settings" },
-    { key: "/logout", icon: <LogoutOutlined />, label: "Sign Out" },
+    { key: "/home", icon: <HomeOutlined />, label: <Link to="/home">Return to Homepage</Link> },
+    { key: "/settings", icon: <SettingOutlined />, label: <Link to="/settings">View Profile Settings</Link> },
+    { key: "/logout", icon: <LogoutOutlined />, label: <Link to="/logout">Sign Out</Link> },
   ];
 
   return (
@@ -67,23 +66,11 @@ const CoachSidebar = ({ children }) => {
         </div>
 
         {/* Sidebar Menu */}
-        <Menu mode="inline" selectedKeys={[location.pathname]} style={{ flex: 1, borderRight: 0 }}>
-          {menuItems.map((item) => (
-            <Menu.Item key={item.key} icon={item.icon}>
-              <Link to={item.key}>{item.label}</Link>
-            </Menu.Item>
-          ))}
-        </Menu>
+        <Menu mode="inline" selectedKeys={[location.pathname]} style={{ flex: 1, borderRight: 0 }} items={menuItems} />
 
         {/* Bottom Menu (Fixed to Bottom) */}
         <div style={{ position: "absolute", bottom: 0, width: "100%" }}>
-          <Menu mode="inline" selectedKeys={[location.pathname]}>
-            {bottomMenuItems.map((item) => (
-              <Menu.Item key={item.key} icon={item.icon}>
-                <Link to={item.key}>{item.label}</Link>
-              </Menu.Item>
-            ))}
-          </Menu>
+          <Menu mode="inline" selectedKeys={[location.pathname]} items={bottomMenuItems} />
         </div>
       </Sider>
 
