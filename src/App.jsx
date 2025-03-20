@@ -60,6 +60,7 @@ import PromotionManagement from "./pages/PromotionManagementPage"
 import TransactionHistoryPage from "./pages/TransactionHistoryPage"
 
 import court_mock_data from "@/data/court_mock_data";
+import UserTransactionView from "./pages/UserView/UserTransactionView";
 
 
 
@@ -216,6 +217,12 @@ function App() {
         path="/user/coachings"
         element={
           <UserCoachingManagementView />
+        }
+      />
+      <Route
+        path="/user/transactions"
+        element={
+          <UserTransactionView />
         }
       />
 
