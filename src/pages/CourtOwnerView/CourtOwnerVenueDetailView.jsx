@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate  } from "react-router-dom";
 import { Card, Spin, Button } from "antd";
-import { LeftOutlined, EditOutlined  } from "@ant-design/icons";
+import { LeftOutlined } from "@ant-design/icons";
 import CourtOwnerSidebar from "@/components/CourtOwnerSidebar";
 import venuesData from "@/data/venue_mock_data";
 
@@ -54,8 +54,7 @@ const CourtOwnerVenueDetailView = () => {
     <CourtOwnerSidebar>
       <Card
         title={
-          <div className="flex justify-between items-center">
-            {/* Back to Venues Button (Left) */}
+          <div className="flex items-center">
             <Button
               type="link"
               icon={<LeftOutlined />}
@@ -63,15 +62,6 @@ const CourtOwnerVenueDetailView = () => {
               className="mr-2"
             >
               Back to Venues
-            </Button>
-
-            {/* Edit Venue Button (Right) */}
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              onClick={() => navigate(`/court-owner/venues/${venueId}/edit`)}
-            >
-              Edit Venue
             </Button>
           </div>
         }

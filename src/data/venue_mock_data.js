@@ -68,9 +68,9 @@ export const venuesData = [
       "membership_discount": 10
     },
     "booking_policy": {
-      "cancellation_period": 24,  
+      "cancellation_period": "24 hours",
       "modification_allowed": true,
-      "advance_booking_limit": 30
+      "advance_booking_limit": "30 days"
     },
     "created_at": "2023-09-10T08:00:00Z",
     "updated_at": "2024-03-15T12:00:00Z"
@@ -136,9 +136,9 @@ export const venuesData = [
       "membership_discount": 15
     },
     "booking_policy": {
-      "cancellation_period": 48,
+      "cancellation_period": "48 hours",
       "modification_allowed": false,
-      "advance_booking_limit": 14
+      "advance_booking_limit": "14 days"
     },
     "created_at": "2023-10-05T09:00:00Z",
     "updated_at": "2024-02-20T10:00:00Z"
