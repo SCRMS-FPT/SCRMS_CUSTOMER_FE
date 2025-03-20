@@ -6,3 +6,4 @@ export const API_CHAT_URL = "https://localhost:7219";
 export const API_PAYMENT_URL = "https://localhost:7107";
 export const API_COURT_BOOKING_URL = "https://localhost:7158";
 export const API_GATEWAY_URL = "http://localhost:5002";
+export const API_COURT_URL = "https://localhost:7158";

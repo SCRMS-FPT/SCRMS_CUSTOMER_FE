@@ -1,39 +1,80 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Layout from "./components/Layout";
-import Home from "./pages/Home";
-import SignUp from "./pages/SignUp";
-import MatchFinder from "./pages/MatchFinder";
-import CourtFeedback from "./pages/CourtFeedback";
-import HomeTest from "./pages/HomeTest";
-import BrowseCourts from "./pages/BrowseCourts";
-import CourtDetails from "./pages/CourtDetails";
-import CourtCalendar from "./pages/CourtCalendar";
-import ManageCourts from "./pages/ManageCourts";
-import CoachList from "./pages/CoachList";
-import CoachDetails from "./pages/CoachDetails";
-import BookCoachSession from "./pages/BookCoachSession";
-import CourtReport from "./pages/CourtReport";
-import BookCourt from "./pages/BookCourt";
-import Support from "./pages/Support";
-import ForgotPassword from "./pages/ForgotPassword";
-import NewSlotPage from "./pages/NewSlotPage";
-import UpdateSlotPage from "./pages/UpdateSlotPage";
-import SlotListPage from "./pages/SlotListPage";
+import Layout from "@/components/Layout";
+
+import HomeView from "@/pages/GeneralView/HomeView";
+import LoginView from "@/pages/GeneralView/LoginView";
+import SignUpView from "./pages/GeneralView/SignUpView";
+import SupportView from "@/pages/GeneralView/SupportView";
+import ForgotPasswordView from "@/pages/GeneralView/ForgotPasswordView";
+import BrowseCourtsView from "@/pages/GeneralView/BrowseCourtsView";
+import FindCourtBySportView from "@/pages/UserView/FindCourtBySportView";
+import FindCourtByVenueView from "@/pages/UserView/FindCourtByVenueView";
+import CourtDetailsView from "@/pages/GeneralView/CourtDetailsView";
+
+
+import BookCourtView from "@/pages/UserView/BookCourtView";
+import UserDashboardView from "@/pages/UserView/UserDashboardView";
+import UserCourtBookingManagementView from "@/pages/UserView/UserCourtBookingManagementView";
+import UserTeamMatchingManagementView from "@/pages/UserView/UserTeamMatchingManagementView";
+import UserCoachingManagementView from "@/pages/UserView/UserCoachingManagementView";
+
+import CourtOwnerDashboardView from "@/pages/CourtOwnerView/CourtOwnerDashboardView";
+import CourtOwnerVenueListView from "@/pages/CourtOwnerView/CourtOwnerVenueListView";
+import CourtOwnerVenueDetailView from "@/pages/CourtOwnerView/CourtOwnerVenueDetailView";
+import CourtOwnerVenueCreateView from "@/pages/CourtOwnerView/CourtOwnerVenueCreateView";
+import CourtOwnerVenueUpdateView from "@/pages/CourtOwnerView/CourtOwnerVenueUpdateView";
+import CourtOwnerCourtListView from "@/pages/CourtOwnerView/CourtOwnerCourtListView";
+import CourtOwnerBookingView from "@/pages/CourtOwnerView/CourtOwnerBookingView";
+import CourtOwnerScheduleView from "@/pages/CourtOwnerView/CourtOwnerScheduleView";
+import CourtOwnerPromotionView from "@/pages/CourtOwnerView/CourtOwnerPromotionView";
+import CourtOwnerNotificationView from "@/pages/CourtOwnerView/CourtOwnerNotificationView";
+import CourtOwnerReportsView from "@/pages/CourtOwnerView/CourtOwnerReportsView";
+
+
+import CoachDashboardView from "@/pages/CoachView/CoachDashboardView";
+import CoachScheduleManagementView from "@/pages/CoachView/CoachScheduleManagementView";
+import CoachTraineeManagementView from "@/pages/CoachView/CoachTraineeManagementView";
+import CoachTrainingSessionManagementView from "@/pages/CoachView/CoachTrainingSessionManagementView";
+import CoachTrainingPackageManagementView from "@/pages/CoachView/CoachTrainingPackageManagementView";
+import CoachAnalyticsView from "@/pages/CoachView/CoachAnalyticsView";
+
+
+
+import MatchFinder from "@/pages/MatchFinder";
+import CourtFeedback from "@/pages/CourtFeedback";
+import CourtCalendar from "@/pages/CourtCalendar";
+import ManageCourts from "@/pages/ManageCourts";
+import CoachList from "@/pages/CoachList";
+import CoachDetails from "@/pages/CoachDetails";
+import BookCoachSession from "@/pages/BookCoachSession";
+import CourtReport from "@/pages/CourtReport";
+import NewSlotPage from "@/pages/NewSlotPage";
+import UpdateSlotPage from "@/pages/UpdateSlotPage";
+import SlotListPage from "@/pages/SlotListPage";
 import { Book } from "lucide-react";
-import BookingListPage from "./pages/BookingListPage";
-import SportsCenter from "./pages/SportsCenter";
+import BookingListPage from "@/pages/BookingListPage";
+import SportsCenter from "@/pages/SportsCenter";
+import Feedback from "@/pages/Feedback";
+import CourtsManage from "@/pages/CourtsManage";
+import PromotionManagement from "./pages/PromotionManagementPage"
+import TransactionHistoryPage from "./pages/TransactionHistoryPage"
+
+import court_mock_data from "@/data/court_mock_data";
+
+
+
 
 
 
 function App() {
   return (
     <Routes>
+      {/* General View */}
       <Route
         path="/"
         element={
           <Layout>
-            <HomeTest />
+            <HomeView />
           </Layout>
         }
       />
@@ -41,7 +82,47 @@ function App() {
         path="/home"
         element={
           <Layout>
-            <Home />
+            <HomeView />
+          </Layout>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <Layout>
+            <LoginView />
+          </Layout>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <Layout>
+            <SignUpView />
+          </Layout>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <Layout>
+            <ForgotPasswordView />
+          </Layout>
+        }
+      />
+      <Route
+        path="/support"
+        element={
+          <Layout>
+            <SupportView />
+          </Layout>
+        }
+      />
+      <Route
+        path="/sports-center"
+        element={
+          <Layout>
+            <SportsCenter />
           </Layout>
         }
       />
@@ -49,26 +130,204 @@ function App() {
         path="/browse-courts"
         element={
           <Layout>
-            <BrowseCourts />
+            <BrowseCourtsView />
           </Layout>
         }
       />
       <Route
-        path="/court/:id" // Add new route for court details
+        path="/courts/sport"
         element={
-          <Layout>
-            <CourtDetails />
+          <Layout className="bg-gray-50">
+            <FindCourtBySportView data={court_mock_data} />
           </Layout>
         }
       />
+      <Route
+        path="/courts/sport/:sportType"
+        element={
+          <Layout className="bg-gray-50">
+            <FindCourtBySportView data={court_mock_data} />
+          </Layout>
+        }
+      />
+      <Route
+        path="/courts/venue"
+        element={
+          <Layout className="bg-gray-50">
+            <FindCourtByVenueView />
+          </Layout>
+        }
+      />
+      <Route
+        path="/court/:id"
+        element={
+          <Layout>
+            <CourtDetailsView />
+          </Layout>
+        }
+      />
+      <Route
+        path="/coaches"
+        element={
+          <Layout>
+            <CoachList />
+          </Layout>
+        }
+      />
+      <Route
+        path="/coach/:id"
+        element={
+          <Layout>
+            <CoachDetails />
+          </Layout>
+        }
+      />
+
+
+      {/* User View */}
       <Route
         path="/book-court/:id" // Add new route for court details
         element={
           <Layout>
-            <BookCourt />
+            <BookCourtView />
           </Layout>
         }
       />
+
+      <Route
+        path="/user/dashboard"
+        element={
+          <UserDashboardView />
+        }
+      />
+      <Route
+        path="/user/bookings"
+        element={
+          <UserCourtBookingManagementView />
+        }
+      />
+      <Route
+        path="/user/matching"
+        element={
+          <UserTeamMatchingManagementView />
+        }
+      />
+      <Route
+        path="/user/coachings"
+        element={
+          <UserCoachingManagementView />
+        }
+      />
+
+
+      {/* Court Owner View */}
+      <Route
+        path="/court-owner/dashboard"
+        element={
+          <CourtOwnerDashboardView />
+        }
+      />
+      <Route
+        path="/court-owner/venues"
+        element={
+          <CourtOwnerVenueListView />
+        }
+      />
+      <Route
+        path="/court-owner/venues/:venueId"
+        element={
+          <CourtOwnerVenueDetailView />
+        }
+      />
+      <Route
+        path="/court-owner/venues/create"
+        element={
+          <CourtOwnerVenueCreateView />
+        }
+      />
+      <Route
+        path="/court-owner/venues/:venueId/edit"
+        element={
+          <CourtOwnerVenueUpdateView />
+        }
+      />
+      <Route
+        path="/court-owner/courts"
+        element={
+          <CourtOwnerCourtListView />
+        }
+      />
+      <Route
+        path="/court-owner/bookings"
+        element={
+          <CourtOwnerBookingView />
+        }
+      />
+      <Route
+        path="/court-owner/schedule"
+        element={
+          <CourtOwnerScheduleView />
+        }
+      />
+      <Route
+        path="/court-owner/promotions"
+        element={
+          <CourtOwnerPromotionView />
+        }
+      />
+      <Route
+        path="/court-owner/notifications"
+        element={
+          <CourtOwnerNotificationView />
+        }
+      />
+      <Route
+        path="/court-owner/reports"
+        element={
+          <CourtOwnerReportsView />
+        }
+      />
+
+      {/* Coach View  */}
+      <Route
+        path="/coach/dashboard"
+        element={
+          <CoachDashboardView />
+        }
+      />
+      <Route
+        path="/coach/sessions"
+        element={
+          <CoachTrainingSessionManagementView />
+        }
+      />
+      <Route
+        path="/coach/schedule"
+        element={
+          <CoachScheduleManagementView />
+        }
+      />
+      <Route
+        path="/coach/trainees"
+        element={
+          <CoachTraineeManagementView />
+        }
+      />
+      <Route
+        path="/coach/packages"
+        element={
+          <CoachTrainingPackageManagementView />
+        }
+      />
+      <Route
+        path="/coach/analytics"
+        element={
+          <CoachAnalyticsView />
+        }
+      />
+
+
+      {/* To be updated */}
       <Route
         path="/court/calendar/:id"
         element={
@@ -117,38 +376,7 @@ function App() {
           </Layout>
         }
       />
-      <Route
-        path="/login"
-        element={
-          <Layout>
-            <Login />
-          </Layout>
-        }
-      />
-      <Route
-        path="/signup"
-        element={
-          <Layout>
-            <SignUp />
-          </Layout>
-        }
-      />
-      <Route
-        path="/forgot-password"
-        element={
-          <Layout>
-            <ForgotPassword />
-          </Layout>
-        }
-      />
-      <Route
-        path="/support"
-        element={
-          <Layout>
-            <Support />
-          </Layout>
-        }
-      />
+
       <Route
         path="/match-opponents"
         element={
@@ -158,7 +386,7 @@ function App() {
         }
       />
       <Route
-        path="/feedback/:courtId"
+        path="/court-feedback/:courtId"
         element={
           <Layout>
             <CourtFeedback />
@@ -166,34 +394,63 @@ function App() {
         }
       />
       <Route
-        path="/coaches"
+        path="/feedback/:courtId"
         element={
           <Layout>
-            <CoachList />
+            <Feedback />
+          </Layout>
+        }
+      />
+
+      <Route
+        path="/courts-manage"
+        element={
+          <Layout>
+            <CourtsManage />
           </Layout>
         }
       />
       <Route
-        path="/coach/:id"
+        path="/courts-manage/:centerId"
         element={
           <Layout>
-            <CoachDetails />
+            <CourtsManage />
           </Layout>
         }
       />
-      <Route
-        path="/sports-center"
-        element={
-          <Layout>
-            <SportsCenter />
-          </Layout>
-        }
-      />
+
+
       <Route
         path="/book-coach/:id"
         element={
           <Layout>
             <BookCoachSession />
+          </Layout>
+        }
+      />
+
+      <Route
+        path="/PromotionManagement"
+        element={
+          <Layout>
+            <PromotionManagement />
+          </Layout>
+        }
+      />
+
+      <Route
+        path="/PromotionManagement/:courtId"
+        element={
+          <Layout>
+            <PromotionManagement />
+          </Layout>
+        }
+      />
+      <Route
+        path="/History"
+        element={
+          <Layout>
+            <TransactionHistoryPage />
           </Layout>
         }
       />
