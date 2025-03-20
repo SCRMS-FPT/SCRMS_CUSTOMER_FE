@@ -55,6 +55,7 @@ import PromotionManagement from "./pages/PromotionManagementPage"
 import TransactionHistoryPage from "./pages/TransactionHistoryPage"
 
 import court_mock_data from "@/data/court_mock_data";
+import CourtOwnerVenueDetailView from "./pages/CourtOwnerView/CourtOwnerVenueDetailView";
 
 
 
@@ -223,6 +224,12 @@ function App() {
         path="/court-owner/venues"
         element={
           <CourtOwnerVenueListView />
+        }
+      />
+      <Route
+        path="/court-owner/venues/:venueId"
+        element={
+          <CourtOwnerVenueDetailView />
         }
       />
       <Route

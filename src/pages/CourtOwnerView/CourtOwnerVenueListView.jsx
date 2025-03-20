@@ -90,7 +90,7 @@ const CourtOwnerVenueListView = () => {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <Button type="primary" onClick={() => navigate(`/owner/venues/${record.id}`)}>
+        <Button type="primary" onClick={() => navigate(`/court-owner/venues/${record.id}`)}>
           Manage
         </Button>
       ),
