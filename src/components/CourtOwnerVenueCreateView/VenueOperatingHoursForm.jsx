@@ -1,7 +1,8 @@
 import React from "react";
 import { Form, TimePicker } from "antd";
+import dayjs from "dayjs";
 
-const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
 const VenueOperatingHoursForm = () => {
   return (
@@ -10,7 +11,14 @@ const VenueOperatingHoursForm = () => {
 
       <div className="grid grid-cols-2 gap-4">
         {daysOfWeek.map((day) => (
-          <Form.Item key={day.toLowerCase()} label={day}>
+          <Form.Item
+            key={day}
+            name={["operating_hours", day]}
+            label={day.charAt(0).toUpperCase() + day.slice(1)}
+            getValueProps={(value) =>
+              value ? { value: [dayjs(value.open, "HH:mm"), dayjs(value.close, "HH:mm")] } : {}
+            }
+          >
             <TimePicker.RangePicker format="HH:mm" />
           </Form.Item>
         ))}

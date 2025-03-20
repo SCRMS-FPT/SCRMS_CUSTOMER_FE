@@ -8,14 +8,14 @@ const VenueBookingPolicyForm = () => {
       <h2 className="text-lg font-semibold mb-2">📅 Booking Policy</h2>
 
       <div className="flex flex-wrap gap-4 items-center">
-        {/* Cancellation Period (HH:mm) */}
+        {/* Cancellation Period (Hours) */}
         <Form.Item
           name={["booking_policy", "cancellation_period"]}
-          label="Cancellation Period (HH:mm)"
-          rules={[{ required: true, message: "Please select cancellation period" }]}
+          label="Cancellation Period (Hours)"
+          rules={[{ required: true, message: "Please enter cancellation period in hours" }]}
           className="flex-1 min-w-[200px]"
         >
-          <TimePicker format="HH:mm" style={{ minWidth: "200px" }} />
+          <InputNumber min={1} placeholder="Enter hours" className="w-full" style={{ minWidth: "200px" }} />
         </Form.Item>
 
         {/* Advance Booking Limit (Days) */}
