@@ -1,13 +1,33 @@
 import React, { useState } from "react";
-import { Card, CardContent } from "@mui/material";
-import socialGames from "../data/socialGames"; // Importing data
+import socialGames from "../data/socialGames";
+import { 
+  Card, 
+  CardContent, 
+  Chip,
+  Typography,
+  Box,
+  Button,
+  Container,
+  Grid,
+  Pagination,
+  Avatar
+} from "@mui/material";
+import { motion } from "framer-motion";
+import { CalendarToday, LocationOn, People, ArrowForward } from "@mui/icons-material";
+
+const sportIcons = {
+  Badminton: "🏸",
+  Pickleball: "🏓",
+  Futsal: "⚽",
+  All: "🏆"
+};
 
 const TopSocialGames = () => {
   const [selectedSport, setSelectedSport] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-  const gamesPerPage = 3; // Max 3 games per page
+  const gamesPerPage = 3;
 
-  // Filter available games & by selected sport
+  // Filter available games by selected sport
   const filteredGames = socialGames.filter(
     (game) => game.status === "Available" && (selectedSport === "All" || game.sport === selectedSport)
   );
@@ -21,87 +41,223 @@ const TopSocialGames = () => {
     currentPage * gamesPerPage
   );
 
-  // Pagination Handlers
-  const nextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
-
-  const prevPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  // Handle page change
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
   };
 
   return (
-    <section className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">Top Social Games</h2>
+    <Container maxWidth="lg" sx={{ py: 6 }}>
+      <Box sx={{ mb: 5, textAlign: "center" }}>
+        <Typography 
+          variant="h4" 
+          component="h2" 
+          sx={{ 
+            fontWeight: 700, 
+            position: "relative",
+            display: "inline-block",
+            mb: 3,
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              bottom: -8,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 80,
+              height: 3,
+              backgroundColor: "primary.main",
+              borderRadius: 3
+            }
+          }}
+        >
+          Social Games Near You
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: "auto" }}>
+          Find and join other players in these upcoming social games. Make new friends and enjoy your favorite sports!
+        </Typography>
+      </Box>
 
       {/* Sport Filter Tabs */}
-      <div className="flex space-x-4 overflow-x-auto pb-4">
-        {["All", "Badminton", "Pickleball", "Futsal"].map((game) => (
-          <button
-            key={game}
-            className={`px-4 py-2 border rounded-lg ${
-              selectedSport === game ? "bg-gray-300" : "hover:bg-gray-100"
-            }`}
-            onClick={() => {
-              setSelectedSport(game);
-              setCurrentPage(1);
-            }}
+      <Box 
+        sx={{ 
+          display: "flex", 
+          justifyContent: "center",
+          flexWrap: "wrap",
+          gap: 2,
+          mb: 4
+        }}
+      >
+        {["All", "Badminton", "Pickleball", "Futsal"].map((sport) => (
+          <motion.div 
+            key={sport} 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            {game}
-          </button>
+            <Button
+              variant={selectedSport === sport ? "contained" : "outlined"}
+              onClick={() => {
+                setSelectedSport(sport);
+                setCurrentPage(1);
+              }}
+              sx={{
+                borderRadius: 4,
+                px: 3,
+                py: 1,
+                textTransform: "none",
+                fontSize: "1rem"
+              }}
+              startIcon={
+                <Typography component="span" fontSize="1.2rem">
+                  {sportIcons[sport]}
+                </Typography>
+              }
+            >
+              {sport}
+            </Button>
+          </motion.div>
         ))}
-      </div>
+      </Box>
 
-      {/* Games Grid (Paginated) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-        {currentGames.length > 0 ? (
-          currentGames.map((game) => (
-            <Card key={game.id} className="border rounded-lg h-64">
-              <img
-                src={game.image}
-                alt={game.name}
-                className="h-32 w-full object-cover"
-              />
-              <CardContent>
-                <h3 className="text-xl font-medium">{game.name}</h3>
-                <p className="text-sm text-gray-500">{game.location}</p>
-                <p className="text-sm text-gray-500">{game.date} - {game.time}</p>
-                <p className="text-sm text-gray-500">Looking for players</p>
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          <p className="text-gray-500">No available games for {selectedSport}.</p>
-        )}
-      </div>
-
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center space-x-4 mt-6">
-          <button
-            onClick={prevPage}
-            disabled={currentPage === 1}
-            className={`px-4 py-2 border rounded-lg ${
-              currentPage === 1 ? "bg-gray-200 cursor-not-allowed" : "hover:bg-gray-100"
-            }`}
-          >
-            Previous
-          </button>
-          <span className="text-lg font-semibold">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={nextPage}
-            disabled={currentPage === totalPages}
-            className={`px-4 py-2 border rounded-lg ${
-              currentPage === totalPages ? "bg-gray-200 cursor-not-allowed" : "hover:bg-gray-100"
-            }`}
-          >
-            Next
-          </button>
-        </div>
+      {/* Games Grid */}
+      {currentGames.length > 0 ? (
+        <Grid container spacing={3}>
+          {currentGames.map((game) => (
+            <Grid item xs={12} sm={6} md={4} key={game.id}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Card 
+                  sx={{ 
+                    borderRadius: 3,
+                    overflow: "hidden",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    "&:hover": {
+                      boxShadow: "0 15px 35px rgba(0,0,0,0.15)",
+                      transform: "translateY(-5px)",
+                      transition: "all 0.3s ease"
+                    }
+                  }}
+                >
+                  <Box sx={{ position: "relative" }}>
+                    <img
+                      src={game.image}
+                      alt={game.name}
+                      style={{ 
+                        height: 180, 
+                        width: "100%", 
+                        objectFit: "cover" 
+                      }}
+                    />
+                    <Chip
+                      label={game.sport}
+                      color="primary"
+                      sx={{
+                        position: "absolute",
+                        top: 12,
+                        right: 12,
+                        fontWeight: "bold"
+                      }}
+                    />
+                  </Box>
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+                      {game.name}
+                    </Typography>
+                    
+                    <Box sx={{ display: "flex", alignItems: "center", my: 1 }}>
+                      <LocationOn sx={{ color: "text.secondary", mr: 1, fontSize: 20 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {game.location}
+                      </Typography>
+                    </Box>
+                    
+                    <Box sx={{ display: "flex", alignItems: "center", my: 1 }}>
+                      <CalendarToday sx={{ color: "text.secondary", mr: 1, fontSize: 20 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {game.date} • {game.time}
+                      </Typography>
+                    </Box>
+                    
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 3 }}>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <People sx={{ color: "success.main", mr: 1 }} />
+                        <Typography variant="body2" color="success.main" fontWeight="bold">
+                          Looking for players
+                        </Typography>
+                      </Box>
+                      
+                      <Button 
+                        size="small" 
+                        color="primary" 
+                        endIcon={<ArrowForward />}
+                        sx={{ textTransform: "none" }}
+                      >
+                        Join
+                      </Button>
+                    </Box>
+                    
+                    {game.organizer && (
+                      <Box sx={{ display: "flex", alignItems: "center", mt: 3, pt: 2, borderTop: "1px solid", borderColor: "divider" }}>
+                        <Avatar 
+                          src={game.organizer.avatar || ""} 
+                          alt={game.organizer.name}
+                          sx={{ width: 32, height: 32, mr: 1 }}
+                        />
+                        <Box>
+                          <Typography variant="caption" color="text.secondary">
+                            Organized by
+                          </Typography>
+                          <Typography variant="body2" fontWeight="medium">
+                            {game.organizer.name || "Community Member"}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        <Box 
+          sx={{ 
+            py: 8, 
+            textAlign: "center",
+            backgroundColor: "action.hover",
+            borderRadius: 3
+          }}
+        >
+          <Typography variant="h6" color="text.secondary">
+            No available games for {selectedSport} at the moment.
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Check back later or try a different sport category.
+          </Typography>
+        </Box>
       )}
-    </section>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+          <Pagination 
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+            size="large"
+            shape="rounded"
+            showFirstButton
+            showLastButton
+          />
+        </Box>
+      )}
+    </Container>
   );
 };
 

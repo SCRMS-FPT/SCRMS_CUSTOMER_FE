@@ -2,20 +2,20 @@ import basketballCourt01 from "../assets/basketball_court_01.jpg";
 
 const courtsData = [
     {
-        id: 1,
-        name: "Kingdom University",
-        city: "Manama",
-        address: "123 University Road, Manama, Bahrain",
+        id: "72317927-fc87-4add-ad95-d0ce2b55ab4a",
+        name: "Sân Bóng Đá Nguyễn Văn A",
+        city: "Hồ Chí Minh",
+        address: "123 Đường Lê Lợi, Hồ Chí Minh, Quận 1, Phường Bến Nghé",
         availableHours: { start: "08:00", end: "22:00" },
-        description: "The Kingdom University sports complex is a state-of-the-art facility that offers a variety of sports activities. The basketball court is one of the most popular spots in the complex.",
+        description: "Sân bóng đá chất lượng cao, đạt tiêu chuẩn FIFA, có hệ thống đèn chiếu sáng.",
         durations: [60, 90, 120],
         pricePerHour: 10.5,
-        sport: ["Basketball", "Football", "Volleyball"],
-        image: "/images/court1.jpg",
+        sport: ["Pickleball"],
+        image: "https://placehold.co/400x200",
         image_details: [
             basketballCourt01,
-            "/images/court2.jpg",
-            "/images/court3.jpg"
+            "https://placehold.co/800x400",
+            "https://placehold.co/900x600"
         ],
         rating: 5,
         dateRange: { start: "2025-02-20", end: "2025-03-06" },
