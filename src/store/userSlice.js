@@ -1,4 +1,3 @@
-// src/store/userSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { Client, LoginUserRequest } from "../API/IdentityApi";
 

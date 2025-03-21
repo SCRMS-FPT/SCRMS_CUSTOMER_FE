@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Card, CardContent, Button, Typography, Box, Container, 
-  Grid, IconButton, Chip, Skeleton, Pagination 
+import {
+  Card,
+  CardContent,
+  Button,
+  Typography,
+  Box,
+  Container,
+  Grid,
+  IconButton,
+  Chip,
+  Skeleton,
+  Pagination,
 } from "@mui/material";
-import { LocationOn, Phone, SportsSoccer, SportsTennis, AccessTime } from "@mui/icons-material";
-import { getSportCenters } from "../API/SportCenterApi";
+import {
+  LocationOn,
+  Phone,
+  SportsSoccer,
+  SportsTennis,
+  AccessTime,
+} from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Client } from "../../API/CourtApi";
+import { API_COURT_URL } from "../../API/config";
 
 const FeaturedVenues = () => {
   const [selectedSport, setSelectedSport] = useState("All");
@@ -16,15 +32,21 @@ const FeaturedVenues = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const courtApiClient = new Client(API_COURT_URL);
   useEffect(() => {
     const fetchVenues = async () => {
       try {
         setLoading(true);
-        const response = await getSportCenters();
+        const response = await courtApiClient.getSportCenters(
+          1,
+          10,
+          undefined,
+          undefined
+        );
         if (response.sportCenters) {
-          const transformedData = response.sportCenters.data.map(center => ({
+          const transformedData = response.sportCenters.data.map((center) => ({
             id: center.id,
-            sport: center.sportNames.join(", "),
+            // sport: center.sportNames.join(", "),
             name: center.name,
             location: center.address,
             phoneNumber: center.phoneNumber || "N/A",
@@ -76,12 +98,18 @@ const FeaturedVenues = () => {
 
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const getSportIcon = (sport) => {
-    if (sport.includes("Football") || sport.includes("Futsal")) return <SportsSoccer fontSize="small" />;
-    if (sport.includes("Tennis") || sport.includes("Badminton") || sport.includes("Pickleball")) return <SportsTennis fontSize="small" />;
+    if (sport.includes("Football") || sport.includes("Futsal"))
+      return <SportsSoccer fontSize="small" />;
+    if (
+      sport.includes("Tennis") ||
+      sport.includes("Badminton") ||
+      sport.includes("Pickleball")
+    )
+      return <SportsTennis fontSize="small" />;
     return <AccessTime fontSize="small" />;
   };
 
@@ -102,18 +130,23 @@ const FeaturedVenues = () => {
         >
           Discover Sports Venues
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: "auto" }}>
-          Find and book the perfect sports venue for your next game or training session
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{ maxWidth: 600, mx: "auto" }}
+        >
+          Find and book the perfect sports venue for your next game or training
+          session
         </Typography>
       </Box>
 
       {/* Filter Buttons */}
-      <Box 
-        sx={{ 
-          display: "flex", 
-          justifyContent: "center", 
-          flexWrap: "wrap", 
-          gap: 1.5, 
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          gap: 1.5,
           mb: 5,
           px: 2,
           py: 2,
@@ -122,8 +155,20 @@ const FeaturedVenues = () => {
           backdropFilter: "blur(8px)",
         }}
       >
-        {["All", "Football", "Badminton", "Futsal", "Volleyball", "Pickleball", "Tennis"].map((sport) => (
-          <motion.div key={sport} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        {[
+          "All",
+          "Football",
+          "Badminton",
+          "Futsal",
+          "Volleyball",
+          "Pickleball",
+          "Tennis",
+        ].map((sport) => (
+          <motion.div
+            key={sport}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <Button
               variant={selectedSport === sport ? "contained" : "outlined"}
               onClick={() => {
@@ -137,10 +182,17 @@ const FeaturedVenues = () => {
                 textTransform: "none",
                 fontSize: "0.9rem",
                 boxShadow: selectedSport === sport ? 2 : 0,
-                backgroundColor: selectedSport === sport ? "primary.main" : "transparent",
-                borderColor: selectedSport === sport ? "primary.main" : "rgba(25, 118, 210, 0.5)",
+                backgroundColor:
+                  selectedSport === sport ? "primary.main" : "transparent",
+                borderColor:
+                  selectedSport === sport
+                    ? "primary.main"
+                    : "rgba(25, 118, 210, 0.5)",
                 "&:hover": {
-                  backgroundColor: selectedSport === sport ? "primary.dark" : "rgba(25, 118, 210, 0.08)",
+                  backgroundColor:
+                    selectedSport === sport
+                      ? "primary.dark"
+                      : "rgba(25, 118, 210, 0.08)",
                 },
               }}
             >
@@ -158,12 +210,37 @@ const FeaturedVenues = () => {
               <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
                 <Skeleton variant="rectangular" height={160} animation="wave" />
                 <CardContent>
-                  <Skeleton variant="text" width="70%" height={30} animation="wave" />
-                  <Skeleton variant="text" width="90%" height={20} animation="wave" />
-                  <Skeleton variant="text" width="60%" height={20} animation="wave" />
+                  <Skeleton
+                    variant="text"
+                    width="70%"
+                    height={30}
+                    animation="wave"
+                  />
+                  <Skeleton
+                    variant="text"
+                    width="90%"
+                    height={20}
+                    animation="wave"
+                  />
+                  <Skeleton
+                    variant="text"
+                    width="60%"
+                    height={20}
+                    animation="wave"
+                  />
                   <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
-                    <Skeleton variant="rectangular" width="50%" height={36} animation="wave" />
-                    <Skeleton variant="rectangular" width="50%" height={36} animation="wave" />
+                    <Skeleton
+                      variant="rectangular"
+                      width="50%"
+                      height={36}
+                      animation="wave"
+                    />
+                    <Skeleton
+                      variant="rectangular"
+                      width="50%"
+                      height={36}
+                      animation="wave"
+                    />
                   </Box>
                 </CardContent>
               </Card>
@@ -175,9 +252,9 @@ const FeaturedVenues = () => {
           <Typography variant="h6" color="text.secondary">
             No venues found for the selected filter.
           </Typography>
-          <Button 
-            variant="contained" 
-            onClick={() => setSelectedSport("All")} 
+          <Button
+            variant="contained"
+            onClick={() => setSelectedSport("All")}
             sx={{ mt: 2, borderRadius: 2 }}
           >
             View All Venues
@@ -186,12 +263,19 @@ const FeaturedVenues = () => {
       ) : (
         <>
           {/* Venues Grid */}
-          <Grid container spacing={3} sx={{ justifyContent: currentVenues.length < 3 ? "center" : "flex-start" }}>
+          <Grid
+            container
+            spacing={3}
+            sx={{
+              justifyContent:
+                currentVenues.length < 3 ? "center" : "flex-start",
+            }}
+          >
             {currentVenues.map((venue) => (
               <Grid item xs={12} sm={6} md={4} key={venue.id}>
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }} 
-                  animate={{ opacity: 1, y: 0 }} 
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4 }}
                 >
                   <Card
@@ -211,24 +295,24 @@ const FeaturedVenues = () => {
                   >
                     {/* Venue Image */}
                     <Box sx={{ position: "relative", paddingTop: "56.25%" }}>
-                      <img 
-                        src={venue.image} 
-                        alt={venue.name} 
-                        style={{ 
+                      <img
+                        src={venue.image}
+                        alt={venue.name}
+                        style={{
                           position: "absolute",
                           top: 0,
                           left: 0,
                           width: "100%",
                           height: "100%",
                           objectFit: "cover",
-                        }} 
+                        }}
                       />
-                      <Box 
-                        sx={{ 
-                          position: "absolute", 
-                          top: 12, 
-                          left: 12, 
-                          background: "rgba(255,255,255,0.9)", 
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: 12,
+                          left: 12,
+                          background: "rgba(255,255,255,0.9)",
                           borderRadius: 6,
                           px: 1.5,
                           py: 0.5,
@@ -237,7 +321,7 @@ const FeaturedVenues = () => {
                           gap: 0.5,
                         }}
                       >
-                        {getSportIcon(venue.sport)}
+                        {/* {getSportIcon(venue.sport)} */}
                         <Typography variant="caption" sx={{ fontWeight: 600 }}>
                           {venue.sport}
                         </Typography>
@@ -245,14 +329,21 @@ const FeaturedVenues = () => {
                     </Box>
 
                     {/* Venue Info */}
-                    <CardContent sx={{ p: 2.5, flexGrow: 1, display: "flex", flexDirection: "column" }}>
-                      <Typography 
-                        variant="h6" 
-                        component="h3" 
-                        sx={{ 
-                          fontWeight: 600, 
+                    <CardContent
+                      sx={{
+                        p: 2.5,
+                        flexGrow: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        component="h3"
+                        sx={{
+                          fontWeight: 600,
                           mb: 1.5,
-                          fontSize: "1.1rem", 
+                          fontSize: "1.1rem",
                           lineHeight: 1.3,
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -264,10 +355,19 @@ const FeaturedVenues = () => {
                         {venue.name}
                       </Typography>
 
-                      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1, mb: 1 }}>
-                        <LocationOn sx={{ color: "primary.main", fontSize: 20, mt: 0.3 }} />
-                        <Typography 
-                          variant="body2" 
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 1,
+                          mb: 1,
+                        }}
+                      >
+                        <LocationOn
+                          sx={{ color: "primary.main", fontSize: 20, mt: 0.3 }}
+                        />
+                        <Typography
+                          variant="body2"
                           color="text.secondary"
                           sx={{
                             overflow: "hidden",
@@ -281,7 +381,14 @@ const FeaturedVenues = () => {
                         </Typography>
                       </Box>
 
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          mb: 2,
+                        }}
+                      >
                         <Phone sx={{ color: "primary.main", fontSize: 20 }} />
                         <Typography variant="body2" color="text.secondary">
                           {venue.phoneNumber}
@@ -293,8 +400,8 @@ const FeaturedVenues = () => {
                         <Button
                           variant="contained"
                           color="primary"
-                          sx={{ 
-                            flex: 1, 
+                          sx={{
+                            flex: 1,
                             borderRadius: 2,
                             textTransform: "none",
                             fontWeight: 600,
@@ -303,11 +410,11 @@ const FeaturedVenues = () => {
                         >
                           Book
                         </Button>
-                        <Button 
-                          variant="outlined" 
-                          color="primary" 
-                          sx={{ 
-                            flex: 1, 
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          sx={{
+                            flex: 1,
                             borderRadius: 2,
                             textTransform: "none",
                             fontWeight: 600,
@@ -327,15 +434,15 @@ const FeaturedVenues = () => {
           {/* Pagination Controls */}
           {totalPages > 1 && (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
-              <Pagination 
-                count={totalPages} 
-                page={currentPage} 
-                onChange={handlePageChange} 
-                color="primary" 
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
                 size="large"
                 shape="rounded"
                 sx={{
-                  '& .MuiPaginationItem-root': {
+                  "& .MuiPaginationItem-root": {
                     borderRadius: 2,
                     mx: 0.5,
                   },

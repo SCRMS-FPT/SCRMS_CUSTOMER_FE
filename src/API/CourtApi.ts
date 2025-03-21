@@ -4,7 +4,7 @@
 // </auto-generated>
 //----------------------
 
-import { API_COURT_URL } from "./config";
+import { API_GATEWAY_URL } from "./config";
 
 /* tslint:disable */
 /* eslint-disable */
@@ -17,7 +17,69 @@ export class Client {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? API_COURT_URL;
+        this.baseUrl = baseUrl ?? API_GATEWAY_URL;
+    }
+
+    /**
+     * Thống kê sân và doanh thu
+     * @param start_date (optional) 
+     * @param end_date (optional) 
+     * @return OK
+     */
+    getCourtStats(start_date: Date | undefined, end_date: Date | undefined): Promise<GetCourtStatsResponse> {
+        let url_ = this.baseUrl + "/api/admin/court-stats?";
+        if (start_date === null)
+            throw new Error("The parameter 'start_date' cannot be null.");
+        else if (start_date !== undefined)
+            url_ += "start_date=" + encodeURIComponent(start_date ? "" + start_date.toISOString() : "") + "&";
+        if (end_date === null)
+            throw new Error("The parameter 'end_date' cannot be null.");
+        else if (end_date !== undefined)
+            url_ += "end_date=" + encodeURIComponent(end_date ? "" + end_date.toISOString() : "") + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourtStats(_response);
+        });
+    }
+
+    protected processGetCourtStats(response: Response): Promise<GetCourtStatsResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetCourtStatsResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<GetCourtStatsResponse>(null as any);
     }
 
     /**
@@ -214,6 +276,72 @@ export class Client {
             });
         }
         return Promise.resolve<BookingDto>(null as any);
+    }
+
+    /**
+     * Cancel a booking
+     * @return OK
+     */
+    cancelBooking(bookingId: string, body: CancelBookingRequest): Promise<CancelBookingResult> {
+        let url_ = this.baseUrl + "/api/bookings/{bookingId}/cancel";
+        if (bookingId === undefined || bookingId === null)
+            throw new Error("The parameter 'bookingId' must be defined.");
+        url_ = url_.replace("{bookingId}", encodeURIComponent("" + bookingId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCancelBooking(_response);
+        });
+    }
+
+    protected processCancelBooking(response: Response): Promise<CancelBookingResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CancelBookingResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CancelBookingResult>(null as any);
     }
 
     /**
@@ -1754,6 +1882,94 @@ export enum BookingStatus {
     _4 = 4,
 }
 
+export class CancelBookingRequest implements ICancelBookingRequest {
+    cancellationReason?: string | undefined;
+    requestedAt?: Date;
+
+    constructor(data?: ICancelBookingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cancellationReason = _data["cancellationReason"];
+            this.requestedAt = _data["requestedAt"] ? new Date(_data["requestedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CancelBookingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CancelBookingRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cancellationReason"] = this.cancellationReason;
+        data["requestedAt"] = this.requestedAt ? this.requestedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICancelBookingRequest {
+    cancellationReason?: string | undefined;
+    requestedAt?: Date;
+}
+
+export class CancelBookingResult implements ICancelBookingResult {
+    bookingId?: string;
+    status?: string | undefined;
+    refundAmount?: number;
+    message?: string | undefined;
+
+    constructor(data?: ICancelBookingResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.bookingId = _data["bookingId"];
+            this.status = _data["status"];
+            this.refundAmount = _data["refundAmount"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): CancelBookingResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new CancelBookingResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["bookingId"] = this.bookingId;
+        data["status"] = this.status;
+        data["refundAmount"] = this.refundAmount;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface ICancelBookingResult {
+    bookingId?: string;
+    status?: string | undefined;
+    refundAmount?: number;
+    message?: string | undefined;
+}
+
 export class CourtCreateDTO implements ICourtCreateDTO {
     courtName?: string | undefined;
     sportId?: string;
@@ -1764,6 +1980,8 @@ export class CourtCreateDTO implements ICourtCreateDTO {
     minDepositPercentage?: number;
     courtType?: number;
     courtSchedules?: CourtScheduleDTO[] | undefined;
+    cancellationWindowHours?: number;
+    refundPercentage?: number;
 
     constructor(data?: ICourtCreateDTO) {
         if (data) {
@@ -1793,6 +2011,8 @@ export class CourtCreateDTO implements ICourtCreateDTO {
                 for (let item of _data["courtSchedules"])
                     this.courtSchedules!.push(CourtScheduleDTO.fromJS(item));
             }
+            this.cancellationWindowHours = _data["cancellationWindowHours"];
+            this.refundPercentage = _data["refundPercentage"];
         }
     }
 
@@ -1822,6 +2042,8 @@ export class CourtCreateDTO implements ICourtCreateDTO {
             for (let item of this.courtSchedules)
                 data["courtSchedules"].push(item.toJSON());
         }
+        data["cancellationWindowHours"] = this.cancellationWindowHours;
+        data["refundPercentage"] = this.refundPercentage;
         return data;
     }
 }
@@ -1836,6 +2058,8 @@ export interface ICourtCreateDTO {
     minDepositPercentage?: number;
     courtType?: number;
     courtSchedules?: CourtScheduleDTO[] | undefined;
+    cancellationWindowHours?: number;
+    refundPercentage?: number;
 }
 
 export class CourtDTO implements ICourtDTO {
@@ -2219,6 +2443,8 @@ export class CourtUpdateDTO implements ICourtUpdateDTO {
     status?: number;
     courtType?: number;
     minDepositPercentage?: number;
+    cancellationWindowHours?: number;
+    refundPercentage?: number;
 
     constructor(data?: ICourtUpdateDTO) {
         if (data) {
@@ -2243,6 +2469,8 @@ export class CourtUpdateDTO implements ICourtUpdateDTO {
             this.status = _data["status"];
             this.courtType = _data["courtType"];
             this.minDepositPercentage = _data["minDepositPercentage"];
+            this.cancellationWindowHours = _data["cancellationWindowHours"];
+            this.refundPercentage = _data["refundPercentage"];
         }
     }
 
@@ -2267,6 +2495,8 @@ export class CourtUpdateDTO implements ICourtUpdateDTO {
         data["status"] = this.status;
         data["courtType"] = this.courtType;
         data["minDepositPercentage"] = this.minDepositPercentage;
+        data["cancellationWindowHours"] = this.cancellationWindowHours;
+        data["refundPercentage"] = this.refundPercentage;
         return data;
     }
 }
@@ -2280,6 +2510,8 @@ export interface ICourtUpdateDTO {
     status?: number;
     courtType?: number;
     minDepositPercentage?: number;
+    cancellationWindowHours?: number;
+    refundPercentage?: number;
 }
 
 export class CreateBookingRequest implements ICreateBookingRequest {
@@ -3156,6 +3388,50 @@ export class GetCourtDetailsResponse implements IGetCourtDetailsResponse {
 
 export interface IGetCourtDetailsResponse {
     court?: CourtDTO;
+}
+
+export class GetCourtStatsResponse implements IGetCourtStatsResponse {
+    total_courts?: number;
+    total_courts_revenue?: number;
+    date_range?: any | undefined;
+
+    constructor(data?: IGetCourtStatsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.total_courts = _data["total_courts"];
+            this.total_courts_revenue = _data["total_courts_revenue"];
+            this.date_range = _data["date_range"];
+        }
+    }
+
+    static fromJS(data: any): GetCourtStatsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCourtStatsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["total_courts"] = this.total_courts;
+        data["total_courts_revenue"] = this.total_courts_revenue;
+        data["date_range"] = this.date_range;
+        return data;
+    }
+}
+
+export interface IGetCourtStatsResponse {
+    total_courts?: number;
+    total_courts_revenue?: number;
+    date_range?: any | undefined;
 }
 
 export class GetCourtsResponse implements IGetCourtsResponse {
