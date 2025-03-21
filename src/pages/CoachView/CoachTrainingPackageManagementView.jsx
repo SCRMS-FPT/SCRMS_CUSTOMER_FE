@@ -1,7 +1,6 @@
 import React from "react";
 import { Card, Button, Table } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import CoachSidebar from "@/components/CoachSidebar";
 
 const CoachTrainingPackageManagementView = () => {
   const trainingPackages = [
@@ -10,15 +9,19 @@ const CoachTrainingPackageManagementView = () => {
   ];
 
   return (
-    <CoachSidebar>
-      <Card title="My Training Packages" extra={<Button icon={<PlusOutlined />}>Add Package</Button>}>
-        <Table dataSource={trainingPackages} columns={[
+    <Card
+      title="My Training Packages"
+      extra={<Button icon={<PlusOutlined />}>Add Package</Button>}
+    >
+      <Table
+        dataSource={trainingPackages}
+        columns={[
           { title: "Package Name", dataIndex: "name" },
           { title: "Price", dataIndex: "price" },
           { title: "Sessions", dataIndex: "sessions" },
-        ]} />
-      </Card>
-    </CoachSidebar>
+        ]}
+      />
+    </Card>
   );
 };
 

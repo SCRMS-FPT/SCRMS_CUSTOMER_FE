@@ -88,7 +88,7 @@ const SignUpView = () => {
               "Please provide a valid password (at least 8 characters with letters and numbers).";
           }
         } catch (e) {
-          errorMsg = error.message || errorMsg;
+          errorMsg = e.message || errorMsg;
         }
       }
 
