@@ -4,10 +4,12 @@
 // </auto-generated>
 //----------------------
 
+import { API_COACH_URL } from "./config";
+
 /* tslint:disable */
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
-import { API_COACH_URL } from "./config";
+
 export class Client {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -19,76 +21,14 @@ export class Client {
     }
 
     /**
-     * View Coach Availability
-     * @param page (optional) 
-     * @param recordPerPage (optional) 
-     * @return OK
+     * Update Booking Status
+     * @return No Content
      */
-    viewCoachAvailability(page: number | undefined, recordPerPage: number | undefined): Promise<AvailableScheduleSlot[]> {
-        let url_ = this.baseUrl + "/availability?";
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
-            url_ += "Page=" + encodeURIComponent("" + page) + "&";
-        if (recordPerPage === null)
-            throw new Error("The parameter 'recordPerPage' cannot be null.");
-        else if (recordPerPage !== undefined)
-            url_ += "RecordPerPage=" + encodeURIComponent("" + recordPerPage) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processViewCoachAvailability(_response);
-        });
-    }
-
-    protected processViewCoachAvailability(response: Response): Promise<AvailableScheduleSlot[]> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                if (Array.isArray(resultData200)) {
-                    result200 = [] as any;
-                    for (let item of resultData200)
-                        result200!.push(AvailableScheduleSlot.fromJS(item));
-                }
-                else {
-                    result200 = <any>null;
-                }
-                return result200;
-            });
-        } else if (status === 401) {
-            return response.text().then((_responseText) => {
-                let result401: any = null;
-                let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result401 = ProblemDetails.fromJS(resultData401);
-                return throwException("Unauthorized", status, _responseText, _headers, result401);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<AvailableScheduleSlot[]>(null as any);
-    }
-
-    /**
-     * Update Coach Schedule
-     * @return OK
-     */
-    updateCoachSchedule(scheduleId: string, body: UpdateScheduleRequest): Promise<void> {
-        let url_ = this.baseUrl + "/schedules/{scheduleId}";
-        if (scheduleId === undefined || scheduleId === null)
-            throw new Error("The parameter 'scheduleId' must be defined.");
-        url_ = url_.replace("{scheduleId}", encodeURIComponent("" + scheduleId));
+    updateBookingStatus(bookingId: string, body: string): Promise<void> {
+        let url_ = this.baseUrl + "/bookings/{bookingId}";
+        if (bookingId === undefined || bookingId === null)
+            throw new Error("The parameter 'bookingId' must be defined.");
+        url_ = url_.replace("{bookingId}", encodeURIComponent("" + bookingId));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -102,89 +42,171 @@ export class Client {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateCoachSchedule(_response);
+            return this.processUpdateBookingStatus(_response);
         });
     }
 
-    protected processUpdateCoachSchedule(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException("Bad Request", status, _responseText, _headers, result400);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * Delete a Coach's Schedule
-     * @return No Content
-     */
-    deleteCoachSchedule(scheduleId: string): Promise<void> {
-        let url_ = this.baseUrl + "/api/schedules/{scheduleId}";
-        if (scheduleId === undefined || scheduleId === null)
-            throw new Error("The parameter 'scheduleId' must be defined.");
-        url_ = url_.replace("{scheduleId}", encodeURIComponent("" + scheduleId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeleteCoachSchedule(_response);
-        });
-    }
-
-    protected processDeleteCoachSchedule(response: Response): Promise<void> {
+    protected processUpdateBookingStatus(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 204) {
             return response.text().then((_responseText) => {
-                return;
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
-                let result404: any = null;
-                let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result404 = ProblemDetails.fromJS(resultData404);
-                return throwException("Not Found", status, _responseText, _headers, result404);
-            });
-        } else if (status === 409) {
-            return response.text().then((_responseText) => {
-                let result409: any = null;
-                let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result409 = ProblemDetails.fromJS(resultData409);
-                return throwException("Conflict", status, _responseText, _headers, result409);
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
     }
 
     /**
-     * Create Coach Schedule
+     * Get Booking Details
+     * @return OK
+     */
+    getBookingById(bookingId: string): Promise<BookingDetailResult> {
+        let url_ = this.baseUrl + "/booking/{bookingId}";
+        if (bookingId === undefined || bookingId === null)
+            throw new Error("The parameter 'bookingId' must be defined.");
+        url_ = url_.replace("{bookingId}", encodeURIComponent("" + bookingId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetBookingById(_response);
+        });
+    }
+
+    protected processGetBookingById(response: Response): Promise<BookingDetailResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = BookingDetailResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<BookingDetailResult>(null as any);
+    }
+
+    /**
+     * Get Coach Booking History
+     * @param startDate (optional) 
+     * @param endDate (optional) 
+     * @param status (optional) 
+     * @param sportId (optional) 
+     * @param packageId (optional) 
+     * @return OK
+     */
+    getCoachBookings(startDate: Date | undefined, endDate: Date | undefined, status: string | undefined, pageIndex: number, pageSize: number, sportId: string | undefined, packageId: string | undefined): Promise<BookingHistoryResultPaginatedResult> {
+        let url_ = this.baseUrl + "/bookings?";
+        if (startDate === null)
+            throw new Error("The parameter 'startDate' cannot be null.");
+        else if (startDate !== undefined)
+            url_ += "StartDate=" + encodeURIComponent(startDate ? "" + startDate.toISOString() : "") + "&";
+        if (endDate === null)
+            throw new Error("The parameter 'endDate' cannot be null.");
+        else if (endDate !== undefined)
+            url_ += "EndDate=" + encodeURIComponent(endDate ? "" + endDate.toISOString() : "") + "&";
+        if (status === null)
+            throw new Error("The parameter 'status' cannot be null.");
+        else if (status !== undefined)
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
+        if (pageIndex === undefined || pageIndex === null)
+            throw new Error("The parameter 'pageIndex' must be defined and cannot be null.");
+        else
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (sportId === null)
+            throw new Error("The parameter 'sportId' cannot be null.");
+        else if (sportId !== undefined)
+            url_ += "SportId=" + encodeURIComponent("" + sportId) + "&";
+        if (packageId === null)
+            throw new Error("The parameter 'packageId' cannot be null.");
+        else if (packageId !== undefined)
+            url_ += "PackageId=" + encodeURIComponent("" + packageId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCoachBookings(_response);
+        });
+    }
+
+    protected processGetCoachBookings(response: Response): Promise<BookingHistoryResultPaginatedResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = BookingHistoryResultPaginatedResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<BookingHistoryResultPaginatedResult>(null as any);
+    }
+
+    /**
+     * Create Booking
      * @return Created
      */
-    createCoachSchedule(body: AddCoachScheduleRequest): Promise<CreateCoachScheduleResult> {
-        let url_ = this.baseUrl + "/schedules";
+    createBooking(body: CreateBookingRequest): Promise<CreateBookingResult> {
+        let url_ = this.baseUrl + "/bookings";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -199,125 +221,86 @@ export class Client {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateCoachSchedule(_response);
+            return this.processCreateBooking(_response);
         });
     }
 
-    protected processCreateCoachSchedule(response: Response): Promise<CreateCoachScheduleResult> {
+    protected processCreateBooking(response: Response): Promise<CreateBookingResult> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 201) {
             return response.text().then((_responseText) => {
-                let result201: any = null;
-                let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result201 = CreateCoachScheduleResult.fromJS(resultData201);
-                return result201;
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = CreateBookingResult.fromJS(resultData201);
+            return result201;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException("Bad Request", status, _responseText, _headers, result400);
-            });
-        } else if (status === 409) {
-            return response.text().then((_responseText) => {
-                let result409: any = null;
-                let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result409 = ProblemDetails.fromJS(resultData409);
-                return throwException("Conflict", status, _responseText, _headers, result409);
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<CreateCoachScheduleResult>(null as any);
+        return Promise.resolve<CreateBookingResult>(null as any);
     }
 
     /**
-     * @return Created
+     * Update Coach
+     * @return OK
      */
-    createPackage(body: CreatePackageRequest): Promise<void> {
-        let url_ = this.baseUrl + "/packages";
+    updateCoach(coachId: string, body: UpdateCoachRequest): Promise<void> {
+        let url_ = this.baseUrl + "/api/coaches/{coachId}?";
+        if (coachId === undefined || coachId === null)
+            throw new Error("The parameter 'coachId' must be defined and cannot be null.");
+        else
+            url_ += "coachId=" + encodeURIComponent("" + coachId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
 
         let options_: RequestInit = {
             body: content_,
-            method: "POST",
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreatePackage(_response);
+            return this.processUpdateCoach(_response);
         });
     }
 
-    protected processCreatePackage(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 201) {
-            return response.text().then((_responseText) => {
-                return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * Get stats in a period
-     * @param startTime (optional) 
-     * @param endTime (optional) 
-     * @return OK
-     */
-    getStats(startTime: Date | undefined, endTime: Date | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/dashboard/stats?";
-        if (startTime === null)
-            throw new Error("The parameter 'startTime' cannot be null.");
-        else if (startTime !== undefined)
-            url_ += "StartTime=" + encodeURIComponent(startTime ? "" + startTime.toISOString() : "") + "&";
-        if (endTime === null)
-            throw new Error("The parameter 'endTime' cannot be null.");
-        else if (endTime !== undefined)
-            url_ += "EndTime=" + encodeURIComponent(endTime ? "" + endTime.toISOString() : "") + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetStats(_response);
-        });
-    }
-
-    protected processGetStats(response: Response): Promise<void> {
+    protected processUpdateCoach(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-                return;
+            return;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException("Bad Request", status, _responseText, _headers, result400);
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
@@ -347,21 +330,21 @@ export class Client {
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                if (Array.isArray(resultData200)) {
-                    result200 = [] as any;
-                    for (let item of resultData200)
-                        result200!.push(CoachResponse.fromJS(item));
-                }
-                else {
-                    result200 = <any>null;
-                }
-                return result200;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CoachResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<CoachResponse[]>(null as any);
@@ -396,28 +379,28 @@ export class Client {
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 201) {
             return response.text().then((_responseText) => {
-                let result201: any = null;
-                let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result201 = CreateCoachResponse.fromJS(resultData201);
-                return result201;
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = CreateCoachResponse.fromJS(resultData201);
+            return result201;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException("Bad Request", status, _responseText, _headers, result400);
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
-                let result401: any = null;
-                let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result401 = ProblemDetails.fromJS(resultData401);
-                return throwException("Unauthorized", status, _responseText, _headers, result401);
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<CreateCoachResponse>(null as any);
@@ -450,210 +433,97 @@ export class Client {
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = CoachResponse.fromJS(resultData200);
-                return result200;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CoachResponse.fromJS(resultData200);
+            return result200;
             });
         } else if (status === 404) {
             return response.text().then((_responseText) => {
-                let result404: any = null;
-                let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result404 = ProblemDetails.fromJS(resultData404);
-                return throwException("Not Found", status, _responseText, _headers, result404);
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<CoachResponse>(null as any);
     }
 
     /**
-     * Update Booking Status
-     * @return No Content
+     * Get Coach Dashboard Stats
+     * @param start_date (optional) 
+     * @param end_date (optional) 
+     * @return OK
      */
-    updateBookingStatus(bookingId: string, body: string): Promise<void> {
-        let url_ = this.baseUrl + "/bookings/{bookingId}";
-        if (bookingId === undefined || bookingId === null)
-            throw new Error("The parameter 'bookingId' must be defined.");
-        url_ = url_.replace("{bookingId}", encodeURIComponent("" + bookingId));
+    getCoachDashboardStats(start_date: string | undefined, end_date: string | undefined, group_by: string): Promise<GetStatsResponse> {
+        let url_ = this.baseUrl + "/api/coach/dashboard/stats?";
+        if (start_date === null)
+            throw new Error("The parameter 'start_date' cannot be null.");
+        else if (start_date !== undefined)
+            url_ += "start_date=" + encodeURIComponent("" + start_date) + "&";
+        if (end_date === null)
+            throw new Error("The parameter 'end_date' cannot be null.");
+        else if (end_date !== undefined)
+            url_ += "end_date=" + encodeURIComponent("" + end_date) + "&";
+        if (group_by === undefined || group_by === null)
+            throw new Error("The parameter 'group_by' must be defined and cannot be null.");
+        else
+            url_ += "group_by=" + encodeURIComponent("" + group_by) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
+            method: "GET",
             headers: {
-                "Content-Type": "application/json",
+                "Accept": "application/json"
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateBookingStatus(_response);
+            return this.processGetCoachDashboardStats(_response);
         });
     }
 
-    protected processUpdateBookingStatus(response: Response): Promise<void> {
+    protected processGetCoachDashboardStats(response: Response): Promise<GetStatsResponse> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 204) {
+        if (status === 200) {
             return response.text().then((_responseText) => {
-                return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetStatsResponse.fromJS(resultData200);
+            return result200;
             });
         } else if (status === 400) {
             return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException("Bad Request", status, _responseText, _headers, result400);
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-                let result404: any = null;
-                let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result404 = ProblemDetails.fromJS(resultData404);
-                return throwException("Not Found", status, _responseText, _headers, result404);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * Get Booking Details
-     * @return OK
-     */
-    getBookingById(bookingId: string): Promise<BookingDetailResult> {
-        let url_ = this.baseUrl + "/booking/{bookingId}";
-        if (bookingId === undefined || bookingId === null)
-            throw new Error("The parameter 'bookingId' must be defined.");
-        url_ = url_.replace("{bookingId}", encodeURIComponent("" + bookingId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetBookingById(_response);
-        });
-    }
-
-    protected processGetBookingById(response: Response): Promise<BookingDetailResult> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = BookingDetailResult.fromJS(resultData200);
-                return result200;
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             });
         } else if (status === 401) {
             return response.text().then((_responseText) => {
-                let result401: any = null;
-                let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result401 = ProblemDetails.fromJS(resultData401);
-                return throwException("Unauthorized", status, _responseText, _headers, result401);
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<BookingDetailResult>(null as any);
+        return Promise.resolve<GetStatsResponse>(null as any);
     }
 
     /**
-     * Get Coach Booking History
-     * @param startDate (optional) 
-     * @param endDate (optional) 
-     * @param status (optional) 
      * @return OK
      */
-    getCoachBookings(startDate: Date | undefined, endDate: Date | undefined, status: string | undefined, page: number, recordPerPage: number): Promise<BookingHistoryResult[]> {
-        let url_ = this.baseUrl + "/bookings?";
-        if (startDate === null)
-            throw new Error("The parameter 'startDate' cannot be null.");
-        else if (startDate !== undefined)
-            url_ += "StartDate=" + encodeURIComponent(startDate ? "" + startDate.toISOString() : "") + "&";
-        if (endDate === null)
-            throw new Error("The parameter 'endDate' cannot be null.");
-        else if (endDate !== undefined)
-            url_ += "EndDate=" + encodeURIComponent(endDate ? "" + endDate.toISOString() : "") + "&";
-        if (status === null)
-            throw new Error("The parameter 'status' cannot be null.");
-        else if (status !== undefined)
-            url_ += "Status=" + encodeURIComponent("" + status) + "&";
-        if (page === undefined || page === null)
-            throw new Error("The parameter 'page' must be defined and cannot be null.");
-        else
-            url_ += "Page=" + encodeURIComponent("" + page) + "&";
-        if (recordPerPage === undefined || recordPerPage === null)
-            throw new Error("The parameter 'recordPerPage' must be defined and cannot be null.");
-        else
-            url_ += "RecordPerPage=" + encodeURIComponent("" + recordPerPage) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCoachBookings(_response);
-        });
-    }
-
-    protected processGetCoachBookings(response: Response): Promise<BookingHistoryResult[]> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                if (Array.isArray(resultData200)) {
-                    result200 = [] as any;
-                    for (let item of resultData200)
-                        result200!.push(BookingHistoryResult.fromJS(item));
-                }
-                else {
-                    result200 = <any>null;
-                }
-                return result200;
-            });
-        } else if (status === 401) {
-            return response.text().then((_responseText) => {
-                let result401: any = null;
-                let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result401 = ProblemDetails.fromJS(resultData401);
-                return throwException("Unauthorized", status, _responseText, _headers, result401);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<BookingHistoryResult[]>(null as any);
-    }
-
-    /**
-     * Create Booking
-     * @return Created
-     */
-    createBooking(body: CreateBookingRequest): Promise<CreateBookingResult> {
-        let url_ = this.baseUrl + "/bookings";
+    purchasePackage(body: PurchasePackageRequest): Promise<PurchasePackageResult> {
+        let url_ = this.baseUrl + "/api/coach-packages/purchases";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -668,33 +538,569 @@ export class Client {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateBooking(_response);
+            return this.processPurchasePackage(_response);
         });
     }
 
-    protected processCreateBooking(response: Response): Promise<CreateBookingResult> {
+    protected processPurchasePackage(response: Response): Promise<PurchasePackageResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PurchasePackageResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PurchasePackageResult>(null as any);
+    }
+
+    /**
+     * @param isExpiried (optional) 
+     * @param isOutOfUse (optional) 
+     * @param page (optional) 
+     * @param recordPerPage (optional) 
+     * @return OK
+     */
+    getHistoryPurchase(isExpiried: boolean | undefined, isOutOfUse: boolean | undefined, page: number | undefined, recordPerPage: number | undefined): Promise<PurchaseRecord[]> {
+        let url_ = this.baseUrl + "/api/coach-packages/purchases?";
+        if (isExpiried === null)
+            throw new Error("The parameter 'isExpiried' cannot be null.");
+        else if (isExpiried !== undefined)
+            url_ += "IsExpiried=" + encodeURIComponent("" + isExpiried) + "&";
+        if (isOutOfUse === null)
+            throw new Error("The parameter 'isOutOfUse' cannot be null.");
+        else if (isOutOfUse !== undefined)
+            url_ += "IsOutOfUse=" + encodeURIComponent("" + isOutOfUse) + "&";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (recordPerPage === null)
+            throw new Error("The parameter 'recordPerPage' cannot be null.");
+        else if (recordPerPage !== undefined)
+            url_ += "RecordPerPage=" + encodeURIComponent("" + recordPerPage) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetHistoryPurchase(_response);
+        });
+    }
+
+    protected processGetHistoryPurchase(response: Response): Promise<PurchaseRecord[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PurchaseRecord.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PurchaseRecord[]>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getPurchaseDetail(purchaseId: string): Promise<PurchaseDetail> {
+        let url_ = this.baseUrl + "/api/coach-packages/purchases/{purchaseId}";
+        if (purchaseId === undefined || purchaseId === null)
+            throw new Error("The parameter 'purchaseId' must be defined.");
+        url_ = url_.replace("{purchaseId}", encodeURIComponent("" + purchaseId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPurchaseDetail(_response);
+        });
+    }
+
+    protected processGetPurchaseDetail(response: Response): Promise<PurchaseDetail> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PurchaseDetail.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PurchaseDetail>(null as any);
+    }
+
+    /**
+     * @return Created
+     */
+    createPackage(body: CreatePackageRequest): Promise<void> {
+        let url_ = this.baseUrl + "/packages";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreatePackage(_response);
+        });
+    }
+
+    protected processCreatePackage(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 201) {
             return response.text().then((_responseText) => {
-                let result201: any = null;
-                let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result201 = CreateBookingResult.fromJS(resultData201);
-                return result201;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException("Bad Request", status, _responseText, _headers, result400);
+            return;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<CreateBookingResult>(null as any);
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    updateCoachPromotion(promotionId: string, body: UpdateCoachPromotionRequest): Promise<void> {
+        let url_ = this.baseUrl + "/api/coaches/promotions/{promotionId}?";
+        if (promotionId === undefined || promotionId === null)
+            throw new Error("The parameter 'promotionId' must be defined and cannot be null.");
+        else
+            url_ += "promotionId=" + encodeURIComponent("" + promotionId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCoachPromotion(_response);
+        });
+    }
+
+    protected processUpdateCoachPromotion(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    deletePromotion(promotionId: string): Promise<void> {
+        let url_ = this.baseUrl + "/api/coaches/promotions/{promotionId}?";
+        if (promotionId === undefined || promotionId === null)
+            throw new Error("The parameter 'promotionId' must be defined and cannot be null.");
+        else
+            url_ += "promotionId=" + encodeURIComponent("" + promotionId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeletePromotion(_response);
+        });
+    }
+
+    protected processDeletePromotion(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @param page (optional) 
+     * @param recordPerPage (optional) 
+     * @return OK
+     */
+    getAllPromotion(coachId: string, page: number | undefined, recordPerPage: number | undefined): Promise<PromotionRecord[]> {
+        let url_ = this.baseUrl + "/api/coaches/{coachId}/promotions?";
+        if (coachId === undefined || coachId === null)
+            throw new Error("The parameter 'coachId' must be defined and cannot be null.");
+        else
+            url_ += "coachId=" + encodeURIComponent("" + coachId) + "&";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (recordPerPage === null)
+            throw new Error("The parameter 'recordPerPage' cannot be null.");
+        else if (recordPerPage !== undefined)
+            url_ += "RecordPerPage=" + encodeURIComponent("" + recordPerPage) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAllPromotion(_response);
+        });
+    }
+
+    protected processGetAllPromotion(response: Response): Promise<PromotionRecord[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PromotionRecord.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PromotionRecord[]>(null as any);
+    }
+
+    /**
+     * @return Created
+     */
+    createCoachPromotion(coachId: string, body: CreateCoachPromotionRequest): Promise<void> {
+        let url_ = this.baseUrl + "/api/coaches/{coachId}/promotions?";
+        if (coachId === undefined || coachId === null)
+            throw new Error("The parameter 'coachId' must be defined and cannot be null.");
+        else
+            url_ += "coachId=" + encodeURIComponent("" + coachId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateCoachPromotion(_response);
+        });
+    }
+
+    protected processCreateCoachPromotion(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * Get Coach Schedules
+     * @param page (optional) 
+     * @param recordPerPage (optional) 
+     * @return OK
+     */
+    getCoachSchedules(start_date: string, end_date: string, page: number | undefined, recordPerPage: number | undefined): Promise<CoachSchedulesResponse> {
+        let url_ = this.baseUrl + "/api/coach-schedules?";
+        if (start_date === undefined || start_date === null)
+            throw new Error("The parameter 'start_date' must be defined and cannot be null.");
+        else
+            url_ += "start_date=" + encodeURIComponent("" + start_date) + "&";
+        if (end_date === undefined || end_date === null)
+            throw new Error("The parameter 'end_date' must be defined and cannot be null.");
+        else
+            url_ += "end_date=" + encodeURIComponent("" + end_date) + "&";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (recordPerPage === null)
+            throw new Error("The parameter 'recordPerPage' cannot be null.");
+        else if (recordPerPage !== undefined)
+            url_ += "recordPerPage=" + encodeURIComponent("" + recordPerPage) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCoachSchedules(_response);
+        });
+    }
+
+    protected processGetCoachSchedules(response: Response): Promise<CoachSchedulesResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CoachSchedulesResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CoachSchedulesResponse>(null as any);
+    }
+
+    /**
+     * Update Coach Schedule
+     * @return OK
+     */
+    updateCoachSchedule(scheduleId: string, body: UpdateScheduleRequest): Promise<void> {
+        let url_ = this.baseUrl + "/schedules/{scheduleId}";
+        if (scheduleId === undefined || scheduleId === null)
+            throw new Error("The parameter 'scheduleId' must be defined.");
+        url_ = url_.replace("{scheduleId}", encodeURIComponent("" + scheduleId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateCoachSchedule(_response);
+        });
+    }
+
+    protected processUpdateCoachSchedule(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * Delete a Coach's Schedule
+     * @return No Content
+     */
+    deleteCoachSchedule(scheduleId: string): Promise<void> {
+        let url_ = this.baseUrl + "/api/schedules/{scheduleId}";
+        if (scheduleId === undefined || scheduleId === null)
+            throw new Error("The parameter 'scheduleId' must be defined.");
+        url_ = url_.replace("{scheduleId}", encodeURIComponent("" + scheduleId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteCoachSchedule(_response);
+        });
+    }
+
+    protected processDeleteCoachSchedule(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * Create Coach Schedule
+     * @return Created
+     */
+    createCoachSchedule(body: AddCoachScheduleRequest): Promise<CreateCoachScheduleResult> {
+        let url_ = this.baseUrl + "/schedules";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateCoachSchedule(_response);
+        });
+    }
+
+    protected processCreateCoachSchedule(response: Response): Promise<CreateCoachScheduleResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = CreateCoachScheduleResult.fromJS(resultData201);
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 409) {
+            return response.text().then((_responseText) => {
+            let result409: any = null;
+            let resultData409 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result409 = ProblemDetails.fromJS(resultData409);
+            return throwException("Conflict", status, _responseText, _headers, result409);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CreateCoachScheduleResult>(null as any);
     }
 }
 
@@ -737,50 +1143,6 @@ export class AddCoachScheduleRequest implements IAddCoachScheduleRequest {
 }
 
 export interface IAddCoachScheduleRequest {
-    dayOfWeek?: number;
-    startTime?: string;
-    endTime?: string;
-}
-
-export class AvailableScheduleSlot implements IAvailableScheduleSlot {
-    dayOfWeek?: number;
-    startTime?: string;
-    endTime?: string;
-
-    constructor(data?: IAvailableScheduleSlot) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.dayOfWeek = _data["dayOfWeek"];
-            this.startTime = _data["startTime"];
-            this.endTime = _data["endTime"];
-        }
-    }
-
-    static fromJS(data: any): AvailableScheduleSlot {
-        data = typeof data === 'object' ? data : {};
-        let result = new AvailableScheduleSlot();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["dayOfWeek"] = this.dayOfWeek;
-        data["startTime"] = this.startTime;
-        data["endTime"] = this.endTime;
-        return data;
-    }
-}
-
-export interface IAvailableScheduleSlot {
     dayOfWeek?: number;
     startTime?: string;
     endTime?: string;
@@ -918,6 +1280,62 @@ export interface IBookingHistoryResult {
     totalPrice?: number;
 }
 
+export class BookingHistoryResultPaginatedResult implements IBookingHistoryResultPaginatedResult {
+    pageIndex?: number;
+    pageSize?: number;
+    count?: number;
+    data?: BookingHistoryResult[] | undefined;
+
+    constructor(data?: IBookingHistoryResultPaginatedResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageIndex = _data["pageIndex"];
+            this.pageSize = _data["pageSize"];
+            this.count = _data["count"];
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(BookingHistoryResult.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): BookingHistoryResultPaginatedResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new BookingHistoryResultPaginatedResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageIndex"] = this.pageIndex;
+        data["pageSize"] = this.pageSize;
+        data["count"] = this.count;
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IBookingHistoryResultPaginatedResult {
+    pageIndex?: number;
+    pageSize?: number;
+    count?: number;
+    data?: BookingHistoryResult[] | undefined;
+}
+
 export class CoachPackageResponse implements ICoachPackageResponse {
     id?: string;
     name?: string | undefined;
@@ -1042,6 +1460,66 @@ export interface ICoachResponse {
     packages?: CoachPackageResponse[] | undefined;
 }
 
+export class CoachSchedulesResponse implements ICoachSchedulesResponse {
+    page?: number;
+    recordPerPage?: number;
+    totalRecords?: number;
+    totalPages?: number;
+    schedules?: ScheduleSlotResponse[] | undefined;
+
+    constructor(data?: ICoachSchedulesResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"];
+            this.recordPerPage = _data["recordPerPage"];
+            this.totalRecords = _data["totalRecords"];
+            this.totalPages = _data["totalPages"];
+            if (Array.isArray(_data["schedules"])) {
+                this.schedules = [] as any;
+                for (let item of _data["schedules"])
+                    this.schedules!.push(ScheduleSlotResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CoachSchedulesResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CoachSchedulesResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page;
+        data["recordPerPage"] = this.recordPerPage;
+        data["totalRecords"] = this.totalRecords;
+        data["totalPages"] = this.totalPages;
+        if (Array.isArray(this.schedules)) {
+            data["schedules"] = [];
+            for (let item of this.schedules)
+                data["schedules"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICoachSchedulesResponse {
+    page?: number;
+    recordPerPage?: number;
+    totalRecords?: number;
+    totalPages?: number;
+    schedules?: ScheduleSlotResponse[] | undefined;
+}
+
 export class CreateBookingRequest implements ICreateBookingRequest {
     coachId?: string;
     sportId?: string;
@@ -1132,6 +1610,58 @@ export class CreateBookingResult implements ICreateBookingResult {
 export interface ICreateBookingResult {
     id?: string;
     sessionsRemaining?: number;
+}
+
+export class CreateCoachPromotionRequest implements ICreateCoachPromotionRequest {
+    description?: string | undefined;
+    discountType?: string | undefined;
+    discountValue?: number;
+    validFrom?: Date;
+    validTo?: Date;
+
+    constructor(data?: ICreateCoachPromotionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["description"];
+            this.discountType = _data["discountType"];
+            this.discountValue = _data["discountValue"];
+            this.validFrom = _data["validFrom"] ? new Date(_data["validFrom"].toString()) : <any>undefined;
+            this.validTo = _data["validTo"] ? new Date(_data["validTo"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CreateCoachPromotionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCoachPromotionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["description"] = this.description;
+        data["discountType"] = this.discountType;
+        data["discountValue"] = this.discountValue;
+        data["validFrom"] = this.validFrom ? formatDate(this.validFrom) : <any>undefined;
+        data["validTo"] = this.validTo ? formatDate(this.validTo) : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICreateCoachPromotionRequest {
+    description?: string | undefined;
+    discountType?: string | undefined;
+    discountValue?: number;
+    validFrom?: Date;
+    validTo?: Date;
 }
 
 export class CreateCoachRequest implements ICreateCoachRequest {
@@ -1318,6 +1848,66 @@ export interface ICreatePackageRequest {
     sessionCount?: number;
 }
 
+export class GetStatsResponse implements IGetStatsResponse {
+    totalStudents?: number;
+    totalSessions?: number;
+    totalRevenue?: number;
+    totalPackage?: number;
+    stats?: StatPeriod[] | undefined;
+
+    constructor(data?: IGetStatsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalStudents = _data["totalStudents"];
+            this.totalSessions = _data["totalSessions"];
+            this.totalRevenue = _data["totalRevenue"];
+            this.totalPackage = _data["totalPackage"];
+            if (Array.isArray(_data["stats"])) {
+                this.stats = [] as any;
+                for (let item of _data["stats"])
+                    this.stats!.push(StatPeriod.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetStatsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetStatsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalStudents"] = this.totalStudents;
+        data["totalSessions"] = this.totalSessions;
+        data["totalRevenue"] = this.totalRevenue;
+        data["totalPackage"] = this.totalPackage;
+        if (Array.isArray(this.stats)) {
+            data["stats"] = [];
+            for (let item of this.stats)
+                data["stats"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGetStatsResponse {
+    totalStudents?: number;
+    totalSessions?: number;
+    totalRevenue?: number;
+    totalPackage?: number;
+    stats?: StatPeriod[] | undefined;
+}
+
 export class ProblemDetails implements IProblemDetails {
     type?: string | undefined;
     title?: string | undefined;
@@ -1382,6 +1972,462 @@ export interface IProblemDetails {
     [key: string]: any;
 }
 
+export class PromotionRecord implements IPromotionRecord {
+    id?: string;
+    description?: string | undefined;
+    discountType?: string | undefined;
+    discountValue?: number;
+    validFrom?: Date;
+    validTo?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
+
+    constructor(data?: IPromotionRecord) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.description = _data["description"];
+            this.discountType = _data["discountType"];
+            this.discountValue = _data["discountValue"];
+            this.validFrom = _data["validFrom"] ? new Date(_data["validFrom"].toString()) : <any>undefined;
+            this.validTo = _data["validTo"] ? new Date(_data["validTo"].toString()) : <any>undefined;
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): PromotionRecord {
+        data = typeof data === 'object' ? data : {};
+        let result = new PromotionRecord();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["description"] = this.description;
+        data["discountType"] = this.discountType;
+        data["discountValue"] = this.discountValue;
+        data["validFrom"] = this.validFrom ? formatDate(this.validFrom) : <any>undefined;
+        data["validTo"] = this.validTo ? formatDate(this.validTo) : <any>undefined;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IPromotionRecord {
+    id?: string;
+    description?: string | undefined;
+    discountType?: string | undefined;
+    discountValue?: number;
+    validFrom?: Date;
+    validTo?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+export class PurchaseDetail implements IPurchaseDetail {
+    id?: string;
+    coachPackageId?: string;
+    purchaseDate?: Date;
+    expiryDate?: Date;
+    sessionCount?: number;
+    sessionUsed?: number;
+
+    constructor(data?: IPurchaseDetail) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.coachPackageId = _data["coachPackageId"];
+            this.purchaseDate = _data["purchaseDate"] ? new Date(_data["purchaseDate"].toString()) : <any>undefined;
+            this.expiryDate = _data["expiryDate"] ? new Date(_data["expiryDate"].toString()) : <any>undefined;
+            this.sessionCount = _data["sessionCount"];
+            this.sessionUsed = _data["sessionUsed"];
+        }
+    }
+
+    static fromJS(data: any): PurchaseDetail {
+        data = typeof data === 'object' ? data : {};
+        let result = new PurchaseDetail();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["coachPackageId"] = this.coachPackageId;
+        data["purchaseDate"] = this.purchaseDate ? this.purchaseDate.toISOString() : <any>undefined;
+        data["expiryDate"] = this.expiryDate ? this.expiryDate.toISOString() : <any>undefined;
+        data["sessionCount"] = this.sessionCount;
+        data["sessionUsed"] = this.sessionUsed;
+        return data;
+    }
+}
+
+export interface IPurchaseDetail {
+    id?: string;
+    coachPackageId?: string;
+    purchaseDate?: Date;
+    expiryDate?: Date;
+    sessionCount?: number;
+    sessionUsed?: number;
+}
+
+export class PurchasePackageRequest implements IPurchasePackageRequest {
+    packageId?: string;
+
+    constructor(data?: IPurchasePackageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.packageId = _data["packageId"];
+        }
+    }
+
+    static fromJS(data: any): PurchasePackageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new PurchasePackageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["packageId"] = this.packageId;
+        return data;
+    }
+}
+
+export interface IPurchasePackageRequest {
+    packageId?: string;
+}
+
+export class PurchasePackageResult implements IPurchasePackageResult {
+    id?: string;
+    coachPackageId?: string;
+    purchaseDate?: Date;
+    expiryDate?: Date;
+    sessionCount?: number;
+    sessionUsed?: number;
+
+    constructor(data?: IPurchasePackageResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.coachPackageId = _data["coachPackageId"];
+            this.purchaseDate = _data["purchaseDate"] ? new Date(_data["purchaseDate"].toString()) : <any>undefined;
+            this.expiryDate = _data["expiryDate"] ? new Date(_data["expiryDate"].toString()) : <any>undefined;
+            this.sessionCount = _data["sessionCount"];
+            this.sessionUsed = _data["sessionUsed"];
+        }
+    }
+
+    static fromJS(data: any): PurchasePackageResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new PurchasePackageResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["coachPackageId"] = this.coachPackageId;
+        data["purchaseDate"] = this.purchaseDate ? this.purchaseDate.toISOString() : <any>undefined;
+        data["expiryDate"] = this.expiryDate ? this.expiryDate.toISOString() : <any>undefined;
+        data["sessionCount"] = this.sessionCount;
+        data["sessionUsed"] = this.sessionUsed;
+        return data;
+    }
+}
+
+export interface IPurchasePackageResult {
+    id?: string;
+    coachPackageId?: string;
+    purchaseDate?: Date;
+    expiryDate?: Date;
+    sessionCount?: number;
+    sessionUsed?: number;
+}
+
+export class PurchaseRecord implements IPurchaseRecord {
+    id?: string;
+    coachPackageId?: string;
+    sessionCount?: number;
+    sessionUsed?: number;
+
+    constructor(data?: IPurchaseRecord) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.coachPackageId = _data["coachPackageId"];
+            this.sessionCount = _data["sessionCount"];
+            this.sessionUsed = _data["sessionUsed"];
+        }
+    }
+
+    static fromJS(data: any): PurchaseRecord {
+        data = typeof data === 'object' ? data : {};
+        let result = new PurchaseRecord();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["coachPackageId"] = this.coachPackageId;
+        data["sessionCount"] = this.sessionCount;
+        data["sessionUsed"] = this.sessionUsed;
+        return data;
+    }
+}
+
+export interface IPurchaseRecord {
+    id?: string;
+    coachPackageId?: string;
+    sessionCount?: number;
+    sessionUsed?: number;
+}
+
+export class ScheduleSlotResponse implements IScheduleSlotResponse {
+    date?: string | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    status?: string | undefined;
+
+    constructor(data?: IScheduleSlotResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"];
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): ScheduleSlotResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ScheduleSlotResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IScheduleSlotResponse {
+    date?: string | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    status?: string | undefined;
+}
+
+export class StatPeriod implements IStatPeriod {
+    period?: string | undefined;
+    sessions?: number;
+    revenue?: number;
+
+    constructor(data?: IStatPeriod) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.period = _data["period"];
+            this.sessions = _data["sessions"];
+            this.revenue = _data["revenue"];
+        }
+    }
+
+    static fromJS(data: any): StatPeriod {
+        data = typeof data === 'object' ? data : {};
+        let result = new StatPeriod();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["period"] = this.period;
+        data["sessions"] = this.sessions;
+        data["revenue"] = this.revenue;
+        return data;
+    }
+}
+
+export interface IStatPeriod {
+    period?: string | undefined;
+    sessions?: number;
+    revenue?: number;
+}
+
+export class UpdateCoachPromotionRequest implements IUpdateCoachPromotionRequest {
+    description?: string | undefined;
+    discountType?: string | undefined;
+    discountValue?: number;
+    validFrom?: Date;
+    validTo?: Date;
+
+    constructor(data?: IUpdateCoachPromotionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["description"];
+            this.discountType = _data["discountType"];
+            this.discountValue = _data["discountValue"];
+            this.validFrom = _data["validFrom"] ? new Date(_data["validFrom"].toString()) : <any>undefined;
+            this.validTo = _data["validTo"] ? new Date(_data["validTo"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UpdateCoachPromotionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCoachPromotionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["description"] = this.description;
+        data["discountType"] = this.discountType;
+        data["discountValue"] = this.discountValue;
+        data["validFrom"] = this.validFrom ? formatDate(this.validFrom) : <any>undefined;
+        data["validTo"] = this.validTo ? formatDate(this.validTo) : <any>undefined;
+        return data;
+    }
+}
+
+export interface IUpdateCoachPromotionRequest {
+    description?: string | undefined;
+    discountType?: string | undefined;
+    discountValue?: number;
+    validFrom?: Date;
+    validTo?: Date;
+}
+
+export class UpdateCoachRequest implements IUpdateCoachRequest {
+    bio?: string | undefined;
+    ratePerHour?: number;
+    listSport?: string[] | undefined;
+
+    constructor(data?: IUpdateCoachRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.bio = _data["bio"];
+            this.ratePerHour = _data["ratePerHour"];
+            if (Array.isArray(_data["listSport"])) {
+                this.listSport = [] as any;
+                for (let item of _data["listSport"])
+                    this.listSport!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): UpdateCoachRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCoachRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["bio"] = this.bio;
+        data["ratePerHour"] = this.ratePerHour;
+        if (Array.isArray(this.listSport)) {
+            data["listSport"] = [];
+            for (let item of this.listSport)
+                data["listSport"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IUpdateCoachRequest {
+    bio?: string | undefined;
+    ratePerHour?: number;
+    listSport?: string[] | undefined;
+}
+
 export class UpdateScheduleRequest implements IUpdateScheduleRequest {
     dayOfWeek?: number;
     startTime?: string;
@@ -1427,8 +2473,8 @@ export interface IUpdateScheduleRequest {
 }
 
 function formatDate(d: Date) {
-    return d.getFullYear() + '-' +
-        (d.getMonth() < 9 ? ('0' + (d.getMonth() + 1)) : (d.getMonth() + 1)) + '-' +
+    return d.getFullYear() + '-' + 
+        (d.getMonth() < 9 ? ('0' + (d.getMonth()+1)) : (d.getMonth()+1)) + '-' +
         (d.getDate() < 10 ? ('0' + d.getDate()) : d.getDate());
 }
 

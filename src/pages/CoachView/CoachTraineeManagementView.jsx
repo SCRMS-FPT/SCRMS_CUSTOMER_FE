@@ -1,6 +1,5 @@
 import React from "react";
 import { Card, Table } from "antd";
-import CoachSidebar from "@/components/CoachSidebar";
 
 const CoachTraineeManagementView = () => {
   const trainees = [
@@ -9,15 +8,16 @@ const CoachTraineeManagementView = () => {
   ];
 
   return (
-    <CoachSidebar>
-      <Card title="Trainee Management">
-        <Table dataSource={trainees} columns={[
+    <Card title="Trainee Management">
+      <Table
+        dataSource={trainees}
+        columns={[
           { title: "Name", dataIndex: "name" },
           { title: "Skill Level", dataIndex: "skillLevel" },
           { title: "Progress", dataIndex: "progress" },
-        ]} />
-      </Card>
-    </CoachSidebar>
+        ]}
+      />
+    </Card>
   );
 };
 
