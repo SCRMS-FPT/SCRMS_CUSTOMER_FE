@@ -3,23 +3,37 @@ import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { notification } from "antd"; 
-import { Client } from "@/API/IdentityApi";
+import { notification } from "antd";
+import { Client, RegisterUserRequest, ApiException } from "@/API/IdentityApi";
 
 const SignUpView = () => {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    birthDate: "",
+    gender: "Male", // Default selection
+    password: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
   const showUnavailableNotification = () => {
     notification.info({
       message: "Feature Unavailable",
-      description: "This login method is currently unavailable. Please use email and password.",
+      description:
+        "This login method is currently unavailable. Please use email and password.",
       placement: "topRight",
     });
   };
@@ -29,17 +43,24 @@ const SignUpView = () => {
     setIsLoading(true);
     setErrorMessage(null);
 
-    const userData = {
-      email,
-      name,
-      phoneNumber,
-      password,
-      role: "customer",
-    };
-
     try {
-      const client = new Client(); // ✅ Create API client instance
-      await client.register(userData); // ✅ Call register API
+      const client = new Client();
+
+      // Create a RegisterUserRequest object with all required fields
+      const registerRequest = new RegisterUserRequest({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        birthDate: formData.birthDate
+          ? new Date(formData.birthDate)
+          : new Date(),
+        gender: formData.gender,
+        password: formData.password,
+      });
+
+      // Call the register API
+      await client.register(registerRequest);
 
       notification.success({
         message: "Registration Successful",
@@ -47,12 +68,34 @@ const SignUpView = () => {
         placement: "topRight",
       });
 
-      navigate("/login"); // ✅ Redirect to login page
+      navigate("/login");
     } catch (error) {
-      setErrorMessage("An error occurred. Please try again.");
+      console.error("Registration error:", error);
+
+      let errorMsg = "An error occurred during registration. Please try again.";
+
+      if (error instanceof ApiException) {
+        try {
+          const errorResponse = JSON.parse(error.response);
+          errorMsg = errorResponse.detail || errorMsg;
+
+          // Handle specific error messages
+          if (errorMsg.includes("already taken")) {
+            errorMsg =
+              "This email is already registered. Please use a different email or login.";
+          } else if (errorMsg.includes("password")) {
+            errorMsg =
+              "Please provide a valid password (at least 8 characters with letters and numbers).";
+          }
+        } catch (e) {
+          errorMsg = error.message || errorMsg;
+        }
+      }
+
+      setErrorMessage(errorMsg);
       notification.error({
         message: "Registration Failed",
-        description: error.message || "An error occurred. Please try again.",
+        description: errorMsg,
         placement: "topRight",
       });
     } finally {
@@ -78,46 +121,49 @@ const SignUpView = () => {
 
         {/* Sign Up Form */}
         <form onSubmit={handleSignUp} className="mt-6">
+          {/* First Name Input */}
+          <label className="block text-gray-700">First Name</label>
+          <input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your first name"
+            required
+          />
+
+          {/* Last Name Input */}
+          <label className="block text-gray-700 mt-4">Last Name</label>
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your last name"
+            required
+          />
+
           {/* Email Input */}
-          <label className="block text-gray-700">Email</label>
+          <label className="block text-gray-700 mt-4">Email</label>
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
             className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
             placeholder="Enter your email"
             required
           />
-
-          {/* Name Input */}
-          <label className="block text-gray-700 mt-4">Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your name"
-            required
-          />
-
-          {/* Phone Number Input */}
-          <label className="block text-gray-700 mt-4">Phone Number</label>
-          <input
-            type="text"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your phone number"
-            required
-          />
-
           {/* Password Input */}
           <label className="block text-gray-700 mt-4">Password</label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your password"
               required
@@ -128,6 +174,50 @@ const SignUpView = () => {
             >
               {showPassword ? <IoEyeOutline /> : <IoEyeOffOutline />}
             </span>
+          </div>
+          {/* Phone Number Input */}
+          <label className="block text-gray-700 mt-4">Phone Number</label>
+          <input
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your phone number"
+            required
+          />
+
+          {/* Birth Date and Gender Inputs in the same row */}
+          <div className="flex space-x-4 mt-4">
+            {/* Birth Date Input */}
+            <div className="flex-1">
+              <label className="block text-gray-700">Birth Date</label>
+              <input
+                type="date"
+                name="birthDate"
+                value={formData.birthDate}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            {/* Gender Selection */}
+            <div className="flex-1">
+              <label className="block text-gray-700">Gender</label>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Undisclosed">Prefer not to say</option>
+              </select>
+            </div>
           </div>
 
           {/* Error Message */}
@@ -147,11 +237,17 @@ const SignUpView = () => {
 
         {/* Social Login */}
         <div className="mt-6 text-center text-gray-500">or</div>
-        <button className="flex items-center justify-center w-full mt-4 border border-gray-300 py-2 rounded-lg hover:bg-gray-100"   onClick={showUnavailableNotification}>
+        <button
+          className="flex items-center justify-center w-full mt-4 border border-gray-300 py-2 rounded-lg hover:bg-gray-100"
+          onClick={showUnavailableNotification}
+        >
           <FaFacebook className="text-blue-600 mr-2" />
           Continue with Facebook
         </button>
-        <button className="flex items-center justify-center w-full mt-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-100"   onClick={showUnavailableNotification}>
+        <button
+          className="flex items-center justify-center w-full mt-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-100"
+          onClick={showUnavailableNotification}
+        >
           <FcGoogle className="mr-2" />
           Continue with Google
         </button>
