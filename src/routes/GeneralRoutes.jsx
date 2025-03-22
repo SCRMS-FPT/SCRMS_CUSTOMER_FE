@@ -11,8 +11,8 @@ import FindCourtBySportView from "@/pages/UserView/FindCourtBySportView";
 import FindCourtByVenueView from "@/pages/UserView/FindCourtByVenueView";
 import CourtDetailsView from "@/pages/GeneralView/CourtDetailsView";
 import SportsCenter from "@/pages/SportsCenter";
-import CoachList from "@/pages/CoachList";
-import CoachDetails from "@/pages/CoachDetails";
+import CoachList from "@/pages/CoachBooking/CoachList";
+import CoachDetails from "@/pages/CoachBooking/CoachDetails";
 
 import court_mock_data from "@/data/court_mock_data";
 import PricingView from "../pages/ServicePackage/PricingView";

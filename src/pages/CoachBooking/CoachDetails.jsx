@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import coachesData from "../data/coachesData";
-import CoachImageCarousel from "../components/CoachComponents/CoachImageCarousel";
-import CoachInfo from "../components/CoachComponents/CoachInfo";
-import CoachSpecialties from "../components/CoachComponents/CoachSpecialties";
-import CoachDescription from "../components/CoachComponents/CoachDescription";
-import CoachLocation from "../components/CoachComponents/CoachLocation";
-import CoachContact from "../components/CoachComponents/CoachContact";
-import CoachFeedback from "../components/CoachComponents/CoachFeedback";
+import coachesData from "../../data/coachesData";
+import CoachImageCarousel from "../../components/CoachComponents/CoachImageCarousel";
+import CoachInfo from "../../components/CoachComponents/CoachInfo";
+import CoachSpecialties from "../../components/CoachComponents/CoachSpecialties";
+import CoachDescription from "../../components/CoachComponents/CoachDescription";
+import CoachLocation from "../../components/CoachComponents/CoachLocation";
+import CoachContact from "../../components/CoachComponents/CoachContact";
+import CoachFeedback from "../../components/CoachComponents/CoachFeedback";
 
 const CoachDetails = () => {
   const { id } = useParams(); // Get coach ID from URL
