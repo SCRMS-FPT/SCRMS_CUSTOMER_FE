@@ -9,7 +9,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 import { motion } from "framer-motion";
-import DatePicker from "../../components/CustomDaatePicker";
+import DatePicker from "../../components/GeneralComponents/CustomDaatePicker";
 import {
   FaMapMarkerAlt,
   FaClock,

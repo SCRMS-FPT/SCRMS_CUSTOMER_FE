@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Table, Button, Tag } from "antd";
-import CourtOwnerSidebar from "@/components/CourtOwnerSidebar";
+import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
 
 const promotionsData = [
   { id: "P001", title: "Spring Discount", discount: "20%", status: "Active" },
@@ -22,15 +22,16 @@ const CourtOwnerPromotionView = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (_, record) => (
-        <Button type="primary">Edit</Button>
-      ),
+      render: (_, record) => <Button type="primary">Edit</Button>,
     },
   ];
 
   return (
     <CourtOwnerSidebar>
-      <Card title="🎟 Promotions" extra={<Button type="primary">Add Promotion</Button>}>
+      <Card
+        title="🎟 Promotions"
+        extra={<Button type="primary">Add Promotion</Button>}
+      >
         <Table dataSource={promotionsData} rowKey="id" columns={columns} />
       </Card>
     </CourtOwnerSidebar>

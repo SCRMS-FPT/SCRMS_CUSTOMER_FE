@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { courtsData } from "../data/courtsData1";
 import { sportsCentersData } from "../data/sportsCentersData";
-import CourtList from "../components/CourtList";
-import CourtDetail from "../components/CourtDetail";
-import CourtForm from "../components/CourtForm";
+import CourtList from "../components/CourtComponents/CourtList";
+import CourtDetail from "../components/CourtComponents/CourtDetail";
+import CourtForm from "../components/CourtComponents/CourtForm";
 import { Search } from "lucide-react";
 import "../styles/CourtsManage.css";
 
@@ -21,7 +21,9 @@ const CourtsManage = () => {
   useEffect(() => {
     if (centerId) {
       // Lọc các sân thể thao dựa trên centerId
-      const filteredCourts = courtsData.filter(court => court.sports_center_id === centerId);
+      const filteredCourts = courtsData.filter(
+        (court) => court.sports_center_id === centerId
+      );
       setCourts(filteredCourts);
     } else {
       // Hiển thị tất cả các sân nếu không có centerId
@@ -58,16 +60,30 @@ const CourtsManage = () => {
     if (isAdding) {
       // Generate a new ID for the court
       const newCourtId = `c${courts.length + 1}`;
-      const newCourt = { ...courtData, courtId: newCourtId, sports_center_id: centerId };
+      const newCourt = {
+        ...courtData,
+        courtId: newCourtId,
+        sports_center_id: centerId,
+      };
       setCourts([...courts, newCourt]);
       setSelectedCourt(newCourt);
     } else if (isEditing && selectedCourt) {
       // Update existing court
       const updatedCourts = courts.map((court) =>
-        court.courtId === selectedCourt.courtId ? { ...courtData, courtId: selectedCourt.courtId, sports_center_id: centerId } : court
+        court.courtId === selectedCourt.courtId
+          ? {
+              ...courtData,
+              courtId: selectedCourt.courtId,
+              sports_center_id: centerId,
+            }
+          : court
       );
       setCourts(updatedCourts);
-      setSelectedCourt({ ...courtData, courtId: selectedCourt.courtId, sports_center_id: centerId });
+      setSelectedCourt({
+        ...courtData,
+        courtId: selectedCourt.courtId,
+        sports_center_id: centerId,
+      });
     }
     setIsEditing(false);
     setIsAdding(false);
@@ -125,7 +141,11 @@ const CourtsManage = () => {
 
             <div className="court-detail-container">
               {isAdding ? (
-                <CourtForm onSave={handleSaveCourt} onCancel={handleCancel} sportsCenters={sportsCentersData} />
+                <CourtForm
+                  onSave={handleSaveCourt}
+                  onCancel={handleCancel}
+                  sportsCenters={sportsCentersData}
+                />
               ) : isEditing && selectedCourt ? (
                 <CourtForm
                   court={selectedCourt}
@@ -160,4 +180,3 @@ const CourtsManage = () => {
 };
 
 export default CourtsManage;
-

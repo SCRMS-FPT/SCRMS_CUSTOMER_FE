@@ -44,5 +44,4 @@ const BookingSlots = ({ startTime, endTime, duration }) => {
   );
 };
 
-
-export default App;
+export default BookingSlots;

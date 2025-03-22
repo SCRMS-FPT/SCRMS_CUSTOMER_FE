@@ -1,5 +1,5 @@
 import { Route } from "react-router-dom";
-import Layout from "@/components/Layout";
+import Layout from "@/components/GeneralComponents/Layout";
 
 import BookCourtView from "@/pages/UserView/BookCourtView";
 import UserDashboardView from "@/pages/UserView/UserDashboardView";

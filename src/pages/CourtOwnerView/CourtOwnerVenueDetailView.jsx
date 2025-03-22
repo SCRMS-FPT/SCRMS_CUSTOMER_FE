@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate  } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card, Spin, Button } from "antd";
 import { LeftOutlined } from "@ant-design/icons";
-import CourtOwnerSidebar from "@/components/CourtOwnerSidebar";
+import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
 import venuesData from "@/data/venue_mock_data";
 
 import VenueOverview from "@/components/CourtOwnerVenueDetailView/VenueOverview";

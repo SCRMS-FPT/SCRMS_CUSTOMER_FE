@@ -1,5 +1,5 @@
 import React from "react";
-import CourtOwnerSidebar from "@/components/CourtOwnerSidebar";
+import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
 import { Card, Calendar } from "antd";
 
 const CourtOwnerScheduleView = () => {

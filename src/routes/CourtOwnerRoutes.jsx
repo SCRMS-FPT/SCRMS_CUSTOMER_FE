@@ -1,5 +1,5 @@
 import { Route } from "react-router-dom";
-import Layout from "@/components/Layout";
+import Layout from "@/components/GeneralComponents/Layout";
 
 import CourtOwnerDashboardView from "@/pages/CourtOwnerView/CourtOwnerDashboardView";
 import CourtOwnerVenueListView from "@/pages/CourtOwnerView/CourtOwnerVenueListView";
