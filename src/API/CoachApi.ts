@@ -20,6 +20,20 @@ export class Client {
         this.baseUrl = baseUrl ?? API_COACH_URL;
     }
 
+    // Helper method to get authorization headers
+    private getAuthHeaders(): HeadersInit {
+        // Get token from localStorage (which is synced with Redux store)
+        const token = localStorage.getItem("token");
+        
+        // Return headers with Authorization if token exists
+        return token ? {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json"
+        } : {
+            "Accept": "application/json"
+        };
+    }
+
     /**
      * Update Booking Status
      * @return No Content
@@ -37,6 +51,7 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -88,9 +103,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -166,9 +179,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -215,8 +226,8 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+                ...this.getAuthHeaders(),
+                "Content-Type": "application/json"
             }
         };
 
@@ -268,6 +279,7 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -315,9 +327,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -364,8 +374,8 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+                ...this.getAuthHeaders(),
+                "Content-Type": "application/json"
             }
         };
 
@@ -418,9 +428,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -477,9 +485,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -532,8 +538,8 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+                ...this.getAuthHeaders(),
+                "Content-Type": "application/json"
             }
         };
 
@@ -589,9 +595,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -636,9 +640,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -677,6 +679,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -718,6 +721,7 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -755,8 +759,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "DELETE",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -802,9 +805,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -854,6 +855,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -906,9 +908,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -965,6 +965,7 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -1009,8 +1010,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "DELETE",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -1061,8 +1061,8 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+                ...this.getAuthHeaders(),
+                "Content-Type": "application/json"
             }
         };
 

@@ -15,6 +15,7 @@ import CoachList from "@/pages/CoachList";
 import CoachDetails from "@/pages/CoachDetails";
 
 import court_mock_data from "@/data/court_mock_data";
+import PricingView from "../pages/ServicePackage/PricingView";
 
 const GeneralRoutes = [
   <Route
@@ -140,6 +141,15 @@ const GeneralRoutes = [
     element={
       <Layout>
         <CoachDetails />
+      </Layout>
+    }
+  />,
+  <Route
+    key="pricing"
+    path="/pricing"
+    element={
+      <Layout>
+        <PricingView />
       </Layout>
     }
   />,
