@@ -265,22 +265,26 @@ export class Client {
      * Update Coach
      * @return OK
      */
-    updateCoach(coachId: string, body: UpdateCoachRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/coaches/{coachId}?";
+    updateCoach(coachId: string, request: UpdateCoachRequest | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/coaches/{coachId}";
         if (coachId === undefined || coachId === null)
-            throw new Error("The parameter 'coachId' must be defined and cannot be null.");
-        else
-            url_ += "coachId=" + encodeURIComponent("" + coachId) + "&";
+            throw new Error("The parameter 'coachId' must be defined.");
+        url_ = url_.replace("{coachId}", encodeURIComponent("" + coachId));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+        let content_ = "";
+        if (request === null)
+            throw new Error("The parameter 'request' cannot be null.");
+        else if (request !== undefined)
+            content_ += encodeURIComponent("request") + "=" + encodeURIComponent("" + request) + "&";
+        content_ = content_.replace(/&$/, "");
 
         let options_: RequestInit = {
             body: content_,
             method: "PUT",
-            headers: {
+		headers: {
                 ...this.getAuthHeaders(),
-                "Content-Type": "application/json",
+                "Content-Type": "multipart/form-data",
             }
         };
 
@@ -317,6 +321,7 @@ export class Client {
         }
         return Promise.resolve<void>(null as any);
     }
+
 
     /**
      * @return OK
@@ -364,19 +369,25 @@ export class Client {
      * Create Coach
      * @return Created
      */
-    createCoach(body: CreateCoachRequest): Promise<CreateCoachResponse> {
+    createCoach(request: CreateCoachRequest | undefined): Promise<CreateCoachResponse> {
         let url_ = this.baseUrl + "/coaches";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+        let content_ = "";
+        if (request === null)
+            throw new Error("The parameter 'request' cannot be null.");
+        else if (request !== undefined)
+            content_ += encodeURIComponent("request") + "=" + encodeURIComponent("" + request) + "&";
+        content_ = content_.replace(/&$/, "");
 
         let options_: RequestInit = {
             body: content_,
             method: "POST",
             headers: {
                 ...this.getAuthHeaders(),
-                "Content-Type": "application/json"
+                "Content-Type": "multipart/form-data",
             }
+
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -415,6 +426,7 @@ export class Client {
         }
         return Promise.resolve<CreateCoachResponse>(null as any);
     }
+
 
     /**
      * @return OK
@@ -1666,8 +1678,13 @@ export interface ICreateCoachPromotionRequest {
 
 export class CreateCoachRequest implements ICreateCoachRequest {
     sportId?: string;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phone?: string | undefined;
     bio?: string | undefined;
     ratePerHour?: number;
+    avatar?: string | undefined;
+    images?: string[] | undefined;
 
     constructor(data?: ICreateCoachRequest) {
         if (data) {
@@ -1681,8 +1698,17 @@ export class CreateCoachRequest implements ICreateCoachRequest {
     init(_data?: any) {
         if (_data) {
             this.sportId = _data["sportId"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
             this.bio = _data["bio"];
             this.ratePerHour = _data["ratePerHour"];
+            this.avatar = _data["avatar"];
+            if (Array.isArray(_data["images"])) {
+                this.images = [] as any;
+                for (let item of _data["images"])
+                    this.images!.push(item);
+            }
         }
     }
 
@@ -1696,17 +1722,32 @@ export class CreateCoachRequest implements ICreateCoachRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["sportId"] = this.sportId;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
         data["bio"] = this.bio;
         data["ratePerHour"] = this.ratePerHour;
+        data["avatar"] = this.avatar;
+        if (Array.isArray(this.images)) {
+            data["images"] = [];
+            for (let item of this.images)
+                data["images"].push(item);
+        }
         return data;
     }
 }
 
 export interface ICreateCoachRequest {
     sportId?: string;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phone?: string | undefined;
     bio?: string | undefined;
     ratePerHour?: number;
+    avatar?: string | undefined;
+    images?: string[] | undefined;
 }
+
 
 export class CreateCoachResponse implements ICreateCoachResponse {
     id?: string;
@@ -2377,9 +2418,16 @@ export interface IUpdateCoachPromotionRequest {
 }
 
 export class UpdateCoachRequest implements IUpdateCoachRequest {
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phone?: string | undefined;
     bio?: string | undefined;
     ratePerHour?: number;
     listSport?: string[] | undefined;
+    newAvatar?: string | undefined;
+    newImages?: string[] | undefined;
+    existingImageUrls?: string[] | undefined;
+    imagesToDelete?: string[] | undefined;
 
     constructor(data?: IUpdateCoachRequest) {
         if (data) {
@@ -2392,12 +2440,31 @@ export class UpdateCoachRequest implements IUpdateCoachRequest {
 
     init(_data?: any) {
         if (_data) {
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
             this.bio = _data["bio"];
             this.ratePerHour = _data["ratePerHour"];
             if (Array.isArray(_data["listSport"])) {
                 this.listSport = [] as any;
                 for (let item of _data["listSport"])
                     this.listSport!.push(item);
+            }
+            this.newAvatar = _data["newAvatar"];
+            if (Array.isArray(_data["newImages"])) {
+                this.newImages = [] as any;
+                for (let item of _data["newImages"])
+                    this.newImages!.push(item);
+            }
+            if (Array.isArray(_data["existingImageUrls"])) {
+                this.existingImageUrls = [] as any;
+                for (let item of _data["existingImageUrls"])
+                    this.existingImageUrls!.push(item);
+            }
+            if (Array.isArray(_data["imagesToDelete"])) {
+                this.imagesToDelete = [] as any;
+                for (let item of _data["imagesToDelete"])
+                    this.imagesToDelete!.push(item);
             }
         }
     }
@@ -2411,6 +2478,9 @@ export class UpdateCoachRequest implements IUpdateCoachRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
         data["bio"] = this.bio;
         data["ratePerHour"] = this.ratePerHour;
         if (Array.isArray(this.listSport)) {
@@ -2418,15 +2488,39 @@ export class UpdateCoachRequest implements IUpdateCoachRequest {
             for (let item of this.listSport)
                 data["listSport"].push(item);
         }
+        data["newAvatar"] = this.newAvatar;
+        if (Array.isArray(this.newImages)) {
+            data["newImages"] = [];
+            for (let item of this.newImages)
+                data["newImages"].push(item);
+        }
+        if (Array.isArray(this.existingImageUrls)) {
+            data["existingImageUrls"] = [];
+            for (let item of this.existingImageUrls)
+                data["existingImageUrls"].push(item);
+        }
+        if (Array.isArray(this.imagesToDelete)) {
+            data["imagesToDelete"] = [];
+            for (let item of this.imagesToDelete)
+                data["imagesToDelete"].push(item);
+        }
         return data;
     }
 }
 
 export interface IUpdateCoachRequest {
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phone?: string | undefined;
     bio?: string | undefined;
     ratePerHour?: number;
     listSport?: string[] | undefined;
+    newAvatar?: string | undefined;
+    newImages?: string[] | undefined;
+    existingImageUrls?: string[] | undefined;
+    imagesToDelete?: string[] | undefined;
 }
+
 
 export class UpdateScheduleRequest implements IUpdateScheduleRequest {
     dayOfWeek?: number;

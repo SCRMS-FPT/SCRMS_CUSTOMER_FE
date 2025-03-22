@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import CoachCard from "../components/CoachComponents/CoachCard";
-import CoachFilter from "../components/CoachComponents/CoachFilter";
-import SearchCoachList from "../components/CoachComponents/SearchCoachList";
-import coachesData from "../data/coachesData";
+import CoachCard from "../../components/CoachComponents/CoachCard";
+import CoachFilter from "../../components/CoachComponents/CoachFilter";
+import SearchCoachList from "../../components/CoachComponents/SearchCoachList";
+import coachesData from "../../data/coachesData";
 
 const CoachList = () => {
   const [selectedSport, setSelectedSport] = useState("All Sports");

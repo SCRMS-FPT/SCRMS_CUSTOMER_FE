@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/userSlice";
-import { FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
 import logo from "../../assets/logo.svg";
 import defaultAvatar from "../../assets/default_avatar.jpg";
-
+import { Client } from "../../API/PaymentApi";
 // Import MUI components
 import {
   AppBar,
@@ -26,13 +25,13 @@ import {
   Tooltip,
   Container,
   Badge,
+  CircularProgress,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PriceCheckIcon from "@mui/icons-material/PriceCheck";
 import SportsTennisIcon from "@mui/icons-material/SportsTennis";
-import PersonIcon from "@mui/icons-material/Person";
 import ExploreIcon from "@mui/icons-material/Explore";
 import SportsIcon from "@mui/icons-material/Sports";
 import HelpIcon from "@mui/icons-material/Help";
@@ -41,11 +40,14 @@ import LoginIcon from "@mui/icons-material/Login";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [discoverAnchorEl, setDiscoverAnchorEl] = useState(null);
+  const [walletBalance, setWalletBalance] = useState(null);
+  const [loadingBalance, setLoadingBalance] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -56,13 +58,38 @@ const Navbar = () => {
   const isCoach = user?.roles?.includes("Coach");
   const isCourtOwner = user?.roles?.includes("Court Owner");
 
+  // Fetch wallet balance when dropdown opens
+  const fetchWalletBalance = async () => {
+    if (!user) return;
+
+    try {
+      setLoadingBalance(true);
+      const apiClient = new Client();
+      const response = await apiClient.getWalletBalance();
+      setWalletBalance(response);
+    } catch (error) {
+      console.error("Error fetching wallet balance:", error);
+    } finally {
+      setLoadingBalance(false);
+    }
+  };
+
   // Profile menu handlers
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
+    // Fetch wallet balance when menu opens
+    fetchWalletBalance();
   };
 
   const handleProfileMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  // Navigate to wallet
+  const navigateToWallet = () => {
+    navigate("/wallet");
+    handleProfileMenuClose();
+    setIsOpen(false);
   };
 
   // Discover menu handlers
@@ -234,6 +261,23 @@ const Navbar = () => {
               Support
             </Button>
 
+            {/* Wallet Button - Show if user is logged in */}
+            {user && (
+              <Button
+                color="inherit"
+                onClick={navigateToWallet}
+                startIcon={<AccountBalanceWalletIcon />}
+                sx={{
+                  transition: "all 0.2s",
+                  "&:hover": {
+                    backgroundColor: "rgba(37, 99, 235, 0.08)",
+                  },
+                }}
+              >
+                Ví của tôi
+              </Button>
+            )}
+
             {/* Role-based dashboard buttons */}
             {isCoach && (
               <Tooltip title="Coach Dashboard">
@@ -320,6 +364,45 @@ const Navbar = () => {
                     sx: { borderRadius: 1, mt: 1, minWidth: 200 },
                   }}
                 >
+                  {/* Wallet Balance */}
+                  <Box
+                    sx={{
+                      px: 2,
+                      py: 1.5,
+                      display: "flex",
+                      alignItems: "center",
+                      backgroundColor: "rgba(37, 99, 235, 0.08)",
+                      borderRadius: "4px",
+                      mx: 1,
+                      mb: 1,
+                    }}
+                  >
+                    <AccountBalanceWalletIcon
+                      fontSize="small"
+                      sx={{ color: "#2563eb", mr: 1 }}
+                    />
+                    <Box>
+                      <Typography
+                        variant="caption"
+                        component="div"
+                        color="text.secondary"
+                      >
+                        Số dư ví
+                      </Typography>
+                      {loadingBalance ? (
+                        <CircularProgress size={16} sx={{ my: 0.5 }} />
+                      ) : (
+                        <Typography
+                          variant="body2"
+                          component="div"
+                          fontWeight="bold"
+                        >
+                          {walletBalance?.balance?.toLocaleString()} VND
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+
                   <MenuItem
                     onClick={() => {
                       handleProfileMenuClose();
@@ -331,6 +414,15 @@ const Navbar = () => {
                     </ListItemIcon>
                     View Profile
                   </MenuItem>
+
+                  {/* Wallet Menu Item */}
+                  <MenuItem onClick={navigateToWallet}>
+                    <ListItemIcon>
+                      <AccountBalanceWalletIcon fontSize="small" />
+                    </ListItemIcon>
+                    Quản lý ví
+                  </MenuItem>
+
                   {isCoach && (
                     <MenuItem
                       onClick={() => navigateToDashboard("/coach/dashboard")}
@@ -491,6 +583,14 @@ const Navbar = () => {
                     <AccountCircleIcon color="primary" />
                   </ListItemIcon>
                   <ListItemText primary="View Profile" />
+                </ListItem>
+
+                {/* Wallet mobile menu item */}
+                <ListItem button onClick={navigateToWallet}>
+                  <ListItemIcon>
+                    <AccountBalanceWalletIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText primary="Quản lý ví" />
                 </ListItem>
 
                 {isCoach && (
