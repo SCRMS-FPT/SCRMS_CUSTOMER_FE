@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import SearchBar from "../components/SearchBar.jsx";
+import SearchBar from "../components/GeneralComponents/SearchBar.jsx";
 import MatchList from "../components/MatchList.jsx";
-import Notification from "../components/Notification.jsx";
+import Notification from "../components/GeneralComponents/Notification.jsx";
 import FeedbackForm from "../components/FeedbackForm.jsx";
 
 const MatchFinder = () => {

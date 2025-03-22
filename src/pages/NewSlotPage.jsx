@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import CourtSlotForm from "../components/CourtSlotForm";
+import CourtSlotForm from "../components/CourtComponents/CourtSlotForm";
 
 const NewSlotPage = () => {
   const navigate = useNavigate();

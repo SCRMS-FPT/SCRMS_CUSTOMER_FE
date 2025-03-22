@@ -1,5 +1,5 @@
 import React from "react";
-import CourtOwnerSidebar from "@/components/CourtOwnerSidebar";
+import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
 import { Card } from "antd";
 
 const CourtOwnerDashboardView = () => {
@@ -7,7 +7,10 @@ const CourtOwnerDashboardView = () => {
     <CourtOwnerSidebar>
       <Card title="Court Owner Dashboard">
         <p>Welcome to your court management dashboard.</p>
-        <p>Here you can manage bookings, view reports, and update court schedules.</p>
+        <p>
+          Here you can manage bookings, view reports, and update court
+          schedules.
+        </p>
       </Card>
     </CourtOwnerSidebar>
   );

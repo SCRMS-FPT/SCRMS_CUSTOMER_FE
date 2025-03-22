@@ -1,13 +1,24 @@
-"use client"
-import sportsData from "../data/sportsData";
+"use client";
+import sportsData from "../../data/sportsData";
 import { useNavigate } from "react-router-dom";
 
 const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
-  const { name, description, court_type, facilities, images, status, sports_center_id, sport_id } = court;
+  const {
+    name,
+    description,
+    court_type,
+    facilities,
+    images,
+    status,
+    sports_center_id,
+    sport_id,
+  } = court;
   const navigate = useNavigate();
 
   // Tìm thông tin trung tâm thể thao
-  const sportsCenter = sportsCenters.find((center) => center.centerId === sports_center_id);
+  const sportsCenter = sportsCenters.find(
+    (center) => center.centerId === sports_center_id
+  );
 
   // Tìm thông tin môn thể thao (sport_id bây giờ là tên môn thể thao)
   const sport = sportsData.find((sport) => sport.name === sport_id);
@@ -34,7 +45,9 @@ const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
       </div>
 
       <div className="court-detail-status">
-        <span className={`status-badge ${status}`}>{status === "open" ? "Đang mở" : "Đã đóng"}</span>
+        <span className={`status-badge ${status}`}>
+          {status === "open" ? "Đang mở" : "Đã đóng"}
+        </span>
         <span className="court-type-badge">{court_type}</span>
       </div>
 
@@ -47,7 +60,9 @@ const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
         <div className="court-detail-center">
           <h3>Trung tâm thể thao</h3>
           <p>{sportsCenter ? sportsCenter.name : "Không xác định"}</p>
-          {sportsCenter && <p className="center-address">{sportsCenter.address}</p>}
+          {sportsCenter && (
+            <p className="center-address">{sportsCenter.address}</p>
+          )}
         </div>
 
         <div className="court-detail-sport">
@@ -68,11 +83,15 @@ const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
         <ul>
           <li>
             <span className="facility-label">Chiếu sáng:</span>
-            <span className="facility-value">{facilities.lighting ? "Có" : "Không"}</span>
+            <span className="facility-value">
+              {facilities.lighting ? "Có" : "Không"}
+            </span>
           </li>
           <li>
             <span className="facility-label">Phòng thay đồ:</span>
-            <span className="facility-value">{facilities.locker_room ? "Có" : "Không"}</span>
+            <span className="facility-value">
+              {facilities.locker_room ? "Có" : "Không"}
+            </span>
           </li>
           <li>
             <span className="facility-label">Bãi đỗ xe:</span>
@@ -80,10 +99,10 @@ const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
               {facilities.parking === "sufficient"
                 ? "Đầy đủ"
                 : facilities.parking === "limited"
-                  ? "Hạn chế"
-                  : facilities.parking === "ample"
-                    ? "Rộng rãi"
-                    : facilities.parking}
+                ? "Hạn chế"
+                : facilities.parking === "ample"
+                ? "Rộng rãi"
+                : facilities.parking}
             </span>
           </li>
         </ul>
@@ -94,7 +113,10 @@ const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
         <div className="court-avatar">
           <h4>Ảnh đại diện</h4>
           <div className="court-avatar-image">
-            <img src={images.avatar || "/placeholder.svg?height=200&width=200"} alt={`${name} - Avatar`} />
+            <img
+              src={images.avatar || "/placeholder.svg?height=200&width=200"}
+              alt={`${name} - Avatar`}
+            />
           </div>
         </div>
         <div className="court-images-gallery">
@@ -102,7 +124,10 @@ const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
           <div className="gallery-grid">
             {images.images.map((img, index) => (
               <div key={index} className="court-image">
-                <img src={img || "/placeholder.svg?height=150&width=200"} alt={`${name} - ${index + 1}`} />
+                <img
+                  src={img || "/placeholder.svg?height=150&width=200"}
+                  alt={`${name} - ${index + 1}`}
+                />
               </div>
             ))}
           </div>
@@ -113,4 +138,3 @@ const CourtDetail = ({ court, onEdit, onDelete, sportsCenters }) => {
 };
 
 export default CourtDetail;
-

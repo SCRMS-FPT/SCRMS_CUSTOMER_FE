@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, notification } from "antd";
-import CourtSlotForm from "../components/CourtSlotForm";
+import CourtSlotForm from "../components/CourtComponents/CourtSlotForm";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import mockSlotsData from "../data/mockSlotsData"; // ✅ Import mock data
@@ -45,7 +45,11 @@ const UpdateSlotPage = () => {
   return (
     <Card title="Edit Slot">
       {slot ? (
-        <CourtSlotForm initialData={slot} onSubmit={handleUpdateSuccess} onCancel={() => navigate("/slots")} />
+        <CourtSlotForm
+          initialData={slot}
+          onSubmit={handleUpdateSuccess}
+          onCancel={() => navigate("/slots")}
+        />
       ) : (
         <p>Loading slot details...</p>
       )}

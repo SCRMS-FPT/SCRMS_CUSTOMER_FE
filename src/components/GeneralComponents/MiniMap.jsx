@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Stage, Layer, Rect, Transformer } from "react-konva";
-import mockFields from "../data/mockFields"; // Import mock data
+import mockFields from "../../data/mockFields"; // Import mock data
 
 const MiniMap = () => {
   const [fields, setFields] = useState([]);

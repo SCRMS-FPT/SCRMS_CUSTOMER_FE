@@ -1,11 +1,21 @@
 import React from "react";
-import CourtOwnerSidebar from "@/components/CourtOwnerSidebar";
+import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
 import { Card, Table, Button, Tag } from "antd";
 
 const CourtOwnerBookingView = () => {
   const bookings = [
-    { id: "101", court: "Champions Court", date: "2025-05-01", status: "Confirmed" },
-    { id: "102", court: "Elite Sports Arena", date: "2025-05-02", status: "Pending" },
+    {
+      id: "101",
+      court: "Champions Court",
+      date: "2025-05-01",
+      status: "Confirmed",
+    },
+    {
+      id: "102",
+      court: "Elite Sports Arena",
+      date: "2025-05-02",
+      status: "Pending",
+    },
   ];
 
   return (
@@ -21,7 +31,11 @@ const CourtOwnerBookingView = () => {
               title: "Status",
               dataIndex: "status",
               key: "status",
-              render: (status) => <Tag color={status === "Confirmed" ? "green" : "orange"}>{status}</Tag>,
+              render: (status) => (
+                <Tag color={status === "Confirmed" ? "green" : "orange"}>
+                  {status}
+                </Tag>
+              ),
             },
             {
               title: "Actions",

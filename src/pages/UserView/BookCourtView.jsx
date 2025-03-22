@@ -13,7 +13,7 @@ import {
   FaLightbulb,
   FaWifi,
 } from "react-icons/fa";
-import DatePicker from "../../components/CustomDaatePicker";
+import DatePicker from "../../components/GeneralComponents/CustomDaatePicker";
 import formatDate from "../../utils/formatDate";
 
 const BookCourt = () => {

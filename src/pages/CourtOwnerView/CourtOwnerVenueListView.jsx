@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Table, Button, Tag, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
-import CourtOwnerSidebar from "@/components/CourtOwnerSidebar";
+import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
 import venuesData from "@/data/venue_mock_data";
 
 const CourtOwnerVenueListView = () => {
@@ -28,7 +28,9 @@ const CourtOwnerVenueListView = () => {
       title: "Rating",
       dataIndex: "rating",
       key: "rating",
-      render: (rating) => <span className="font-bold text-yellow-500">{rating} ⭐</span>,
+      render: (rating) => (
+        <span className="font-bold text-yellow-500">{rating} ⭐</span>
+      ),
     },
     {
       title: "Sports",
@@ -48,7 +50,10 @@ const CourtOwnerVenueListView = () => {
             ))}
             {remainingCount > 0 && (
               <Tooltip title={remainingSports.join(", ")}>
-                <Tag color="gray" className="cursor-pointer">{`+${remainingCount}`}</Tag>
+                <Tag
+                  color="gray"
+                  className="cursor-pointer"
+                >{`+${remainingCount}`}</Tag>
               </Tooltip>
             )}
           </>
@@ -73,7 +78,10 @@ const CourtOwnerVenueListView = () => {
             ))}
             {remainingCount > 0 && (
               <Tooltip title={remainingAmenities.join(", ")}>
-                <Tag color="gray" className="cursor-pointer">{`+${remainingCount}`}</Tag>
+                <Tag
+                  color="gray"
+                  className="cursor-pointer"
+                >{`+${remainingCount}`}</Tag>
               </Tooltip>
             )}
           </>
@@ -84,13 +92,18 @@ const CourtOwnerVenueListView = () => {
       title: "Courts",
       dataIndex: "courts",
       key: "courts",
-      render: (courts) => <span className="font-semibold">{courts.length}</span>,
+      render: (courts) => (
+        <span className="font-semibold">{courts.length}</span>
+      ),
     },
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <Button type="primary" onClick={() => navigate(`/court-owner/venues/${record.id}`)}>
+        <Button
+          type="primary"
+          onClick={() => navigate(`/court-owner/venues/${record.id}`)}
+        >
           Manage
         </Button>
       ),
@@ -99,10 +112,23 @@ const CourtOwnerVenueListView = () => {
 
   return (
     <CourtOwnerSidebar>
-      <Card title="My Venues" extra={<Button type="primary" onClick={() => navigate("/court-owner/venues/create")}>
-        Add New Venue
-      </Button>}>
-        <Table dataSource={venuesData} rowKey="id" columns={columns} pagination={{ pageSize: 10 }} />
+      <Card
+        title="My Venues"
+        extra={
+          <Button
+            type="primary"
+            onClick={() => navigate("/court-owner/venues/create")}
+          >
+            Add New Venue
+          </Button>
+        }
+      >
+        <Table
+          dataSource={venuesData}
+          rowKey="id"
+          columns={columns}
+          pagination={{ pageSize: 10 }}
+        />
       </Card>
     </CourtOwnerSidebar>
   );

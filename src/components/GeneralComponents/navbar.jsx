@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../store/userSlice";
+import { logout } from "../../store/userSlice";
 import { FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
-import logo from "../assets/logo.svg";
-import defaultAvatar from "../assets/default_avatar.jpg";
+import logo from "../../assets/logo.svg";
+import defaultAvatar from "../../assets/default_avatar.jpg";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +26,10 @@ const Navbar = () => {
     <nav className="bg-white shadow-md px-6 md:px-12 py-4 flex justify-between items-center relative">
       <div className="flex items-center space-x-6 relative">
         {/* Logo */}
-        <Link to="/" className="text-blue-600 text-xl font-bold flex items-center">
+        <Link
+          to="/"
+          className="text-blue-600 text-xl font-bold flex items-center"
+        >
           <img src={logo} alt="Courtsite" className="h-8 mr-2" />
           Courtsite
         </Link>
@@ -129,7 +132,10 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu Button */}
-      <button className="md:hidden text-gray-700 text-2xl" onClick={() => setIsOpen(!isOpen)}>
+      <button
+        className="md:hidden text-gray-700 text-2xl"
+        onClick={() => setIsOpen(!isOpen)}
+      >
         {isOpen ? <FaTimes /> : <FaBars />}
       </button>
 
@@ -144,7 +150,10 @@ const Navbar = () => {
               <Link to="/profile" className="text-gray-700 hover:text-blue-600">
                 View Profile
               </Link>
-              <button onClick={handleLogout} className="text-gray-700 hover:text-red-600">
+              <button
+                onClick={handleLogout}
+                className="text-gray-700 hover:text-red-600"
+              >
                 Log Out
               </button>
             </>

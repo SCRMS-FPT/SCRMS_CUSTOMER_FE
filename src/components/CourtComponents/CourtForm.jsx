@@ -1,61 +1,61 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
+import { useState, useRef } from "react";
 // Giả định rằng các biểu tượng được import từ một file khác
-import sportsData from "../data/sportsData";
+import sportsData from "../../data/sportsData";
 
 const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
   const initialFormData = court
     ? {
-      ...court,
-    }
+        ...court,
+      }
     : {
-      name: "",
-      sports_center_id: "",
-      sport_id: "",
-      description: "",
-      court_type: "Ngoài trời",
-      facilities: {
-        lighting: false,
-        locker_room: false,
-        parking: "limited",
-      },
-      images: {
-        avatar: "",
-        images: ["", ""],
-      },
-      status: "open",
-    }
+        name: "",
+        sports_center_id: "",
+        sport_id: "",
+        description: "",
+        court_type: "Ngoài trời",
+        facilities: {
+          lighting: false,
+          locker_room: false,
+          parking: "limited",
+        },
+        images: {
+          avatar: "",
+          images: ["", ""],
+        },
+        status: "open",
+      };
 
-  const [formData, setFormData] = useState(initialFormData)
-  const avatarInputRef = useRef(null)
-  const image1InputRef = useRef(null)
-  const image2InputRef = useRef(null)
+  const [formData, setFormData] = useState(initialFormData);
+  const avatarInputRef = useRef(null);
+  const image1InputRef = useRef(null);
+  const image2InputRef = useRef(null);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
-    })
-  }
+    });
+  };
 
   const handleFacilityChange = (e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
       facilities: {
         ...formData.facilities,
         [name]: type === "checkbox" ? checked : value,
       },
-    })
-  }
+    });
+  };
 
   const handleImageUpload = (e, type, index = null) => {
-    const file = e.target.files[0]
-    if (!file) return
+    const file = e.target.files[0];
+    if (!file) return;
 
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (event) => {
       if (type === "avatar") {
         setFormData({
@@ -64,26 +64,26 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
             ...formData.images,
             avatar: event.target.result,
           },
-        })
+        });
       } else if (type === "gallery") {
-        const updatedImages = [...formData.images.images]
-        updatedImages[index] = event.target.result
+        const updatedImages = [...formData.images.images];
+        updatedImages[index] = event.target.result;
         setFormData({
           ...formData,
           images: {
             ...formData.images,
             images: updatedImages,
           },
-        })
+        });
       }
-    }
-    reader.readAsDataURL(file)
-  }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    onSave(formData)
-  }
+    e.preventDefault();
+    onSave(formData);
+  };
 
   return (
     <div className="court-form">
@@ -163,7 +163,13 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
 
           <div className="form-group">
             <label htmlFor="status">Trạng Thái</label>
-            <select id="status" name="status" value={formData.status} onChange={handleChange} className="form-control">
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="form-control"
+            >
               <option value="open">Đang mở</option>
               <option value="closed">Đã đóng</option>
             </select>
@@ -233,7 +239,10 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
               <div className="image-preview-container">
                 {formData.images.avatar && (
                   <div className="image-preview">
-                    <img src={formData.images.avatar || "/placeholder.svg"} alt="Ảnh đại diện" />
+                    <img
+                      src={formData.images.avatar || "/placeholder.svg"}
+                      alt="Ảnh đại diện"
+                    />
                   </div>
                 )}
                 <div className="image-upload-controls">
@@ -245,7 +254,11 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
                     onChange={(e) => handleImageUpload(e, "avatar")}
                     style={{ display: "none" }}
                   />
-                  <button type="button" className="upload-btn" onClick={() => avatarInputRef.current.click()}>
+                  <button
+                    type="button"
+                    className="upload-btn"
+                    onClick={() => avatarInputRef.current.click()}
+                  >
                     Chọn ảnh
                   </button>
                   {formData.images.avatar && (
@@ -274,7 +287,10 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
               <div className="image-preview-container">
                 {formData.images.images[0] && (
                   <div className="image-preview">
-                    <img src={formData.images.images[0] || "/placeholder.svg"} alt="Hình ảnh 1" />
+                    <img
+                      src={formData.images.images[0] || "/placeholder.svg"}
+                      alt="Hình ảnh 1"
+                    />
                   </div>
                 )}
                 <div className="image-upload-controls">
@@ -286,7 +302,11 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
                     onChange={(e) => handleImageUpload(e, "gallery", 0)}
                     style={{ display: "none" }}
                   />
-                  <button type="button" className="upload-btn" onClick={() => image1InputRef.current.click()}>
+                  <button
+                    type="button"
+                    className="upload-btn"
+                    onClick={() => image1InputRef.current.click()}
+                  >
                     Chọn ảnh
                   </button>
                   {formData.images.images[0] && (
@@ -294,15 +314,15 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
                       type="button"
                       className="remove-btn"
                       onClick={() => {
-                        const updatedImages = [...formData.images.images]
-                        updatedImages[0] = ""
+                        const updatedImages = [...formData.images.images];
+                        updatedImages[0] = "";
                         setFormData({
                           ...formData,
                           images: {
                             ...formData.images,
                             images: updatedImages,
                           },
-                        })
+                        });
                       }}
                     >
                       Xóa
@@ -317,7 +337,10 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
               <div className="image-preview-container">
                 {formData.images.images[1] && (
                   <div className="image-preview">
-                    <img src={formData.images.images[1] || "/placeholder.svg"} alt="Hình ảnh 2" />
+                    <img
+                      src={formData.images.images[1] || "/placeholder.svg"}
+                      alt="Hình ảnh 2"
+                    />
                   </div>
                 )}
                 <div className="image-upload-controls">
@@ -329,7 +352,11 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
                     onChange={(e) => handleImageUpload(e, "gallery", 1)}
                     style={{ display: "none" }}
                   />
-                  <button type="button" className="upload-btn" onClick={() => image2InputRef.current.click()}>
+                  <button
+                    type="button"
+                    className="upload-btn"
+                    onClick={() => image2InputRef.current.click()}
+                  >
                     Chọn ảnh
                   </button>
                   {formData.images.images[1] && (
@@ -337,15 +364,15 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
                       type="button"
                       className="remove-btn"
                       onClick={() => {
-                        const updatedImages = [...formData.images.images]
-                        updatedImages[1] = ""
+                        const updatedImages = [...formData.images.images];
+                        updatedImages[1] = "";
                         setFormData({
                           ...formData,
                           images: {
                             ...formData.images,
                             images: updatedImages,
                           },
-                        })
+                        });
                       }}
                     >
                       Xóa
@@ -367,8 +394,7 @@ const CourtForm = ({ court, onSave, onCancel, sportsCenters }) => {
         </div>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default CourtForm
-
+export default CourtForm;
