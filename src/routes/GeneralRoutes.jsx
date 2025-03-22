@@ -16,6 +16,8 @@ import CoachDetails from "@/pages/CoachBooking/CoachDetails";
 
 import court_mock_data from "@/data/court_mock_data";
 import PricingView from "../pages/ServicePackage/PricingView";
+import WalletView from "../pages/UserView/WalletView";
+import WalletHistoryView from "../pages/UserView/WalletHistoryView";
 
 const GeneralRoutes = [
   <Route
@@ -150,6 +152,24 @@ const GeneralRoutes = [
     element={
       <Layout>
         <PricingView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="wallet"
+    path="/wallet"
+    element={
+      <Layout>
+        <WalletView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="wallet-history"
+    path="/wallet/history"
+    element={
+      <Layout>
+        <WalletHistoryView />
       </Layout>
     }
   />,
