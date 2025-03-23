@@ -19,9 +19,6 @@ import court_mock_data from "@/data/court_mock_data";
 import PricingView from "@/pages/ServicePackage/PricingView";
 import WalletView from "@/pages/UserView/WalletView";
 import WalletHistoryView from "@/pages/UserView/WalletHistoryView";
-import PricingView from "../pages/ServicePackage/PricingView";
-import WalletView from "../pages/UserView/WalletView";
-import WalletHistoryView from "../pages/UserView/WalletHistoryView";
 import DepositView from "../pages/UserView/DepositView";
 import SubscribePackageView from "../pages/ServicePackage/SubscribePackageView";
 
@@ -99,14 +96,14 @@ const GeneralRoutes = [
     }
   />,
   <Route
-  key="court-details"
-  path="/court/:id"
-  element={
-    <Layout>
-      <CourtDetailsView />
-    </Layout>
-  }
-/>,
+    key="court-details"
+    path="/court/:id"
+    element={
+      <Layout>
+        <CourtDetailsView />
+      </Layout>
+    }
+  />,
   <Route //need update
     key="courts-sport"
     path="/courts/sport"
