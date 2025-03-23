@@ -18,6 +18,7 @@ import court_mock_data from "@/data/court_mock_data";
 import PricingView from "../pages/ServicePackage/PricingView";
 import WalletView from "../pages/UserView/WalletView";
 import WalletHistoryView from "../pages/UserView/WalletHistoryView";
+import DepositView from "../pages/UserView/DepositView";
 
 const GeneralRoutes = [
   <Route
@@ -170,6 +171,15 @@ const GeneralRoutes = [
     element={
       <Layout>
         <WalletHistoryView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="wallet-deposit"
+    path="/wallet/deposit"
+    element={
+      <Layout>
+        <DepositView />
       </Layout>
     }
   />,

@@ -48,12 +48,8 @@ const WalletView = () => {
   const [balanceLoading, setBalanceLoading] = useState(true);
   const [transactionsLoading, setTransactionsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [openDepositDialog, setOpenDepositDialog] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [depositDescription, setDepositDescription] = useState("");
-  const [depositing, setDepositing] = useState(false);
-  const [depositSuccess, setDepositSuccess] = useState(false);
-  const [depositError, setDepositError] = useState(null);
 
   // Fetch wallet data on component mount
   useEffect(() => {
@@ -94,60 +90,6 @@ const WalletView = () => {
       setError("Failed to load transaction history. Please try again.");
     } finally {
       setTransactionsLoading(false);
-    }
-  };
-
-  // Handle deposit dialog open
-  const handleOpenDepositDialog = () => {
-    setOpenDepositDialog(true);
-    setDepositAmount("");
-    setDepositDescription("");
-    setDepositError(null);
-    setDepositSuccess(false);
-  };
-
-  // Handle deposit dialog close
-  const handleCloseDepositDialog = () => {
-    setOpenDepositDialog(false);
-  };
-
-  // Handle deposit submission
-  const handleDeposit = async () => {
-    // Validate amount
-    if (
-      !depositAmount ||
-      isNaN(depositAmount) ||
-      parseFloat(depositAmount) <= 0
-    ) {
-      setDepositError("Vui lòng nhập số tiền hợp lệ");
-      return;
-    }
-
-    setDepositing(true);
-    setDepositError(null);
-
-    try {
-      const apiClient = new Client();
-      const depositRequest = new DepositFundsRequest({
-        amount: parseFloat(depositAmount),
-        description: depositDescription || "Nạp tiền vào ví",
-      });
-
-      await apiClient.depositFunds(depositRequest);
-      setDepositSuccess(true);
-
-      // Refresh wallet data after successful deposit
-      await fetchWalletData();
-
-      // Close dialog after a short delay
-      setTimeout(() => {
-        setOpenDepositDialog(false);
-      }, 2000);
-    } catch (error) {
-      console.error("Error depositing funds:", error);
-      setDepositError("Không thể nạp tiền. Vui lòng thử lại sau.");
-    } finally {
-      setDepositing(false);
     }
   };
 
@@ -262,7 +204,7 @@ const WalletView = () => {
                 variant="contained"
                 color="success"
                 startIcon={<Add />}
-                onClick={handleOpenDepositDialog}
+                onClick={() => navigate("/wallet/deposit")}
                 size="large"
                 fullWidth
                 sx={{
@@ -408,67 +350,6 @@ const WalletView = () => {
           </Card>
         </Grid>
       </Grid>
-
-      {/* Deposit Dialog */}
-      <Dialog
-        open={openDepositDialog}
-        onClose={handleCloseDepositDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Nạp tiền vào ví</DialogTitle>
-        <DialogContent>
-          {depositSuccess ? (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              Nạp tiền thành công! Ví của bạn đã được cập nhật.
-            </Alert>
-          ) : depositError ? (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {depositError}
-            </Alert>
-          ) : null}
-
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Số tiền"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={depositAmount}
-            onChange={(e) => setDepositAmount(e.target.value)}
-            disabled={depositing || depositSuccess}
-            InputProps={{
-              endAdornment: <Typography variant="body2">VND</Typography>,
-            }}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Mô tả (tùy chọn)"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={depositDescription}
-            onChange={(e) => setDepositDescription(e.target.value)}
-            disabled={depositing || depositSuccess}
-          />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={handleCloseDepositDialog} disabled={depositing}>
-            Hủy
-          </Button>
-          <Button
-            onClick={handleDeposit}
-            variant="contained"
-            color="primary"
-            disabled={depositing || depositSuccess}
-            startIcon={depositing ? <CircularProgress size={20} /> : <Add />}
-          >
-            {depositing ? "Đang xử lý..." : "Nạp tiền"}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   );
 };

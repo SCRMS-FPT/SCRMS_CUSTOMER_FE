@@ -35,8 +35,8 @@ const PricingView = () => {
         const response = await client.servicePackages();
 
         // Parse the response
-        if (response && response.data) {
-          setPackages(response.data);
+        if (response) {
+          setPackages(response);
         } else {
           setPackages([]);
         }
