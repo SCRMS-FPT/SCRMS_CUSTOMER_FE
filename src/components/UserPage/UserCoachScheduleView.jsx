@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Calendar, Card, Badge, Modal, List, Button } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 // Mock schedule data (Replace with API data later)
 const coachSchedule = {
@@ -17,6 +17,8 @@ const coachSchedule = {
 
 const UserCoachScheduleView = () => {
     const navigate = useNavigate();
+      const [searchParams] = useSearchParams();
+      const activeTab = searchParams.get("tab") || "1";
     const [selectedDate, setSelectedDate] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSessions, setSelectedSessions] = useState([]);
@@ -92,7 +94,7 @@ const UserCoachScheduleView = () => {
     // Navigates to session details
     const handleViewDetails = (sessionId) => {
         setIsModalOpen(false);
-        navigate(`/schedule/${sessionId}`);
+        navigate(`/user/coachings/schedule/${sessionId}?tab=${activeTab}`);
     };
 
     return (

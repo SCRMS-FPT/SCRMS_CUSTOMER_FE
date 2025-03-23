@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Table, Spin, Tag, Button } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 const UserCoachRegisteredView = () => {
   const [loading, setLoading] = useState(true);
   const [coaches, setCoaches] = useState([]);
+  const [searchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "1";
 
   useEffect(() => {
     // Simulating API Call
@@ -26,7 +28,7 @@ const UserCoachRegisteredView = () => {
         },
       ]);
       setLoading(false);
-    }, 1000);
+    }, 100);
   }, []);
 
   const columns = [
@@ -48,7 +50,7 @@ const UserCoachRegisteredView = () => {
       title: "Action",
       key: "action",
       render: (_, record) => (
-        <Link to={`/user/coach/${record.id}`}>
+        <Link to={`/user/coach/${record.id}?tab=${activeTab}`}>
           <Button type="primary">View Details</Button>
         </Link>
       ),

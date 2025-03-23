@@ -10,6 +10,8 @@ import UserMatchingDetailView from "@/pages/UserView/UserMatchingDetailView";
 import UserCoachingManagementView from "@/pages/UserView/UserCoachingManagementView";
 import UserCoachDetailView from "@/components/UserPage/UserCoachDetailView";
 import UserCoachScheduleDetailView from "@/pages/UserView/UserCoachScheduleDetailView";
+import UserFeedbackView from "@/pages/UserView/UserFeedbackView";
+import UserFeedbackDetailView from "@/pages/UserView/UserFeedbackDetailView";
 import UserDepositView from "@/pages/UserView/UserDepositView";
 import UserTransactionView from "@/pages/UserView/UserTransactionView";
 import MatchFinder from "@/pages/MatchFinder";
@@ -17,7 +19,9 @@ import Feedback from "@/pages/Feedback";
 import BookCoachSession from "@/pages/BookCoachSession";
 import TransactionHistoryPage from "@/pages/TransactionHistoryPage";
 
-import UserSidebar from "@/components/UserSidebar";
+import UserSidebar from "@/components/Userpage/UserSidebar";
+
+
 
 
 
@@ -69,14 +73,14 @@ const UserRoutes = [
     }
   />,
   <Route
-  key="user-matching-details"
-  path="/user/matching/:id"
-  element={
-    <UserSidebar>
-      <UserMatchingDetailView />
-    </UserSidebar>
-  }
-/>,
+    key="user-matching-details"
+    path="/user/matching/:id"
+    element={
+      <UserSidebar>
+        <UserMatchingDetailView />
+      </UserSidebar>
+    }
+  />,
   <Route
     key="user-coachings"
     path="/user/coachings"
@@ -87,23 +91,41 @@ const UserRoutes = [
     }
   />,
   <Route
-  key="user-coach-details"
-  path="/user/coach/:coachId"
-  element={
-    <UserSidebar>
-      <UserCoachDetailView />
-    </UserSidebar>
-  }
-/>,
+    key="user-coach-details"
+    path="/user/coach/:coachId"
+    element={
+      <UserSidebar>
+        <UserCoachDetailView />
+      </UserSidebar>
+    }
+  />,
   <Route
-  key="user-coaching-schedule-details"
-  path="/user/coachings/schedule/:scheduleId"
-  element={
-    <UserSidebar>
-      <UserCoachScheduleDetailView />
-    </UserSidebar>
-  }
-/>,
+    key="user-coaching-schedule-details"
+    path="/user/coachings/schedule/:scheduleId"
+    element={
+      <UserSidebar>
+        <UserCoachScheduleDetailView />
+      </UserSidebar>
+    }
+  />,
+  <Route
+    key="user-feedbacks"
+    path="/user/feedbacks"
+    element={
+      <UserSidebar>
+        <UserFeedbackView />
+      </UserSidebar>
+    }
+  />,
+  <Route
+    key="user-feedback-details"
+    path="/user/feedbacks/:id"
+    element={
+      <UserSidebar>
+        <UserFeedbackDetailView />
+      </UserSidebar>
+    }
+  />,
   <Route
     key="user-transactions"
     path="/user/transactions"
