@@ -29,6 +29,7 @@ const PricingView = () => {
   const [error, setError] = useState(null);
   const theme = useTheme();
   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -37,14 +38,15 @@ const PricingView = () => {
         const response = await client.servicePackages();
 
         // Parse the response
-        if (response && response.data) {
-          setPackages(response.data);
+        if (response) {
+          setPackages(response);
         } else {
           setPackages([]);
         }
         setLoading(false);
       } catch (err) {
         console.error("Error fetching packages:", err);
+        setError("Không thể tải danh sách gói dịch vụ. Vui lòng thử lại sau.");
         setError("Không thể tải danh sách gói dịch vụ. Vui lòng thử lại sau.");
         setLoading(false);
       }
@@ -56,7 +58,10 @@ const PricingView = () => {
   // Format price with currency
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
+    return new Intl.NumberFormat("vi-VN", {
       style: "currency",
+      currency: "VND",
+      minimumFractionDigits: 0,
       currency: "VND",
       minimumFractionDigits: 0,
     }).format(price);
@@ -73,6 +78,10 @@ const PricingView = () => {
         "Truy cập vào công cụ huấn luyện cao cấp",
         "Kết nối với khách hàng tiềm năng",
         "Hệ thống lịch trình tích hợp",
+        "Tạo và quản lý các buổi huấn luyện",
+        "Truy cập vào công cụ huấn luyện cao cấp",
+        "Kết nối với khách hàng tiềm năng",
+        "Hệ thống lịch trình tích hợp",
       ];
     } else if (pkg.associatedRole === "Venue") {
       return [
@@ -81,10 +90,18 @@ const PricingView = () => {
         "Hệ thống quản lý sân",
         "Khả năng đặt sân trực tuyến",
         "Công cụ phân tích và báo cáo",
+        "Liệt kê và quảng bá sân của bạn",
+        "Hệ thống quản lý sân",
+        "Khả năng đặt sân trực tuyến",
+        "Công cụ phân tích và báo cáo",
       ];
     } else {
       return [
         ...baseFeatures,
+        "Truy cập nội dung cao cấp",
+        "Ưu tiên đặt sân và huấn luyện viên",
+        "Tính năng tìm kiếm nâng cao",
+        "Trải nghiệm không quảng cáo",
         "Truy cập nội dung cao cấp",
         "Ưu tiên đặt sân và huấn luyện viên",
         "Tính năng tìm kiếm nâng cao",
@@ -110,11 +127,15 @@ const PricingView = () => {
     return (
       pkg.name.toLowerCase().includes("premium") ||
       pkg.price > 200000 ||
+      pkg.price > 200000 ||
       pkg.associatedRole === "Coach"
     );
   };
 
   // Handle subscription button click
+  const handleSubscribe = (pkg) => {
+    // Navigate to subscribe page with package details
+    navigate(`/subscribe-package/${pkg.id}`, { state: { package: pkg } });
   const handleSubscribe = (pkg) => {
     // Navigate to subscribe page with package details
     navigate(`/subscribe-package/${pkg.id}`, { state: { package: pkg } });
@@ -161,6 +182,7 @@ const PricingView = () => {
           }}
         >
           Nâng Cấp Trải Nghiệm Của Bạn
+          Nâng Cấp Trải Nghiệm Của Bạn
         </Typography>
         <Typography
           variant="h5"
@@ -170,12 +192,15 @@ const PricingView = () => {
         >
           Chọn gói dịch vụ phù hợp để nâng cao trải nghiệm thể thao của bạn với
           các tính năng cao cấp và quyền lợi đặc biệt
+          Chọn gói dịch vụ phù hợp để nâng cao trải nghiệm thể thao của bạn với
+          các tính năng cao cấp và quyền lợi đặc biệt
         </Typography>
       </Box>
 
       {/* Package cards */}
       {packages.length === 0 ? (
         <Alert severity="info">
+          Hiện tại không có gói dịch vụ nào. Vui lòng quay lại sau.
           Hiện tại không có gói dịch vụ nào. Vui lòng quay lại sau.
         </Alert>
       ) : (
@@ -205,6 +230,7 @@ const PricingView = () => {
                   {popular && (
                     <Chip
                       label="KHUYẾN NGHỊ"
+                      label="KHUYẾN NGHỊ"
                       color="primary"
                       icon={<StarIcon />}
                       sx={{
@@ -220,6 +246,7 @@ const PricingView = () => {
                   <CardContent sx={{ flexGrow: 1, p: 4 }}>
                     <Box mb={1}>
                       <Chip
+                        label={translateRole(pkg.associatedRole)}
                         label={translateRole(pkg.associatedRole)}
                         size="small"
                         variant="outlined"
@@ -245,6 +272,7 @@ const PricingView = () => {
                         {formatPrice(pkg.price)}
                       </Typography>
                       <Typography variant="subtitle1" color="text.secondary">
+                        cho {pkg.durationDays} ngày
                         cho {pkg.durationDays} ngày
                       </Typography>
                     </Box>
@@ -276,6 +304,7 @@ const PricingView = () => {
                       color="primary"
                       size="large"
                       onClick={() => handleSubscribe(pkg)}
+                      onClick={() => handleSubscribe(pkg)}
                       sx={{
                         py: 1.5,
                         fontWeight: "bold",
@@ -283,6 +312,7 @@ const PricingView = () => {
                         boxShadow: popular ? 4 : 0,
                       }}
                     >
+                      {popular ? "Đăng Ký Ngay" : "Mua Gói"}
                       {popular ? "Đăng Ký Ngay" : "Mua Gói"}
                     </Button>
                   </CardActions>
@@ -306,6 +336,7 @@ const PricingView = () => {
       >
         <Typography variant="h5" gutterBottom fontWeight="bold">
           Cần giúp đỡ để chọn gói phù hợp?
+          Cần giúp đỡ để chọn gói phù hợp?
         </Typography>
         <Typography
           variant="body1"
@@ -313,6 +344,8 @@ const PricingView = () => {
           color="text.secondary"
           sx={{ maxWidth: "600px", mx: "auto", mb: 3 }}
         >
+          Đội ngũ của chúng tôi luôn sẵn sàng hỗ trợ bạn lựa chọn gói dịch vụ
+          phù hợp nhất. Liên hệ với chúng tôi để được tư vấn cá nhân.
           Đội ngũ của chúng tôi luôn sẵn sàng hỗ trợ bạn lựa chọn gói dịch vụ
           phù hợp nhất. Liên hệ với chúng tôi để được tư vấn cá nhân.
         </Typography>
@@ -329,6 +362,7 @@ const PricingView = () => {
             },
           }}
         >
+          Liên Hệ Hỗ Trợ
           Liên Hệ Hỗ Trợ
         </Button>
       </Box>

@@ -72,23 +72,19 @@ const DepositView = () => {
       setAmountError("Vui lòng nhập số tiền");
       return false;
     }
-
     const numValue = parseFloat(value);
     if (isNaN(numValue)) {
       setAmountError("Số tiền không hợp lệ");
       return false;
     }
-
     if (numValue <= 0) {
       setAmountError("Số tiền phải lớn hơn 0");
       return false;
     }
-
     if (numValue < 10000) {
       setAmountError("Số tiền tối thiểu là 10,000 VND");
       return false;
     }
-
     setAmountError("");
     return true;
   };
@@ -116,7 +112,6 @@ const DepositView = () => {
   const processDeposit = async () => {
     setLoading(true);
     setDepositError(null);
-
     try {
       const apiClient = new Client();
       const depositRequest = new DepositFundsRequest({
@@ -128,7 +123,6 @@ const DepositView = () => {
       setDepositSuccess(true);
       setTransactionId(response?.id || "TXN-" + Date.now());
       setActiveStep(2);
-
       // Refresh wallet balance
       await fetchWalletBalance();
     } catch (error) {
@@ -228,7 +222,6 @@ const DepositView = () => {
                 />
               </Box>
             </Paper>
-
             <Box sx={{ mb: 2, width: "100%", textAlign: "center" }}>
               <Typography variant="body1" gutterBottom fontWeight="bold">
                 Thông tin chuyển khoản:
@@ -250,7 +243,6 @@ const DepositView = () => {
                 Nội dung: <strong>Nap tien vi Courtsite</strong>
               </Typography>
             </Box>
-
             <CircularProgress sx={{ mt: 2 }} />
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
               Đang xử lý thanh toán...
@@ -298,7 +290,6 @@ const DepositView = () => {
                           {transactionId}
                         </Typography>
                       </Grid>
-
                       <Grid item xs={6}>
                         <Typography variant="body2" color="text.secondary">
                           Thời gian
@@ -309,7 +300,6 @@ const DepositView = () => {
                           {new Date().toLocaleString()}
                         </Typography>
                       </Grid>
-
                       <Grid item xs={6}>
                         <Typography variant="body2" color="text.secondary">
                           Loại giao dịch
@@ -347,7 +337,6 @@ const DepositView = () => {
                     </Grid>
                   </CardContent>
                 </Card>
-
                 <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
                   <Button
                     variant="outlined"
