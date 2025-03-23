@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -27,6 +28,7 @@ const PricingView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const theme = useTheme();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -35,15 +37,15 @@ const PricingView = () => {
         const response = await client.servicePackages();
 
         // Parse the response
-        if (response && response.data) {
-          setPackages(response.data);
+        if (response) {
+          setPackages(response);
         } else {
           setPackages([]);
         }
         setLoading(false);
       } catch (err) {
         console.error("Error fetching packages:", err);
-        setError("Failed to load service packages. Please try again later.");
+        setError("Không thể tải danh sách gói dịch vụ. Vui lòng thử lại sau.");
         setLoading(false);
       }
     };
@@ -53,10 +55,10 @@ const PricingView = () => {
 
   // Format price with currency
   const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("vi-VN", {
       style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
+      currency: "VND",
+      minimumFractionDigits: 0,
     }).format(price);
   };
 
@@ -67,27 +69,39 @@ const PricingView = () => {
     if (pkg.associatedRole === "Coach") {
       return [
         ...baseFeatures,
-        "Create and manage coaching sessions",
-        "Access to premium coaching tools",
-        "Connect with potential clients",
-        "Built-in scheduling system",
+        "Tạo và quản lý các buổi huấn luyện",
+        "Truy cập vào công cụ huấn luyện cao cấp",
+        "Kết nối với khách hàng tiềm năng",
+        "Hệ thống lịch trình tích hợp",
       ];
     } else if (pkg.associatedRole === "Venue") {
       return [
         ...baseFeatures,
-        "List and promote your venue",
-        "Court management system",
-        "Online booking capabilities",
-        "Analytics and reporting tools",
+        "Liệt kê và quảng bá sân của bạn",
+        "Hệ thống quản lý sân",
+        "Khả năng đặt sân trực tuyến",
+        "Công cụ phân tích và báo cáo",
       ];
     } else {
       return [
         ...baseFeatures,
-        "Access to premium content",
-        "Priority booking options",
-        "Advanced search features",
-        "Ad-free experience",
+        "Truy cập nội dung cao cấp",
+        "Ưu tiên đặt sân và huấn luyện viên",
+        "Tính năng tìm kiếm nâng cao",
+        "Trải nghiệm không quảng cáo",
       ];
+    }
+  };
+
+  // Translate role names
+  const translateRole = (role) => {
+    switch (role) {
+      case "Coach":
+        return "Huấn Luyện Viên";
+      case "Venue":
+        return "Chủ Sân";
+      default:
+        return "Người Dùng";
     }
   };
 
@@ -95,15 +109,15 @@ const PricingView = () => {
   const isPopular = (pkg) => {
     return (
       pkg.name.toLowerCase().includes("premium") ||
-      pkg.price > 50 ||
+      pkg.price > 200000 ||
       pkg.associatedRole === "Coach"
     );
   };
 
   // Handle subscription button click
-  const handleSubscribe = (packageId) => {
-    console.log(`Subscribing to package: ${packageId}`);
-    // Would redirect to login or payment flow
+  const handleSubscribe = (pkg) => {
+    // Navigate to subscribe page with package details
+    navigate(`/subscribe-package/${pkg.id}`, { state: { package: pkg } });
   };
 
   if (loading) {
@@ -146,7 +160,7 @@ const PricingView = () => {
             mb: 2,
           }}
         >
-          Upgrade Your Experience
+          Nâng Cấp Trải Nghiệm Của Bạn
         </Typography>
         <Typography
           variant="h5"
@@ -154,15 +168,15 @@ const PricingView = () => {
           paragraph
           sx={{ maxWidth: "800px", mx: "auto" }}
         >
-          Choose the perfect plan to enhance your sports journey with premium
-          features and exclusive benefits
+          Chọn gói dịch vụ phù hợp để nâng cao trải nghiệm thể thao của bạn với
+          các tính năng cao cấp và quyền lợi đặc biệt
         </Typography>
       </Box>
 
       {/* Package cards */}
       {packages.length === 0 ? (
         <Alert severity="info">
-          No packages available at this time. Please check back later.
+          Hiện tại không có gói dịch vụ nào. Vui lòng quay lại sau.
         </Alert>
       ) : (
         <Grid container spacing={4} justifyContent="center">
@@ -190,7 +204,7 @@ const PricingView = () => {
                 >
                   {popular && (
                     <Chip
-                      label="RECOMMENDED"
+                      label="KHUYẾN NGHỊ"
                       color="primary"
                       icon={<StarIcon />}
                       sx={{
@@ -206,7 +220,7 @@ const PricingView = () => {
                   <CardContent sx={{ flexGrow: 1, p: 4 }}>
                     <Box mb={1}>
                       <Chip
-                        label={pkg.associatedRole}
+                        label={translateRole(pkg.associatedRole)}
                         size="small"
                         variant="outlined"
                         color="secondary"
@@ -231,7 +245,7 @@ const PricingView = () => {
                         {formatPrice(pkg.price)}
                       </Typography>
                       <Typography variant="subtitle1" color="text.secondary">
-                        for {pkg.durationDays} days
+                        cho {pkg.durationDays} ngày
                       </Typography>
                     </Box>
 
@@ -261,7 +275,7 @@ const PricingView = () => {
                       variant={popular ? "contained" : "outlined"}
                       color="primary"
                       size="large"
-                      onClick={() => handleSubscribe(pkg.id)}
+                      onClick={() => handleSubscribe(pkg)}
                       sx={{
                         py: 1.5,
                         fontWeight: "bold",
@@ -269,7 +283,7 @@ const PricingView = () => {
                         boxShadow: popular ? 4 : 0,
                       }}
                     >
-                      {popular ? "Get Started" : "Subscribe Now"}
+                      {popular ? "Đăng Ký Ngay" : "Mua Gói"}
                     </Button>
                   </CardActions>
                 </Card>
@@ -291,7 +305,7 @@ const PricingView = () => {
         }}
       >
         <Typography variant="h5" gutterBottom fontWeight="bold">
-          Need help choosing the right plan?
+          Cần giúp đỡ để chọn gói phù hợp?
         </Typography>
         <Typography
           variant="body1"
@@ -299,8 +313,8 @@ const PricingView = () => {
           color="text.secondary"
           sx={{ maxWidth: "600px", mx: "auto", mb: 3 }}
         >
-          Our team is available to help you select the best option for your
-          needs. Contact us for personalized assistance.
+          Đội ngũ của chúng tôi luôn sẵn sàng hỗ trợ bạn lựa chọn gói dịch vụ
+          phù hợp nhất. Liên hệ với chúng tôi để được tư vấn cá nhân.
         </Typography>
         <Button
           variant="outlined"
@@ -315,7 +329,7 @@ const PricingView = () => {
             },
           }}
         >
-          Contact Support
+          Liên Hệ Hỗ Trợ
         </Button>
       </Box>
     </Container>
