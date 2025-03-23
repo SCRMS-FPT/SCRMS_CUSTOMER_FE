@@ -19,6 +19,7 @@ import PricingView from "../pages/ServicePackage/PricingView";
 import WalletView from "../pages/UserView/WalletView";
 import WalletHistoryView from "../pages/UserView/WalletHistoryView";
 import DepositView from "../pages/UserView/DepositView";
+import SubscribePackageView from "../pages/ServicePackage/SubscribePackageView";
 
 const GeneralRoutes = [
   <Route
@@ -153,6 +154,15 @@ const GeneralRoutes = [
     element={
       <Layout>
         <PricingView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="subscribe-package"
+    path="/subscribe-package/:id"
+    element={
+      <Layout>
+        <SubscribePackageView />
       </Layout>
     }
   />,
