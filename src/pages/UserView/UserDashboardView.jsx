@@ -48,7 +48,7 @@ const feedbackData = [
 //
 
 //Tables columns
-const bookingColumns = [
+const bookingColumns = (navigate) => [
   {
     title: "Date",
     dataIndex: "date",
@@ -92,12 +92,12 @@ const bookingColumns = [
     title: "Actions",
     key: "actions",
     render: (_, record) => (
-      <Button type="link" onClick={() => navigate(`/booking/${record.key}`)}>View Details</Button>
+      <Button type="link" onClick={() => navigate(`/user/bookings/${record.key}`)}>View Details</Button>
     )
   },
 ];
 
-const coachingColumns = [
+const coachingColumns = (navigate) => [
   {
     title: "Date",
     dataIndex: "date",
@@ -141,12 +141,12 @@ const coachingColumns = [
     title: "Actions",
     key: "actions",
     render: (_, record) => (
-      <Button type="link" onClick={() => navigate(`/coaching/${record.key}`)}>View Details</Button>
+      <Button type="link" onClick={() => navigate(`/user/coachings/schedule/${record.key}`)}>View Details</Button>
     )
   },
 ];
 
-const matchingColumns = [
+const matchingColumns = (navigate) => [
   {
     title: "Date",
     dataIndex: "date",
@@ -190,7 +190,7 @@ const matchingColumns = [
     title: "Actions",
     key: "actions",
     render: (_, record) => (
-      <Button type="link" onClick={() => navigate(`/matches/${record.key}`)}>View Details</Button>
+      <Button type="link" onClick={() => navigate(`/user/matching/${record.key}`)}>View Details</Button>
     )
   },
 ];
@@ -228,13 +228,13 @@ const paymentColumns = [
   },
 ];
 
-const feedbackColumns = [
+const feedbackColumns = (navigate) => [
   { title: "User", dataIndex: "user", key: "user", sorter: (a, b) => a.user.localeCompare(b.user) },
   { title: "Date", dataIndex: "date", key: "date", sorter: (a, b) => new Date(a.date) - new Date(b.date) },
   { title: "Rating", dataIndex: "rating", key: "rating", sorter: (a, b) => a.rating - b.rating },
   { title: "Comment", dataIndex: "comment", key: "comment", ellipsis: true },
   { title: "Status", dataIndex: "status", key: "status", filters: [{ text: "Reviewed", value: "Reviewed" }, { text: "Pending", value: "Pending" }], onFilter: (value, record) => record.status.includes(value), render: (status) => <Tag color={status === "Reviewed" ? "green" : "orange"}>{status}</Tag> },
-  { title: "Action", key: "action", render: (_, record) => <Button type="link">View Details</Button> },
+  { title: "Action", key: "action", render: (_, record) => <Button type="link" onClick={() => navigate(`/user/feedbacks/${record.key}`)}>View Details</Button> },
 ];
 
 const UserDashboardView = () => {
@@ -330,7 +330,7 @@ const UserDashboardView = () => {
             {/* Table with Filters, Sorting, and Pagination */}
             <Table
               dataSource={filteredBookings}
-              columns={bookingColumns}
+              columns={bookingColumns(navigate)}
               pagination={{ pageSize: 8 }}
             />
 
@@ -359,7 +359,7 @@ const UserDashboardView = () => {
             {/* Table with Filters, Sorting, and Pagination */}
             <Table
               dataSource={filteredCoaching}
-              columns={coachingColumns}
+              columns={coachingColumns(navigate)}
               pagination={{ pageSize: 8 }}
             />
 
@@ -388,7 +388,7 @@ const UserDashboardView = () => {
             {/* Table with Filters, Sorting, and Pagination */}
             <Table
               dataSource={filteredMatches}
-              columns={matchingColumns}
+              columns={matchingColumns(navigate)}
               pagination={{ pageSize: 8 }}
             />
 
@@ -454,7 +454,7 @@ const UserDashboardView = () => {
             {/* Table with Filters, Sorting, and Pagination */}
             <Table
               dataSource={filteredFeedbacks}
-              columns={feedbackColumns}
+              columns={feedbackColumns(navigate)}
               pagination={{ pageSize: 8 }}
             />
 

@@ -32,26 +32,21 @@ const CourtOwnerVenueDetailView = () => {
 
   if (loading) {
     return (
-      <CourtOwnerSidebar>
         <div className="flex justify-center items-center h-96">
           <Spin size="large" />
         </div>
-      </CourtOwnerSidebar>
     );
   }
 
   if (!venue) {
     return (
-      <CourtOwnerSidebar>
         <div className="flex justify-center items-center h-96">
           <p className="text-red-500 text-xl">Venue not found.</p>
         </div>
-      </CourtOwnerSidebar>
     );
   }
 
   return (
-    <CourtOwnerSidebar>
       <Card
         title={
           <div className="flex items-center">
@@ -73,7 +68,6 @@ const CourtOwnerVenueDetailView = () => {
         <VenueBookingPolicy policy={venue.booking_policy} />
         <VenueCourtsList courts={venue.courts} />
       </Card>
-    </CourtOwnerSidebar>
   );
 };
 
