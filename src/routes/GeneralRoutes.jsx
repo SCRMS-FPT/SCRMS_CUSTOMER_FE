@@ -9,15 +9,16 @@ import ForgotPasswordView from "@/pages/GeneralView/ForgotPasswordView";
 import BrowseCourtsView from "@/pages/GeneralView/BrowseCourtsView";
 import FindCourtBySportView from "@/pages/UserView/FindCourtBySportView";
 import FindCourtByVenueView from "@/pages/UserView/FindCourtByVenueView";
+import VenueDetailView from "@/pages/GeneralView/VenueDetailView";
 import CourtDetailsView from "@/pages/GeneralView/CourtDetailsView";
 import SportsCenter from "@/pages/SportsCenter";
 import CoachList from "@/pages/CoachBooking/CoachList";
 import CoachDetails from "@/pages/CoachBooking/CoachDetails";
 
 import court_mock_data from "@/data/court_mock_data";
-import PricingView from "../pages/ServicePackage/PricingView";
-import WalletView from "../pages/UserView/WalletView";
-import WalletHistoryView from "../pages/UserView/WalletHistoryView";
+import PricingView from "@/pages/ServicePackage/PricingView";
+import WalletView from "@/pages/UserView/WalletView";
+import WalletHistoryView from "@/pages/UserView/WalletHistoryView";
 
 const GeneralRoutes = [
   <Route
@@ -74,7 +75,7 @@ const GeneralRoutes = [
       </Layout>
     }
   />,
-  <Route
+  <Route // Need update
     key="sports-center"
     path="/sports-center"
     element={
@@ -93,6 +94,15 @@ const GeneralRoutes = [
     }
   />,
   <Route
+  key="court-details"
+  path="/court/:id"
+  element={
+    <Layout>
+      <CourtDetailsView />
+    </Layout>
+  }
+/>,
+  <Route //need update
     key="courts-sport"
     path="/courts/sport"
     element={
@@ -120,11 +130,11 @@ const GeneralRoutes = [
     }
   />,
   <Route
-    key="court-details"
-    path="/court/:id"
+    key="courts-venue"
+    path="/venue/:venueId"
     element={
-      <Layout>
-        <CourtDetailsView />
+      <Layout className="bg-gray-50">
+        <VenueDetailView />
       </Layout>
     }
   />,

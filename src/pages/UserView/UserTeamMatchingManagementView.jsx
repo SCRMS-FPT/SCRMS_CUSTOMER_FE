@@ -1,31 +1,39 @@
-import React from "react";
-import UserSidebar from "@/components/UserSidebar";
-import { Card, Table, Button } from "antd";
-
-const matchData = [
-  { key: "1", date: "2025-03-14", time: "17:00", location: "Court A", status: "Upcoming", opponent: "Team Thunder" },
-  { key: "2", date: "2025-03-20", time: "19:00", location: "Court B", status: "Looking for Opponent", opponent: "TBD" },
-];
-
-const columns = [
-  { title: "Date", dataIndex: "date", key: "date" },
-  { title: "Time", dataIndex: "time", key: "time" },
-  { title: "Location", dataIndex: "location", key: "location" },
-  { title: "Opponent", dataIndex: "opponent", key: "opponent" },
-  { title: "Status", dataIndex: "status", key: "status" },
-  { title: "Actions", key: "actions", render: (_, record) => record.status === "Looking for Opponent" ? <Button type="primary">Join Match</Button> : "-" },
-];
+import React, { useEffect } from "react";
+import { Card, Tabs } from "antd";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import UserRegisteredMatchesView from "@/components/UserPage/UserRegisteredMatchesView";
+import UserMatchRequestsView from "@/components/UserPage/UserMatchRequestsView";
+import UserMatchScheduleView from "@/components/UserPage/UserMatchScheduleView";
 
 const UserTeamMatchingManagementView = () => {
-  return (
-    <UserSidebar>
-      <Card title="Matching Management">
-        <p>Find and connect with other players for matches.</p>
-        <p>Join games or organize your own sessions with fellow athletes.</p>
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
+  // Get the tab from the URL, default to "1" if not set
+  const activeTab = searchParams.get("tab") || "1";
 
-        <Table dataSource={matchData} columns={columns} />
-      </Card>
-    </UserSidebar>
+  const handleTabChange = (key) => {
+    setSearchParams({ tab: key }); // Update URL when the tab changes
+  };
+
+  const tabItems = [
+    { key: "1", label: "Registered Matches", children: <UserRegisteredMatchesView /> },
+    { key: "2", label: "Match Requests", children: <UserMatchRequestsView /> },
+    { key: "3", label: "Match Schedule", children: <UserMatchScheduleView /> },
+  ];
+
+  useEffect(() => {
+    // If URL contains an invalid tab, reset to "1"
+    const validTabKeys = tabItems.map(item => item.key);
+    if (!validTabKeys.includes(activeTab)) {
+      navigate("/user/matching?tab=1", { replace: true });
+    }
+  }, [activeTab, navigate]);
+
+  return (
+    <Card title="Matching Management">
+      <Tabs activeKey={activeTab} onChange={handleTabChange} items={tabItems} />
+    </Card>
   );
 };
 
