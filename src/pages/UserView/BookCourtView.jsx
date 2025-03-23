@@ -1,56 +1,118 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { Client } from "../../API/CourtApi";
 import {
-  FaArrowLeft,
-  FaCalendarAlt,
-  FaClock,
-  FaCreditCard,
-  FaCheck,
-  FaInfoCircle,
-  FaTableTennis,
-  FaMapMarkerAlt,
-  FaLightbulb,
-  FaWifi,
-} from "react-icons/fa";
-import DatePicker from "../../components/GeneralComponents/CustomDaatePicker";
-import formatDate from "../../utils/formatDate";
+  Layout,
+  Typography,
+  Steps,
+  Card,
+  Button,
+  DatePicker,
+  Row,
+  Col,
+  Space,
+  Tag,
+  Badge,
+  Form,
+  Input,
+  Select,
+  Checkbox,
+  Radio,
+  Alert,
+  Divider,
+  Tabs,
+  List,
+  Skeleton,
+  Avatar,
+  Result,
+  Spin,
+  Empty,
+  Descriptions,
+  Statistic,
+  message,
+} from "antd";
+import {
+  ArrowLeftOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  CreditCardOutlined,
+  UserOutlined,
+  InfoCircleOutlined,
+  CheckCircleOutlined,
+  DollarOutlined,
+  EnvironmentOutlined,
+  PhoneOutlined,
+  MailOutlined,
+  TagOutlined,
+  BankOutlined,
+  AppstoreOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
+import dayjs from "dayjs";
 
-const BookCourt = () => {
+const { Title, Text, Paragraph } = Typography;
+const { Content } = Layout;
+const { Step } = Steps;
+const { TabPane } = Tabs;
+const { TextArea } = Input;
+const { Meta } = Card;
+
+// API client instance
+const apiClient = new Client();
+
+// Helper function to format date
+const formatDate = (date) => {
+  return dayjs(date).format("MMMM D, YYYY");
+};
+
+// Helper function to format time
+const formatTime = (time) => {
+  return dayjs(`2023-01-01 ${time}`).format("hh:mm A");
+};
+
+const BookCourtView = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const [form] = Form.useForm();
 
-  // Court data from API
+  // Court data
   const [courts, setCourts] = useState([]);
-  const [selectedCourtId, setSelectedCourtId] = useState(null);
+  const [selectedCourtId, setSelectedCourtId] = useState(id || null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Booking states
   const [selectedDate, setSelectedDate] = useState(
-    location.state?.selectedDate || new Date()
+    location.state?.selectedDate ? dayjs(location.state.selectedDate) : dayjs()
   );
   const [availableSlotsMap, setAvailableSlotsMap] = useState({});
   const [selectedTimeSlots, setSelectedTimeSlots] = useState({});
 
-  // Contact information
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [notes, setNotes] = useState("");
-
   // UI states
-  const [currentStep, setCurrentStep] = useState(1);
-  const [datePickerVisible, setDatePickerVisible] = useState(true);
+  const [current, setCurrent] = useState(0);
+  const steps = [
+    {
+      title: "Select Time",
+      icon: <CalendarOutlined />,
+    },
+    {
+      title: "Your Info",
+      icon: <UserOutlined />,
+    },
+    {
+      title: "Payment",
+      icon: <CreditCardOutlined />,
+    },
+  ];
 
   // Fetch court data and available slots
   useEffect(() => {
     const fetchCourts = async () => {
       try {
         setLoading(true);
-        // Mock API response - now returning an array of courts
+
+        // In a real app, fetch from the API
         const courtsData = [
           {
             id: "e6e10ea7-2dc2-4700-b59a-7cf85036487e",
@@ -161,13 +223,16 @@ const BookCourt = () => {
 
         setAvailableSlotsMap(slotsMap);
 
-        // Set the first court as default selected court
-        if (courtsData.length > 0) {
+        // Set the ID from the URL param as the selected court, or default to the first court
+        if (id && courtsData.some((court) => court.id === id)) {
+          setSelectedCourtId(id);
+        } else if (courtsData.length > 0) {
           setSelectedCourtId(courtsData[0].id);
         }
 
         setLoading(false);
       } catch (err) {
+        console.error("Error fetching court data:", err);
         setError("Failed to load court details. Please try again later.");
         setLoading(false);
       }
@@ -231,7 +296,7 @@ const BookCourt = () => {
     return slots;
   };
 
-  // Modify the useEffect for date changes to regenerate all time slots
+  // Regenerate time slots when date changes
   useEffect(() => {
     if (courts.length > 0) {
       // When date changes, regenerate slots for all courts
@@ -243,11 +308,11 @@ const BookCourt = () => {
       setAvailableSlotsMap(slotsMap);
 
       // Clear selected time slots when date changes
-      setSelectedTimeSlots([]);
+      setSelectedTimeSlots({});
     }
   }, [selectedDate, courts]);
 
-  // Add a function to handle toggling time slot selection
+  // Toggle time slot selection
   const toggleTimeSlot = (slot) => {
     if (!slot.isAvailable) return;
 
@@ -280,7 +345,7 @@ const BookCourt = () => {
     });
   };
 
-  // Calculate subtotal
+  // Calculate pricing
   const calculateSubtotal = () => {
     let total = 0;
 
@@ -295,72 +360,12 @@ const BookCourt = () => {
     return total;
   };
 
-  // Calculate taxes (example: 10%)
   const calculateTaxes = () => {
     return calculateSubtotal() * 0.1;
   };
 
-  // Calculate total
   const calculateTotal = () => {
     return calculateSubtotal() + calculateTaxes();
-  };
-
-  // Handle booking submission
-  const handleBooking = async (e) => {
-    e.preventDefault();
-
-    const selectedCourt = getSelectedCourt();
-    if (
-      !selectedDate ||
-      selectedTimeSlots.length === 0 ||
-      !firstName ||
-      !lastName ||
-      !email ||
-      !phone ||
-      !selectedCourt
-    ) {
-      return;
-    }
-
-    // In a real app, this would be an API call to create the booking
-    // For demo purposes, show success and navigate
-
-    // Mock API call
-    try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Navigate to success page
-      navigate("/booking-success", {
-        state: {
-          bookingId:
-            "BK" + Math.random().toString(36).substr(2, 9).toUpperCase(),
-          courtName: selectedCourt.courtName,
-          sportCenter: selectedCourt.sportCenterName,
-          date: selectedDate,
-          timeSlots: selectedTimeSlots,
-          totalMinutes: selectedTimeSlots.length * 30,
-          total: calculateTotal(),
-        },
-      });
-    } catch (error) {
-      setError("Failed to complete booking. Please try again.");
-    }
-  };
-
-  // Next step
-  const goToNextStep = () => {
-    // Check if any courts have been selected
-    if (currentStep === 1 && Object.keys(selectedTimeSlots).length === 0) {
-      return;
-    }
-
-    setCurrentStep(currentStep + 1);
-  };
-
-  // Previous step
-  const goToPreviousStep = () => {
-    setCurrentStep(currentStep - 1);
   };
 
   // Get the currently selected court
@@ -373,796 +378,973 @@ const BookCourt = () => {
     return availableSlotsMap[selectedCourtId] || [];
   };
 
-  // Clear selected time slots when date changes
-  useEffect(() => {
-    if (courts.length > 0) {
-      // When date changes, regenerate slots for all courts
-      const slotsMap = {};
-      courts.forEach((court) => {
-        slotsMap[court.id] = generateTimeSlotsForCourt(court);
-      });
-
-      setAvailableSlotsMap(slotsMap);
-
-      // Clear selected time slots when date changes
-      setSelectedTimeSlots({});
-    }
-  }, [selectedDate, courts]);
-
-  // Update the handle court select function
+  // Handle court selection
   const handleCourtSelect = (courtId) => {
     setSelectedCourtId(courtId);
   };
 
+  // Steps navigation
+  const next = () => {
+    setCurrent(current + 1);
+  };
+
+  const prev = () => {
+    setCurrent(current - 1);
+  };
+
+  // Handle booking submission
+  const handleBooking = async (values) => {
+    if (Object.keys(selectedTimeSlots).length === 0) {
+      message.error("Please select at least one time slot");
+      return;
+    }
+
+    try {
+      // Display loading message
+      const loadingMessage = message.loading("Processing your booking...", 0);
+
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Remove loading message
+      loadingMessage();
+
+      // Show success message
+      message.success("Booking completed successfully!");
+
+      // In a real app, you would send the booking data to your API here
+      // Navigate to success page
+      navigate("/booking-success", {
+        state: {
+          bookingId:
+            "BK" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+          courtName: getSelectedCourt()?.courtName,
+          sportCenter: getSelectedCourt()?.sportCenterName,
+          date: selectedDate.toDate(),
+          timeSlots: selectedTimeSlots,
+          totalMinutes: Object.values(selectedTimeSlots).reduce(
+            (total, slots) => total + slots.length * 30,
+            0
+          ),
+          total: calculateTotal(),
+          customerName: `${values.firstName} ${values.lastName}`,
+          email: values.email,
+          phone: values.phone,
+        },
+      });
+    } catch (error) {
+      message.error("Failed to complete booking. Please try again.");
+    }
+  };
+
+  // Format court type
+  const formatCourtType = (type) => {
+    switch (type) {
+      case 1:
+        return "Indoor";
+      case 2:
+        return "Outdoor";
+      case 3:
+        return "Hybrid";
+      default:
+        return "Standard";
+    }
+  };
+
+  // Get court status badge
+  const getCourtStatusBadge = (status) => {
+    switch (status) {
+      case 0:
+        return <Badge status="success" text="Available" />;
+      case 1:
+        return <Badge status="warning" text="Busy" />;
+      case 2:
+        return <Badge status="error" text="Maintenance" />;
+      default:
+        return <Badge status="default" text="Unknown" />;
+    }
+  };
+
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-10">
-        <div className="animate-pulse">
-          <div className="h-10 bg-gray-200 rounded-lg w-1/2 mb-6"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 space-y-4">
-              <div className="h-64 bg-gray-200 rounded-lg"></div>
-              <div className="h-40 bg-gray-200 rounded-lg"></div>
-            </div>
-            <div className="h-96 bg-gray-200 rounded-lg"></div>
-          </div>
-        </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
+        }}
+      >
+        <Spin size="large" tip="Loading..." />
       </div>
     );
   }
 
-  if (error || !courts.length) {
+  if (error) {
     return (
-      <div className="container mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-[60vh]">
-        <FaInfoCircle className="text-6xl text-red-500 mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Error Loading Court</h2>
-        <p className="text-gray-600 mb-6">
-          {error || "Court information not found."}
-        </p>
-        <button
-          onClick={() => navigate(-1)}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-        >
-          Return to Previous Page
-        </button>
-      </div>
+      <Result
+        status="error"
+        title="Failed to Load"
+        subTitle={error}
+        extra={[
+          <Button
+            type="primary"
+            key="back"
+            onClick={() => navigate(-1)}
+            icon={<ArrowLeftOutlined />}
+          >
+            Go Back
+          </Button>,
+        ]}
+      />
     );
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 py-6">
+    <Layout style={{ minHeight: "100vh", background: "#f5f5f5" }}>
+      <Content style={{ padding: "24px", maxWidth: 1200, margin: "0 auto" }}>
         {/* Header with back button */}
-        <div className="mb-6 flex items-center">
-          <button
-            onClick={() => navigate(-1)}
-            className="text-gray-600 hover:text-gray-800 transition-colors mr-4"
-          >
-            <FaArrowLeft className="text-lg" />
-          </button>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Book {getSelectedCourt()?.courtName} -{" "}
-            {getSelectedCourt()?.sportName}
-          </h1>
-        </div>
+        <Row gutter={[16, 24]}>
+          <Col span={24}>
+            <Card
+              bordered={false}
+              style={{ marginBottom: 16 }}
+              bodyStyle={{ padding: "16px 24px" }}
+            >
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Button
+                  type="text"
+                  icon={<ArrowLeftOutlined />}
+                  onClick={() => navigate(-1)}
+                  style={{ marginRight: 16 }}
+                >
+                  Back
+                </Button>
+                <Title level={3} style={{ margin: 0 }}>
+                  Book {getSelectedCourt()?.courtName} -{" "}
+                  {getSelectedCourt()?.sportName}
+                </Title>
+              </div>
+            </Card>
+          </Col>
+        </Row>
 
         {/* Progress Steps */}
-        <div className="flex items-center justify-center mb-8">
-          <div className="relative flex items-center w-full max-w-3xl mx-auto">
-            {/* Step 1 */}
-            <div
-              className={`relative flex flex-col items-center z-10 ${
-                currentStep >= 1 ? "text-white" : "text-gray-500"
-              }`}
-            >
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center 
-                                ${
-                                  currentStep >= 1
-                                    ? "bg-blue-600"
-                                    : "bg-gray-200"
-                                }`}
-              >
-                <FaCalendarAlt />
-              </div>
-              <span className="text-sm mt-1 font-medium text-gray-700">
-                Select Time
-              </span>
-            </div>
+        <Row gutter={[16, 24]}>
+          <Col span={24}>
+            <Card bordered={false} style={{ marginBottom: 16 }}>
+              <Steps
+                current={current}
+                items={steps.map((step) => ({
+                  title: step.title,
+                  icon: step.icon,
+                }))}
+              />
+            </Card>
+          </Col>
+        </Row>
 
-            {/* Line */}
-            <div
-              className={`h-1 flex-1 mx-2 ${
-                currentStep >= 2 ? "bg-blue-600" : "bg-gray-200"
-              }`}
-            ></div>
-
-            {/* Step 2 */}
-            <div
-              className={`relative flex flex-col items-center z-10 ${
-                currentStep >= 2 ? "text-white" : "text-gray-500"
-              }`}
-            >
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center 
-                                ${
-                                  currentStep >= 2
-                                    ? "bg-blue-600"
-                                    : "bg-gray-200"
-                                }`}
-              >
-                <FaInfoCircle />
-              </div>
-              <span className="text-sm mt-1 font-medium text-gray-700">
-                Your Info
-              </span>
-            </div>
-
-            {/* Line */}
-            <div
-              className={`h-1 flex-1 mx-2 ${
-                currentStep >= 3 ? "bg-blue-600" : "bg-gray-200"
-              }`}
-            ></div>
-
-            {/* Step 3 */}
-            <div
-              className={`relative flex flex-col items-center z-10 ${
-                currentStep >= 3 ? "text-white" : "text-gray-500"
-              }`}
-            >
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center 
-                                ${
-                                  currentStep >= 3
-                                    ? "bg-blue-600"
-                                    : "bg-gray-200"
-                                }`}
-              >
-                <FaCreditCard />
-              </div>
-              <span className="text-sm mt-1 font-medium text-gray-700">
-                Payment
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content - 2 columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Main Content */}
+        <Row gutter={[16, 24]}>
           {/* Left Column - Steps content */}
-          <div className="lg:col-span-2">
+          <Col xs={24} lg={16}>
             {/* Step 1 - Select Date & Time */}
-            {currentStep === 1 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="bg-white rounded-xl shadow-sm p-6"
+            {current === 0 && (
+              <Card
+                title={
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <CalendarOutlined style={{ marginRight: 8 }} />
+                    <span>Select Date & Time</span>
+                  </div>
+                }
+                bordered={false}
+                className="step-card"
               >
-                <h2 className="text-xl font-bold mb-6">Select Date & Time</h2>
-
                 {/* Date Selection */}
-                <div className="mb-6">
-                  <label className="block text-gray-700 font-medium mb-2">
-                    <div className="flex items-center">
-                      <FaCalendarAlt className="mr-2 text-blue-600" />
-                      Select date
-                    </div>
-                  </label>
-
-                  {datePickerVisible ? (
-                    <div>
-                      <DatePicker
-                        selectedDate={selectedDate}
-                        onDateChange={(date) => {
-                          setSelectedDate(date);
-                          setDatePickerVisible(false);
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className="flex items-center justify-between border border-gray-300 rounded-lg px-4 py-3 bg-blue-50 cursor-pointer hover:border-blue-400 transition-colors"
-                      onClick={() => setDatePickerVisible(true)}
-                    >
-                      <div className="flex items-center">
-                        <FaCalendarAlt className="text-blue-600 mr-2" />
-                        <span className="font-medium">
-                          {formatDate(selectedDate)}
-                        </span>
-                      </div>
-                      <button
-                        className="text-blue-600 hover:text-blue-800"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDatePickerVisible(true);
-                        }}
-                      >
-                        Change
-                      </button>
-                    </div>
-                  )}
+                <div style={{ marginBottom: 24 }}>
+                  <Title level={5}>Select Date</Title>
+                  <DatePicker
+                    value={selectedDate}
+                    onChange={(date) => setSelectedDate(date)}
+                    style={{ width: "100%" }}
+                    format="YYYY-MM-DD"
+                    disabledDate={(current) => {
+                      // Can't select days before today
+                      return current && current < dayjs().startOf("day");
+                    }}
+                    size="large"
+                  />
                 </div>
 
                 {/* Court Selection */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium mb-3">Court Selection</h3>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div style={{ marginBottom: 24 }}>
+                  <Title level={5}>Select Court</Title>
+                  <Row gutter={[16, 16]}>
                     {courts.map((court) => (
-                      <button
-                        key={court.id}
-                        onClick={() => handleCourtSelect(court.id)}
-                        className={`
-                                                    h-20 rounded-lg border-2 flex flex-col items-center justify-center
-                                                    transition-all ${
-                                                      selectedCourtId ===
-                                                      court.id
-                                                        ? "border-blue-600 bg-blue-50"
-                                                        : "border-gray-200 hover:border-blue-300"
-                                                    }
-                                                `}
-                      >
-                        <span className="text-xl font-semibold mb-1">
-                          {court.courtName}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          ${court.pricePerHour}/hour
-                        </span>
-                      </button>
+                      <Col key={court.id} xs={12} sm={8} md={6}>
+                        <Card
+                          hoverable
+                          className={
+                            selectedCourtId === court.id ? "selected-court" : ""
+                          }
+                          onClick={() => handleCourtSelect(court.id)}
+                          style={{
+                            textAlign: "center",
+                            border:
+                              selectedCourtId === court.id
+                                ? "2px solid #1890ff"
+                                : "1px solid #f0f0f0",
+                            background:
+                              selectedCourtId === court.id
+                                ? "#e6f7ff"
+                                : "white",
+                          }}
+                          bodyStyle={{ padding: "12px 8px" }}
+                        >
+                          <Meta
+                            title={court.courtName}
+                            description={`$${court.pricePerHour}/hour`}
+                          />
+                        </Card>
+                      </Col>
                     ))}
-                  </div>
+                  </Row>
                 </div>
 
                 {/* Time Slot Selection */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium mb-3">
-                    Available Time Slots
-                  </h3>
-                  <p className="text-gray-500 mb-3">
-                    Selected Date:{" "}
-                    <span className="font-medium">
-                      {formatDate(selectedDate)}
-                    </span>
-                  </p>
-                  <p className="text-gray-500 mb-3">
-                    <span className="font-medium">Select multiple slots</span>{" "}
-                    for longer booking durations
-                  </p>
+                <div style={{ marginBottom: 24 }}>
+                  <Title level={5}>Available Time Slots</Title>
+                  <Alert
+                    message={
+                      <span>
+                        <InfoCircleOutlined style={{ marginRight: 8 }} />
+                        Selected Date:{" "}
+                        <Text strong>{formatDate(selectedDate)}</Text>
+                      </span>
+                    }
+                    type="info"
+                    showIcon={false}
+                    style={{ marginBottom: 16 }}
+                  />
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                    {getAvailableSlotsForSelectedCourt().map((slot, index) => (
-                      <button
-                        key={index}
-                        onClick={() => toggleTimeSlot(slot)}
-                        disabled={!slot.isAvailable}
-                        className={`
-                                                py-2 px-3 rounded-lg text-center 
-                                                transition-all ${
-                                                  !slot.isAvailable
-                                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                                    : selectedTimeSlots[
-                                                        slot.courtId
-                                                      ]?.some(
-                                                        (s) =>
-                                                          s.time === slot.time
-                                                      )
-                                                    ? "bg-blue-600 text-white"
-                                                    : "bg-white border border-gray-200 hover:border-blue-300"
-                                                }
-                                            `}
-                      >
-                        {slot.displayTime}
-                      </button>
-                    ))}
+                  <div style={{ marginBottom: 16 }}>
+                    <Text type="secondary">
+                      <InfoCircleOutlined style={{ marginRight: 8 }} />
+                      Select multiple slots for longer booking durations
+                    </Text>
                   </div>
 
+                  <Row gutter={[8, 8]}>
+                    {getAvailableSlotsForSelectedCourt().map((slot, index) => (
+                      <Col key={index} xs={12} sm={8} md={6}>
+                        <Button
+                          type={
+                            selectedTimeSlots[slot.courtId]?.some(
+                              (s) => s.time === slot.time
+                            )
+                              ? "primary"
+                              : "default"
+                          }
+                          disabled={!slot.isAvailable}
+                          onClick={() => toggleTimeSlot(slot)}
+                          style={{ width: "100%" }}
+                          className={
+                            !slot.isAvailable
+                              ? "time-slot-unavailable"
+                              : "time-slot"
+                          }
+                        >
+                          {slot.displayTime}
+                        </Button>
+                      </Col>
+                    ))}
+                  </Row>
+
                   {Object.keys(selectedTimeSlots).length > 0 && (
-                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                      <div className="font-medium mb-1">
-                        Selected Time Slots:
-                      </div>
-                      {Object.entries(selectedTimeSlots).map(
-                        ([courtId, slots]) => {
-                          const court = courts.find((c) => c.id === courtId);
-                          return (
-                            <div key={courtId} className="mb-3">
-                              <div className="font-medium text-blue-700 mb-1">
-                                {court.courtName}:
-                              </div>
-                              <div className="flex flex-wrap gap-2">
-                                {slots.map((slot, index) => (
+                    <div style={{ marginTop: 24 }}>
+                      <Alert
+                        type="success"
+                        message="Selected Time Slots"
+                        description={
+                          <div>
+                            {Object.entries(selectedTimeSlots).map(
+                              ([courtId, slots]) => {
+                                const court = courts.find(
+                                  (c) => c.id === courtId
+                                );
+                                return (
                                   <div
-                                    key={index}
-                                    className="bg-white border border-blue-200 rounded-md px-2 py-1 text-sm flex items-center"
+                                    key={courtId}
+                                    style={{ marginBottom: 16 }}
                                   >
-                                    {slot.displayTime}
-                                    <button
-                                      onClick={() => toggleTimeSlot(slot)}
-                                      className="ml-2 text-gray-400 hover:text-red-500"
+                                    <div
+                                      style={{
+                                        fontWeight: "bold",
+                                        marginBottom: 8,
+                                      }}
                                     >
-                                      &times;
-                                    </button>
+                                      {court.courtName}:
+                                    </div>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: 8,
+                                      }}
+                                    >
+                                      {slots.map((slot, index) => (
+                                        <Tag
+                                          key={index}
+                                          color="blue"
+                                          closable
+                                          onClose={() => toggleTimeSlot(slot)}
+                                        >
+                                          {slot.displayTime}
+                                        </Tag>
+                                      ))}
+                                    </div>
                                   </div>
-                                ))}
-                              </div>
-                            </div>
-                          );
+                                );
+                              }
+                            )}
+                          </div>
                         }
-                      )}
-                      <div className="mt-2 text-sm text-blue-700">
-                        Total courts: {Object.keys(selectedTimeSlots).length}
-                      </div>
+                      />
                     </div>
                   )}
                 </div>
 
-                {/* Continue Button */}
-                <div className="mt-8">
-                  <button
-                    onClick={goToNextStep}
-                    disabled={selectedTimeSlots.length === 0}
-                    className={`
-                                            w-full md:w-auto py-3 px-6 rounded-lg font-medium
-                                            ${
-                                              selectedTimeSlots.length === 0
-                                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                : "bg-blue-600 text-white hover:bg-blue-700"
-                                            }
-                                        `}
+                {/* Navigation Buttons */}
+                <div style={{ marginTop: 24, textAlign: "right" }}>
+                  <Button
+                    type="primary"
+                    onClick={next}
+                    disabled={Object.keys(selectedTimeSlots).length === 0}
                   >
-                    Continue to Your Information
-                  </button>
+                    Continue
+                  </Button>
                 </div>
-              </motion.div>
+              </Card>
             )}
 
-            {/* Step 2 - Contact Information */}
-            {currentStep === 2 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="bg-white rounded-xl shadow-sm p-6"
+            {/* Step 2 - Your Information */}
+            {current === 1 && (
+              <Card
+                title={
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <UserOutlined style={{ marginRight: 8 }} />
+                    <span>Your Information</span>
+                  </div>
+                }
+                bordered={false}
+                className="step-card"
               >
-                <h2 className="text-xl font-bold mb-6">Your Information</h2>
-
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    goToNextStep();
+                <Form
+                  layout="vertical"
+                  form={form}
+                  onFinish={next}
+                  initialValues={{
+                    firstName: "",
+                    lastName: "",
+                    email: "",
+                    phone: "",
+                    specialRequests: "",
                   }}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <label
-                        className="block text-gray-700 font-medium mb-2"
-                        htmlFor="firstName"
+                  <Row gutter={16}>
+                    <Col xs={24} sm={12}>
+                      <Form.Item
+                        name="firstName"
+                        label="First Name"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter your first name",
+                          },
+                        ]}
                       >
-                        First Name
-                      </label>
-                      <input
-                        type="text"
-                        id="firstName"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        className="block text-gray-700 font-medium mb-2"
-                        htmlFor="lastName"
+                        <Input
+                          prefix={<UserOutlined />}
+                          placeholder="First Name"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                      <Form.Item
+                        name="lastName"
+                        label="Last Name"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter your last name",
+                          },
+                        ]}
                       >
-                        Last Name
-                      </label>
-                      <input
-                        type="text"
-                        id="lastName"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-                  </div>
+                        <Input
+                          prefix={<UserOutlined />}
+                          placeholder="Last Name"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <label
-                        className="block text-gray-700 font-medium mb-2"
-                        htmlFor="email"
+                  <Row gutter={16}>
+                    <Col xs={24} sm={12}>
+                      <Form.Item
+                        name="email"
+                        label="Email"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter your email",
+                          },
+                          {
+                            type: "email",
+                            message: "Please enter a valid email",
+                          },
+                        ]}
                       >
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        className="block text-gray-700 font-medium mb-2"
-                        htmlFor="phone"
+                        <Input prefix={<MailOutlined />} placeholder="Email" />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                      <Form.Item
+                        name="phone"
+                        label="Phone Number"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter your phone number",
+                          },
+                        ]}
                       >
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-                  </div>
+                        <Input
+                          prefix={<PhoneOutlined />}
+                          placeholder="Phone Number"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
 
-                  <div className="mb-6">
-                    <label
-                      className="block text-gray-700 font-medium mb-2"
-                      htmlFor="notes"
-                    >
-                      Special Requests (Optional)
-                    </label>
-                    <textarea
-                      id="notes"
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      rows="3"
-                    ></textarea>
-                  </div>
+                  <Form.Item
+                    name="specialRequests"
+                    label="Special Requests (Optional)"
+                  >
+                    <TextArea
+                      placeholder="Any special requirements or requests..."
+                      rows={4}
+                    />
+                  </Form.Item>
 
-                  <div className="flex items-center justify-between mt-8">
-                    <button
-                      type="button"
-                      onClick={goToPreviousStep}
-                      className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                    >
-                      Back
-                    </button>
-
-                    <button
-                      type="submit"
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
+                  <div
+                    style={{
+                      marginTop: 24,
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Button onClick={prev}>Back</Button>
+                    <Button type="primary" htmlType="submit">
                       Continue to Payment
-                    </button>
+                    </Button>
                   </div>
-                </form>
-              </motion.div>
+                </Form>
+              </Card>
             )}
 
             {/* Step 3 - Payment */}
-            {currentStep === 3 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="bg-white rounded-xl shadow-sm p-6"
+            {current === 2 && (
+              <Card
+                title={
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <CreditCardOutlined style={{ marginRight: 8 }} />
+                    <span>Payment Details</span>
+                  </div>
+                }
+                bordered={false}
+                className="step-card"
               >
-                <h2 className="text-xl font-bold mb-6">Payment Details</h2>
-
-                <form onSubmit={handleBooking}>
-                  <div className="p-4 bg-blue-50 rounded-lg mb-6">
-                    <div className="flex items-center text-blue-800">
-                      <FaInfoCircle className="mr-2" />
-                      <p className="text-sm">
-                        Payment will be processed at the venue. This booking
-                        reserves your spot.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-6 mb-6">
-                    <h3 className="text-lg font-medium mb-4">
-                      Booking Summary
-                    </h3>
-
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Date:</span>
-                        <span className="font-medium">
-                          {formatDate(selectedDate)}
-                        </span>
+                <Alert
+                  message="Payment Information"
+                  description="Payment will be processed at the venue. This booking reserves your spot."
+                  type="info"
+                  showIcon
+                  style={{ marginBottom: 24 }}
+                />
+                <Divider>Booking Summary</Divider>
+                <Descriptions
+                  bordered
+                  column={{ xs: 1, sm: 2 }}
+                  style={{ marginBottom: 24 }}
+                >
+                  <Descriptions.Item label="Date" span={2}>
+                    {formatDate(selectedDate)}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Total Duration" span={2}>
+                    {Object.values(selectedTimeSlots).reduce(
+                      (total, slots) => total + slots.length * 30,
+                      0
+                    )}{" "}
+                    minutes
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Total Courts" span={2}>
+                    {Object.keys(selectedTimeSlots).length}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Your Information" span={2}>
+                    <div>
+                      <div>
+                        {form.getFieldValue("firstName")}{" "}
+                        {form.getFieldValue("lastName")}
                       </div>
+                      <div>{form.getFieldValue("email")}</div>
+                      <div>{form.getFieldValue("phone")}</div>
+                    </div>
+                  </Descriptions.Item>
+                </Descriptions>
+                <List
+                  header={
+                    <div style={{ fontWeight: "bold" }}>
+                      Selected Time Slots
+                    </div>
+                  }
+                  bordered
+                  dataSource={Object.entries(selectedTimeSlots)}
+                  renderItem={([courtId, slots]) => {
+                    const court = courts.find((c) => c.id === courtId);
+                    const courtTotal = slots.length * 0.5 * court.pricePerHour;
 
-                      <div className="flex flex-col">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-600">Time Slots:</span>
-                          <span className="font-medium">
-                            {selectedTimeSlots.length} slots
-                          </span>
-                        </div>
-                        <div className="bg-gray-50 p-2 rounded-md text-sm">
-                          {selectedTimeSlots.map((slot, index) => (
-                            <div
-                              key={index}
-                              className="flex justify-between py-1 border-b last:border-0 border-gray-100"
-                            >
-                              <span>{index + 1}.</span>
-                              <span>{slot.displayTime}</span>
+                    return (
+                      <List.Item
+                        extra={<Text strong>${courtTotal.toFixed(2)}</Text>}
+                      >
+                        <List.Item.Meta
+                          title={court.courtName}
+                          description={
+                            <div>
+                              {slots.map((slot, index) => (
+                                <Tag key={index} color="blue">
+                                  {slot.displayTime}
+                                </Tag>
+                              ))}
+                              <div style={{ marginTop: 8 }}>
+                                <Text type="secondary">
+                                  {slots.length * 30} minutes (
+                                  {slots.length * 0.5} hours)
+                                </Text>
+                              </div>
                             </div>
-                          ))}
+                          }
+                        />
+                      </List.Item>
+                    );
+                  }}
+                />
+                // Completing the payment section and enhancing UI/UX //
+                Complete the payment summary section
+                <div
+                  style={{
+                    marginTop: 24,
+                    background: "#f9f9f9",
+                    padding: 16,
+                    borderRadius: 8,
+                  }}
+                >
+                  <Row justify="space-between" style={{ marginBottom: 8 }}>
+                    <Col>Subtotal:</Col>
+                    <Col>${calculateSubtotal().toFixed(2)}</Col>
+                  </Row>
+                  <Row justify="space-between" style={{ marginBottom: 8 }}>
+                    <Col>Tax (10%):</Col>
+                    <Col>${calculateTaxes().toFixed(2)}</Col>
+                  </Row>
+                  <Divider style={{ margin: "12px 0" }} />
+                  <Row
+                    justify="space-between"
+                    style={{ fontWeight: "bold", fontSize: "16px" }}
+                  >
+                    <Col>Total:</Col>
+                    <Col>${calculateTotal().toFixed(2)}</Col>
+                  </Row>
+                </div>
+                {/* Payment method selection */}
+                <Divider>Payment Method</Divider>
+                <Radio.Group
+                  defaultValue="venue"
+                  style={{ width: "100%", marginBottom: 24 }}
+                >
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    <Radio value="venue">
+                      <Card
+                        size="small"
+                        style={{ marginLeft: 8, marginBottom: 8 }}
+                        bodyStyle={{ padding: 12 }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <BankOutlined
+                            style={{
+                              fontSize: 20,
+                              marginRight: 12,
+                              color: "#1890ff",
+                            }}
+                          />
+                          <div>
+                            <div style={{ fontWeight: "bold" }}>
+                              Pay with wallet
+                            </div>
+                            <div
+                              style={{
+                                color: "rgba(0, 0, 0, 0.45)",
+                                fontSize: "12px",
+                              }}
+                            >
+                              Pay in app with your wallet
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      </Card>
+                    </Radio>
 
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Total Duration:</span>
-                        <span className="font-medium">
-                          {selectedTimeSlots.length * 30} minutes
-                        </span>
-                      </div>
+                    <Radio value="online">
+                      <Card
+                        size="small"
+                        style={{ marginLeft: 8, opacity: 0.6 }}
+                        bodyStyle={{ padding: 12 }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <CreditCardOutlined
+                            style={{
+                              fontSize: 20,
+                              marginRight: 12,
+                              color: "#52c41a",
+                            }}
+                          />
+                          <div>
+                            <div style={{ fontWeight: "bold" }}>Pay Online</div>
+                            <div
+                              style={{
+                                color: "rgba(0, 0, 0, 0.45)",
+                                fontSize: "12px",
+                              }}
+                            >
+                              Secure payment via bank
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    </Radio>
+                  </Space>
+                </Radio.Group>
+                {/* Terms & Conditions */}
+                <Form.Item
+                  name="agreement"
+                  valuePropName="checked"
+                  rules={[
+                    {
+                      validator: (_, value) =>
+                        value
+                          ? Promise.resolve()
+                          : Promise.reject(
+                              new Error(
+                                "Please accept the terms and conditions"
+                              )
+                            ),
+                    },
+                  ]}
+                >
+                  <Checkbox>
+                    I agree to the <a href="#terms">terms and conditions</a> and{" "}
+                    <a href="#privacy">privacy policy</a>
+                  </Checkbox>
+                </Form.Item>
+                {/* Action Buttons */}
+                <div
+                  style={{
+                    marginTop: 24,
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Button onClick={prev}>Back</Button>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      // Get booking information for the description
+                      const selectedCourt = getSelectedCourt();
+                      const description = `Booking ${
+                        selectedCourt?.courtName
+                      } on ${formatDate(selectedDate)} for ${Object.values(
+                        selectedTimeSlots
+                      ).reduce(
+                        (total, slots) => total + slots.length * 30,
+                        0
+                      )} minutes`;
+                      const amount = calculateTotal().toFixed(2);
+                      const account = "999923062003"; // Replace with your account number
+                      const bank = "MBBank"; // Replace with your bank code
 
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Court:</span>
-                        <span className="font-medium">
-                          {getSelectedCourt()?.courtName}
-                        </span>
-                      </div>
+                      // Open QR code in a new window
+                      const qrUrl = `https://qr.sepay.vn/img?acc=${account}&bank=${bank}&amount=${amount}&des=${encodeURIComponent(
+                        description
+                      )}`;
+                      window.open(qrUrl, "_blank", "width=400,height=400");
 
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Sport Center:</span>
-                        <span className="font-medium">
-                          {getSelectedCourt()?.sportCenterName}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-4 mb-6">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Subtotal:</span>
-                      <span className="font-medium">
-                        ${calculateSubtotal().toFixed(2)}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Taxes (10%):</span>
-                      <span className="font-medium">
-                        ${calculateTaxes().toFixed(2)}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between text-lg font-bold">
-                      <span>Total:</span>
-                      <span>${calculateTotal().toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  <div className="border rounded-lg p-4 mb-6">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
-                        required
-                      />
-                      <span className="ml-2 text-sm text-gray-700">
-                        I agree to the{" "}
-                        <a href="#" className="text-blue-600 hover:underline">
-                          Terms and Conditions
-                        </a>{" "}
-                        and{" "}
-                        <a href="#" className="text-blue-600 hover:underline">
-                          Cancellation Policy
-                        </a>
-                      </span>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between mt-8">
-                    <button
-                      type="button"
-                      onClick={goToPreviousStep}
-                      className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                    >
-                      Back
-                    </button>
-
-                    <button
-                      type="submit"
-                      className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
-                    >
-                      Complete Booking
-                    </button>
-                  </div>
-                </form>
-              </motion.div>
+                      // Continue with booking process
+                      handleBooking(form.getFieldsValue());
+                    }}
+                    size="large"
+                    icon={<CheckCircleOutlined />}
+                  >
+                    Complete Booking
+                  </Button>
+                </div>
+              </Card>
             )}
-          </div>
+          </Col>
 
-          {/* Right Column - Court Info */}
-          <div>
-            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-6">
-              {/* Sport Center Info */}
-              <div className="mb-5">
-                <h3 className="text-lg font-bold border-b pb-2 mb-3">
-                  Sport Center Info
-                </h3>
-                <div className="flex items-start mb-3">
-                  <FaMapMarkerAlt className="text-red-500 mt-1 mr-2 flex-shrink-0" />
-                  <div>
-                    <p className="text-gray-800 font-medium">
-                      {getSelectedCourt()?.sportCenterName}
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      {getSelectedCourt()?.address}
-                    </p>
-                  </div>
+          {/* Right Column - Booking Summary */}
+          <Col xs={24} lg={8}>
+            {/* Court Information Card */}
+            <Card
+              title={
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <TeamOutlined style={{ marginRight: 8 }} />
+                  <span>Court Information</span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <FaInfoCircle className="mr-2 text-blue-500" />
-                  <p>Court operated by Sport Center 1</p>
-                </div>
-              </div>
-
-              {/* Selected Court Info */}
-              {/* <div className="border-t pt-4 mb-5">
-                                <h3 className="text-lg font-bold mb-3">Selected Court</h3>
-                                <div className="flex items-center mb-4">
-                                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3 flex-shrink-0">
-                                        <FaTableTennis className="text-xl" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-xl font-bold">{getSelectedCourt()?.courtName}</h4>
-                                        <p className="text-gray-600">{getSelectedCourt()?.sportName}</p>
-                                    </div>
-                                </div>
-
-                                <div className="text-sm text-gray-700 mb-3">
-                                    {getSelectedCourt()?.description}
-                                </div>
-
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-gray-600">Price per hour:</span>
-                                    <span className="font-bold text-gray-800">${getSelectedCourt()?.pricePerHour}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-gray-600">Maximum people:</span>
-                                    <span className="font-medium text-gray-800">{getSelectedCourt()?.maxPeople}</span>
-                                </div>
-                            </div> */}
-
-              {/* Court Facilities */}
-              {/* <div className="border-t border-gray-100 pt-4 pb-2 mb-4">
-                                <h4 className="font-medium mb-3">Court Facilities:</h4>
-                                <ul className="space-y-2">
-                                    {getSelectedCourt()?.facilities.map((facility, index) => (
-                                        <li key={index} className="flex items-center">
-                                            {facility.name === "WiFi" ? (
-                                                <FaWifi className="text-blue-500 mr-2 flex-shrink-0" />
-                                            ) : facility.name === "Lighting" ? (
-                                                <FaLightbulb className="text-yellow-500 mr-2 flex-shrink-0" />
-                                            ) : (
-                                                <FaCheck className="text-green-500 mr-2 flex-shrink-0" />
-                                            )}
-                                            <span className="text-gray-700">{facility.name} - {facility.description}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div> */}
-
-              {/* Booking Summary */}
-              {Object.keys(selectedTimeSlots).length > 0 && (
-                <div className="border-t pt-4">
-                  <h3 className="text-lg font-bold mb-3">Booking Summary</h3>
-
-                  <div className="bg-blue-50 rounded-lg p-4 mb-4">
-                    <div className="mb-2">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-gray-700 font-medium">Date:</span>
-                        <span className="text-gray-800">
-                          {formatDate(selectedDate)}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-gray-700 font-medium">
-                          Total courts:
-                        </span>
-                        <span className="text-gray-800">
-                          {Object.keys(selectedTimeSlots).length}
-                        </span>
-                      </div>
-
-                      {/* Calculate total hours and display */}
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-gray-700 font-medium">
-                          Total time:
-                        </span>
-                        <span className="text-gray-800">
-                          {Object.values(selectedTimeSlots).reduce(
-                            (total, slots) => total + slots.length * 0.5,
-                            0
-                          )}{" "}
-                          hours
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between font-bold text-blue-800 pt-2 border-t border-blue-200 mt-2">
-                        <span>Total price:</span>
-                        <span>${calculateSubtotal().toFixed(2)}</span>
-                      </div>
-                    </div>
+              }
+              className="summary-card"
+              style={{ marginBottom: 24 }}
+              bordered={false}
+            >
+              {getSelectedCourt() && (
+                <>
+                  <div style={{ textAlign: "center", marginBottom: 16 }}>
+                    <Avatar
+                      size={80}
+                      style={{
+                        backgroundColor: "#f0f5ff",
+                        marginBottom: 12,
+                        fontSize: 36,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {getSelectedCourt().sportName?.charAt(0)}
+                    </Avatar>
+                    <Title level={4} style={{ margin: 0 }}>
+                      {getSelectedCourt().courtName}
+                    </Title>
+                    <Text type="secondary">{getSelectedCourt().sportName}</Text>
                   </div>
 
-                  {/* Selected Time Slots By Court */}
-                  <div className="space-y-3">
+                  <Divider style={{ margin: "16px 0" }} />
+
+                  <List
+                    itemLayout="horizontal"
+                    dataSource={[
+                      {
+                        title: "Court Type",
+                        description: formatCourtType(
+                          getSelectedCourt().courtType
+                        ),
+                        icon: <AppstoreOutlined style={{ color: "#1890ff" }} />,
+                      },
+                      {
+                        title: "Price",
+                        description: `$${getSelectedCourt().pricePerHour}/hour`,
+                        icon: <DollarOutlined style={{ color: "#52c41a" }} />,
+                      },
+                      {
+                        title: "Address",
+                        description: getSelectedCourt().address,
+                        icon: (
+                          <EnvironmentOutlined style={{ color: "#faad14" }} />
+                        ),
+                      },
+                      {
+                        title: "Max Capacity",
+                        description: `${getSelectedCourt().maxPeople} people`,
+                        icon: <TeamOutlined style={{ color: "#722ed1" }} />,
+                      },
+                    ]}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <List.Item.Meta
+                          avatar={
+                            <Avatar
+                              icon={item.icon}
+                              style={{ backgroundColor: "transparent" }}
+                            />
+                          }
+                          title={item.title}
+                          description={item.description}
+                        />
+                      </List.Item>
+                    )}
+                  />
+
+                  {getSelectedCourt().facilities &&
+                    getSelectedCourt().facilities.length > 0 && (
+                      <>
+                        <Divider
+                          orientation="left"
+                          plain
+                          style={{ fontSize: 14 }}
+                        >
+                          Facilities
+                        </Divider>
+                        {/* <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        {getSelectedCourt().facilities.map((facility, index) => (
+                          // <Tooltip key={index} title={facility.description}>
+                          //   <Tag color="blue">{facility.name}</Tag>
+                          // </Tooltip>
+                        ))}
+                      </div> */}
+                      </>
+                    )}
+                </>
+              )}
+            </Card>
+
+            {/* Booking Summary Card */}
+            {current > 0 && (
+              <Card
+                title={
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <CalendarOutlined style={{ marginRight: 8 }} />
+                    <span>Your Booking</span>
+                  </div>
+                }
+                className="summary-card"
+                bordered={false}
+              >
+                <List
+                  itemLayout="horizontal"
+                  dataSource={[
+                    {
+                      title: "Date",
+                      description: formatDate(selectedDate),
+                      icon: <CalendarOutlined style={{ color: "#1890ff" }} />,
+                    },
+                    {
+                      title: "Courts",
+                      description: `${
+                        Object.keys(selectedTimeSlots).length
+                      } selected`,
+                      icon: <AppstoreOutlined style={{ color: "#1890ff" }} />,
+                    },
+                    {
+                      title: "Total Duration",
+                      description: `${Object.values(selectedTimeSlots).reduce(
+                        (total, slots) => total + slots.length * 30,
+                        0
+                      )} minutes`,
+                      icon: (
+                        <ClockCircleOutlined style={{ color: "#1890ff" }} />
+                      ),
+                    },
+                  ]}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        avatar={
+                          <Avatar
+                            icon={item.icon}
+                            style={{ backgroundColor: "transparent" }}
+                          />
+                        }
+                        title={item.title}
+                        description={item.description}
+                      />
+                    </List.Item>
+                  )}
+                />
+
+                {Object.keys(selectedTimeSlots).length > 0 && (
+                  <>
+                    <Divider orientation="left" plain style={{ fontSize: 14 }}>
+                      Time Slots
+                    </Divider>
                     {Object.entries(selectedTimeSlots).map(
                       ([courtId, slots]) => {
                         const court = courts.find((c) => c.id === courtId);
-                        const courtTotal =
-                          slots.length * 0.5 * court.pricePerHour;
-
                         return (
-                          <div
-                            key={courtId}
-                            className="border border-gray-200 rounded-lg overflow-hidden"
-                          >
-                            <div className="bg-gray-100 px-3 py-2 flex justify-between items-center">
-                              <span className="font-medium">
-                                {court.courtName}
-                              </span>
-                              <span className="text-sm font-medium">
-                                ${courtTotal.toFixed(2)}
-                              </span>
-                            </div>
-                            <div className="p-2">
+                          <div key={courtId} style={{ marginBottom: 16 }}>
+                            <Text strong>{court.courtName}:</Text>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 4,
+                                marginTop: 4,
+                              }}
+                            >
                               {slots.map((slot, index) => (
-                                <div
-                                  key={index}
-                                  className="py-1 px-2 text-sm flex items-center border-b last:border-0 border-gray-100"
-                                >
-                                  <span className="text-gray-500 mr-2">
-                                    {index + 1}.
-                                  </span>
-                                  <span className="text-gray-800">
-                                    {slot.displayTime}
-                                  </span>
-                                </div>
+                                <Tag key={index} color="blue">
+                                  {slot.displayTime}
+                                </Tag>
                               ))}
-                              <div className="mt-1 pt-1 text-xs text-gray-500 border-t border-gray-100">
-                                {slots.length * 30} minutes (
-                                {slots.length * 0.5} hours)
-                              </div>
                             </div>
                           </div>
                         );
                       }
                     )}
-                  </div>
-                </div>
-              )}
 
-              {/* Empty State */}
-              {Object.keys(selectedTimeSlots).length === 0 &&
-                currentStep === 1 && (
-                  <div className="border-t pt-4">
-                    <div className="text-center text-gray-500 py-4">
-                      <FaCalendarAlt className="mx-auto text-2xl mb-2 text-gray-400" />
-                      <p>No time slots selected</p>
-                      <p className="text-sm mt-1">
-                        Select courts and time slots to see your booking summary
-                      </p>
-                    </div>
-                  </div>
+                    <Divider style={{ margin: "16px 0" }} />
+
+                    <Statistic
+                      title="Total Price"
+                      value={calculateTotal()}
+                      precision={2}
+                      prefix="$"
+                      valueStyle={{ color: "#1890ff", fontWeight: "bold" }}
+                    />
+                  </>
                 )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              </Card>
+            )}
+          </Col>
+        </Row>
+
+        {/* Custom CSS */}
+        <style jsx>{`
+          .step-card {
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+            border-radius: 8px;
+            transition: all 0.3s;
+          }
+          .step-card:hover {
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+          }
+          .summary-card {
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+            border-radius: 8px;
+            transition: all 0.3s;
+            background: #fafafa;
+          }
+          .summary-card:hover {
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+          }
+          .time-slot {
+            transition: all 0.2s;
+          }
+          .time-slot:hover {
+            transform: translateY(-2px);
+          }
+          .time-slot-unavailable {
+            background-color: #f5f5f5;
+            color: #d9d9d9;
+          }
+          .selected-court {
+            transition: all 0.3s;
+          }
+          .selected-court:hover {
+            transform: translateY(-3px);
+          }
+        `}</style>
+      </Content>
+    </Layout>
   );
 };
 
-export default BookCourt;
+export default BookCourtView;

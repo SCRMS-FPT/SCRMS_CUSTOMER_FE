@@ -4,7 +4,7 @@
 // </auto-generated>
 //----------------------
 
-import { API_GATEWAY_URL } from "./config";
+import { API_COURT_URL, API_GATEWAY_URL } from "./config";
 
 /* tslint:disable */
 /* eslint-disable */
@@ -17,7 +17,7 @@ export class Client {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? API_GATEWAY_URL;
+        this.baseUrl = baseUrl ?? API_COURT_URL;
     }
 
     /**
