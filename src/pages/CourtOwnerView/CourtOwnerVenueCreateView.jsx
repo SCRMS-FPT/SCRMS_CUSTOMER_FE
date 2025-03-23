@@ -22,7 +22,6 @@ const CourtOwnerVenueCreateView = () => {
   };
 
   return (
-    <CourtOwnerSidebar>
       <Card
         title={
           <div className="flex items-center">
@@ -47,7 +46,6 @@ const CourtOwnerVenueCreateView = () => {
           <VenueFormActions form={form} />
         </Form>
       </Card>
-    </CourtOwnerSidebar>
   );
 };
 

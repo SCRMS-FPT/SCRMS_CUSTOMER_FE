@@ -24,6 +24,7 @@ const CoachScheduleManagementView = () => {
     const [selectedMonth, setSelectedMonth] = useState(null);
     const [selectedMonthSessions, setSelectedMonthSessions] = useState([]);
     const [monthModalOpen, setMonthModalOpen] = useState(false);
+    const [isYearView, setIsYearView] = useState(false);
 
     // Renders session events inside the calendar
     const cellRender = (current, info) => {
@@ -53,7 +54,7 @@ const CoachScheduleManagementView = () => {
             const sessionCount = sessionsInMonth.length;
 
             return sessionCount > 0 ? (
-                <div 
+                <div
                     style={{ textAlign: "center", fontWeight: "bold", color: "#1890ff", cursor: "pointer" }}
                     onClick={() => openMonthModal(monthStr)}
                 >
@@ -67,6 +68,8 @@ const CoachScheduleManagementView = () => {
 
     // Handles date selection in Month View
     const handleDateSelect = (value) => {
+        if (isYearView) return;
+
         const dateStr = value.format("YYYY-MM-DD");
         const sessionList = coachSchedule[dateStr] || [];
 
@@ -79,6 +82,10 @@ const CoachScheduleManagementView = () => {
 
     // Handles month selection in Year View
     const openMonthModal = (monthStr) => {
+        // Close any previously opened daily session modal
+        setIsModalOpen(false);
+
+
         const sessionsInMonth = Object.keys(coachSchedule)
             .filter(date => date.startsWith(monthStr))
             .flatMap(date => coachSchedule[date]);
@@ -90,6 +97,16 @@ const CoachScheduleManagementView = () => {
         }
     };
 
+    const handlePanelChange = (value, mode) => {
+        if (mode === "year") {
+            setIsYearView(true);  // ✅ Enter Year View
+            openMonthModal(value.format("YYYY-MM"));
+        } else {
+            setIsYearView(false); // ✅ Back to Month View
+        }
+    };
+    
+
     // Navigates to session details
     const handleViewDetails = (sessionId) => {
         setIsModalOpen(false);
@@ -98,11 +115,7 @@ const CoachScheduleManagementView = () => {
 
     return (
         <Card title="Manage Coaching Sessions">
-            <Calendar cellRender={cellRender} onSelect={handleDateSelect} onPanelChange={(value, mode) => {
-                if (mode === "year") {
-                    openMonthModal(value.format("YYYY-MM"));
-                }
-            }} />
+            <Calendar cellRender={cellRender} onSelect={handleDateSelect} onPanelChange={handlePanelChange} />
 
             {/* Modal for session details */}
             <Modal

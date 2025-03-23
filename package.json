@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/charts": "^2.2.7",
     "@coreui/icons-react": "^2.3.0",
     "@coreui/react": "^5.5.0",
     "@emotion/react": "^11.14.0",
