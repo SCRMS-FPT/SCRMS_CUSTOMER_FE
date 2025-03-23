@@ -5,18 +5,17 @@ import { useNavigate } from "react-router-dom";
 // Mock schedule data (Replace with API data later)
 const coachSchedule = {
     "2025-03-25": [
-        { key: "101", type: "success", content: "Morning Session with Trainee John", location: "Gym A", trainee: "John Doe" },
+        { key: "101", type: "success", content: "Morning Training with Coach John", location: "Gym A" },
     ],
     "2025-03-26": [
-        { key: "102", type: "processing", content: "Evening Session with Trainee Jane", location: "Field B", trainee: "Jane Smith" },
+        { key: "102", type: "processing", content: "Evening Training with Coach Jane", location: "Field B" },
     ],
     "2025-03-27": [
-        { key: "103", type: "warning", content: "Advanced Coaching Session", location: "Hall C", trainee: "Alex Johnson" },
-        { key: "104", type: "warning", content: "Advanced Coaching Session", location: "Hall C", trainee: "Alex Johnson" },
+        { key: "103", type: "warning", content: "Advanced Coaching Session", location: "Hall C" },
     ],
 };
 
-const CoachScheduleManagementView = () => {
+const UserCoachScheduleView = () => {
     const navigate = useNavigate();
     const [selectedDate, setSelectedDate] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -97,7 +96,7 @@ const CoachScheduleManagementView = () => {
     };
 
     return (
-        <Card title="Manage Coaching Sessions">
+        <Card title="Coaching Schedule">
             <Calendar cellRender={cellRender} onSelect={handleDateSelect} onPanelChange={(value, mode) => {
                 if (mode === "year") {
                     openMonthModal(value.format("YYYY-MM"));
@@ -110,7 +109,6 @@ const CoachScheduleManagementView = () => {
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
                 footer={null}
-                width={900}  // Set the width of the modal to make it larger
             >
                 <List
                     dataSource={selectedSessions}
@@ -118,7 +116,6 @@ const CoachScheduleManagementView = () => {
                         <List.Item>
                             <Badge status={session.type} text={session.content} />
                             <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{session.location}</span>
-                            <span style={{ marginLeft: "10px", fontStyle: "italic" }}>Trainee: {session.trainee}</span>
                             <Button type="link" onClick={() => handleViewDetails(session.key)}>View Details</Button>
                         </List.Item>
                     )}
@@ -131,15 +128,12 @@ const CoachScheduleManagementView = () => {
                 open={monthModalOpen}
                 onCancel={() => setMonthModalOpen(false)}
                 footer={null}
-                width={900}  // Set the width of the modal to make it larger
             >
                 <List
                     dataSource={selectedMonthSessions}
                     renderItem={(session) => (
                         <List.Item>
                             <Badge status={session.type} text={session.content} />
-                            <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{session.location}</span>
-                            <span style={{ marginLeft: "10px", fontStyle: "italic" }}>Trainee: {session.trainee}</span>
                             <Button type="link" onClick={() => handleViewDetails(session.key)}>View Details</Button>
                         </List.Item>
                     )}
@@ -149,4 +143,4 @@ const CoachScheduleManagementView = () => {
     );
 };
 
-export default CoachScheduleManagementView;
+export default UserCoachScheduleView;
