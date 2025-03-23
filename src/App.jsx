@@ -3,7 +3,6 @@ import Login from "./pages/Login";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
-import MatchFinder from "./pages/MatchFinder";
 import CourtFeedback from "./pages/CourtFeedback";
 import HomeTest from "./pages/HomeTest";
 import BrowseCourts from "./pages/BrowseCourts";
