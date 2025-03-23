@@ -7,6 +7,7 @@ import {
   BookOutlined,
   TransactionOutlined,
   HomeOutlined,
+  MessageOutlined,
   SettingOutlined,
   LogoutOutlined,
   MenuUnfoldOutlined,
@@ -25,6 +26,7 @@ const UserSidebar = ({ children }) => {
     { key: "/user/bookings", icon: <CalendarOutlined />, label: <Link to="/user/bookings">Court Booking</Link> },
     { key: "/user/matching", icon: <UsergroupAddOutlined />, label: <Link to="/user/matching">Team Matching</Link> },
     { key: "/user/coachings", icon: <BookOutlined />, label: <Link to="/user/coachings">Coaching</Link> },
+    { key: "/user/feedbacks", icon: <MessageOutlined />, label: <Link to="/user/feedbacks">Feedback</Link> },
     { key: "/user/transactions", icon: <TransactionOutlined />, label: <Link to="/user/transactions">Transactions</Link> },
   ];
 

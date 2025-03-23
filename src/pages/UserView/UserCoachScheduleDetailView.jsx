@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button, Spin, Tag, Row, Col, Divider, Avatar, Tooltip, Tabs, Modal, Rate, Input } from "antd";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { CalendarOutlined, ClockCircleOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { StarFilled } from "@ant-design/icons";
 
@@ -9,6 +9,8 @@ const { TabPane } = Tabs;
 const UserCoachScheduleDetailView = () => {
   const { scheduleId } = useParams();
   const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const previousTab = searchParams.get("tab") || "1";
   const [loading, setLoading] = useState(true);
   const [schedule, setSchedule] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -61,10 +63,10 @@ const UserCoachScheduleDetailView = () => {
       if (foundSchedule) {
         setSchedule(foundSchedule);
       } else {
-        navigate("/404");
+        navigate("/user/coachings");
       }
       setLoading(false);
-    }, 1000);
+    }, 100);
   }, [scheduleId, navigate]);
 
   if (loading) {
@@ -105,20 +107,19 @@ const UserCoachScheduleDetailView = () => {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
+    <div style={{ }}>
       <Card
         title={<h2>{schedule.title}</h2>}
-        bordered={false}
         style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", width: "100%" }}
         extra={
-          <Button type="primary" onClick={() => navigate("/user/coachings")}>
+          <Button type="primary" onClick={() => navigate(`/user/coachings?tab=${previousTab}`)}>
             Back to Schedules
           </Button>
         }
       >
         {/* Coach Profile Section */}
         <Row gutter={16} align="middle" style={{ marginBottom: "20px" }}>
-          <Col span={6}>
+          <Col span={3}>
             <Avatar size={64} src={schedule.coachProfile.image} />
           </Col>
           <Col span={18}>

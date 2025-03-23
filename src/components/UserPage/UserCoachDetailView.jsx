@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Card, Button, Modal, List, Badge, Row, Col, Typography, Tag, Divider, Descriptions } from "antd";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  Card,
+  Button,
+  Modal,
+  List,
+  Badge,
+  Row,
+  Col,
+  Typography,
+  Tag,
+  Divider,
+  Descriptions,
+  Avatar,
+  Rate,
+  Tabs,
+} from "antd";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+
+const { Title, Paragraph } = Typography;
 
 // Example data for coaches (this would normally come from an API)
 const coachesData = [
@@ -9,13 +26,14 @@ const coachesData = [
     name: "Coach John Doe",
     bio: "A passionate coach with 10+ years of experience in coaching various teams.",
     specialties: ["Football", "Basketball", "Athletics"],
+    rating: 4.8,
+    image: "https://randomuser.me/api/portraits/men/21.jpg",
+    curriculum: "1. Warm-up Drills\n2. Passing Exercises\n3. Dribbling Drills\n4. Mini-Match",
+    price: "$50 per session",
+    terms: "No refunds for cancellations within 24 hours of the session.",
     availability: {
-      "2025-03-10": [
-        { key: "1", type: "success", content: "Training Session - Football", status: "Scheduled" },
-      ],
-      "2025-03-12": [
-        { key: "2", type: "processing", content: "Training Session - Basketball", status: "Upcoming" },
-      ],
+      "2025-03-10": [{ key: "1", type: "success", content: "Training Session - Football", status: "Scheduled" }],
+      "2025-03-12": [{ key: "2", type: "processing", content: "Training Session - Basketball", status: "Upcoming" }],
     },
   },
   {
@@ -23,39 +41,40 @@ const coachesData = [
     name: "Coach Jane Smith",
     bio: "Expert coach specializing in tennis, with a focus on developing young talent.",
     specialties: ["Tennis", "Badminton"],
+    rating: 4.9,
+    image: "https://randomuser.me/api/portraits/women/31.jpg",
+    curriculum: "1. Warm-up \n2. Serve & Return Drills\n3. Footwork Techniques\n4. Match Simulation",
+    price: "$60 per session",
+    terms: "Session must be booked at least 48 hours in advance.",
     availability: {
-      "2025-03-15": [
-        { key: "3", type: "warning", content: "Training Session - Tennis", status: "Scheduled" },
-      ],
+      "2025-03-15": [{ key: "3", type: "warning", content: "Training Session - Tennis", status: "Scheduled" }],
     },
   },
 ];
 
 const UserCoachDetailView = () => {
-  const { coachId } = useParams(); // Fetching the coachId from the URL
+  const { coachId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const previousTab = searchParams.get("tab") || "1";
   const [coach, setCoach] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedAvailability, setSelectedAvailability] = useState([]);
 
-  // Fetching the coach details based on coachId
   useEffect(() => {
-    const foundCoach = coachesData.find((coach) => coach.id === coachId);
+    const foundCoach = coachesData.find((c) => c.id === coachId);
     if (foundCoach) {
       setCoach(foundCoach);
     } else {
-      // If coach not found, navigate to a 404 page or another view
-      navigate("/404");
+      navigate("/user/coachings");
     }
   }, [coachId, navigate]);
 
-  const handleDateSelect = (value) => {
-    const dateStr = value.format("YYYY-MM-DD");
-    const availabilityList = coach.availability[dateStr] || [];
-
+  const handleDateSelect = (date) => {
+    const availabilityList = coach.availability[date] || [];
     if (availabilityList.length > 0) {
-      setSelectedDate(dateStr);
+      setSelectedDate(date);
       setSelectedAvailability(availabilityList);
       setIsModalOpen(true);
     }
@@ -66,70 +85,101 @@ const UserCoachDetailView = () => {
   };
 
   const handleViewBookingDetails = (sessionId) => {
-    // Redirect to the booking details page
     navigate(`/user/booking/${sessionId}`);
     setIsModalOpen(false);
   };
 
   if (!coach) {
-    return null; // or a loading spinner while fetching the coach data
+    return null;
   }
+
+  const tabItems = [
+    {
+      key: "1",
+      label: "Personal Info",
+      children: (
+        <Descriptions column={1} bordered>
+          <Descriptions.Item label="Biography">{coach.bio}</Descriptions.Item>
+        </Descriptions>
+      ),
+    },
+    {
+      key: "2",
+      label: "Specialties",
+      children: (
+        <Row gutter={[8, 8]}>
+          {coach.specialties.map((specialty, index) => (
+            <Col key={index}>
+              <Tag color="blue">{specialty}</Tag>
+            </Col>
+          ))}
+        </Row>
+      ),
+    },
+    {
+      key: "3",
+      label: "Curriculum",
+      children: <pre>{coach.curriculum}</pre>,
+    },
+    {
+      key: "4",
+      label: "Pricing & Terms",
+      children: (
+        <Descriptions column={1} bordered>
+          <Descriptions.Item label="Price">{coach.price}</Descriptions.Item>
+          <Descriptions.Item label="Terms">{coach.terms}</Descriptions.Item>
+        </Descriptions>
+      ),
+    },
+    {
+      key: "5",
+      label: "Availability",
+      children: (
+        <List
+          bordered
+          dataSource={Object.keys(coach.availability)}
+          renderItem={(date) => (
+            <List.Item key={date}>
+              <Badge status="processing" text={`Available on ${date}`} />
+              <Button type="link" onClick={() => handleDateSelect(date)}>
+                View Sessions
+              </Button>
+            </List.Item>
+          )}
+        />
+      ),
+    },
+  ];
 
   return (
     <Card
       title={coach.name}
-      extra={<Button type="primary" onClick={() => navigate("/user/coachings")}>Back to Coaches</Button>}
-      bordered={false}
-      style={{ maxWidth: 1200, margin: "auto", marginTop: 20 }}
+      extra={<Button type="primary" onClick={() => navigate(`/user/coachings?tab=${previousTab}`)}>Back to Coaches</Button>}
+      style={{margin: "auto"}}
     >
-      {/* Biography Section */}
-      <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Typography.Title level={3}>Biography</Typography.Title>
-          <Typography.Paragraph>{coach.bio}</Typography.Paragraph>
+      <Row gutter={16} align="middle">
+        <Col span={3}>
+          <Avatar size={100} src={coach.image} />
+        </Col>
+        <Col span={18}>
+          <Title level={3}>{coach.name}</Title>
+          <Paragraph>{coach.bio}</Paragraph>
+          <Rate allowHalf value={coach.rating} disabled />
+          <span style={{ marginLeft: 10 }}>{coach.rating} / 5</span>
         </Col>
       </Row>
 
-      {/* Specialties Section */}
-      <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Typography.Title level={3}>Specialties</Typography.Title>
-          <Row gutter={[8, 8]}>
-            {coach.specialties.map((specialty, index) => (
-              <Col key={index}>
-                <Tag color="blue">{specialty}</Tag>
-              </Col>
-            ))}
-          </Row>
-        </Col>
-      </Row>
+      <Divider />
 
-      {/* Availability Section */}
-      <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Typography.Title level={3}>Availability</Typography.Title>
-          <List
-            bordered
-            dataSource={Object.keys(coach.availability)}
-            renderItem={(date) => (
-              <List.Item key={date}>
-                <Badge status="processing" text={`Available on ${date}`} />
-                <Button type="link" onClick={() => handleDateSelect(date)}>
-                  View Sessions
-                </Button>
-              </List.Item>
-            )}
-          />
-        </Col>
-      </Row>
+      <Tabs defaultActiveKey="1" size="large" items={tabItems} />
 
-      {/* Availability Session Modal */}
+      {/* 🟢 Availability Modal */}
       <Modal
         title={`Sessions on ${selectedDate}`}
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={null}
-        width={800}
+        width={600}
       >
         <List
           bordered
@@ -149,4 +199,3 @@ const UserCoachDetailView = () => {
 };
 
 export default UserCoachDetailView;
-    

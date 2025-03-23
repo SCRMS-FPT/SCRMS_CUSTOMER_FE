@@ -71,7 +71,7 @@ const UserMatchingDetailView = () => {
         navigate("/user/matching");
       }
       setLoading(false);
-    }, 500);
+    }, 100);
   }, [id, navigate]);
 
   const handleReviewSubmit = () => {

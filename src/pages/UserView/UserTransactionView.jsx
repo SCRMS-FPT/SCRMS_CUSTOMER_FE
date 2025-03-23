@@ -4,7 +4,6 @@ import WalletOverview from "@/components/UserTransactionView/WalletOverview";
 import TransactionHistoryTable from "@/components/UserTransactionView/TransactionHistoryTable";
 import TransactionFilters from "@/components/UserTransactionView/TransactionFilters";
 import PaginationControls from "@/components/UserTransactionView/PaginationControls";
-import UserSidebar from "@/components/UserSidebar";
 import axios from "axios";
 
 const sampleTransactions = [

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Spin, Tag, Button, Modal, Rate } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+
 
 const UserCoachScheduleListView = () => {
   const [loading, setLoading] = useState(true);
@@ -8,6 +9,8 @@ const UserCoachScheduleListView = () => {
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [rating, setRating] = useState(0); // State for storing the rating
+  const [searchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "1";
 
   useEffect(() => {
     // Simulating API Call
@@ -63,7 +66,7 @@ const UserCoachScheduleListView = () => {
       key: "action",
       render: (_, record) => (
         <div>
-          <Link to={`/user/coachings/schedule/${record.id}`}>
+          <Link to={`/user/coachings/schedule/${record.id}?tab=${activeTab}`}>
             <Button type="primary" style={{ marginRight: 8 }}>
               View Details
             </Button>
