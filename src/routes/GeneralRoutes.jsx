@@ -19,6 +19,11 @@ import court_mock_data from "@/data/court_mock_data";
 import PricingView from "@/pages/ServicePackage/PricingView";
 import WalletView from "@/pages/UserView/WalletView";
 import WalletHistoryView from "@/pages/UserView/WalletHistoryView";
+import PricingView from "../pages/ServicePackage/PricingView";
+import WalletView from "../pages/UserView/WalletView";
+import WalletHistoryView from "../pages/UserView/WalletHistoryView";
+import DepositView from "../pages/UserView/DepositView";
+import SubscribePackageView from "../pages/ServicePackage/SubscribePackageView";
 
 const GeneralRoutes = [
   <Route
@@ -166,6 +171,15 @@ const GeneralRoutes = [
     }
   />,
   <Route
+    key="subscribe-package"
+    path="/subscribe-package/:id"
+    element={
+      <Layout>
+        <SubscribePackageView />
+      </Layout>
+    }
+  />,
+  <Route
     key="wallet"
     path="/wallet"
     element={
@@ -180,6 +194,15 @@ const GeneralRoutes = [
     element={
       <Layout>
         <WalletHistoryView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="wallet-deposit"
+    path="/wallet/deposit"
+    element={
+      <Layout>
+        <DepositView />
       </Layout>
     }
   />,
