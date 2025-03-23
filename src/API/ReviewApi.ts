@@ -19,6 +19,19 @@ export class Client {
         this.http = http ? http : window as any;
         this.baseUrl = baseUrl ?? API_REVIEW_URL;
     }
+// Helper method to get authorization headers
+private getAuthHeaders(): HeadersInit {
+    // Get token from localStorage (which is synced with Redux store)
+    const token = localStorage.getItem("token");
+    
+    // Return headers with Authorization if token exists
+    return token ? {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/json"
+    } : {
+        "Accept": "application/json"
+    };
+}
 
     /**
      * @return OK
