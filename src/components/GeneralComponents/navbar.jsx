@@ -56,7 +56,7 @@ const Navbar = () => {
 
   // Check if user has specific roles
   const isCoach = user?.roles?.includes("Coach");
-  const isCourtOwner = user?.roles?.includes("Court Owner");
+  const isCourtOwner = user?.roles?.includes("CourtOwner");
 
   // Fetch wallet balance when dropdown opens
   const fetchWalletBalance = async () => {

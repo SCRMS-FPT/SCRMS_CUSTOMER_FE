@@ -30,6 +30,19 @@ export const login = createAsyncThunk(
   }
 );
 
+// Add new thunk for updating user profile
+export const updateUserProfile = createAsyncThunk(
+  "user/updateUserProfile",
+  async (updatedProfile, { rejectWithValue }) => {
+    try {
+      // No API call needed, just return the updated profile
+      return { userProfile: updatedProfile };
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to update profile");
+    }
+  }
+);
+
 const initialState = {
   token: localStorage.getItem("token") || "",
   userProfile: localStorage.getItem("userProfile")
@@ -50,6 +63,11 @@ const userSlice = createSlice({
       localStorage.removeItem("token");
       localStorage.removeItem("userProfile");
     },
+    // Add new reducer for direct profile updates
+    updateProfile(state, action) {
+      state.userProfile = action.payload;
+      localStorage.setItem("userProfile", JSON.stringify(action.payload));
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -65,9 +83,13 @@ const userSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || action.error.message;
+      })
+      // Add cases for updating user profile
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.userProfile = action.payload.userProfile;
       });
   },
 });
 
-export const { logout } = userSlice.actions;
+export const { logout, updateProfile } = userSlice.actions;
 export default userSlice.reducer;
