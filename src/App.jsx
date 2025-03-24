@@ -26,6 +26,10 @@ import SportsCenter from "./pages/SportsCenter";
 import CourtsManage from "./pages/CourtsManage"
 import PromotionManagement from "./pages/PromotionManagementPage"
 import TransactionHistoryPage from "./pages/TransactionHistoryPage"
+import CoachProfile from "./pages/coach-profile"
+import CoachSchedules from "./pages/coach-schedules"
+import CoachPackagesPage from "./pages/coach-packages-page"
+
 
 
 
@@ -236,11 +240,60 @@ function App() {
           </Layout>
         }
       />
+      {/* <Route
+        path="/coach-profile"
+        element={
+          <Layout>
+            <CoachProfile />
+          </Layout>
+        }
+      /> */}
+      <Route
+        path="/coach-profile/:id"
+        element={
+          <Layout>
+            <CoachProfile />
+          </Layout>
+        }
+      />
+      <Route
+        path="/coach-schedules"
+        element={
+          <Layout>
+            <CoachSchedules />
+          </Layout>
+        }
+      />
+
+      <Route
+        path="/coach-schedules/:id"
+        element={
+          <Layout>
+            <CoachSchedules />
+          </Layout>
+        }
+      />
       <Route
         path="/History"
         element={
           <Layout>
             <TransactionHistoryPage />
+          </Layout>
+        }
+      />
+      <Route
+        path="/coach-packages"
+        element={
+          <Layout>
+            <CoachPackagesPage />
+          </Layout>
+        }
+      />
+      <Route
+        path="/coach-packages/:coach_id"
+        element={
+          <Layout>
+            <CoachPackagesPage />
           </Layout>
         }
       />
