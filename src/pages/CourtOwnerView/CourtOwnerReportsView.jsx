@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
 import { Card, Statistic, Row, Col, Button, Table } from "antd";
-import { Line } from "@ant-design/charts"; // Ant Design LineChart
+import { Line } from "react-chartjs-2";
+import "chart.js/auto";
 import { DownloadOutlined } from "@ant-design/icons";
 
 const CourtOwnerReportsView = () => {
@@ -15,7 +16,6 @@ const CourtOwnerReportsView = () => {
   });
 
   useEffect(() => {
-    // Mock API call to fetch stats
     const fetchData = async () => {
       const response = {
         totalRevenue: 12450,
@@ -36,115 +36,138 @@ const CourtOwnerReportsView = () => {
     fetchData();
   }, []);
 
-  const bookingData = {
-    data: stats.bookingTrend.map((value, index) => ({
-      month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][index],
-      bookings: value,
-    })),
-    xField: 'month',
-    yField: 'bookings',
-    seriesField: 'bookings',
-    point: {
-      size: 5,
-      shape: 'circle',
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
     },
-    lineStyle: {
-      lineWidth: 2,
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        grid: {
+          color: "rgba(200, 200, 200, 0.2)",
+        },
+        ticks: {
+          beginAtZero: true,
+        },
+      },
     },
-    smooth: true, // This makes the line smooth
-    connectNulls: true, // Connects the dots even if there are missing data points
   };
-  
+
+  const bookingData = {
+    labels: months,
+    datasets: [
+      {
+        label: "Bookings",
+        data: stats.bookingTrend,
+        borderColor: "#38bdf8",
+        backgroundColor: "rgba(56, 189, 248, 0.2)",
+        pointRadius: 5,
+        pointBackgroundColor: "#38bdf8",
+        tension: 0.4, // Smooth curve
+      },
+    ],
+  };
+
   const revenueData = {
-    data: stats.revenueTrend.map((value, index) => ({
-      month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][index],
-      revenue: value,
-    })),
-    xField: 'month',
-    yField: 'revenue',
-    seriesField: 'revenue',
-    point: {
-      size: 5,
-      shape: 'circle',
-    },
-    lineStyle: {
-      lineWidth: 2,
-    },
-    smooth: true, // This makes the line smooth
-    connectNulls: true, // Connects the dots even if there are missing data points
+    labels: months,
+    datasets: [
+      {
+        label: "Revenue",
+        data: stats.revenueTrend,
+        borderColor: "#facc15",
+        backgroundColor: "rgba(250, 204, 21, 0.2)",
+        pointRadius: 5,
+        pointBackgroundColor: "#facc15",
+        tension: 0.4, // Smooth curve
+      },
+    ],
   };
 
   return (
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100 flex justify-between items-center">
-          <span className="text-3xl">Court Owner Reports</span>
-          <Button type="primary" icon={<DownloadOutlined />} onClick={() => console.log("Exporting data...")}>
-            Export
-          </Button>
-        </h1>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100 flex justify-between items-center">
+        <span className="text-3xl">Court Owner Reports</span>
+        <Button type="primary" icon={<DownloadOutlined />} onClick={() => console.log("Exporting data...")}>
+          Export
+        </Button>
+      </h1>
 
-        {/* Dashboard Cards */}
-        <Row gutter={[16, 16]} className="mb-6">
-          <Col xs={12} sm={12} md={6} lg={6}>
-            <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
-              <Statistic title="Total Revenue" value={`$${stats.totalRevenue}`} valueStyle={{ color: "#facc15" }} />
-            </Card>
-          </Col>
+      {/* Dashboard Cards */}
+      <Row gutter={[16, 16]} className="mb-6">
+        <Col xs={12} sm={12} md={6} lg={6}>
+          <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
+            <Statistic title="Total Revenue" value={`$${stats.totalRevenue}`} valueStyle={{ color: "#facc15" }} />
+          </Card>
+        </Col>
 
-          <Col xs={12} sm={12} md={6} lg={6}>
-            <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
-              <Statistic title="Total Bookings" value={stats.totalBookings} valueStyle={{ color: "#38bdf8" }} />
-            </Card>
-          </Col>
+        <Col xs={12} sm={12} md={6} lg={6}>
+          <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
+            <Statistic title="Total Bookings" value={stats.totalBookings} valueStyle={{ color: "#38bdf8" }} />
+          </Card>
+        </Col>
 
-          <Col xs={12} sm={12} md={6} lg={6}>
-            <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
-              <Statistic title="Active Courts" value={stats.activeCourts} valueStyle={{ color: "#10b981" }} />
-            </Card>
-          </Col>
+        <Col xs={12} sm={12} md={6} lg={6}>
+          <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
+            <Statistic title="Active Courts" value={stats.activeCourts} valueStyle={{ color: "#10b981" }} />
+          </Card>
+        </Col>
 
-          <Col xs={12} sm={12} md={6} lg={6}>
-            <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
-              <Statistic title="Active Courts" value={stats.activeVenues} valueStyle={{ color: "#1a4600" }} />
-            </Card>
-          </Col>
-        </Row>
+        <Col xs={12} sm={12} md={6} lg={6}>
+          <Card className="dark:bg-gray-800 flex flex-col justify-between min-h-[135px]">
+            <Statistic title="Active Venues" value={stats.activeVenues} valueStyle={{ color: "#1a4600" }} />
+          </Card>
+        </Col>
+      </Row>
 
-        {/* Charts */}
-        <Row gutter={[16, 16]} className="my-6">
-          {/* Booking Trend */}
-          <Col xs={24} sm={24} md={12} lg={12}>
-            <Card className="dark:bg-gray-800 dark:text-white" style={{ minHeight: "320px" }}>
-              <h2 className="text-lg font-bold mb-2">Booking Trend</h2>
-              <Line {...bookingData} />
-            </Card>
-          </Col>
+      {/* Charts */}
+      <Row gutter={[16, 16]} className="my-6">
+        {/* Booking Trend */}
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Card className="dark:bg-gray-800 dark:text-white" style={{ minHeight: "320px" }}>
+            <h2 className="text-lg font-bold mb-2">Booking Trend</h2>
+            <div className="h-[260px]">
+              <Line data={bookingData} options={chartOptions} />
+            </div>
+          </Card>
+        </Col>
 
-          {/* Revenue Trend */}
-          <Col xs={24} sm={24} md={12} lg={12}>
-            <Card className="dark:bg-gray-800 dark:text-white" style={{ minHeight: "320px" }}>
-              <h2 className="text-lg font-bold mb-2">Revenue Trend</h2>
-              <Line {...revenueData} />
-            </Card>
-          </Col>
-        </Row>
+        {/* Revenue Trend */}
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Card className="dark:bg-gray-800 dark:text-white" style={{ minHeight: "320px" }}>
+            <h2 className="text-lg font-bold mb-2">Revenue Trend</h2>
+            <div className="h-[260px]">
+              <Line data={revenueData} options={chartOptions} />
+            </div>
+          </Card>
+        </Col>
+      </Row>
 
-        {/* Recent Orders Section */}
-        <Card className="dark:bg-gray-800 dark:text-white">
-          <h2 className="text-lg font-bold mb-4">Recent Orders</h2>
-          <Table
-            dataSource={stats.recentOrders}
-            columns={[
-              { title: "No.", dataIndex: "orderNumber", key: "orderNumber" },
-              { title: "Date/Time", dataIndex: "date", key: "date" },
-              { title: "Customer", dataIndex: "customer", key: "customer" },
-              { title: "Total", dataIndex: "total", key: "total", render: (total) => `$${total.toLocaleString()}` },
-            ]}
-            pagination={false}
-            className="dark:bg-gray-800 dark:text-white"
-          />
-        </Card>
-      </div>
+      {/* Recent Orders Section */}
+      <Card className="dark:bg-gray-800 dark:text-white">
+        <h2 className="text-lg font-bold mb-4">Recent Orders</h2>
+        <Table
+          dataSource={stats.recentOrders}
+          columns={[
+            { title: "No.", dataIndex: "orderNumber", key: "orderNumber" },
+            { title: "Date/Time", dataIndex: "date", key: "date" },
+            { title: "Customer", dataIndex: "customer", key: "customer" },
+            { title: "Total", dataIndex: "total", key: "total", render: (total) => `$${total.toLocaleString()}` },
+          ]}
+          pagination={false}
+          className="dark:bg-gray-800 dark:text-white"
+        />
+      </Card>
+    </div>
   );
 };
 
