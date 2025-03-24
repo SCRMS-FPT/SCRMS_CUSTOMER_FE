@@ -1,17 +1,47 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  FaMapMarkerAlt,
-  FaStar,
-  FaAngleRight,
-  FaAngleLeft,
-  FaSearch,
-  FaFilter,
-  FaPhone,
-} from "react-icons/fa";
 import { Client } from "../../API/CourtApi";
-import { format } from "date-fns";
+import axios from "axios";
+
+import {
+  Container,
+  Typography,
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Button,
+  TextField,
+  Autocomplete,
+  Chip,
+  Rating,
+  Pagination,
+  CircularProgress,
+  Paper,
+  Tabs,
+  Tab,
+  InputAdornment,
+  IconButton,
+  Alert,
+  Skeleton,
+  useMediaQuery,
+  Divider,
+} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+
+// MUI Icons
+import {
+  LocationOn,
+  Search,
+  FilterAlt,
+  Phone,
+  ArrowForward,
+  ArrowBack,
+  StarRate,
+  SportsBasketball,
+} from "@mui/icons-material";
 
 const FeaturedVenues = () => {
   const [selectedSport, setSelectedSport] = useState("All");
@@ -23,10 +53,36 @@ const FeaturedVenues = () => {
   const [sportCenters, setSportCenters] = useState([]);
   const [sports, setSports] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchLocation, setSearchLocation] = useState("");
-  const tabsRef = useRef(null);
+  const [cities, setCities] = useState([]);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [loadingCities, setLoadingCities] = useState(false);
+
   const navigate = useNavigate();
   const courtClient = new Client();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
+  // Fetch cities data
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        setLoadingCities(true);
+        const response = await axios.get(
+          "https://esgoo.net/api-tinhthanh/1/0.htm"
+        );
+        if (response.data && response.data.error === 0) {
+          setCities(response.data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching cities:", err);
+      } finally {
+        setLoadingCities(false);
+      }
+    };
+
+    fetchCities();
+  }, []);
 
   // Fetch sports data
   useEffect(() => {
@@ -54,7 +110,7 @@ const FeaturedVenues = () => {
         const response = await courtClient.getSportCenters(
           currentPage,
           venuesPerPage,
-          searchLocation || undefined,
+          selectedCity?.name || undefined,
           searchTerm || undefined
         );
 
@@ -71,7 +127,7 @@ const FeaturedVenues = () => {
     };
 
     fetchSportCenters();
-  }, [currentPage, venuesPerPage, searchTerm, searchLocation]);
+  }, [currentPage, venuesPerPage, searchTerm, selectedCity]);
 
   // Detect screen size and set venues per page accordingly
   useEffect(() => {
@@ -106,33 +162,6 @@ const FeaturedVenues = () => {
   // Get venues for the current page
   const currentVenues = filteredVenues.slice(0, venuesPerPage);
 
-  // Fill missing slots with placeholders to maintain grid layout
-  const emptySlots = venuesPerPage - currentVenues.length;
-  const placeholders = Array(emptySlots).fill(null);
-
-  // Pagination Handlers
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-      window.scrollTo({ top: window.scrollY - 50, behavior: "smooth" });
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-      window.scrollTo({ top: window.scrollY - 50, behavior: "smooth" });
-    }
-  };
-
-  // Scroll tabs horizontally
-  const scrollTabs = (direction) => {
-    if (tabsRef.current) {
-      const scrollAmount = direction === "left" ? -200 : 200;
-      tabsRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
-  };
-
   // Handle search submission
   const handleSearch = (e) => {
     e.preventDefault();
@@ -141,7 +170,7 @@ const FeaturedVenues = () => {
 
   // Handle venue selection
   const handleViewVenue = (sportCenterId) => {
-    navigate(`/court/${sportCenterId}`);
+    navigate(`/sports-center/${sportCenterId}`);
   };
 
   const handleBookNow = (sportCenterId) => {
@@ -160,364 +189,634 @@ const FeaturedVenues = () => {
   };
 
   return (
-    <section className="py-12 px-4 md:px-8 bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto">
+    <Box
+      sx={{
+        py: 6,
+        px: 2,
+        background: "linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)",
+      }}
+    >
+      <Container maxWidth="lg">
         {/* Section header with description */}
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
+        <Box sx={{ textAlign: "center", mb: 5 }}>
+          <Typography
+            variant="h3"
+            component="h2"
+            sx={{
+              fontWeight: 700,
+              mb: 2,
+              color: "#1e293b",
+              fontSize: { xs: "2rem", md: "2.5rem" },
+            }}
+          >
             Find Your Perfect Venue
-          </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          </Typography>
+          <Typography
+            variant="h6"
+            color="text.secondary"
+            sx={{
+              maxWidth: "800px",
+              mx: "auto",
+              fontWeight: 400,
+              mb: 4,
+            }}
+          >
             Discover top-rated sports facilities in your area. Filter by sport
             type and book your next game with ease.
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
         {/* Search and filter section */}
-        <div className="mb-8">
-          <form
+        <Paper
+          elevation={0}
+          sx={{
+            p: 2,
+            mb: 4,
+            borderRadius: 3,
+            border: "1px solid #e2e8f0",
+            boxShadow:
+              "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+          }}
+        >
+          <Box
+            component="form"
             onSubmit={handleSearch}
-            className="flex flex-col md:flex-row gap-3 p-3 bg-white rounded-xl shadow-sm border border-gray-100"
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              gap: 2,
+            }}
           >
-            <div className="flex-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaSearch className="text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search venues..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-colors"
-              />
-            </div>
-            <div className="flex-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaMapMarkerAlt className="text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Location (city)..."
-                value={searchLocation}
-                onChange={(e) => setSearchLocation(e.target.value)}
-                className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-colors"
-              />
-            </div>
-            <button
+            <TextField
+              fullWidth
+              placeholder="Search venues..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search color="action" />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 2 },
+              }}
+            />
+
+            <Autocomplete
+              fullWidth
+              options={cities}
+              getOptionLabel={(option) => option.name}
+              value={selectedCity}
+              onChange={(event, newValue) => {
+                setSelectedCity(newValue);
+              }}
+              loading={loadingCities}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Select a city..."
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <>
+                        <InputAdornment position="start">
+                          <LocationOn color="action" />
+                        </InputAdornment>
+                        {params.InputProps.startAdornment}
+                      </>
+                    ),
+                    sx: { borderRadius: 2 },
+                  }}
+                />
+              )}
+            />
+
+            <Button
               type="submit"
-              className="bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center"
+              variant="contained"
+              sx={{
+                px: 4,
+                py: 1.5,
+                bgcolor: "#2563eb",
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 600,
+                "&:hover": {
+                  bgcolor: "#1d4ed8",
+                },
+              }}
+              startIcon={<FilterAlt />}
             >
-              <FaFilter className="mr-2" />
-              <span>Search</span>
-            </button>
-          </form>
-        </div>
+              Search
+            </Button>
+          </Box>
+        </Paper>
 
-        {/* Sports Filter Tabs with scroll indicators */}
-        <div className="relative mb-8">
-          <div className="flex items-center mb-2 md:mb-4">
-            <h3 className="text-xl font-semibold text-gray-700 mr-auto">
-              Browse by Sport
-            </h3>
-            <div className="flex space-x-2 md:hidden">
-              <button
-                onClick={() => scrollTabs("left")}
-                className="p-2 rounded-full bg-white shadow-sm hover:bg-gray-100"
-                aria-label="Scroll left"
-              >
-                <FaAngleLeft className="text-gray-700" />
-              </button>
-              <button
-                onClick={() => scrollTabs("right")}
-                className="p-2 rounded-full bg-white shadow-sm hover:bg-gray-100"
-                aria-label="Scroll right"
-              >
-                <FaAngleRight className="text-gray-700" />
-              </button>
-            </div>
-          </div>
-
-          <div
-            ref={tabsRef}
-            className="flex space-x-3 overflow-x-auto pb-2 md:pb-4 scrollbar-hide"
+        {/* Sports Filter Tabs */}
+        <Box sx={{ mb: 4 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              mb: 2,
+              color: "#334155",
+            }}
           >
-            <button
-              className={`px-5 py-3 rounded-xl font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-                selectedSport === "All"
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-              }`}
-              onClick={() => {
-                setSelectedSport("All");
+            Browse by Sport
+          </Typography>
+
+          <Paper
+            sx={{
+              overflowX: "auto",
+              borderRadius: 3,
+              boxShadow: "none",
+              bgcolor: "transparent",
+            }}
+          >
+            <Tabs
+              value={
+                sports.findIndex((sport) => sport.name === selectedSport) + 1 ||
+                0
+              }
+              onChange={(e, newValue) => {
+                setSelectedSport(
+                  newValue === 0 ? "All" : sports[newValue - 1].name
+                );
                 setCurrentPage(1);
               }}
+              variant="scrollable"
+              scrollButtons="auto"
+              sx={{
+                minHeight: "48px",
+                "& .MuiTabs-indicator": {
+                  display: "none",
+                },
+                "& .MuiTab-root": {
+                  minWidth: "auto",
+                  minHeight: "48px",
+                  borderRadius: 2,
+                  mx: 0.5,
+                  color: "#64748b",
+                  fontWeight: 500,
+                  "&.Mui-selected": {
+                    bgcolor: "#2563eb",
+                    color: "white",
+                  },
+                },
+              }}
             >
-              All Venues
-            </button>
-            {sports.map((sport) => (
-              <button
-                key={sport.id}
-                className={`px-5 py-3 rounded-xl font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-                  selectedSport === sport.name
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-                }`}
-                onClick={() => {
-                  setSelectedSport(sport.name);
-                  setCurrentPage(1);
+              <Tab
+                label="All Venues"
+                sx={{
+                  py: 1.5,
+                  px: 3,
+                  borderRadius: 2,
+                  border: "1px solid #e2e8f0",
+                  bgcolor: selectedSport === "All" ? "#2563eb" : "white",
+                  color: selectedSport === "All" ? "white" : "text.primary",
+                  "&:hover": {
+                    bgcolor: selectedSport === "All" ? "#1d4ed8" : "#f8fafc",
+                  },
                 }}
-              >
-                {sport.name}
-              </button>
-            ))}
-          </div>
-        </div>
+              />
+              {sports.map((sport) => (
+                <Tab
+                  key={sport.id}
+                  label={sport.name}
+                  sx={{
+                    py: 1.5,
+                    px: 3,
+                    borderRadius: 2,
+                    border: "1px solid #e2e8f0",
+                    bgcolor: selectedSport === sport.name ? "#2563eb" : "white",
+                    color:
+                      selectedSport === sport.name ? "white" : "text.primary",
+                    "&:hover": {
+                      bgcolor:
+                        selectedSport === sport.name ? "#1d4ed8" : "#f8fafc",
+                    },
+                  }}
+                />
+              ))}
+            </Tabs>
+          </Paper>
+        </Box>
 
         {/* Results count */}
-        <div className="mb-6">
-          <p className="text-gray-600">
-            Showing <span className="font-medium">{filteredVenues.length}</span>{" "}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary">
+            Showing{" "}
+            <Typography component="span" fontWeight="600" color="text.primary">
+              {filteredVenues.length}
+            </Typography>{" "}
             venues
             {selectedSport !== "All" && (
-              <span>
+              <>
                 {" "}
-                for <span className="font-medium">{selectedSport}</span>
-              </span>
+                for{" "}
+                <Typography
+                  component="span"
+                  fontWeight="600"
+                  color="text.primary"
+                >
+                  {selectedSport}
+                </Typography>
+              </>
             )}
             {searchTerm && (
-              <span>
+              <>
                 {" "}
-                matching "<span className="font-medium">{searchTerm}</span>"
-              </span>
+                matching "
+                <Typography
+                  component="span"
+                  fontWeight="600"
+                  color="text.primary"
+                >
+                  {searchTerm}
+                </Typography>
+                "
+              </>
             )}
-            {searchLocation && (
-              <span>
+            {selectedCity && (
+              <>
                 {" "}
-                in <span className="font-medium">{searchLocation}</span>
-              </span>
+                in{" "}
+                <Typography
+                  component="span"
+                  fontWeight="600"
+                  color="text.primary"
+                >
+                  {selectedCity.name}
+                </Typography>
+              </>
             )}
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
         {/* Loading state */}
         {isLoading && (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
+          <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+            <CircularProgress color="primary" />
+          </Box>
         )}
 
         {/* Error state */}
         {error && !isLoading && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-6">
-            <p className="font-medium">{error}</p>
-          </div>
+          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+            {error}
+          </Alert>
         )}
 
         {/* Venues Grid */}
         {!isLoading && !error && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <Grid container spacing={3} sx={{ mb: 4 }}>
             {currentVenues.map((center, index) => (
-              <motion.div
-                key={center.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="relative"
-                onMouseEnter={() => setIsHovering(center.id)}
-                onMouseLeave={() => setIsHovering(null)}
-              >
-                <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100 h-full flex flex-col">
-                  <div className="relative">
-                    {/* Venue image with overlay */}
-                    <div className="h-48 relative overflow-hidden">
-                      <img
-                        src={
+              <Grid item xs={12} sm={6} md={4} key={center.id}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  onMouseEnter={() => setIsHovering(center.id)}
+                  onMouseLeave={() => setIsHovering(null)}
+                  style={{ height: "100%" }}
+                >
+                  <Card
+                    elevation={0}
+                    sx={{
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      borderRadius: 3,
+                      overflow: "hidden",
+                      border: "1px solid #e2e8f0",
+                      transition: "all 0.2s ease-in-out",
+                      "&:hover": {
+                        boxShadow:
+                          "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                        transform: "translateY(-4px)",
+                      },
+                    }}
+                  >
+                    <Box sx={{ position: "relative" }}>
+                      <CardMedia
+                        component="img"
+                        height="200"
+                        image={
                           center.avatar ||
                           "https://placehold.co/600x400?text=Sport+Center"
                         }
                         alt={center.name}
-                        className={`h-full w-full object-cover transition-transform duration-700 ${
-                          isHovering === center.id ? "scale-110" : ""
-                        }`}
+                        sx={{
+                          transition: "transform 0.6s ease-in-out",
+                          transform:
+                            isHovering === center.id
+                              ? "scale(1.05)"
+                              : "scale(1)",
+                        }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-70"></div>
-                    </div>
 
-                    {/* Sport tags */}
-                    <div className="absolute top-4 left-4 flex flex-wrap gap-1">
-                      {center.sportNames &&
-                        center.sportNames.slice(0, 3).map((sport, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 bg-blue-600 text-white text-xs rounded-full font-medium"
-                          >
-                            {sport}
-                          </span>
-                        ))}
-                      {center.sportNames && center.sportNames.length > 3 && (
-                        <span className="px-3 py-1 bg-gray-700 text-white text-xs rounded-full font-medium">
-                          +{center.sportNames.length - 3}
-                        </span>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          inset: 0,
+                          background:
+                            "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0) 100%)",
+                        }}
+                      />
+
+                      {/* Sport tags */}
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: 16,
+                          left: 16,
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 0.5,
+                        }}
+                      >
+                        {center.sportNames &&
+                          center.sportNames.slice(0, 3).map((sport, idx) => (
+                            <Chip
+                              key={idx}
+                              label={sport}
+                              size="small"
+                              sx={{
+                                bgcolor: "#2563eb",
+                                color: "white",
+                                fontWeight: 500,
+                                fontSize: "0.7rem",
+                              }}
+                            />
+                          ))}
+                        {center.sportNames && center.sportNames.length > 3 && (
+                          <Chip
+                            label={`+${center.sportNames.length - 3}`}
+                            size="small"
+                            sx={{
+                              bgcolor: "rgba(0,0,0,0.7)",
+                              color: "white",
+                              fontWeight: 500,
+                              fontSize: "0.7rem",
+                            }}
+                          />
+                        )}
+                      </Box>
+
+                      {/* Rating */}
+                      <Box sx={{ position: "absolute", top: 16, right: 16 }}>
+                        <Chip
+                          icon={<StarRate sx={{ color: "#facc15" }} />}
+                          label={(Math.random() * 2 + 3).toFixed(1)}
+                          size="small"
+                          sx={{
+                            bgcolor: "white",
+                            fontWeight: 600,
+                            "& .MuiChip-icon": {
+                              ml: 0.5,
+                            },
+                          }}
+                        />
+                      </Box>
+                    </Box>
+
+                    <CardContent
+                      sx={{
+                        flexGrow: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        p: 3,
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        component="h3"
+                        gutterBottom
+                        sx={{
+                          fontWeight: 700,
+                          color: "#1e293b",
+                        }}
+                      >
+                        {center.name}
+                      </Typography>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          mb: 1,
+                          gap: 1,
+                        }}
+                      >
+                        <LocationOn
+                          color="action"
+                          fontSize="small"
+                          sx={{ mt: 0.3 }}
+                        />
+                        <Typography variant="body2" color="text.secondary">
+                          {formatAddress(center)}
+                        </Typography>
+                      </Box>
+
+                      {center.phoneNumber && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            mb: 2,
+                            gap: 1,
+                          }}
+                        >
+                          <Phone
+                            color="action"
+                            fontSize="small"
+                            sx={{ mt: 0.3 }}
+                          />
+                          <Typography variant="body2" color="text.secondary">
+                            {center.phoneNumber}
+                          </Typography>
+                        </Box>
                       )}
-                    </div>
 
-                    {/* Rating - mock data since API doesn't provide ratings */}
-                    <div className="absolute top-4 right-4">
-                      <div className="flex items-center bg-white px-2 py-1 rounded-full shadow-sm">
-                        <FaStar className="text-yellow-400 mr-1" size={14} />
-                        <span className="text-xs font-medium">
-                          {(Math.random() * 2 + 3).toFixed(1)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 flex-grow flex flex-col">
-                    <h3 className="text-lg font-bold text-gray-800 mb-1">
-                      {center.name}
-                    </h3>
-
-                    <div className="flex items-start mb-2 text-gray-500">
-                      <FaMapMarkerAlt className="mt-1 mr-2 flex-shrink-0 text-gray-400" />
-                      <p className="text-sm">{formatAddress(center)}</p>
-                    </div>
-
-                    {center.phoneNumber && (
-                      <div className="flex items-start mb-3 text-gray-500">
-                        <FaPhone className="mt-1 mr-2 flex-shrink-0 text-gray-400" />
-                        <p className="text-sm">{center.phoneNumber}</p>
-                      </div>
-                    )}
-
-                    <p className="text-sm text-gray-600 mb-3 flex-grow line-clamp-3">
-                      {center.description ||
-                        `Experience premium sports facilities at ${center.name}. Book now for an outstanding sports experience.`}
-                    </p>
-
-                    <div className="flex items-center space-x-2 mt-auto">
-                      <button
-                        onClick={() => handleViewVenue(center.id)}
-                        className="flex-1 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          mb: 3,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          flexGrow: 1,
+                        }}
                       >
-                        View Details
-                      </button>
-                      <button
-                        onClick={() => handleBookNow(center.id)}
-                        className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                      >
-                        Book Now
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                        {center.description ||
+                          `Experience premium sports facilities at ${center.name}. Book now for an outstanding sports experience.`}
+                      </Typography>
 
-            {/* Placeholders for empty slots */}
-            {placeholders.map((_, index) => (
-              <div
-                key={`placeholder-${index}`}
-                className="hidden lg:block"
-              ></div>
+                      <Box sx={{ display: "flex", gap: 2, mt: "auto" }}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleViewVenue(center.id)}
+                          fullWidth
+                          sx={{
+                            borderRadius: 2,
+                            textTransform: "none",
+                            borderColor: "#e2e8f0",
+                            color: "#475569",
+                            fontWeight: 600,
+                            py: 1,
+                            "&:hover": {
+                              borderColor: "#cbd5e1",
+                              bgcolor: "#f8fafc",
+                            },
+                          }}
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          variant="contained"
+                          onClick={() => handleBookNow(center.id)}
+                          fullWidth
+                          sx={{
+                            borderRadius: 2,
+                            textTransform: "none",
+                            bgcolor: "#2563eb",
+                            fontWeight: 600,
+                            py: 1,
+                            "&:hover": {
+                              bgcolor: "#1d4ed8",
+                            },
+                          }}
+                        >
+                          Book Now
+                        </Button>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </Grid>
             ))}
-          </div>
+          </Grid>
         )}
 
         {/* No results state */}
         {!isLoading && !error && filteredVenues.length === 0 && (
-          <div className="bg-white rounded-xl p-8 text-center shadow-sm border border-gray-200">
-            <div className="mb-4">
-              <svg
-                className="w-16 h-16 mx-auto text-gray-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">
+          <Paper
+            elevation={0}
+            sx={{
+              p: 4,
+              textAlign: "center",
+              borderRadius: 3,
+              border: "1px solid #e2e8f0",
+              mb: 4,
+            }}
+          >
+            <SportsBasketball
+              sx={{
+                fontSize: 64,
+                color: "#e2e8f0",
+                mb: 2,
+              }}
+            />
+            <Typography
+              variant="h5"
+              component="h3"
+              gutterBottom
+              sx={{ fontWeight: 700 }}
+            >
               No venues found
-            </h3>
-            <p className="text-gray-600 mb-4">
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
               {selectedSport !== "All" ? (
                 <>We couldn't find any venues for {selectedSport}.</>
-              ) : searchTerm || searchLocation ? (
+              ) : searchTerm || selectedCity ? (
                 <>No venues match your search criteria.</>
               ) : (
                 <>No venues available at this time.</>
               )}
               <br />
               Try adjusting your filters or check back later.
-            </p>
-            <button
+            </Typography>
+            <Button
+              variant="contained"
               onClick={() => {
                 setSelectedSport("All");
                 setSearchTerm("");
-                setSearchLocation("");
+                setSelectedCity(null);
                 setCurrentPage(1);
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              sx={{
+                borderRadius: 2,
+                bgcolor: "#2563eb",
+                textTransform: "none",
+                fontWeight: 600,
+                px: 4,
+                py: 1.5,
+                "&:hover": {
+                  bgcolor: "#1d4ed8",
+                },
+              }}
             >
               Reset Filters
-            </button>
-          </div>
+            </Button>
+          </Paper>
         )}
 
         {/* Pagination Controls */}
         {!isLoading && !error && totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-2 mt-8">
-            <button
-              onClick={prevPage}
-              disabled={currentPage === 1}
-              className={`px-4 py-2 rounded-lg flex items-center transition-colors ${
-                currentPage === 1
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-              }`}
-            >
-              <FaAngleLeft className="mr-1" /> Previous
-            </button>
-
-            {/* Page indicators */}
-            <div className="flex items-center space-x-1 px-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={`page-${page}`}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                      currentPage === page
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
-            </div>
-
-            <button
-              onClick={nextPage}
-              disabled={currentPage === totalPages}
-              className={`px-4 py-2 rounded-lg flex items-center transition-colors ${
-                currentPage === totalPages
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-              }`}
-            >
-              Next <FaAngleRight className="ml-1" />
-            </button>
-          </div>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={(e, page) => setCurrentPage(page)}
+              shape="rounded"
+              color="primary"
+              size={isMobile ? "small" : "medium"}
+              showFirstButton
+              showLastButton
+              sx={{
+                "& .MuiPaginationItem-root": {
+                  borderRadius: 1.5,
+                },
+              }}
+            />
+          </Box>
         )}
-      </div>
-    </section>
+
+        {/* View More Button */}
+        {!isLoading && !error && filteredVenues.length > 0 && (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 6, mb: 2 }}>
+            <Button
+              variant="contained"
+              size="large"
+              endIcon={<ArrowForward />}
+              onClick={() => navigate("/sports-centers")}
+              sx={{
+                borderRadius: 2,
+                bgcolor: "#2563eb",
+                color: "white",
+                textTransform: "none",
+                fontWeight: 600,
+                px: 5,
+                py: 1.5,
+                boxShadow:
+                  "0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -1px rgba(37, 99, 235, 0.1)",
+                "&:hover": {
+                  bgcolor: "#1d4ed8",
+                  boxShadow:
+                    "0 10px 15px -3px rgba(37, 99, 235, 0.2), 0 4px 6px -2px rgba(37, 99, 235, 0.1)",
+                  transform: "translateY(-2px)",
+                },
+                transition: "all 0.2s ease-in-out",
+              }}
+            >
+              View All Sport Centers
+            </Button>
+          </Box>
+        )}
+      </Container>
+    </Box>
   );
 };
 

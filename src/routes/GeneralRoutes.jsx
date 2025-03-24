@@ -11,7 +11,7 @@ import FindCourtBySportView from "@/pages/UserView/FindCourtBySportView";
 import FindCourtByVenueView from "@/pages/UserView/FindCourtByVenueView";
 import VenueDetailView from "@/pages/GeneralView/VenueDetailView";
 import CourtDetailsView from "@/pages/GeneralView/CourtDetailsView";
-import SportsCenter from "@/pages/SportsCenter";
+import SportsCenter from "@/pages/UserView/SportsCenter";
 import CoachList from "@/pages/CoachBooking/CoachList";
 import CoachDetails from "@/pages/CoachBooking/CoachDetails";
 
@@ -21,6 +21,7 @@ import WalletView from "@/pages/UserView/WalletView";
 import WalletHistoryView from "@/pages/UserView/WalletHistoryView";
 import DepositView from "../pages/UserView/DepositView";
 import SubscribePackageView from "../pages/ServicePackage/SubscribePackageView";
+import SportCenterDetails from "../pages/UserView/SportCenterDetails";
 
 const GeneralRoutes = [
   <Route
@@ -79,10 +80,19 @@ const GeneralRoutes = [
   />,
   <Route // Need update
     key="sports-center"
-    path="/sports-center"
+    path="/sports-centers"
     element={
       <Layout>
         <SportsCenter />
+      </Layout>
+    }
+  />,
+  <Route // Need update
+    key="sports-center"
+    path="/sports-center/:id"
+    element={
+      <Layout>
+        <SportCenterDetails />
       </Layout>
     }
   />,
