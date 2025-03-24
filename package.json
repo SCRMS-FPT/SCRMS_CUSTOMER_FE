@@ -20,6 +20,7 @@
     "@mui/icons-material": "^6.4.7",
     "@mui/material": "^6.4.7",
     "@mui/x-charts": "^7.28.0",
+    "@react-google-maps/api": "^2.20.6",
     "@reduxjs/toolkit": "^2.5.1",
     "@shadcn/ui": "^0.0.4",
     "@tailwindcss/vite": "^4.0.3",

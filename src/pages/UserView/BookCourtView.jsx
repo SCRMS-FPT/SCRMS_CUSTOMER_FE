@@ -70,23 +70,36 @@ const formatTime = (time) => {
   return dayjs(`2023-01-01 ${time}`).format("hh:mm A");
 };
 
+// Format address
+const formatAddress = (sportCenter) => {
+  if (!sportCenter) return "";
+  const parts = [];
+  if (sportCenter.addressLine) parts.push(sportCenter.addressLine);
+  if (sportCenter.commune) parts.push(sportCenter.commune);
+  if (sportCenter.district) parts.push(sportCenter.district);
+  if (sportCenter.city) parts.push(sportCenter.city);
+  return parts.join(", ");
+};
+
 const BookCourtView = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // This is the sportCenterId from URL
   const location = useLocation();
   const navigate = useNavigate();
   const [form] = Form.useForm();
 
-  // Court data
+  // State for API data
+  const [sportCenter, setSportCenter] = useState(null);
   const [courts, setCourts] = useState([]);
-  const [selectedCourtId, setSelectedCourtId] = useState(id || null);
+  const [selectedCourtId, setSelectedCourtId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const [error, setError] = useState(null);
 
   // Booking states
   const [selectedDate, setSelectedDate] = useState(
     location.state?.selectedDate ? dayjs(location.state.selectedDate) : dayjs()
   );
-  const [availableSlotsMap, setAvailableSlotsMap] = useState({});
+  const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedTimeSlots, setSelectedTimeSlots] = useState({});
 
   // UI states
@@ -106,211 +119,110 @@ const BookCourtView = () => {
     },
   ];
 
-  // Fetch court data and available slots
+  // 1. Fetch Sport Center data
   useEffect(() => {
-    const fetchCourts = async () => {
+    const fetchSportCenterData = async () => {
       try {
         setLoading(true);
+        setError(null);
 
-        // In a real app, fetch from the API
-        const courtsData = [
-          {
-            id: "e6e10ea7-2dc2-4700-b59a-7cf85036487e",
-            courtName: "Court 1",
-            sportId: "16d686e5-3c4b-4bb9-8f74-b5b42956c9b4",
-            sportCenterId: "a735b48c-a177-43d9-b467-4e2543f1dfd3",
-            description: "Main tennis court with professional surface",
-            facilities: [
-              { name: "WiFi", description: "High-speed internet" },
-              { name: "Lighting", description: "Bright LED lights" },
-            ],
-            slotDuration: "00:30:00",
-            status: 0,
-            courtType: 1,
-            minDepositPercentage: 0,
-            sportName: "Tennis",
-            sportCenterName: "Sport Center 1",
-            createdAt: "2025-03-19T21:03:39.405585Z",
-            lastModified: null,
-            price: 25,
-            pricePerHour: 50,
-            address: "123 Sports Way, Tennis City",
-            maxPeople: 4,
-          },
-          {
-            id: "f7e10ea7-2dc2-4700-b59a-7cf85036488f",
-            courtName: "Court 2",
-            sportId: "16d686e5-3c4b-4bb9-8f74-b5b42956c9b4",
-            sportCenterId: "a735b48c-a177-43d9-b467-4e2543f1dfd3",
-            description: "Secondary tennis court with clay surface",
-            facilities: [
-              { name: "WiFi", description: "High-speed internet" },
-              { name: "Lighting", description: "Bright LED lights" },
-              { name: "Showers", description: "Clean shower facilities" },
-            ],
-            slotDuration: "00:30:00",
-            status: 0,
-            courtType: 2,
-            minDepositPercentage: 0,
-            sportName: "Tennis",
-            sportCenterName: "Sport Center 1",
-            createdAt: "2025-03-19T21:03:39.405585Z",
-            lastModified: null,
-            price: 20,
-            pricePerHour: 40,
-            address: "123 Sports Way, Tennis City",
-            maxPeople: 4,
-          },
-          {
-            id: "g8e10ea7-2dc2-4700-b59a-7cf85036489g",
-            courtName: "Court 3",
-            sportId: "16d686e5-3c4b-4bb9-8f74-b5b42956c9b4",
-            sportCenterId: "a735b48c-a177-43d9-b467-4e2543f1dfd3",
-            description: "Indoor tennis court with premium surface",
-            facilities: [
-              { name: "WiFi", description: "High-speed internet" },
-              { name: "Lighting", description: "Bright LED lights" },
-              {
-                name: "Air Conditioning",
-                description: "Climate controlled environment",
-              },
-            ],
-            slotDuration: "00:30:00",
-            status: 0,
-            courtType: 3,
-            minDepositPercentage: 0,
-            sportName: "Tennis",
-            sportCenterName: "Sport Center 1",
-            createdAt: "2025-03-19T21:03:39.405585Z",
-            lastModified: null,
-            price: 30,
-            pricePerHour: 60,
-            address: "123 Sports Way, Tennis City",
-            maxPeople: 4,
-          },
-          {
-            id: "h9e10ea7-2dc2-4700-b59a-7cf85036490h",
-            courtName: "Court 4",
-            sportId: "16d686e5-3c4b-4bb9-8f74-b5b42956c9b4",
-            sportCenterId: "a735b48c-a177-43d9-b467-4e2543f1dfd3",
-            description: "Outdoor tennis court with standard surface",
-            facilities: [
-              { name: "Lighting", description: "Bright LED lights" },
-              { name: "Seating", description: "Spectator seating available" },
-            ],
-            slotDuration: "00:30:00",
-            status: 0,
-            courtType: 1,
-            minDepositPercentage: 0,
-            sportName: "Tennis",
-            sportCenterName: "Sport Center 1",
-            createdAt: "2025-03-19T21:03:39.405585Z",
-            lastModified: null,
-            price: 22,
-            pricePerHour: 44,
-            address: "123 Sports Way, Tennis City",
-            maxPeople: 4,
-          },
-        ];
+        if (!id) {
+          throw new Error("Sport Center ID is required");
+        }
 
-        setCourts(courtsData);
+        // Fetch sport center details
+        const sportCenterData = await apiClient.getSportCenterById(id);
+        setSportCenter(sportCenterData);
 
-        // Generate time slots for all courts at once
-        const slotsMap = {};
-        courtsData.forEach((court) => {
-          slotsMap[court.id] = generateTimeSlotsForCourt(court);
-        });
+        // Fetch all courts for this sport center
+        const courtsResponse = await apiClient.getAllCourtsOfSportCenter(id);
 
-        setAvailableSlotsMap(slotsMap);
+        if (
+          courtsResponse &&
+          courtsResponse.courts &&
+          courtsResponse.courts.length > 0
+        ) {
+          setCourts(courtsResponse.courts);
 
-        // Set the ID from the URL param as the selected court, or default to the first court
-        if (id && courtsData.some((court) => court.id === id)) {
-          setSelectedCourtId(id);
-        } else if (courtsData.length > 0) {
-          setSelectedCourtId(courtsData[0].id);
+          // Set the first court as selected by default
+          setSelectedCourtId(courtsResponse.courts[0].id);
+        } else {
+          setCourts([]);
+          setError("No courts available for this sport center");
         }
 
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching court data:", err);
-        setError("Failed to load court details. Please try again later.");
+        console.error("Error fetching data:", err);
+        setError(
+          "Failed to load sport center details. Please try again later."
+        );
         setLoading(false);
       }
     };
 
-    fetchCourts();
+    fetchSportCenterData();
   }, [id]);
 
-  // Create a function to generate time slots for a specific court
-  const generateTimeSlotsForCourt = (court) => {
-    // In real app, this would be fetched from backend
-    const startHour = 8; // 8 AM
-    const endHour = 22; // 10 PM
-    const slotInterval = 30; // 30 minutes
+  // 2. Fetch available slots when court and date are selected
+  useEffect(() => {
+    const fetchAvailableSlots = async () => {
+      if (!selectedCourtId || !selectedDate) return;
 
-    const slots = [];
-    for (let hour = startHour; hour < endHour; hour++) {
-      for (let minute = 0; minute < 60; minute += slotInterval) {
-        const hourFormatted = hour.toString().padStart(2, "0");
-        const minuteFormatted = minute.toString().padStart(2, "0");
+      try {
+        setLoadingSlots(true);
 
-        // Calculate end time
-        let endHour = hour;
-        let endMinute = minute + slotInterval;
+        // Format date for API
+        const startDate = selectedDate.startOf("day").toDate();
+        const endDate = selectedDate.startOf("day").add(1, "day").toDate();
 
-        if (endMinute >= 60) {
-          endHour += 1;
-          endMinute -= 60;
+        // Fetch availability for the selected court and date
+        const availabilityResponse = await apiClient.getCourtAvailability(
+          selectedCourtId,
+          startDate,
+          endDate
+        );
+
+        // Check if we have schedule data for the selected date
+        if (
+          availabilityResponse &&
+          availabilityResponse.schedule &&
+          availabilityResponse.schedule.length > 0
+        ) {
+          // Find the schedule for the selected date
+          const daySchedule = availabilityResponse.schedule.find((day) =>
+            dayjs(day.date).isSame(selectedDate, "day")
+          );
+
+          if (daySchedule && daySchedule.timeSlots) {
+            setAvailableSlots(
+              daySchedule.timeSlots.map((slot) => ({
+                ...slot,
+                isAvailable: slot.status === "AVAILABLE",
+                courtId: selectedCourtId,
+                displayTime: `${slot.startTime} - ${slot.endTime}`,
+              }))
+            );
+          } else {
+            setAvailableSlots([]);
+          }
+        } else {
+          setAvailableSlots([]);
         }
 
-        const endHourFormatted = endHour.toString().padStart(2, "0");
-        const endMinuteFormatted = endMinute.toString().padStart(2, "0");
-
-        const time = `${hourFormatted}:${minuteFormatted}`;
-        const endTime = `${endHourFormatted}:${endMinuteFormatted}`;
-        const displayTime = `${hourFormatted}:${minuteFormatted} - ${endHourFormatted}:${endMinuteFormatted}`;
-
-        // Random availability for demo - unique to this court
-        // In a real app, this would be based on court's actual bookings
-        const isAvailable =
-          Math.random() >
-          (court.courtName === "Court 1"
-            ? 0.4
-            : court.courtName === "Court 2"
-            ? 0.3
-            : court.courtName === "Court 3"
-            ? 0.2
-            : 0.1);
-
-        slots.push({
-          time,
-          endTime,
-          displayTime,
-          isAvailable,
-          slotIndex: slots.length,
-          courtId: court.id, // Attach the court ID to the slot
-        });
+        setLoadingSlots(false);
+      } catch (err) {
+        console.error("Error fetching available slots:", err);
+        setAvailableSlots([]);
+        setLoadingSlots(false);
+        message.error("Failed to load available time slots");
       }
-    }
+    };
 
-    return slots;
-  };
-
-  // Regenerate time slots when date changes
-  useEffect(() => {
-    if (courts.length > 0) {
-      // When date changes, regenerate slots for all courts
-      const slotsMap = {};
-      courts.forEach((court) => {
-        slotsMap[court.id] = generateTimeSlotsForCourt(court);
-      });
-
-      setAvailableSlotsMap(slotsMap);
-
-      // Clear selected time slots when date changes
-      setSelectedTimeSlots({});
-    }
-  }, [selectedDate, courts]);
+    fetchAvailableSlots();
+    // Clear selected time slots when court or date changes
+    setSelectedTimeSlots({});
+  }, [selectedCourtId, selectedDate]);
 
   // Toggle time slot selection
   const toggleTimeSlot = (slot) => {
@@ -326,7 +238,9 @@ const BookCourtView = () => {
 
       // Check if slot is already selected for this court
       const courtSlots = newSlots[slot.courtId];
-      const slotIndex = courtSlots.findIndex((s) => s.time === slot.time);
+      const slotIndex = courtSlots.findIndex(
+        (s) => s.startTime === slot.startTime && s.endTime === slot.endTime
+      );
 
       if (slotIndex >= 0) {
         // Remove slot if already selected
@@ -338,7 +252,7 @@ const BookCourtView = () => {
       } else {
         // Add slot, maintaining chronological order
         courtSlots.push(slot);
-        courtSlots.sort((a, b) => a.time.localeCompare(b.time));
+        courtSlots.sort((a, b) => a.startTime.localeCompare(b.startTime));
       }
 
       return newSlots;
@@ -350,11 +264,9 @@ const BookCourtView = () => {
     let total = 0;
 
     Object.entries(selectedTimeSlots).forEach(([courtId, slots]) => {
-      const court = courts.find((c) => c.id === courtId);
-      if (court) {
-        // Each slot is 30 minutes (0.5 hours)
-        total += slots.length * 0.5 * court.pricePerHour;
-      }
+      slots.forEach((slot) => {
+        total += slot.price || 0;
+      });
     });
 
     return total;
@@ -371,11 +283,6 @@ const BookCourtView = () => {
   // Get the currently selected court
   const getSelectedCourt = () => {
     return courts.find((court) => court.id === selectedCourtId) || null;
-  };
-
-  // Get available slots for the current court
-  const getAvailableSlotsForSelectedCourt = () => {
-    return availableSlotsMap[selectedCourtId] || [];
   };
 
   // Handle court selection
@@ -403,7 +310,35 @@ const BookCourtView = () => {
       // Display loading message
       const loadingMessage = message.loading("Processing your booking...", 0);
 
-      // Simulate API delay
+      // Build booking details array from selected time slots
+      const bookingDetails = [];
+
+      Object.entries(selectedTimeSlots).forEach(([courtId, slots]) => {
+        slots.forEach((slot) => {
+          bookingDetails.push({
+            courtId: courtId,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+          });
+        });
+      });
+
+      // Prepare booking request
+      const bookingRequest = {
+        booking: {
+          userId: "user-id", // Replace with actual user ID or get from auth context
+          bookingDate: selectedDate.format("YYYY-MM-DD"),
+          totalPrice: calculateTotal(),
+          note: values.specialRequests || "",
+          depositAmount: calculateTotal() * 0.3, // 30% deposit
+          bookingDetails: bookingDetails,
+        },
+      };
+
+      // In a real implementation, you would:
+      // const bookingResponse = await apiClient.createBooking(bookingRequest);
+
+      // For now, simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Remove loading message
@@ -412,18 +347,26 @@ const BookCourtView = () => {
       // Show success message
       message.success("Booking completed successfully!");
 
-      // In a real app, you would send the booking data to your API here
       // Navigate to success page
       navigate("/booking-success", {
         state: {
           bookingId:
             "BK" + Math.random().toString(36).substr(2, 9).toUpperCase(),
           courtName: getSelectedCourt()?.courtName,
-          sportCenter: getSelectedCourt()?.sportCenterName,
+          sportCenter: sportCenter?.name,
           date: selectedDate.toDate(),
           timeSlots: selectedTimeSlots,
           totalMinutes: Object.values(selectedTimeSlots).reduce(
-            (total, slots) => total + slots.length * 30,
+            (total, slots) => {
+              // Calculate total minutes based on start and end times
+              let minutes = 0;
+              slots.forEach((slot) => {
+                const start = dayjs(`2023-01-01 ${slot.startTime}`);
+                const end = dayjs(`2023-01-01 ${slot.endTime}`);
+                minutes += end.diff(start, "minute");
+              });
+              return total + minutes;
+            },
             0
           ),
           total: calculateTotal(),
@@ -433,6 +376,7 @@ const BookCourtView = () => {
         },
       });
     } catch (error) {
+      console.error("Booking error:", error);
       message.error("Failed to complete booking. Please try again.");
     }
   };
@@ -521,8 +465,7 @@ const BookCourtView = () => {
                   Back
                 </Button>
                 <Title level={3} style={{ margin: 0 }}>
-                  Book {getSelectedCourt()?.courtName} -{" "}
-                  {getSelectedCourt()?.sportName}
+                  Book a Court at {sportCenter?.name}
                 </Title>
               </div>
             </Card>
@@ -579,36 +522,42 @@ const BookCourtView = () => {
                 {/* Court Selection */}
                 <div style={{ marginBottom: 24 }}>
                   <Title level={5}>Select Court</Title>
-                  <Row gutter={[16, 16]}>
-                    {courts.map((court) => (
-                      <Col key={court.id} xs={12} sm={8} md={6}>
-                        <Card
-                          hoverable
-                          className={
-                            selectedCourtId === court.id ? "selected-court" : ""
-                          }
-                          onClick={() => handleCourtSelect(court.id)}
-                          style={{
-                            textAlign: "center",
-                            border:
+                  {courts.length === 0 ? (
+                    <Empty description="No courts available" />
+                  ) : (
+                    <Row gutter={[16, 16]}>
+                      {courts.map((court) => (
+                        <Col key={court.id} xs={12} sm={8} md={6}>
+                          <Card
+                            hoverable
+                            className={
                               selectedCourtId === court.id
-                                ? "2px solid #1890ff"
-                                : "1px solid #f0f0f0",
-                            background:
-                              selectedCourtId === court.id
-                                ? "#e6f7ff"
-                                : "white",
-                          }}
-                          bodyStyle={{ padding: "12px 8px" }}
-                        >
-                          <Meta
-                            title={court.courtName}
-                            description={`$${court.pricePerHour}/hour`}
-                          />
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
+                                ? "selected-court"
+                                : ""
+                            }
+                            onClick={() => handleCourtSelect(court.id)}
+                            style={{
+                              textAlign: "center",
+                              border:
+                                selectedCourtId === court.id
+                                  ? "2px solid #1890ff"
+                                  : "1px solid #f0f0f0",
+                              background:
+                                selectedCourtId === court.id
+                                  ? "#e6f7ff"
+                                  : "white",
+                            }}
+                            bodyStyle={{ padding: "12px 8px" }}
+                          >
+                            <Meta
+                              title={court.courtName}
+                              description={`${court.sportName || "Sport"}`}
+                            />
+                          </Card>
+                        </Col>
+                      ))}
+                    </Row>
+                  )}
                 </div>
 
                 {/* Time Slot Selection */}
@@ -634,31 +583,49 @@ const BookCourtView = () => {
                     </Text>
                   </div>
 
-                  <Row gutter={[8, 8]}>
-                    {getAvailableSlotsForSelectedCourt().map((slot, index) => (
-                      <Col key={index} xs={12} sm={8} md={6}>
-                        <Button
-                          type={
-                            selectedTimeSlots[slot.courtId]?.some(
-                              (s) => s.time === slot.time
-                            )
-                              ? "primary"
-                              : "default"
-                          }
-                          disabled={!slot.isAvailable}
-                          onClick={() => toggleTimeSlot(slot)}
-                          style={{ width: "100%" }}
-                          className={
-                            !slot.isAvailable
-                              ? "time-slot-unavailable"
-                              : "time-slot"
-                          }
-                        >
-                          {slot.displayTime}
-                        </Button>
-                      </Col>
-                    ))}
-                  </Row>
+                  {loadingSlots ? (
+                    <div style={{ textAlign: "center", padding: "20px" }}>
+                      <Spin size="default" />
+                      <div style={{ marginTop: 8 }}>
+                        Loading available slots...
+                      </div>
+                    </div>
+                  ) : availableSlots.length === 0 ? (
+                    <Empty description="No time slots available for this date" />
+                  ) : (
+                    <Row gutter={[8, 8]}>
+                      {availableSlots.map((slot, index) => (
+                        <Col key={index} xs={12} sm={8} md={6}>
+                          <Button
+                            type={
+                              selectedTimeSlots[slot.courtId]?.some(
+                                (s) =>
+                                  s.startTime === slot.startTime &&
+                                  s.endTime === slot.endTime
+                              )
+                                ? "primary"
+                                : "default"
+                            }
+                            disabled={!slot.isAvailable}
+                            onClick={() => toggleTimeSlot(slot)}
+                            style={{ width: "100%" }}
+                            className={
+                              !slot.isAvailable
+                                ? "time-slot-unavailable"
+                                : "time-slot"
+                            }
+                          >
+                            {slot.displayTime}
+                            <div style={{ fontSize: "10px" }}>
+                              {slot.price
+                                ? `$${(slot.price / 1000).toFixed(2)}`
+                                : ""}
+                            </div>
+                          </Button>
+                        </Col>
+                      ))}
+                    </Row>
+                  )}
 
                   {Object.keys(selectedTimeSlots).length > 0 && (
                     <div style={{ marginTop: 24 }}>
@@ -727,132 +694,251 @@ const BookCourtView = () => {
               </Card>
             )}
 
-            {/* Step 2 - Your Information */}
+            {/* Step 2 - Booking Summary (redesigned with rows instead of tables) */}
             {current === 1 && (
               <Card
                 title={
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <UserOutlined style={{ marginRight: 8 }} />
-                    <span>Your Information</span>
+                    <InfoCircleOutlined style={{ marginRight: 8 }} />
+                    <span>Booking Summary</span>
                   </div>
                 }
                 bordered={false}
                 className="step-card"
               >
-                <Form
-                  layout="vertical"
-                  form={form}
-                  onFinish={next}
-                  initialValues={{
-                    firstName: "",
-                    lastName: "",
-                    email: "",
-                    phone: "",
-                    specialRequests: "",
+                <Alert
+                  message="Booking Details"
+                  description={
+                    <div>
+                      You're about to book{" "}
+                      {Object.keys(selectedTimeSlots).length} court(s) at{" "}
+                      <strong>{sportCenter?.name}</strong> on{" "}
+                      <strong>{formatDate(selectedDate)}</strong>. Total
+                      duration is{" "}
+                      <strong>
+                        {Object.values(selectedTimeSlots).reduce(
+                          (total, slots) => {
+                            let minutes = 0;
+                            slots.forEach((slot) => {
+                              const start = dayjs(
+                                `2023-01-01 ${slot.startTime}`
+                              );
+                              const end = dayjs(`2023-01-01 ${slot.endTime}`);
+                              minutes += end.diff(start, "minute");
+                            });
+                            return total + minutes;
+                          },
+                          0
+                        )}
+                      </strong>{" "}
+                      minutes.
+                    </div>
+                  }
+                  type="info"
+                  showIcon
+                  style={{ marginBottom: 24 }}
+                />
+
+                {/* Booking Information - Row Layout */}
+                <div
+                  className="booking-info-container"
+                  style={{ marginBottom: 24 }}
+                >
+                  <Row gutter={[0, 16]}>
+                    <Col span={24}>
+                      <div className="booking-info-item">
+                        <div className="info-label">
+                          <CalendarOutlined
+                            style={{ marginRight: 8, color: "#1890ff" }}
+                          />
+                          <Text strong>Date:</Text>
+                        </div>
+                        <div className="info-value">
+                          {formatDate(selectedDate)}
+                        </div>
+                      </div>
+                    </Col>
+
+                    <Col span={24}>
+                      <div className="booking-info-item">
+                        <div className="info-label">
+                          <TeamOutlined
+                            style={{ marginRight: 8, color: "#1890ff" }}
+                          />
+                          <Text strong>Sport Center:</Text>
+                        </div>
+                        <div className="info-value">{sportCenter?.name}</div>
+                      </div>
+                    </Col>
+
+                    <Col span={24}>
+                      <div className="booking-info-item">
+                        <div className="info-label">
+                          <EnvironmentOutlined
+                            style={{ marginRight: 8, color: "#1890ff" }}
+                          />
+                          <Text strong>Location:</Text>
+                        </div>
+                        <div className="info-value">
+                          {formatAddress(sportCenter)}
+                        </div>
+                      </div>
+                    </Col>
+
+                    <Col span={24}>
+                      <div className="booking-info-item">
+                        <div className="info-label">
+                          <ClockCircleOutlined
+                            style={{ marginRight: 8, color: "#1890ff" }}
+                          />
+                          <Text strong>Total Duration:</Text>
+                        </div>
+                        <div className="info-value">
+                          {Object.values(selectedTimeSlots).reduce(
+                            (total, slots) => {
+                              let minutes = 0;
+                              slots.forEach((slot) => {
+                                const start = dayjs(
+                                  `2023-01-01 ${slot.startTime}`
+                                );
+                                const end = dayjs(`2023-01-01 ${slot.endTime}`);
+                                minutes += end.diff(start, "minute");
+                              });
+                              return total + minutes;
+                            },
+                            0
+                          )}{" "}
+                          minutes
+                        </div>
+                      </div>
+                    </Col>
+
+                    <Col span={24}>
+                      <div className="booking-info-item">
+                        <div className="info-label">
+                          <AppstoreOutlined
+                            style={{ marginRight: 8, color: "#1890ff" }}
+                          />
+                          <Text strong>Total Courts:</Text>
+                        </div>
+                        <div className="info-value">
+                          {Object.keys(selectedTimeSlots).length}
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+
+                <List
+                  header={
+                    <div style={{ fontWeight: "bold" }}>
+                      Selected Time Slots
+                    </div>
+                  }
+                  bordered
+                  dataSource={Object.entries(selectedTimeSlots)}
+                  renderItem={([courtId, slots]) => {
+                    const court = courts.find((c) => c.id === courtId);
+                    const courtTotal = slots.reduce(
+                      (total, slot) => total + (slot.price || 0),
+                      0
+                    );
+
+                    return (
+                      <List.Item
+                        extra={
+                          <Text strong>
+                            {new Intl.NumberFormat("vi-VN").format(courtTotal)}{" "}
+                            VND
+                          </Text>
+                        }
+                      >
+                        <List.Item.Meta
+                          title={court.courtName}
+                          description={
+                            <div>
+                              {slots.map((slot, index) => (
+                                <Tag key={index} color="blue">
+                                  {slot.displayTime}
+                                </Tag>
+                              ))}
+                              <div style={{ marginTop: 8 }}>
+                                <Text type="secondary">
+                                  {slots.reduce((total, slot) => {
+                                    const start = dayjs(
+                                      `2023-01-01 ${slot.startTime}`
+                                    );
+                                    const end = dayjs(
+                                      `2023-01-01 ${slot.endTime}`
+                                    );
+                                    return total + end.diff(start, "minute");
+                                  }, 0)}{" "}
+                                  minutes
+                                </Text>
+                              </div>
+                            </div>
+                          }
+                        />
+                      </List.Item>
+                    );
+                  }}
+                />
+
+                {/* Price Summary */}
+                <div
+                  style={{
+                    marginTop: 24,
+                    background: "#f9f9f9",
+                    padding: 16,
+                    borderRadius: 8,
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
                   }}
                 >
-                  <Row gutter={16}>
-                    <Col xs={24} sm={12}>
-                      <Form.Item
-                        name="firstName"
-                        label="First Name"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter your first name",
-                          },
-                        ]}
-                      >
-                        <Input
-                          prefix={<UserOutlined />}
-                          placeholder="First Name"
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                      <Form.Item
-                        name="lastName"
-                        label="Last Name"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter your last name",
-                          },
-                        ]}
-                      >
-                        <Input
-                          prefix={<UserOutlined />}
-                          placeholder="Last Name"
-                        />
-                      </Form.Item>
+                  <Row justify="space-between" style={{ marginBottom: 8 }}>
+                    <Col>Subtotal:</Col>
+                    <Col>
+                      {new Intl.NumberFormat("vi-VN").format(
+                        calculateSubtotal()
+                      )}{" "}
+                      VND
                     </Col>
                   </Row>
-
-                  <Row gutter={16}>
-                    <Col xs={24} sm={12}>
-                      <Form.Item
-                        name="email"
-                        label="Email"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter your email",
-                          },
-                          {
-                            type: "email",
-                            message: "Please enter a valid email",
-                          },
-                        ]}
-                      >
-                        <Input prefix={<MailOutlined />} placeholder="Email" />
-                      </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                      <Form.Item
-                        name="phone"
-                        label="Phone Number"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter your phone number",
-                          },
-                        ]}
-                      >
-                        <Input
-                          prefix={<PhoneOutlined />}
-                          placeholder="Phone Number"
-                        />
-                      </Form.Item>
+                  <Row justify="space-between" style={{ marginBottom: 8 }}>
+                    <Col>Tax (10%):</Col>
+                    <Col>
+                      {new Intl.NumberFormat("vi-VN").format(calculateTaxes())}{" "}
+                      VND
                     </Col>
                   </Row>
-
-                  <Form.Item
-                    name="specialRequests"
-                    label="Special Requests (Optional)"
+                  <Divider style={{ margin: "12px 0" }} />
+                  <Row
+                    justify="space-between"
+                    style={{ fontWeight: "bold", fontSize: "16px" }}
                   >
-                    <TextArea
-                      placeholder="Any special requirements or requests..."
-                      rows={4}
-                    />
-                  </Form.Item>
+                    <Col>Total:</Col>
+                    <Col>
+                      {new Intl.NumberFormat("vi-VN").format(calculateTotal())}{" "}
+                      VND
+                    </Col>
+                  </Row>
+                </div>
 
-                  <div
-                    style={{
-                      marginTop: 24,
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Button onClick={prev}>Back</Button>
-                    <Button type="primary" htmlType="submit">
-                      Continue to Payment
-                    </Button>
-                  </div>
-                </Form>
+                <div
+                  style={{
+                    marginTop: 24,
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Button onClick={prev}>Back</Button>
+                  <Button type="primary" onClick={next}>
+                    Continue to Payment
+                  </Button>
+                </div>
               </Card>
             )}
 
-            {/* Step 3 - Payment */}
+            {/* Step 3 - Payment (redesigned for better user experience) */}
             {current === 2 && (
               <Card
                 title={
@@ -871,36 +957,89 @@ const BookCourtView = () => {
                   showIcon
                   style={{ marginBottom: 24 }}
                 />
-                <Divider>Booking Summary</Divider>
-                <Descriptions
-                  bordered
-                  column={{ xs: 1, sm: 2 }}
-                  style={{ marginBottom: 24 }}
-                >
-                  <Descriptions.Item label="Date" span={2}>
-                    {formatDate(selectedDate)}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Total Duration" span={2}>
-                    {Object.values(selectedTimeSlots).reduce(
-                      (total, slots) => total + slots.length * 30,
-                      0
-                    )}{" "}
-                    minutes
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Total Courts" span={2}>
-                    {Object.keys(selectedTimeSlots).length}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Your Information" span={2}>
-                    <div>
-                      <div>
-                        {form.getFieldValue("firstName")}{" "}
-                        {form.getFieldValue("lastName")}
-                      </div>
-                      <div>{form.getFieldValue("email")}</div>
-                      <div>{form.getFieldValue("phone")}</div>
-                    </div>
-                  </Descriptions.Item>
-                </Descriptions>
+
+                <div className="booking-summary-section">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 16,
+                    }}
+                  >
+                    <CalendarOutlined
+                      style={{ fontSize: 18, marginRight: 8, color: "#1890ff" }}
+                    />
+                    <Title level={5} style={{ margin: 0 }}>
+                      Booking Summary
+                    </Title>
+                  </div>
+
+                  <div
+                    className="summary-container"
+                    style={{
+                      background: "#f5f7fa",
+                      padding: 16,
+                      borderRadius: 8,
+                      marginBottom: 24,
+                    }}
+                  >
+                    <Row gutter={[0, 12]}>
+                      <Col span={24}>
+                        <div className="summary-item">
+                          <Text strong>Date:</Text>
+                          <Text>{formatDate(selectedDate)}</Text>
+                        </div>
+                      </Col>
+
+                      <Col span={24}>
+                        <div className="summary-item">
+                          <Text strong>Sport Center:</Text>
+                          <Text>{sportCenter?.name}</Text>
+                        </div>
+                      </Col>
+
+                      <Col span={24}>
+                        <div className="summary-item">
+                          <Text strong>Location:</Text>
+                          <Text>{formatAddress(sportCenter)}</Text>
+                        </div>
+                      </Col>
+
+                      <Col span={24}>
+                        <div className="summary-item">
+                          <Text strong>Total Duration:</Text>
+                          <Text>
+                            {Object.values(selectedTimeSlots).reduce(
+                              (total, slots) => {
+                                let minutes = 0;
+                                slots.forEach((slot) => {
+                                  const start = dayjs(
+                                    `2023-01-01 ${slot.startTime}`
+                                  );
+                                  const end = dayjs(
+                                    `2023-01-01 ${slot.endTime}`
+                                  );
+                                  minutes += end.diff(start, "minute");
+                                });
+                                return total + minutes;
+                              },
+                              0
+                            )}{" "}
+                            minutes
+                          </Text>
+                        </div>
+                      </Col>
+
+                      <Col span={24}>
+                        <div className="summary-item">
+                          <Text strong>Total Courts:</Text>
+                          <Text>{Object.keys(selectedTimeSlots).length}</Text>
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+                </div>
+
                 <List
                   header={
                     <div style={{ fontWeight: "bold" }}>
@@ -911,11 +1050,19 @@ const BookCourtView = () => {
                   dataSource={Object.entries(selectedTimeSlots)}
                   renderItem={([courtId, slots]) => {
                     const court = courts.find((c) => c.id === courtId);
-                    const courtTotal = slots.length * 0.5 * court.pricePerHour;
+                    const courtTotal = slots.reduce(
+                      (total, slot) => total + (slot.price || 0),
+                      0
+                    );
 
                     return (
                       <List.Item
-                        extra={<Text strong>${courtTotal.toFixed(2)}</Text>}
+                        extra={
+                          <Text strong>
+                            {new Intl.NumberFormat("vi-VN").format(courtTotal)}{" "}
+                            VND
+                          </Text>
+                        }
                       >
                         <List.Item.Meta
                           title={court.courtName}
@@ -928,8 +1075,16 @@ const BookCourtView = () => {
                               ))}
                               <div style={{ marginTop: 8 }}>
                                 <Text type="secondary">
-                                  {slots.length * 30} minutes (
-                                  {slots.length * 0.5} hours)
+                                  {slots.reduce((total, slot) => {
+                                    const start = dayjs(
+                                      `2023-01-01 ${slot.startTime}`
+                                    );
+                                    const end = dayjs(
+                                      `2023-01-01 ${slot.endTime}`
+                                    );
+                                    return total + end.diff(start, "minute");
+                                  }, 0)}{" "}
+                                  minutes
                                 </Text>
                               </div>
                             </div>
@@ -939,23 +1094,32 @@ const BookCourtView = () => {
                     );
                   }}
                 />
-                // Completing the payment section and enhancing UI/UX //
-                Complete the payment summary section
+
+                {/* Payment summary section with VND currency */}
                 <div
                   style={{
                     marginTop: 24,
                     background: "#f9f9f9",
                     padding: 16,
                     borderRadius: 8,
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
                   }}
                 >
                   <Row justify="space-between" style={{ marginBottom: 8 }}>
                     <Col>Subtotal:</Col>
-                    <Col>${calculateSubtotal().toFixed(2)}</Col>
+                    <Col>
+                      {new Intl.NumberFormat("vi-VN").format(
+                        calculateSubtotal()
+                      )}{" "}
+                      VND
+                    </Col>
                   </Row>
                   <Row justify="space-between" style={{ marginBottom: 8 }}>
                     <Col>Tax (10%):</Col>
-                    <Col>${calculateTaxes().toFixed(2)}</Col>
+                    <Col>
+                      {new Intl.NumberFormat("vi-VN").format(calculateTaxes())}{" "}
+                      VND
+                    </Col>
                   </Row>
                   <Divider style={{ margin: "12px 0" }} />
                   <Row
@@ -963,10 +1127,14 @@ const BookCourtView = () => {
                     style={{ fontWeight: "bold", fontSize: "16px" }}
                   >
                     <Col>Total:</Col>
-                    <Col>${calculateTotal().toFixed(2)}</Col>
+                    <Col>
+                      {new Intl.NumberFormat("vi-VN").format(calculateTotal())}{" "}
+                      VND
+                    </Col>
                   </Row>
                 </div>
-                {/* Payment method selection */}
+
+                {/* Payment method selection - Pay Online disabled */}
                 <Divider>Payment Method</Divider>
                 <Radio.Group
                   defaultValue="venue"
@@ -978,6 +1146,7 @@ const BookCourtView = () => {
                         size="small"
                         style={{ marginLeft: 8, marginBottom: 8 }}
                         bodyStyle={{ padding: 12 }}
+                        hoverable
                       >
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <BankOutlined
@@ -1004,10 +1173,10 @@ const BookCourtView = () => {
                       </Card>
                     </Radio>
 
-                    <Radio value="online">
+                    <Radio value="online" disabled>
                       <Card
                         size="small"
-                        style={{ marginLeft: 8, opacity: 0.6 }}
+                        style={{ marginLeft: 8, opacity: 0.5 }}
                         bodyStyle={{ padding: 12 }}
                       >
                         <div style={{ display: "flex", alignItems: "center" }}>
@@ -1026,7 +1195,7 @@ const BookCourtView = () => {
                                 fontSize: "12px",
                               }}
                             >
-                              Secure payment via bank
+                              Coming soon - Currently in development
                             </div>
                           </div>
                         </div>
@@ -1034,6 +1203,7 @@ const BookCourtView = () => {
                     </Radio>
                   </Space>
                 </Radio.Group>
+
                 {/* Terms & Conditions */}
                 <Form.Item
                   name="agreement"
@@ -1056,6 +1226,7 @@ const BookCourtView = () => {
                     <a href="#privacy">privacy policy</a>
                   </Checkbox>
                 </Form.Item>
+
                 {/* Action Buttons */}
                 <div
                   style={{
@@ -1074,11 +1245,18 @@ const BookCourtView = () => {
                         selectedCourt?.courtName
                       } on ${formatDate(selectedDate)} for ${Object.values(
                         selectedTimeSlots
-                      ).reduce(
-                        (total, slots) => total + slots.length * 30,
-                        0
-                      )} minutes`;
-                      const amount = calculateTotal().toFixed(2);
+                      ).reduce((total, slots) => {
+                        let minutes = 0;
+                        slots.forEach((slot) => {
+                          const start = dayjs(`2023-01-01 ${slot.startTime}`);
+                          const end = dayjs(`2023-01-01 ${slot.endTime}`);
+                          minutes += end.diff(start, "minute");
+                        });
+                        return total + minutes;
+                      }, 0)} minutes`;
+
+                      // Use full amount (no division by 1000)
+                      const amount = calculateTotal();
                       const account = "999923062003"; // Replace with your account number
                       const bank = "MBBank"; // Replace with your bank code
 
@@ -1089,7 +1267,7 @@ const BookCourtView = () => {
                       window.open(qrUrl, "_blank", "width=400,height=400");
 
                       // Continue with booking process
-                      handleBooking(form.getFieldsValue());
+                      handleBooking({});
                     }}
                     size="large"
                     icon={<CheckCircleOutlined />}
@@ -1103,19 +1281,24 @@ const BookCourtView = () => {
 
           {/* Right Column - Booking Summary */}
           <Col xs={24} lg={8}>
-            {/* Court Information Card */}
+            {/* Court/Sport Center Information Card */}
             <Card
               title={
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <TeamOutlined style={{ marginRight: 8 }} />
-                  <span>Court Information</span>
+                  <span>
+                    {getSelectedCourt()
+                      ? "Court Information"
+                      : "Sport Center Information"}
+                  </span>
                 </div>
               }
               className="summary-card"
               style={{ marginBottom: 24 }}
               bordered={false}
             >
-              {getSelectedCourt() && (
+              {getSelectedCourt() ? (
+                // Court Information
                 <>
                   <div style={{ textAlign: "center", marginBottom: 16 }}>
                     <Avatar
@@ -1129,7 +1312,7 @@ const BookCourtView = () => {
                         justifyContent: "center",
                       }}
                     >
-                      {getSelectedCourt().sportName?.charAt(0)}
+                      {getSelectedCourt().sportName?.charAt(0) || "C"}
                     </Avatar>
                     <Title level={4} style={{ margin: 0 }}>
                       {getSelectedCourt().courtName}
@@ -1150,20 +1333,28 @@ const BookCourtView = () => {
                         icon: <AppstoreOutlined style={{ color: "#1890ff" }} />,
                       },
                       {
-                        title: "Price",
-                        description: `$${getSelectedCourt().pricePerHour}/hour`,
-                        icon: <DollarOutlined style={{ color: "#52c41a" }} />,
-                      },
-                      {
-                        title: "Address",
-                        description: getSelectedCourt().address,
+                        title: "Duration",
+                        description:
+                          getSelectedCourt().slotDuration?.replace(
+                            "00:00:00",
+                            ""
+                          ) || "1 hour",
                         icon: (
-                          <EnvironmentOutlined style={{ color: "#faad14" }} />
+                          <ClockCircleOutlined style={{ color: "#52c41a" }} />
                         ),
                       },
                       {
-                        title: "Max Capacity",
-                        description: `${getSelectedCourt().maxPeople} people`,
+                        title: "Status",
+                        description: getCourtStatusBadge(
+                          getSelectedCourt().status
+                        ),
+                        icon: (
+                          <InfoCircleOutlined style={{ color: "#faad14" }} />
+                        ),
+                      },
+                      {
+                        title: "Sport Center",
+                        description: sportCenter?.name,
                         icon: <TeamOutlined style={{ color: "#722ed1" }} />,
                       },
                     ]}
@@ -1193,16 +1384,101 @@ const BookCourtView = () => {
                         >
                           Facilities
                         </Divider>
-                        {/* <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                        {getSelectedCourt().facilities.map((facility, index) => (
-                          // <Tooltip key={index} title={facility.description}>
-                          //   <Tag color="blue">{facility.name}</Tag>
-                          // </Tooltip>
-                        ))}
-                      </div> */}
+                        <div
+                          style={{ display: "flex", flexWrap: "wrap", gap: 8 }}
+                        >
+                          {getSelectedCourt().facilities.map(
+                            (facility, index) => (
+                              <Tag
+                                key={index}
+                                color="blue"
+                                title={facility.description}
+                              >
+                                {facility.name}
+                              </Tag>
+                            )
+                          )}
+                        </div>
                       </>
                     )}
                 </>
+              ) : (
+                // Sport Center Information
+                sportCenter && (
+                  <>
+                    <div style={{ textAlign: "center", marginBottom: 16 }}>
+                      <Avatar
+                        size={80}
+                        src={sportCenter.avatar}
+                        style={{
+                          backgroundColor: "#f0f5ff",
+                          marginBottom: 12,
+                        }}
+                      >
+                        {sportCenter.name?.charAt(0)}
+                      </Avatar>
+                      <Title level={4} style={{ margin: 0 }}>
+                        {sportCenter.name}
+                      </Title>
+                      <Text type="secondary">{formatAddress(sportCenter)}</Text>
+                    </div>
+
+                    <Divider style={{ margin: "16px 0" }} />
+
+                    <List
+                      itemLayout="horizontal"
+                      dataSource={[
+                        {
+                          title: "Address",
+                          description: formatAddress(sportCenter),
+                          icon: (
+                            <EnvironmentOutlined style={{ color: "#1890ff" }} />
+                          ),
+                        },
+                        {
+                          title: "Phone",
+                          description:
+                            sportCenter.phoneNumber || "Not available",
+                          icon: <PhoneOutlined style={{ color: "#52c41a" }} />,
+                        },
+                        {
+                          title: "Available Courts",
+                          description: `${courts.length} courts`,
+                          icon: (
+                            <AppstoreOutlined style={{ color: "#faad14" }} />
+                          ),
+                        },
+                      ]}
+                      renderItem={(item) => (
+                        <List.Item>
+                          <List.Item.Meta
+                            avatar={
+                              <Avatar
+                                icon={item.icon}
+                                style={{ backgroundColor: "transparent" }}
+                              />
+                            }
+                            title={item.title}
+                            description={item.description}
+                          />
+                        </List.Item>
+                      )}
+                    />
+
+                    {sportCenter.description && (
+                      <>
+                        <Divider
+                          orientation="left"
+                          plain
+                          style={{ fontSize: 14 }}
+                        >
+                          Description
+                        </Divider>
+                        <Paragraph>{sportCenter.description}</Paragraph>
+                      </>
+                    )}
+                  </>
+                )
               )}
             </Card>
 
@@ -1236,7 +1512,15 @@ const BookCourtView = () => {
                     {
                       title: "Total Duration",
                       description: `${Object.values(selectedTimeSlots).reduce(
-                        (total, slots) => total + slots.length * 30,
+                        (total, slots) => {
+                          let minutes = 0;
+                          slots.forEach((slot) => {
+                            const start = dayjs(`2023-01-01 ${slot.startTime}`);
+                            const end = dayjs(`2023-01-01 ${slot.endTime}`);
+                            minutes += end.diff(start, "minute");
+                          });
+                          return total + minutes;
+                        },
                         0
                       )} minutes`,
                       icon: (
@@ -1294,8 +1578,7 @@ const BookCourtView = () => {
 
                     <Statistic
                       title="Total Price"
-                      value={calculateTotal()}
-                      precision={2}
+                      value={(calculateTotal() / 1000).toFixed(2)}
                       prefix="$"
                       valueStyle={{ color: "#1890ff", fontWeight: "bold" }}
                     />
@@ -1308,6 +1591,42 @@ const BookCourtView = () => {
 
         {/* Custom CSS */}
         <style jsx>{`
+          .booking-info-item,
+          .summary-item {
+            display: flex;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+          }
+
+          .summary-item {
+            display: flex;
+            justify-content: space-between;
+          }
+
+          .info-label {
+            display: flex;
+            align-items: center;
+            min-width: 150px;
+          }
+
+          .info-value {
+            flex: 1;
+          }
+
+          .booking-info-container {
+            background: #f5f7fa;
+            padding: 16px;
+            border-radius: 8px;
+          }
+
+          .booking-info-container .booking-info-item:last-child {
+            border-bottom: none;
+          }
+
+          .summary-container .summary-item:last-child {
+            border-bottom: none;
+          }
           .step-card {
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
             border-radius: 8px;
