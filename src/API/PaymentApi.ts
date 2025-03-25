@@ -268,6 +268,7 @@ export class ProcessPaymentRequest implements IProcessPaymentRequest {
     coachId?: string | undefined;
     bookingId?: string | undefined;
     packageId?: string | undefined;
+    status?: string | undefined;
 
     constructor(data?: IProcessPaymentRequest) {
         if (data) {
@@ -287,6 +288,7 @@ export class ProcessPaymentRequest implements IProcessPaymentRequest {
             this.coachId = _data["coachId"];
             this.bookingId = _data["bookingId"];
             this.packageId = _data["packageId"];
+            this.status = _data["status"];
         }
     }
 
@@ -306,6 +308,7 @@ export class ProcessPaymentRequest implements IProcessPaymentRequest {
         data["coachId"] = this.coachId;
         data["bookingId"] = this.bookingId;
         data["packageId"] = this.packageId;
+        data["status"] = this.status;
         return data;
     }
 }
@@ -318,6 +321,7 @@ export interface IProcessPaymentRequest {
     coachId?: string | undefined;
     bookingId?: string | undefined;
     packageId?: string | undefined;
+    status?: string | undefined;
 }
 
 
