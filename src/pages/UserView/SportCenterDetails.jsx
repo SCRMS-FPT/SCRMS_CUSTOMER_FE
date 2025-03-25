@@ -27,7 +27,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  IconButton,
+  Avatar,
 } from "@mui/material";
 import {
   Phone,
@@ -39,10 +39,11 @@ import {
   Spa,
   Event,
   Check,
+  Star,
+  Info,
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { Client } from "../../API/CourtApi";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 const SportCenterDetails = () => {
   const courtClient = new Client();
@@ -63,18 +64,6 @@ const SportCenterDetails = () => {
   const [sports, setSports] = useState([]);
   const [selectedSport, setSelectedSport] = useState("");
 
-  // Google Maps config
-  const mapContainerStyle = {
-    width: "100%",
-    height: "200px",
-    borderRadius: "4px",
-  };
-
-  const defaultCenter = {
-    lat: 21.0285, // Default to Hanoi if coordinates not available
-    lng: 105.8542,
-  };
-
   const getCourtTypeName = (type) => {
     switch (type) {
       case 1:
@@ -94,14 +83,6 @@ const SportCenterDetails = () => {
       try {
         const data = await courtClient.getSportCenterById(id);
         setSportCenter(data);
-
-        // Set map center based on sport center's coordinates
-        if (data.latitude && data.longitude) {
-          setMapCenter({
-            lat: data.latitude,
-            lng: data.longitude,
-          });
-        }
       } catch (err) {
         setError("Failed to load sport center details");
         console.error(err);
@@ -134,11 +115,11 @@ const SportCenterDetails = () => {
       try {
         const courtTypeValue =
           courtType === "indoor"
-            ? 1
+            ? "Indoor"
             : courtType === "outdoor"
-            ? 2
+            ? "Outdoor"
             : courtType === "rooftop"
-            ? 3
+            ? "Rooftop"
             : undefined;
 
         const response = await courtClient.getCourts(
@@ -178,8 +159,6 @@ const SportCenterDetails = () => {
     setPage(value);
   };
 
-  const [mapCenter, setMapCenter] = useState(defaultCenter);
-
   if (loading) {
     return (
       <Box
@@ -217,37 +196,75 @@ const SportCenterDetails = () => {
         component={Link}
         to="/sports-centers"
         startIcon={<ArrowBack />}
-        sx={{ mb: 2 }}
+        sx={{ mb: 3 }}
+        variant="outlined"
       >
         Back to Sports Centers
       </Button>
 
-      {/* Main Image and Basic Info */}
-      <Card sx={{ mb: 4, borderRadius: 2, overflow: "hidden" }}>
-        <CardMedia
-          component="img"
-          height="400"
-          image={
-            sportCenter.avatar ||
-            "https://via.placeholder.com/800x400?text=No+Image"
-          }
-          alt={sportCenter.name}
-          sx={{ objectFit: "cover" }}
-        />
-        <CardContent sx={{ py: 3 }}>
-          <Typography gutterBottom variant="h4" component="h1">
-            {sportCenter.name}
-          </Typography>
-          <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
-            <LocationOn color="primary" />
-            <Typography variant="body1">{fullAddress}</Typography>
-          </Stack>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Phone color="primary" />
-            <Typography variant="body1">{sportCenter.phoneNumber}</Typography>
-          </Stack>
-        </CardContent>
-      </Card>
+      {/* Main Info Card - Improved layout */}
+      <Paper elevation={3} sx={{ mb: 4, borderRadius: 2, overflow: "hidden" }}>
+        <Grid container>
+          {/* Left side - Image */}
+          <Grid item xs={12} md={4}>
+            <CardMedia
+              component="img"
+              height="300"
+              image={
+                sportCenter.avatar ||
+                "https://via.placeholder.com/800x400?text=No+Image"
+              }
+              alt={sportCenter.name}
+              sx={{ objectFit: "cover", height: "100%" }}
+            />
+          </Grid>
+          {/* Right side - Info */}
+          <Grid item xs={12} md={8}>
+            <CardContent sx={{ p: 3, height: "100%" }}>
+              <Typography
+                gutterBottom
+                variant="h4"
+                component="h1"
+                sx={{ fontWeight: 600, mb: 2 }}
+              >
+                {sportCenter.name}
+              </Typography>
+
+              <Stack spacing={2} sx={{ mb: 3 }}>
+                <Box display="flex" alignItems="center">
+                  <LocationOn color="primary" sx={{ mr: 1 }} />
+                  <Typography variant="body1">{fullAddress}</Typography>
+                </Box>
+
+                <Box display="flex" alignItems="center">
+                  <Phone color="primary" sx={{ mr: 1 }} />
+                  <Typography variant="body1">
+                    {sportCenter.phoneNumber}
+                  </Typography>
+                </Box>
+
+                <Box display="flex" alignItems="center">
+                  <Info color="primary" sx={{ mr: 1 }} />
+                  <Typography variant="body2" color="text.secondary">
+                    Created on:{" "}
+                    {new Date(sportCenter.createdAt).toLocaleDateString()}
+                  </Typography>
+                </Box>
+              </Stack>
+
+              <Button
+                variant="contained"
+                color="primary"
+                component={Link}
+                to={`/sports-centers/${sportCenter.id}/all-courts`}
+                sx={{ mt: 2 }}
+              >
+                View All Courts
+              </Button>
+            </CardContent>
+          </Grid>
+        </Grid>
+      </Paper>
 
       <Grid container spacing={4}>
         {/* Left Column */}
@@ -256,13 +273,18 @@ const SportCenterDetails = () => {
           <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
             <Typography
               variant="h6"
-              sx={{ mb: 2, display: "flex", alignItems: "center" }}
+              sx={{
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                fontWeight: "bold",
+              }}
             >
               <Description sx={{ mr: 1 }} />
               About
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            <Typography variant="body1">
+            <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
               {sportCenter.description || "No description available."}
             </Typography>
           </Paper>
@@ -271,7 +293,12 @@ const SportCenterDetails = () => {
           <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
             <Typography
               variant="h6"
-              sx={{ mb: 2, display: "flex", alignItems: "center" }}
+              sx={{
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                fontWeight: "bold",
+              }}
             >
               <SportsTennis sx={{ mr: 1 }} />
               Available Courts
@@ -368,6 +395,7 @@ const SportCenterDetails = () => {
                                   ? "success"
                                   : "warning"
                               }
+                              sx={{ fontWeight: 500 }}
                             />
                           </Box>
 
@@ -433,7 +461,16 @@ const SportCenterDetails = () => {
                             variant="contained"
                             fullWidth
                             component={Link}
-                            to={`/book-court/${court.id}`}
+                            to={{
+                              pathname: `/book-court/${sportCenter.id}`,
+                              search: `?courtId=${court.id}`,
+                            }}
+                            state={{
+                              preselectedCourt: court.id,
+                              sportCenterId: sportCenter.id,
+                              courtName: court.courtName,
+                              sportName: court.sportName,
+                            }}
                             color="primary"
                           >
                             Book Court
@@ -459,14 +496,14 @@ const SportCenterDetails = () => {
             )}
           </Paper>
 
-          {/* Image Gallery */}
+          {/* Image Gallery - Improved */}
           {sportCenter.imageUrls && sportCenter.imageUrls.length > 0 && (
             <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
                 Photo Gallery
               </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <ImageList cols={3} gap={8}>
+              <Divider sx={{ mb: 3 }} />
+              <ImageList cols={2} gap={16} sx={{ mb: 2 }}>
                 {sportCenter.imageUrls.map((image, index) => (
                   <ImageListItem key={index}>
                     <img
@@ -475,7 +512,8 @@ const SportCenterDetails = () => {
                       loading="lazy"
                       style={{
                         borderRadius: 8,
-                        height: 200,
+                        height: 220,
+                        width: "100%",
                         objectFit: "cover",
                       }}
                     />
@@ -488,58 +526,94 @@ const SportCenterDetails = () => {
 
         {/* Right Column */}
         <Grid item xs={12} md={4}>
-          {/* Map Location */}
+          {/* Map Location - Using OpenStreetMap Embed instead of Google Maps */}
           <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
               Location
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            <LoadScript googleMapsApiKey="AIzaSyBqdZHDyUoIWsJJSOEjdmN2AQK1B4xUQHc">
-              <GoogleMap
-                mapContainerStyle={mapContainerStyle}
-                center={mapCenter}
-                zoom={14}
-              >
-                <Marker position={mapCenter} />
-              </GoogleMap>
-            </LoadScript>
+
+            {/* OpenStreetMap embed that doesn't require API key */}
+            <iframe
+              width="100%"
+              height="250"
+              frameBorder="0"
+              scrolling="no"
+              marginHeight="0"
+              marginWidth="0"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${
+                sportCenter.longitude - 0.01
+              }%2C${sportCenter.latitude - 0.01}%2C${
+                sportCenter.longitude + 0.01
+              }%2C${sportCenter.latitude + 0.01}&amp;layer=mapnik&amp;marker=${
+                sportCenter.latitude
+              }%2C${sportCenter.longitude}`}
+              style={{ borderRadius: 8, border: "1px solid #ddd" }}
+            ></iframe>
+
             <Box mt={2}>
-              <Typography variant="body2">
-                <Box component="span" fontWeight="bold">
-                  Address:
-                </Box>{" "}
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                Address:
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
                 {fullAddress}
               </Typography>
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                <Box component="span" fontWeight="bold">
-                  Coordinates:
-                </Box>{" "}
-                {sportCenter.latitude}, {sportCenter.longitude}
+
+              <Typography variant="body2" sx={{ fontWeight: 500, mt: 1 }}>
+                Coordinates:
               </Typography>
+              <Typography variant="body2">
+                {sportCenter.latitude.toFixed(4)},{" "}
+                {sportCenter.longitude.toFixed(4)}
+              </Typography>
+
+              <Button
+                variant="outlined"
+                size="small"
+                fullWidth
+                sx={{ mt: 2 }}
+                href={`https://www.openstreetmap.org/?mlat=${sportCenter.latitude}&mlon=${sportCenter.longitude}#map=16/${sportCenter.latitude}/${sportCenter.longitude}`}
+                target="_blank"
+              >
+                Open in Maps
+              </Button>
             </Box>
           </Paper>
 
           {/* Additional Info */}
           <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
               Additional Information
             </Typography>
             <Divider sx={{ mb: 2 }} />
-            <Stack spacing={1.5}>
-              <Box display="flex" alignItems="center">
-                <CalendarMonth sx={{ mr: 1, color: "text.secondary" }} />
-                <Typography variant="body2">
-                  Created:{" "}
-                  {format(new Date(sportCenter.createdAt), "MMMM dd, yyyy")}
+            <Stack spacing={2}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Sport Center ID:
+                </Typography>
+                <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
+                  {sportCenter.id}
                 </Typography>
               </Box>
-              <Box display="flex" alignItems="center">
-                <CalendarMonth sx={{ mr: 1, color: "text.secondary" }} />
+
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Created On:
+                </Typography>
                 <Typography variant="body2">
-                  Last Modified:{" "}
-                  {format(new Date(sportCenter.lastModified), "MMMM dd, yyyy")}
+                  {new Date(sportCenter.createdAt).toLocaleString()}
                 </Typography>
               </Box>
+
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Last Updated:
+                </Typography>
+                <Typography variant="body2">
+                  {new Date(sportCenter.lastModified).toLocaleString()}
+                </Typography>
+              </Box>
+
               <Box sx={{ mt: 2 }}>
                 <Button
                   variant="contained"
