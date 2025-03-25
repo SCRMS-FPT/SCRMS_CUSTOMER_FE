@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { Client } from "../../API/CourtApi";
+import { Client as CourtClient } from "../../API/CourtApi";
+import { Client as PaymentClient } from "../../API/PaymentApi";
 import {
   Layout,
   Typography,
@@ -14,20 +15,15 @@ import {
   Tag,
   Badge,
   Form,
-  Input,
-  Select,
   Checkbox,
   Radio,
   Alert,
   Divider,
-  Tabs,
   List,
-  Skeleton,
   Avatar,
   Result,
   Spin,
   Empty,
-  Descriptions,
   Statistic,
   message,
 } from "antd";
@@ -39,35 +35,27 @@ import {
   UserOutlined,
   InfoCircleOutlined,
   CheckCircleOutlined,
-  DollarOutlined,
   EnvironmentOutlined,
   PhoneOutlined,
-  MailOutlined,
   TagOutlined,
   BankOutlined,
   AppstoreOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { API_PAYMENT_URL } from "../../API/config";
+import { ProcessPaymentRequest } from "../../API/PaymentApi";
 
 const { Title, Text, Paragraph } = Typography;
 const { Content } = Layout;
-const { Step } = Steps;
-const { TabPane } = Tabs;
-const { TextArea } = Input;
 const { Meta } = Card;
 
 // API client instance
-const apiClient = new Client();
+const apiClient = new CourtClient();
 
 // Helper function to format date
 const formatDate = (date) => {
   return dayjs(date).format("MMMM D, YYYY");
-};
-
-// Helper function to format time
-const formatTime = (time) => {
-  return dayjs(`2023-01-01 ${time}`).format("hh:mm A");
 };
 
 // Format address
@@ -85,7 +73,6 @@ const BookCourtView = () => {
   const { id } = useParams(); // This is the sportCenterId from URL
   const location = useLocation();
   const navigate = useNavigate();
-  const [form] = Form.useForm();
 
   // State for API data
   const [sportCenter, setSportCenter] = useState(null);
@@ -134,18 +121,26 @@ const BookCourtView = () => {
         const sportCenterData = await apiClient.getSportCenterById(id);
         setSportCenter(sportCenterData);
 
-        // Fetch all courts for this sport center
-        const courtsResponse = await apiClient.getAllCourtsOfSportCenter(id);
+        // Change from getAllCourtsOfSportCenter to getCourts with sportCenterId parameter
+        const courtsResponse = await apiClient.getCourts(
+          0, // pageIndex
+          50, // pageSize - set to a high number to get all courts
+          id, // sportCenterId
+          undefined, // sportId - not filtering by sport
+          undefined // courtType - not filtering by court type
+        );
 
         if (
           courtsResponse &&
           courtsResponse.courts &&
-          courtsResponse.courts.length > 0
+          courtsResponse.courts.data &&
+          courtsResponse.courts.data.length > 0
         ) {
-          setCourts(courtsResponse.courts);
+          // Update to use the data array from the paginated result
+          setCourts(courtsResponse.courts.data);
 
           // Set the first court as selected by default
-          setSelectedCourtId(courtsResponse.courts[0].id);
+          setSelectedCourtId(courtsResponse.courts.data[0].id);
         } else {
           setCourts([]);
           setError("No courts available for this sport center");
@@ -225,6 +220,7 @@ const BookCourtView = () => {
   }, [selectedCourtId, selectedDate]);
 
   // Toggle time slot selection
+  // Update the toggleTimeSlot function to include promotion discount
   const toggleTimeSlot = (slot) => {
     if (!slot.isAvailable) return;
 
@@ -250,8 +246,22 @@ const BookCourtView = () => {
           delete newSlots[slot.courtId];
         }
       } else {
+        // Get active promotions for this court
+        const court = courts.find((c) => c.id === slot.courtId);
+        const activePromos = getActivePromotions(court);
+
+        // Add slot with original and discounted price
+        const slotWithDiscount = {
+          ...slot,
+          originalPrice: slot.price,
+          price:
+            activePromos.length > 0
+              ? calculateDiscountedPrice(slot.price, activePromos[0])
+              : slot.price,
+        };
+
         // Add slot, maintaining chronological order
-        courtSlots.push(slot);
+        courtSlots.push(slotWithDiscount);
         courtSlots.sort((a, b) => a.startTime.localeCompare(b.startTime));
       }
 
@@ -279,7 +289,41 @@ const BookCourtView = () => {
   const calculateTotal = () => {
     return calculateSubtotal() + calculateTaxes();
   };
+  const formatPromotion = (promotion) => {
+    if (promotion.discountType === "Percentage") {
+      return `${promotion.discountValue}% off`;
+    } else if (promotion.discountType === "FixedAmount") {
+      return `${new Intl.NumberFormat("vi-VN").format(
+        promotion.discountValue
+      )} VND off`;
+    }
+    return "";
+  };
 
+  // Get active promotions from a court
+  const getActivePromotions = (court) => {
+    if (!court || !court.promotions || court.promotions.length === 0) {
+      return [];
+    }
+
+    const now = dayjs();
+    return court.promotions.filter((promo) => {
+      const validFrom = dayjs(promo.validFrom);
+      const validTo = dayjs(promo.validTo);
+      return now.isAfter(validFrom) && now.isBefore(validTo);
+    });
+  };
+  const calculateDiscountedPrice = (price, promotion) => {
+    if (!promotion) return price;
+
+    if (promotion.discountType === "Percentage") {
+      return price * (1 - promotion.discountValue / 100);
+    } else if (promotion.discountType === "FixedAmount") {
+      return Math.max(0, price - promotion.discountValue);
+    }
+
+    return price;
+  };
   // Get the currently selected court
   const getSelectedCourt = () => {
     return courts.find((court) => court.id === selectedCourtId) || null;
@@ -300,84 +344,115 @@ const BookCourtView = () => {
   };
 
   // Handle booking submission
-  const handleBooking = async (values) => {
+  // Update the handleBooking function to implement the booking flow
+  const handleBooking = async () => {
     if (Object.keys(selectedTimeSlots).length === 0) {
       message.error("Please select at least one time slot");
       return;
     }
 
     try {
-      // Display loading message
-      const loadingMessage = message.loading("Processing your booking...", 0);
+      // Show loading
+      message.loading({
+        content: "Processing your booking...",
+        key: "bookingMessage",
+      });
 
-      // Build booking details array from selected time slots
+      // 1. Create booking request for Court API
       const bookingDetails = [];
-
       Object.entries(selectedTimeSlots).forEach(([courtId, slots]) => {
         slots.forEach((slot) => {
           bookingDetails.push({
             courtId: courtId,
-            startTime: slot.startTime,
-            endTime: slot.endTime,
+            startTime: slot.startTime + ":00",
+            endTime: slot.endTime + ":00",
           });
         });
       });
 
-      // Prepare booking request
       const bookingRequest = {
         booking: {
-          userId: "user-id", // Replace with actual user ID or get from auth context
           bookingDate: selectedDate.format("YYYY-MM-DD"),
           totalPrice: calculateTotal(),
-          note: values.specialRequests || "",
+          note: "",
           depositAmount: calculateTotal() * 0.3, // 30% deposit
           bookingDetails: bookingDetails,
         },
       };
 
-      // In a real implementation, you would:
-      // const bookingResponse = await apiClient.createBooking(bookingRequest);
+      // Step 1: Create booking via Court API
+      const bookingResponse = await apiClient.createBooking(bookingRequest);
 
-      // For now, simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (bookingResponse && bookingResponse.id) {
+        // Step 2: Process payment via Payment API
+        const paymentRequest = new ProcessPaymentRequest({
+          amount: calculateTotal(),
+          description: `Booking at ${sportCenter.name} on ${formatDate(
+            selectedDate
+          )}`,
+          paymentType: "Wallet",
+          referenceId: bookingResponse.id,
+          bookingId: bookingResponse.id,
+          status: "Completed",
+        });
 
-      // Remove loading message
-      loadingMessage();
+        // Call payment API
+        const paymentClient = new PaymentClient(API_PAYMENT_URL);
+        await paymentClient.processBookingPayment(paymentRequest);
 
-      // Show success message
-      message.success("Booking completed successfully!");
+        // Show success message
+        message.success({
+          content: "Booking completed successfully!",
+          key: "bookingMessage",
+          duration: 3,
+        });
 
-      // Navigate to success page
-      navigate("/booking-success", {
-        state: {
-          bookingId:
-            "BK" + Math.random().toString(36).substr(2, 9).toUpperCase(),
-          courtName: getSelectedCourt()?.courtName,
-          sportCenter: sportCenter?.name,
-          date: selectedDate.toDate(),
-          timeSlots: selectedTimeSlots,
-          totalMinutes: Object.values(selectedTimeSlots).reduce(
-            (total, slots) => {
-              // Calculate total minutes based on start and end times
-              let minutes = 0;
-              slots.forEach((slot) => {
-                const start = dayjs(`2023-01-01 ${slot.startTime}`);
-                const end = dayjs(`2023-01-01 ${slot.endTime}`);
-                minutes += end.diff(start, "minute");
-              });
-              return total + minutes;
+        // Navigate to booking details or confirmation page
+        setTimeout(() => {
+          navigate("/user/bookings/" + bookingResponse.id, {
+            state: {
+              bookingSuccess: true,
+              bookingId: bookingResponse.id,
             },
-            0
-          ),
-          total: calculateTotal(),
-          customerName: `${values.firstName} ${values.lastName}`,
-          email: values.email,
-          phone: values.phone,
-        },
-      });
+          });
+        }, 1500);
+      } else {
+        throw new Error("Failed to create booking");
+      }
     } catch (error) {
-      console.error("Booking error:", error);
-      message.error("Failed to complete booking. Please try again.");
+      console.error("Error during booking process:", error);
+
+      // Handle specific error types
+      if (error.status === 400) {
+        message.error({
+          content:
+            "Invalid booking information. Please check your selection and try again.",
+          key: "bookingMessage",
+        });
+      } else if (error.status === 403 || error.status === 401) {
+        message.error({
+          content: "You need to login to complete this booking.",
+          key: "bookingMessage",
+        });
+        // Redirect to login
+        setTimeout(() => navigate("/login"), 1500);
+      } else if (
+        error.status === 402 ||
+        error.message?.includes("insufficient")
+      ) {
+        message.error({
+          content:
+            "Insufficient funds in your wallet. Please add funds to continue.",
+          key: "bookingMessage",
+        });
+        // Redirect to wallet page
+        setTimeout(() => navigate("/user/wallet"), 1500);
+      } else {
+        message.error({
+          content: "Failed to complete your booking. Please try again later.",
+          key: "bookingMessage",
+        });
+      }
     }
   };
 
@@ -519,43 +594,128 @@ const BookCourtView = () => {
                   />
                 </div>
 
-                {/* Court Selection */}
+                {/* Court Selection with Promotions */}
                 <div style={{ marginBottom: 24 }}>
                   <Title level={5}>Select Court</Title>
                   {courts.length === 0 ? (
                     <Empty description="No courts available" />
                   ) : (
                     <Row gutter={[16, 16]}>
-                      {courts.map((court) => (
-                        <Col key={court.id} xs={12} sm={8} md={6}>
-                          <Card
-                            hoverable
-                            className={
-                              selectedCourtId === court.id
-                                ? "selected-court"
-                                : ""
-                            }
-                            onClick={() => handleCourtSelect(court.id)}
-                            style={{
-                              textAlign: "center",
-                              border:
-                                selectedCourtId === court.id
-                                  ? "2px solid #1890ff"
-                                  : "1px solid #f0f0f0",
-                              background:
-                                selectedCourtId === court.id
-                                  ? "#e6f7ff"
-                                  : "white",
-                            }}
-                            bodyStyle={{ padding: "12px 8px" }}
-                          >
-                            <Meta
-                              title={court.courtName}
-                              description={`${court.sportName || "Sport"}`}
-                            />
-                          </Card>
-                        </Col>
-                      ))}
+                      {courts.map((court) => {
+                        const activePromotions = getActivePromotions(court);
+                        const hasPromotions = activePromotions.length > 0;
+                        const promotion = hasPromotions
+                          ? activePromotions[0]
+                          : null;
+
+                        return (
+                          <Col key={court.id} xs={12} sm={8} md={6}>
+                            {/* Enhanced Sale Badge */}
+                            {hasPromotions && (
+                              <Badge.Ribbon
+                                text={
+                                  <span
+                                    style={{
+                                      fontSize: "14px",
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    {promotion.discountType === "Percentage"
+                                      ? `SALE ${promotion.discountValue}%`
+                                      : `SAVE ${new Intl.NumberFormat(
+                                          "vi-VN"
+                                        ).format(promotion.discountValue)}₫`}
+                                  </span>
+                                }
+                                color="#f50"
+                                placement="start"
+                                style={{
+                                  top: "-4px", // Move the ribbon higher up
+                                  marginTop: "-8px", // Add negative margin to raise it further
+                                  zIndex: 2, // Ensure it stays above other elements
+                                }}
+                              >
+                                <Card
+                                  hoverable
+                                  className={
+                                    selectedCourtId === court.id
+                                      ? "selected-court"
+                                      : ""
+                                  }
+                                  onClick={() => handleCourtSelect(court.id)}
+                                  style={{
+                                    textAlign: "center",
+                                    border:
+                                      selectedCourtId === court.id
+                                        ? "2px solid #1890ff"
+                                        : "1px solid #f0f0f0",
+                                    background:
+                                      selectedCourtId === court.id
+                                        ? "#e6f7ff"
+                                        : "white",
+                                    position: "relative",
+                                    paddingTop: "16px", // Add padding at the top to make room for the badge
+                                    marginTop: "8px", // Add margin to give space for the ribbon
+                                  }}
+                                  bodyStyle={{ padding: "12px 8px" }}
+                                >
+                                  <Meta
+                                    title={court.courtName}
+                                    description={
+                                      <div>
+                                        <div>{court.sportName || "Sport"}</div>
+                                        {hasPromotions && (
+                                          <div style={{ marginTop: 8 }}>
+                                            <Tag
+                                              color="volcano"
+                                              icon={<TagOutlined />}
+                                              style={{ marginTop: 4 }}
+                                            >
+                                              {formatPromotion(promotion)}
+                                            </Tag>
+                                          </div>
+                                        )}
+                                      </div>
+                                    }
+                                  />
+                                </Card>
+                              </Badge.Ribbon>
+                            )}
+
+                            {/* Regular Card (No Promotion) */}
+                            {!hasPromotions && (
+                              <Card
+                                hoverable
+                                className={
+                                  selectedCourtId === court.id
+                                    ? "selected-court"
+                                    : ""
+                                }
+                                onClick={() => handleCourtSelect(court.id)}
+                                style={{
+                                  textAlign: "center",
+                                  border:
+                                    selectedCourtId === court.id
+                                      ? "2px solid #1890ff"
+                                      : "1px solid #f0f0f0",
+                                  background:
+                                    selectedCourtId === court.id
+                                      ? "#e6f7ff"
+                                      : "white",
+                                }}
+                                bodyStyle={{ padding: "12px 8px" }}
+                              >
+                                <Meta
+                                  title={court.courtName}
+                                  description={
+                                    <div>{court.sportName || "Sport"}</div>
+                                  }
+                                />
+                              </Card>
+                            )}
+                          </Col>
+                        );
+                      })}
                     </Row>
                   )}
                 </div>
@@ -596,6 +756,7 @@ const BookCourtView = () => {
                     <Row gutter={[8, 8]}>
                       {availableSlots.map((slot, index) => (
                         <Col key={index} xs={12} sm={8} md={6}>
+                          {/* Inside the time slot button */}
                           <Button
                             type={
                               selectedTimeSlots[slot.courtId]?.some(
@@ -617,9 +778,32 @@ const BookCourtView = () => {
                           >
                             {slot.displayTime}
                             <div style={{ fontSize: "10px" }}>
-                              {slot.price
-                                ? `$${(slot.price / 1000).toFixed(2)}`
-                                : ""}
+                              {slot.price ? (
+                                <>
+                                  <div>
+                                    {new Intl.NumberFormat("vi-VN").format(
+                                      slot.price
+                                    )}{" "}
+                                    VND
+                                  </div>
+                                  {getActivePromotions(getSelectedCourt())
+                                    .length > 0 && (
+                                    <div style={{ color: "#f50" }}>
+                                      {new Intl.NumberFormat("vi-VN").format(
+                                        calculateDiscountedPrice(
+                                          slot.price,
+                                          getActivePromotions(
+                                            getSelectedCourt()
+                                          )[0]
+                                        )
+                                      )}{" "}
+                                      VND
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                ""
+                              )}
                             </div>
                           </Button>
                         </Col>
@@ -710,7 +894,7 @@ const BookCourtView = () => {
                   message="Booking Details"
                   description={
                     <div>
-                      You're about to book{" "}
+                      You&#39;re about to book{" "}
                       {Object.keys(selectedTimeSlots).length} court(s) at{" "}
                       <strong>{sportCenter?.name}</strong> on{" "}
                       <strong>{formatDate(selectedDate)}</strong>. Total
@@ -1238,37 +1422,7 @@ const BookCourtView = () => {
                   <Button onClick={prev}>Back</Button>
                   <Button
                     type="primary"
-                    onClick={() => {
-                      // Get booking information for the description
-                      const selectedCourt = getSelectedCourt();
-                      const description = `Booking ${
-                        selectedCourt?.courtName
-                      } on ${formatDate(selectedDate)} for ${Object.values(
-                        selectedTimeSlots
-                      ).reduce((total, slots) => {
-                        let minutes = 0;
-                        slots.forEach((slot) => {
-                          const start = dayjs(`2023-01-01 ${slot.startTime}`);
-                          const end = dayjs(`2023-01-01 ${slot.endTime}`);
-                          minutes += end.diff(start, "minute");
-                        });
-                        return total + minutes;
-                      }, 0)} minutes`;
-
-                      // Use full amount (no division by 1000)
-                      const amount = calculateTotal();
-                      const account = "999923062003"; // Replace with your account number
-                      const bank = "MBBank"; // Replace with your bank code
-
-                      // Open QR code in a new window
-                      const qrUrl = `https://qr.sepay.vn/img?acc=${account}&bank=${bank}&amount=${amount}&des=${encodeURIComponent(
-                        description
-                      )}`;
-                      window.open(qrUrl, "_blank", "width=400,height=400");
-
-                      // Continue with booking process
-                      handleBooking({});
-                    }}
+                    onClick={handleBooking}
                     size="large"
                     icon={<CheckCircleOutlined />}
                   >
@@ -1590,7 +1744,7 @@ const BookCourtView = () => {
         </Row>
 
         {/* Custom CSS */}
-        <style jsx>{`
+        <style>{`
           .booking-info-item,
           .summary-item {
             display: flex;
