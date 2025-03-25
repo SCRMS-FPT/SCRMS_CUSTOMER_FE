@@ -2,40 +2,102 @@ import React, { useState } from "react";
 import { Card, Typography, Modal } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { format, parseISO, addDays, subDays } from "date-fns";
-import WeekView from "./WeekView"; // Import the WeekView component
+import WeekView from "./GeneralComponents/WeekView"; // Import the WeekView component
 
 const { Title, Text } = Typography;
 
 const bookedSchedules = [
-  { title: "Team Standup", date: "2025-03-01", startTime: "09:10", endTime: "09:30" },
-  { title: "Project Review", date: "2025-03-01", startTime: "10:00", endTime: "11:00" },
-  { title: "Lunch Break", date: "2025-03-01", startTime: "12:30", endTime: "13:30" },
-  { title: "Client Presentation", date: "2025-03-01", startTime: "14:00", endTime: "15:00" },
-  { title: "Meeting", date: "2025-02-25", startTime: "15:00", endTime: "16:00" },
+  {
+    title: "Team Standup",
+    date: "2025-03-01",
+    startTime: "09:10",
+    endTime: "09:30",
+  },
+  {
+    title: "Project Review",
+    date: "2025-03-01",
+    startTime: "10:00",
+    endTime: "11:00",
+  },
+  {
+    title: "Lunch Break",
+    date: "2025-03-01",
+    startTime: "12:30",
+    endTime: "13:30",
+  },
+  {
+    title: "Client Presentation",
+    date: "2025-03-01",
+    startTime: "14:00",
+    endTime: "15:00",
+  },
+  {
+    title: "Meeting",
+    date: "2025-02-25",
+    startTime: "15:00",
+    endTime: "16:00",
+  },
 
-  { title: "Daily Standup", date: "2025-02-26", startTime: "09:00", endTime: "09:30" },
-  { title: "Code Review", date: "2025-02-26", startTime: "10:30", endTime: "11:30" },
-  { title: "Lunch Break", date: "2025-02-26", startTime: "12:30", endTime: "13:30" },
-  { title: "Client Call", date: "2025-02-26", startTime: "14:30", endTime: "15:30" },
+  {
+    title: "Daily Standup",
+    date: "2025-02-26",
+    startTime: "09:00",
+    endTime: "09:30",
+  },
+  {
+    title: "Code Review",
+    date: "2025-02-26",
+    startTime: "10:30",
+    endTime: "11:30",
+  },
+  {
+    title: "Lunch Break",
+    date: "2025-02-26",
+    startTime: "12:30",
+    endTime: "13:30",
+  },
+  {
+    title: "Client Call",
+    date: "2025-02-26",
+    startTime: "14:30",
+    endTime: "15:30",
+  },
 
-  { title: "Scrum Meeting", date: "2025-02-27", startTime: "09:00", endTime: "09:30" },
-  { title: "Product Demo", date: "2025-02-27", startTime: "11:00", endTime: "12:00" },
+  {
+    title: "Scrum Meeting",
+    date: "2025-02-27",
+    startTime: "09:00",
+    endTime: "09:30",
+  },
+  {
+    title: "Product Demo",
+    date: "2025-02-27",
+    startTime: "11:00",
+    endTime: "12:00",
+  },
 ];
 
 const borderColors = ["#10B981", "#F59E0B", "#3B82F6", "#8B5CF6"]; // Green, Orange, Blue, Purple
 
 const UpcomingBookings = () => {
-  const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd")); // Default: Today
+  const [selectedDate, setSelectedDate] = useState(
+    format(new Date(), "yyyy-MM-dd")
+  ); // Default: Today
   const [isModalOpen, setIsModalOpen] = useState(false);
   const today = format(new Date(), "yyyy-MM-dd");
 
   // Function to filter bookings by selected date
-  const filteredBookings = bookedSchedules.filter((booking) => booking.date === selectedDate);
+  const filteredBookings = bookedSchedules.filter(
+    (booking) => booking.date === selectedDate
+  );
 
   // Function to change date
   const changeDate = (direction) => {
     setSelectedDate((prevDate) => {
-      const newDate = direction === "next" ? addDays(parseISO(prevDate), 1) : subDays(parseISO(prevDate), 1);
+      const newDate =
+        direction === "next"
+          ? addDays(parseISO(prevDate), 1)
+          : subDays(parseISO(prevDate), 1);
       return format(newDate, "yyyy-MM-dd");
     });
   };
@@ -49,25 +111,57 @@ const UpcomingBookings = () => {
           boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           background: "#fff",
           minHeight: 480,
-          minWidth: 215, 
+          minWidth: 215,
           display: "flex",
           flexDirection: "column",
         }}
       >
         {/* Header Section */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <Title level={4} style={{ margin: 0 }}>Calendar</Title>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 12,
+          }}
+        >
+          <Title level={4} style={{ margin: 0 }}>
+            Calendar
+          </Title>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <LeftOutlined onClick={() => changeDate("prev")} style={{ cursor: "pointer" }} />
-            <RightOutlined onClick={() => changeDate("next")} style={{ cursor: "pointer" }} />
+            <LeftOutlined
+              onClick={() => changeDate("prev")}
+              style={{ cursor: "pointer" }}
+            />
+            <RightOutlined
+              onClick={() => changeDate("next")}
+              style={{ cursor: "pointer" }}
+            />
           </div>
         </div>
 
         {/* Date Display + TODAY Badge */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-          <Text type="secondary">{format(parseISO(selectedDate), "MMM d, EEE")}</Text>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 12,
+          }}
+        >
+          <Text type="secondary">
+            {format(parseISO(selectedDate), "MMM d, EEE")}
+          </Text>
           {selectedDate === today && (
-            <Text type="secondary" style={{ background: "#111827", color: "#fff", padding: "2px 8px", borderRadius: 8 }}>
+            <Text
+              type="secondary"
+              style={{
+                background: "#111827",
+                color: "#fff",
+                padding: "2px 8px",
+                borderRadius: 8,
+              }}
+            >
               TODAY
             </Text>
           )}

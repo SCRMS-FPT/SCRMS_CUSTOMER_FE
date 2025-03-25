@@ -20,29 +20,48 @@ export class Client {
         this.baseUrl = baseUrl ?? API_PAYMENT_URL;
     }
 
+    // Helper method to get authorization headers
+    private getAuthHeaders(): HeadersInit {
+        // Get token from localStorage (which is synced with Redux store)
+        const token = localStorage.getItem("token");
+        
+        // Return headers with Authorization if token exists
+        return token ? {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json"
+        } : {
+            "Accept": "application/json"
+        };
+    }
+
     /**
+     * @param start_date (optional) 
+     * @param end_date (optional) 
      * @return OK
      */
-    processBookingPayment(body: ProcessBookingPaymentRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/payments/wallet/booking";
+    getRevenueReport(start_date: string | undefined, end_date: string | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/admin/reports/revenue?";
+        if (start_date === null)
+            throw new Error("The parameter 'start_date' cannot be null.");
+        else if (start_date !== undefined)
+            url_ += "start_date=" + encodeURIComponent("" + start_date) + "&";
+        if (end_date === null)
+            throw new Error("The parameter 'end_date' cannot be null.");
+        else if (end_date !== undefined)
+            url_ += "end_date=" + encodeURIComponent("" + end_date) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
+            method: "GET",
+            headers: this.getAuthHeaders() // Add auth headers
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processProcessBookingPayment(_response);
+            return this.processGetRevenueReport(_response);
         });
     }
 
-    protected processProcessBookingPayment(response: Response): Promise<void> {
+    protected processGetRevenueReport(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -60,14 +79,50 @@ export class Client {
     /**
      * @return OK
      */
+    processBookingPayment(body: ProcessPaymentRequest): Promise<void> {
+        let url_ = this.baseUrl + "/api/payments/wallet/booking";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                ...this.getAuthHeaders(), // Add auth headers
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processProcessBookingPayment(_response);
+        });
+    }
+
+    protected processProcessBookingPayment(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200 || status === 201) {
+            return response.json();
+        } else if (status !== 200 && status !== 201 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+
+    /**
+     * @return OK
+     */
     getWalletBalance(): Promise<void> {
         let url_ = this.baseUrl + "/api/payments/wallet";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders() // Add auth headers
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -79,9 +134,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -109,8 +162,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders() // Add auth headers
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -122,9 +174,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -146,6 +196,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(), // Add auth headers
                 "Content-Type": "application/json",
             }
         };
@@ -158,10 +209,8 @@ export class Client {
     protected processDepositFunds(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+        if (status === 200 || status === 201) {
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -173,49 +222,9 @@ export class Client {
 
 export class DepositFundsRequest implements IDepositFundsRequest {
     amount?: number;
-    transactionReference?: string | undefined;
-
-    constructor(data?: IDepositFundsRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.amount = _data["amount"];
-            this.transactionReference = _data["transactionReference"];
-        }
-    }
-
-    static fromJS(data: any): DepositFundsRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new DepositFundsRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["amount"] = this.amount;
-        data["transactionReference"] = this.transactionReference;
-        return data;
-    }
-}
-
-export interface IDepositFundsRequest {
-    amount?: number;
-    transactionReference?: string | undefined;
-}
-
-export class ProcessBookingPaymentRequest implements IProcessBookingPaymentRequest {
-    amount?: number;
     description?: string | undefined;
 
-    constructor(data?: IProcessBookingPaymentRequest) {
+    constructor(data?: IDepositFundsRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -231,9 +240,9 @@ export class ProcessBookingPaymentRequest implements IProcessBookingPaymentReque
         }
     }
 
-    static fromJS(data: any): ProcessBookingPaymentRequest {
+    static fromJS(data: any): DepositFundsRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new ProcessBookingPaymentRequest();
+        let result = new DepositFundsRequest();
         result.init(data);
         return result;
     }
@@ -246,10 +255,71 @@ export class ProcessBookingPaymentRequest implements IProcessBookingPaymentReque
     }
 }
 
-export interface IProcessBookingPaymentRequest {
+export interface IDepositFundsRequest {
     amount?: number;
     description?: string | undefined;
 }
+
+export class ProcessPaymentRequest implements IProcessPaymentRequest {
+    amount?: number;
+    description?: string | undefined;
+    paymentType?: string | undefined;
+    referenceId?: string | undefined;
+    coachId?: string | undefined;
+    bookingId?: string | undefined;
+    packageId?: string | undefined;
+
+    constructor(data?: IProcessPaymentRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.description = _data["description"];
+            this.paymentType = _data["paymentType"];
+            this.referenceId = _data["referenceId"];
+            this.coachId = _data["coachId"];
+            this.bookingId = _data["bookingId"];
+            this.packageId = _data["packageId"];
+        }
+    }
+
+    static fromJS(data: any): ProcessPaymentRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProcessPaymentRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["description"] = this.description;
+        data["paymentType"] = this.paymentType;
+        data["referenceId"] = this.referenceId;
+        data["coachId"] = this.coachId;
+        data["bookingId"] = this.bookingId;
+        data["packageId"] = this.packageId;
+        return data;
+    }
+}
+
+export interface IProcessPaymentRequest {
+    amount?: number;
+    description?: string | undefined;
+    paymentType?: string | undefined;
+    referenceId?: string | undefined;
+    coachId?: string | undefined;
+    bookingId?: string | undefined;
+    packageId?: string | undefined;
+}
+
 
 export class ApiException extends Error {
     message: string;
