@@ -455,12 +455,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = GetCourtsResponse.fromJS(resultData200);
-            return result200;
-            });
+            return response.json();
         } else if (status === 400) {
             return response.text().then((_responseText) => {
             let result400: any = null;
@@ -475,6 +470,62 @@ export class Client {
         }
         return Promise.resolve<GetCourtsResponse>(null as any);
     }
+ /**
+     * Tính toán giá đặt sân
+     * @return OK
+     */
+ calculateBookingPrice(body: CalculateBookingPriceRequest): Promise<CalculateBookingPriceResponse> {
+    let url_ = this.baseUrl + "/api/bookings/calculate";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(body);
+
+    let options_: RequestInit = {
+        body: content_,
+        method: "POST",
+        headers: {
+            ...this.getAuthHeaders(), // Add auth headers
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processCalculateBookingPrice(_response);
+    });
+}
+
+protected processCalculateBookingPrice(response: Response): Promise<CalculateBookingPriceResponse> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = CalculateBookingPriceResponse.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 400) {
+        return response.text().then((_responseText) => {
+        let result400: any = null;
+        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result400 = ProblemDetails.fromJS(resultData400);
+        return throwException("Bad Request", status, _responseText, _headers, result400);
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<CalculateBookingPriceResponse>(null as any);
+}
 
     /**
      * Lấy chi tiết sân
@@ -1631,12 +1682,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = SportCenterListDTO.fromJS(resultData200);
-            return result200;
-            });
+            return response.json();
         } else if (status === 404) {
             return response.text().then((_responseText) => {
             let result404: any = null;
@@ -1909,6 +1955,161 @@ export enum BookingStatus {
     _4 = 4,
     _5 = 5,
     _6 = 6,
+}
+export class CourtPriceDetail implements ICourtPriceDetail {
+    courtId?: string;
+    courtName?: string | undefined;
+    startTime?: string;
+    endTime?: string;
+    originalPrice?: number;
+    discountedPrice?: number;
+    promotionName?: string | undefined;
+    discountType?: string | undefined;
+    discountValue?: number | undefined;
+
+    constructor(data?: ICourtPriceDetail) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.courtId = _data["courtId"];
+            this.courtName = _data["courtName"];
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
+            this.originalPrice = _data["originalPrice"];
+            this.discountedPrice = _data["discountedPrice"];
+            this.promotionName = _data["promotionName"];
+            this.discountType = _data["discountType"];
+            this.discountValue = _data["discountValue"];
+        }
+    }
+
+    static fromJS(data: any): CourtPriceDetail {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourtPriceDetail();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["courtId"] = this.courtId;
+        data["courtName"] = this.courtName;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
+        data["originalPrice"] = this.originalPrice;
+        data["discountedPrice"] = this.discountedPrice;
+        data["promotionName"] = this.promotionName;
+        data["discountType"] = this.discountType;
+        data["discountValue"] = this.discountValue;
+        return data;
+    }
+}
+
+export interface ICourtPriceDetail {
+    courtId?: string;
+    courtName?: string | undefined;
+    startTime?: string;
+    endTime?: string;
+    originalPrice?: number;
+    discountedPrice?: number;
+    promotionName?: string | undefined;
+    discountType?: string | undefined;
+    discountValue?: number | undefined;
+}
+
+export class CalculateBookingPriceRequest implements ICalculateBookingPriceRequest {
+    booking?: BookingCreateDTO;
+
+    constructor(data?: ICalculateBookingPriceRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.booking = _data["booking"] ? BookingCreateDTO.fromJS(_data["booking"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CalculateBookingPriceRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CalculateBookingPriceRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["booking"] = this.booking ? this.booking.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICalculateBookingPriceRequest {
+    booking?: BookingCreateDTO;
+}
+
+export class CalculateBookingPriceResponse implements ICalculateBookingPriceResponse {
+    courtPrices?: CourtPriceDetail[] | undefined;
+    totalPrice?: number;
+    minimumDeposit?: number;
+
+    constructor(data?: ICalculateBookingPriceResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["courtPrices"])) {
+                this.courtPrices = [] as any;
+                for (let item of _data["courtPrices"])
+                    this.courtPrices!.push(CourtPriceDetail.fromJS(item));
+            }
+            this.totalPrice = _data["totalPrice"];
+            this.minimumDeposit = _data["minimumDeposit"];
+        }
+    }
+
+    static fromJS(data: any): CalculateBookingPriceResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CalculateBookingPriceResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.courtPrices)) {
+            data["courtPrices"] = [];
+            for (let item of this.courtPrices)
+                data["courtPrices"].push(item.toJSON());
+        }
+        data["totalPrice"] = this.totalPrice;
+        data["minimumDeposit"] = this.minimumDeposit;
+        return data;
+    }
+}
+
+export interface ICalculateBookingPriceResponse {
+    courtPrices?: CourtPriceDetail[] | undefined;
+    totalPrice?: number;
+    minimumDeposit?: number;
 }
 
 export class CancelBookingRequest implements ICancelBookingRequest {
