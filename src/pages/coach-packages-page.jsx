@@ -23,10 +23,16 @@ const CoachPackagesPage = () => {
   const [filteredPackages, setFilteredPackages] = useState([]);
 
   useEffect(() => {
-    // Lọc các gói đào tạo theo coach_id
-    const coachPackages = initialPackages.filter((pkg) => pkg.coach_id === coach_id);
-    setPackages(coachPackages);
-    setFilteredPackages(coachPackages);
+    if (coach_id) {
+      // Lọc các gói đào tạo theo coach_id
+      const coachPackages = initialPackages.filter((pkg) => pkg.coach_id === coach_id);
+      setPackages(coachPackages);
+      setFilteredPackages(coachPackages);
+    } else {
+      // Hiển thị tất cả các gói đào tạo
+      setPackages(initialPackages);
+      setFilteredPackages(initialPackages);
+    }
   }, [coach_id]);
 
   // State for search and filters
