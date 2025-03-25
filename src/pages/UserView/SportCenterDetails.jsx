@@ -461,7 +461,16 @@ const SportCenterDetails = () => {
                             variant="contained"
                             fullWidth
                             component={Link}
-                            to={`/book-court/${court.id}`}
+                            to={{
+                              pathname: `/book-court/${sportCenter.id}`,
+                              search: `?courtId=${court.id}`,
+                            }}
+                            state={{
+                              preselectedCourt: court.id,
+                              sportCenterId: sportCenter.id,
+                              courtName: court.courtName,
+                              sportName: court.sportName,
+                            }}
                             color="primary"
                           >
                             Book Court

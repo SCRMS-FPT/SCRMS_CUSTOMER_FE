@@ -1541,6 +1541,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         return Promise.resolve<GetSportCentersResponse>(null as any);
     }
 
+
     /**
      * Lấy tất cả sân của một trung tâm
      * @return OK
@@ -3751,6 +3752,8 @@ export class GetSportCentersResponse implements IGetSportCentersResponse {
 export interface IGetSportCentersResponse {
     sportCenters?: SportCenterListDTOPaginatedResult;
 }
+
+
 
 export class GetSportsResponse implements IGetSportsResponse {
     sports?: SportDTO[] | undefined;

@@ -114,7 +114,35 @@ const BookCourtView = () => {
       icon: <CreditCardOutlined />,
     },
   ];
+  // Check for preselected court from SportCenterDetails
+  useEffect(() => {
+    // If there's a preselected court in the location state, select it
+    if (location.state?.preselectedCourt && courts.length > 0) {
+      const preselectedCourtId = location.state.preselectedCourt;
 
+      // Check if the preselected court exists in the available courts
+      const courtExists = courts.some(
+        (court) => court.id === preselectedCourtId
+      );
+
+      if (courtExists && !selectedCourtIds.includes(preselectedCourtId)) {
+        setSelectedCourtIds((prev) => [...prev, preselectedCourtId]);
+
+        // Scroll to the court selection area after a brief delay to ensure rendering
+        setTimeout(() => {
+          const courtSelectionElement = document.getElementById(
+            "court-selection-area"
+          );
+          if (courtSelectionElement) {
+            courtSelectionElement.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+        }, 500);
+      }
+    }
+  }, [courts, location.state]);
   // 1. Fetch Sport Center data
   useEffect(() => {
     const fetchSportCenterData = async () => {
@@ -653,7 +681,9 @@ const BookCourtView = () => {
                   Back
                 </Button>
                 <Title level={3} style={{ margin: 0 }}>
-                  Book a Court at {sportCenter?.name}
+                  {location.state?.courtName
+                    ? `Book ${location.state.courtName} at ${sportCenter?.name}`
+                    : `Book a Court at ${sportCenter?.name}`}
                 </Title>
               </div>
             </Card>
@@ -710,7 +740,7 @@ const BookCourtView = () => {
                 </div>
 
                 {/* Court Selection with Promotions - Updated for multiple selection */}
-                <div style={{ marginBottom: 24 }}>
+                <div id="court-selection-area" style={{ marginBottom: 24 }}>
                   <Title level={5}>Select Courts</Title>
                   <Text
                     type="secondary"
