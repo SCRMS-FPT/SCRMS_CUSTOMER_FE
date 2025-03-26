@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Box, Typography, Container } from "@mui/material";
 
 // Import images from src/assets
 import img1 from "@/assets/badminton_01.png";
@@ -22,95 +23,99 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="relative h-[600px] md:h-[700px] lg:h-[800px] overflow-hidden">
+    <Box
+      sx={{
+        position: "relative",
+        height: {
+          xs: "600px",
+          md: "700px",
+          lg: "800px",
+        },
+        overflow: "hidden",
+      }}
+    >
       {/* Background Image Slideshow */}
-      <div className="absolute inset-0 transition-opacity duration-1000">
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          transition: "opacity 1s",
+        }}
+      >
         {images.map((img, index) => (
-          <img
+          <Box
+            component="img"
             key={index}
             src={img}
             alt={`slide-${index}`}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-              index === currentImage ? "opacity-100" : "opacity-0"
-            }`}
+            sx={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "opacity 1s ease",
+              opacity: index === currentImage ? 1 : 0,
+            }}
           />
         ))}
-      </div>
+      </Box>
 
-      {/* Light Overlay (Darker Effect Without Blocking View) */}
-      <div className="absolute inset-0 bg-black/30"></div>
+      {/* Light Overlay */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          bgcolor: "rgba(0, 0, 0, 0.3)",
+        }}
+      />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-black px-6">
-        <h2 className="text-6xl font-bold text-white">FIND YOUR SPORT</h2>
-        <p className="text-2xl font-semibold mt-2 mb-6 text-white">SEARCH. BOOK. PLAY. REPEAT.</p>
-
-        {/* Search Form */}
-        {/* <form
-          className="mt-6 bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl"
+      <Container maxWidth="xl" sx={{ height: "100%" }}>
+        <Box
+          sx={{
+            position: "relative",
+            zIndex: 10,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
+            textAlign: "center",
+            color: "black",
+            px: 2,
+          }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input
-              type="text"
-              name="search_keywords"
-              placeholder="What are you looking for?"
-              className="p-2 border border-gray-300 rounded"
-            />
-            <select name="search_categories" className="p-2 border border-gray-300 rounded">
-              <option value="">All Categories</option>
-              <option value="badminton">Badminton</option>
-              <option value="gym">Gym</option>
-              <option value="soccer">Soccer</option>
-              <option value="swimming">Swimming</option>
-              <option value="tennis">Tennis</option>
-            </select>
-            <input
-              type="text"
-              name="_search_location"
-              placeholder="Location"
-              className="p-2 border border-gray-300 rounded"
-            />
-          </div>
-          <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-800 w-full">
-            Search
-          </button>
-        </form> */}
+          <Typography
+            variant="h2"
+            component="h3"
+            sx={{
+              fontSize: { xs: "2rem", sm: "3rem", md: "4rem" },
+              fontWeight: 600,
+              color: "white",
+              textShadow: "2px 2px 5px rgba(0,0,0,0.5)",
+              mb: 1,
+            }}
+          >
+            FIND YOUR SPORT
+          </Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              fontSize: { xs: "0.8rem", sm: "1rem", md: "1.3rem" },
+              fontWeight: 300,
+              color: "white",
+              textShadow: "1px 1px 3px rgba(0,0,0,0.6)",
+              mb: 6,
+            }}
+          >
+            SEARCH. BOOK. PLAY. REPEAT.
+          </Typography>
 
-        {/* Filter Form */}
-        {/* <form
-          action="https://sportsbooking.mt/filter"
-          method="GET"
-          className="mt-6 bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl"
-        >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <select name="filter-field-sport" className="p-2 border border-gray-300 rounded">
-              <option value="basketball">Basketball</option>
-              <option value="football">Football</option>
-              <option value="gym">Gym</option>
-              <option value="hockey">Hockey</option>
-              <option value="tennis">Tennis</option>
-              <option value="volleyball">Volleyball</option>
-            </select>
-            <input type="date" name="filter-field-date" className="p-2 border border-gray-300 rounded" />
-            <select name="filter-field-time" className="p-2 border border-gray-300 rounded">
-              <option value="12:00">12:00</option>
-              <option value="1:00">1:00</option>
-              <option value="2:00">2:00</option>
-              <option value="3:00">3:00</option>
-              <option value="4:00">4:00</option>
-            </select>
-            <select name="filter-field-meridian" className="p-2 border border-gray-300 rounded">
-              <option value="AM">AM</option>
-              <option value="PM">PM</option>
-            </select>
-          </div>
-          <button className="mt-4 bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-700 w-full">
-            Filter
-          </button>
-        </form> */}
-        <FilterForm />
-      </div>
-    </section>
+          <FilterForm />
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

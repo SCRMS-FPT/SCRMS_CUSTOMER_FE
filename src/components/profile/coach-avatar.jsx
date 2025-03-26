@@ -1,61 +1,83 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { Badge } from "../ui/badge"
-import { Clock, Camera, Upload } from "lucide-react"
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
+import { Clock, Camera, Upload } from "lucide-react";
 
 // Hàm tiện ích để định dạng ngày tháng
 function formatDate(dateString) {
-  const date = new Date(dateString)
+  const date = new Date(dateString);
   return new Intl.DateTimeFormat("vi-VN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-  }).format(date)
+  }).format(date);
 }
 
-export function CoachAvatar({ avatar, firstName, lastName, updatedAt, isEditing, onInputChange, onAvatarChange }) {
-  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`
-  const [previewUrl, setPreviewUrl] = useState(null)
+export function CoachAvatar({
+  avatar,
+  firstName,
+  lastName,
+  updatedAt,
+  isEditing,
+  onInputChange,
+  onAvatarChange,
+}) {
+  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`;
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
+    const file = e.target.files[0];
+    if (!file) return;
 
     // Kiểm tra xem file có phải là ảnh không
     if (!file.type.startsWith("image/")) {
-      alert("Vui lòng chọn file ảnh")
-      return
+      alert("Vui lòng chọn file ảnh");
+      return;
     }
 
     // Tạo URL cho file đã chọn
-    const fileUrl = URL.createObjectURL(file)
-    setPreviewUrl(fileUrl)
+    const fileUrl = URL.createObjectURL(file);
+    setPreviewUrl(fileUrl);
 
     // Gọi hàm callback để cập nhật avatar trong state cha
-    onAvatarChange(fileUrl, file)
-  }
+    onAvatarChange(fileUrl, file);
+  };
 
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative">
         <Avatar className="h-36 w-36 border-2 border-primary shadow-lg">
-          <AvatarImage src={isEditing && previewUrl ? previewUrl : avatar} alt={`${firstName} ${lastName}`} />
+          <AvatarImage
+            src={isEditing && previewUrl ? previewUrl : avatar}
+            alt={`${firstName} ${lastName}`}
+          />
           <AvatarFallback className="text-3xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
             {initials}
           </AvatarFallback>
         </Avatar>
 
         {/* Badge hiển thị vai trò */}
-        <Badge className="absolute -bottom-2 -right-2 px-3 py-1.5 bg-indigo-600 text-white shadow-md">Coach</Badge>
+        <Badge className="absolute -bottom-2 -right-2 px-3 py-1.5 bg-indigo-600 text-white shadow-md">
+          Coach
+        </Badge>
 
         {/* Nút chỉnh sửa avatar khi đang ở chế độ edit */}
         {isEditing && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-full">
-            <label htmlFor="avatar-upload" className="cursor-pointer p-2 bg-white/80 rounded-full hover:bg-white">
+            <label
+              htmlFor="avatar-upload"
+              className="cursor-pointer p-2 bg-white/80 rounded-full hover:bg-white"
+            >
               <Camera className="h-6 w-6 text-indigo-600" />
-              <input id="avatar-upload" type="file" accept="image/*" onChange={handleFileChange} className="sr-only" />
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="sr-only"
+              />
             </label>
           </div>
         )}
@@ -92,6 +114,5 @@ export function CoachAvatar({ avatar, firstName, lastName, updatedAt, isEditing,
         </div>
       </div>
     </div>
-  )
+  );
 }
-
