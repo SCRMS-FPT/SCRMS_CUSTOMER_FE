@@ -4,6 +4,7 @@ import { CalendarOutlined, TeamOutlined, TrophyOutlined, WalletOutlined, BellOut
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import UserDashboardNotificationCard from "@/components/UserPage/UserDashboardNotificationCard";
+import ChatWidget from "../../components/Chat/ChatWidget";
 
 //Mock data
 const upcomingBookings = [
@@ -485,6 +486,7 @@ const UserDashboardView = () => {
     <Card title="User Dashboard" className="p-4">
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card" items={tabItems} />
       <div className="mt-4">{renderContent()}</div>
+
     </Card>
   );
 };

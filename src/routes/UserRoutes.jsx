@@ -20,6 +20,7 @@ import BookCoachSession from "@/pages/BookCoachSession";
 import TransactionHistoryPage from "@/pages/TransactionHistoryPage";
 
 import UserSidebar from "@/components/Userpage/UserSidebar";
+import ChatWidget from "../components/Chat/ChatWidget";
 
 
 const UserRoutes = [
@@ -38,6 +39,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserDashboardView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -47,6 +49,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserCourtBookingManagementView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -56,6 +59,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserBookingDetailView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -65,6 +69,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserTeamMatchingManagementView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -74,6 +79,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserMatchingDetailView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -83,6 +89,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserCoachingManagementView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -92,6 +99,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserCoachDetailView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -101,6 +109,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserCoachScheduleDetailView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -110,6 +119,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserFeedbackView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -119,6 +129,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserFeedbackDetailView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -128,6 +139,7 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserTransactionView />
+        <ChatWidget />
       </UserSidebar>
     }
   />,
