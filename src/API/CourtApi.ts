@@ -250,6 +250,7 @@ export class Client {
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
