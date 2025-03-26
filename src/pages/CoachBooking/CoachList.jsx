@@ -3,6 +3,7 @@ import CoachCard from "../../components/CoachComponents/CoachCard";
 import CoachFilter from "../../components/CoachComponents/CoachFilter";
 import SearchCoachList from "../../components/CoachComponents/SearchCoachList";
 import coachesData from "../../data/coachesData";
+import { Pagination, Spin } from "antd";
 
 const CoachList = () => {
   const [selectedSport, setSelectedSport] = useState("All Sports");
@@ -17,8 +18,7 @@ const CoachList = () => {
   const applyFilters = () => {
     const filtered = coachesData.filter((coach) => {
       return (
-        (selectedSport === "All Sports" ||
-          coach.sport.includes(selectedSport)) &&
+        (selectedSport === "All Sports" || coach.sport.includes(selectedSport)) &&
         (!selectedLocation || coach.location.includes(selectedLocation)) &&
         (!selectedFee || coach.fee <= selectedFee) &&
         (coach.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -26,7 +26,6 @@ const CoachList = () => {
           coach.location.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     });
-
     setFilteredCoaches(filtered);
     setCurrentPage(1);
   };
@@ -44,37 +43,20 @@ const CoachList = () => {
     applyFilters();
   }, [selectedSport, selectedLocation, selectedFee, searchTerm]);
 
-  const totalPages = Math.ceil(filteredCoaches.length / itemsPerPage);
   const paginatedCoaches = filteredCoaches.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  useEffect(() => {
-    console.log("🔍 Current Filters:");
-    console.log("🏅 Selected Sport:", selectedSport);
-    console.log("📍 Selected Location:", selectedLocation);
-    console.log("💵 Selected Fee:", selectedFee);
-    console.log("🔍 Search Term:", searchTerm);
-    console.log(
-      "📋 Filtered Coaches:",
-      filteredCoaches.length,
-      "coaches available"
-    );
-  }, [
-    selectedSport,
-    selectedLocation,
-    selectedFee,
-    searchTerm,
-    filteredCoaches,
-  ]);
-
   return (
     <div className="bg-white p-6">
-      <h2 className="text-2xl font-bold mb-4">Danh sách huấn luyện viên</h2>
+      <h2 className="text-3xl font-bold mb-2">Danh sách huấn luyện viên</h2>
+      <p className="text-gray-600 mb-6">
+        Tìm kiếm và lọc huấn luyện viên dựa trên môn thể thao, vị trí, và phí.
+      </p>
       <SearchCoachList onSearch={setSearchTerm} />
-      <div className="grid grid-cols-12 gap-6 mt-6">
-        <div className="col-span-4 bg-white p-6 rounded-lg flex flex-col justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <div className="col-span-1 md:col-span-1">
           <CoachFilter
             selectedSport={selectedSport}
             setSelectedSport={setSelectedSport}
@@ -86,8 +68,8 @@ const CoachList = () => {
             clearFilters={clearFilters}
           />
         </div>
-        <div className="col-span-8">
-          <div className="bg-white p-6 rounded-lg">
+        <div className="col-span-1 md:col-span-2">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             {paginatedCoaches.length > 0 ? (
               paginatedCoaches.map((coach) => (
                 <CoachCard key={coach.id} coach={coach} />
@@ -95,53 +77,17 @@ const CoachList = () => {
             ) : (
               <p className="text-gray-500">No coaches match your filters.</p>
             )}
-
-            {totalPages > 1 && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 mx-1 rounded ${
-                    currentPage === 1
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-blue-500 text-white hover:bg-blue-600"
-                  }`}
-                >
-                  Prev
-                </button>
-
-                {Array.from({ length: totalPages }, (_, index) => (
-                  <button
-                    key={index + 1}
-                    onClick={() => setCurrentPage(index + 1)}
-                    className={`px-4 py-2 mx-1 rounded ${
-                      currentPage === index + 1
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 hover:bg-gray-300"
-                    }`}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-2 mx-1 rounded ${
-                    currentPage === totalPages
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-blue-500 text-white hover:bg-blue-600"
-                  }`}
-                >
-                  Next
-                </button>
-              </div>
-            )}
           </div>
+          {filteredCoaches.length > itemsPerPage && (
+            <div className="mt-6 flex justify-center">
+              <Pagination
+                current={currentPage}
+                total={filteredCoaches.length}
+                pageSize={itemsPerPage}
+                onChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
