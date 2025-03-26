@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { PlusCircle, Tag, Percent, Calendar, BarChart3, RefreshCw, User, Package } from "lucide-react"
-import CoachPromotionSearch from "../components/promation/CoachPromotionSearch"
-import CoachPromotionTable from "../components/promation/CoachPromotionTable"
-import CoachPromotionForm from "../components/promation/CoachPromotionForm"
-import { coachPromotionsData } from "../data/coachPromotionsData"
-import { coachData } from "../data/coachData"
-import { coachPackages } from "../data/coachPackageData"
-import { coachSchedulesData } from "../data/coachSchedulesData"
+import CoachPromotionSearch from "../../components/promation/CoachPromotionSearch"
+import CoachPromotionTable from "../../components/promation/CoachPromotionTable"
+import CoachPromotionForm from "../../components/promation/CoachPromotionForm"
+import { coachPromotionsData } from "../../data/coachPromotionsData"
+import { coachData } from "../../data/coachData"
+import { coachPackages } from "../../data/coachPackageData"
+import { coachSchedulesData } from "../../data/coachSchedulesData"
 
 const CoachPromotionManagementPage = () => {
     const { coachId, packageId, scheduleId } = useParams()

@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import BookingCard from "../components/bookinfo/booking-card"
-import BookingDetailModal from "../components/bookinfo/booking-detail-modal"
-import BookingFilter from "../components/bookinfo/booking-filter"
-import BookingPagination from "../components/bookinfo/booking-pagination"
-import BookingSkeleton from "../components/bookinfo/booking-skeleton"
-import ConfirmActionModal from "../components/bookinfo/confirm-action-modal"
-import { coachBookingData } from "../data/coachBookingData"
-import { coachBookingStatusData } from "../data/coachBookingStatusData"
-import { userData } from "../data/userData"
+import BookingCard from "../../components/bookinfo/booking-card"
+import BookingDetailModal from "../../components/bookinfo/booking-detail-modal"
+import BookingFilter from "../../components/bookinfo/booking-filter"
+import BookingPagination from "../../components/bookinfo/booking-pagination"
+import BookingSkeleton from "../../components/bookinfo/booking-skeleton"
+import ConfirmActionModal from "../../components/bookinfo/confirm-action-modal"
+import { coachBookingData } from "../../data/coachBookingData"
+import { coachBookingStatusData } from "../../data/coachBookingStatusData"
+import { userData } from "../../data/userData"
 
 const CoachBookingsPage = () => {
   // State for bookings data

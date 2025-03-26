@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom"
-import { coachSchedulesData } from "../data/coachSchedulesData"
-import { userData } from "../data/userData"
+import { coachSchedulesData } from "../../data/coachSchedulesData"
+import { userData } from "../../data/userData"
 import {
   Table,
   Card,

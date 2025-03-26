@@ -12,6 +12,12 @@ import {
   LogoutOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
+  ProfileOutlined,
+  InboxOutlined,
+  FormOutlined,
+  PercentageOutlined,
+
+
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import { HeaderSection } from "../core/header-section";
@@ -78,6 +84,31 @@ const CoachSidebar = ({ children }) => {
       key: "/coach/analytics",
       icon: <BarChartOutlined />,
       label: <Link to="/coach/analytics">Analytics</Link>,
+    },
+    {
+      key: "/coach-profile",
+      icon: <ProfileOutlined />,
+      label: <Link to="/coach-profile">Coach Profile</Link>,
+    },
+    {
+      key: "/coach-schedules",
+      icon: <ScheduleOutlined />,
+      label: <Link to="/coach-schedules">Coach Schedules</Link>,
+    },
+    {
+      key: "/coach-packages",
+      icon: <InboxOutlined />,
+      label: <Link to="/coach-packages">Coach Packages</Link>,
+    },
+    {
+      key: "/coach-bookings",
+      icon: <FormOutlined />,
+      label: <Link to="/coach-bookings">Coach Bookings</Link>,
+    },
+    {
+      key: "/coach-promotions",
+      icon: <PercentageOutlined />,
+      label: <Link to="/coach-promotions">Coach Promotions</Link>,
     },
   ];
 
