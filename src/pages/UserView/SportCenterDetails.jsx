@@ -176,13 +176,22 @@ const SportCenterDetails = () => {
     return (
       <Box
         display="flex"
+        flexDirection="column"
         justifyContent="center"
         alignItems="center"
         minHeight="80vh"
       >
-        <Typography variant="h6" color="error">
+        <Typography variant="h6" color="error" sx={{ mb: 2 }}>
           {error || "Sport center not found"}
         </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          component={Link}
+          to="/sports-centers"
+        >
+          Return to Sport Centers
+        </Button>
       </Box>
     );
   }
