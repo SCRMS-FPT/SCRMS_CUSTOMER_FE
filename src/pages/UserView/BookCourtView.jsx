@@ -667,7 +667,7 @@ const BookCourtView = () => {
         <Row gutter={[16, 24]}>
           <Col span={24}>
             <Card
-              bordered={false}
+              variant={false}
               style={{ marginBottom: 16 }}
               bodyStyle={{ padding: "16px 24px" }}
             >
@@ -693,7 +693,7 @@ const BookCourtView = () => {
         {/* Progress Steps */}
         <Row gutter={[16, 24]}>
           <Col span={24}>
-            <Card bordered={false} style={{ marginBottom: 16 }}>
+            <Card variant={false} style={{ marginBottom: 16 }}>
               <Steps
                 current={current}
                 items={steps.map((step) => ({
@@ -718,7 +718,7 @@ const BookCourtView = () => {
                     <span>Select Date & Time</span>
                   </div>
                 }
-                bordered={false}
+                variant={false}
                 className="step-card"
               >
                 {/* Date Selection */}
@@ -1091,7 +1091,7 @@ const BookCourtView = () => {
                     <span>Booking Summary</span>
                   </div>
                 }
-                bordered={false}
+                variant={false}
                 className="step-card"
               >
                 <Alert
@@ -1361,7 +1361,7 @@ const BookCourtView = () => {
             {priceDetails?.courtPrices &&
               priceDetails.courtPrices.length > 0 && (
                 <div style={{ marginTop: 24 }}>
-                  <Card title="Detailed Price Breakdown" bordered={false}>
+                  <Card title="Detailed Price Breakdown" variant={false}>
                     <List
                       dataSource={priceDetails.courtPrices}
                       renderItem={(item) => (
@@ -1428,7 +1428,7 @@ const BookCourtView = () => {
                     <span>Payment Details</span>
                   </div>
                 }
-                bordered={false}
+                variant={false}
                 className="step-card"
               >
                 <Alert
@@ -1438,7 +1438,6 @@ const BookCourtView = () => {
                   showIcon
                   style={{ marginBottom: 24 }}
                 />
-
                 <div className="booking-summary-section">
                   <div
                     style={{
@@ -1520,7 +1519,6 @@ const BookCourtView = () => {
                     </Row>
                   </div>
                 </div>
-
                 <List
                   header={
                     <div style={{ fontWeight: "bold" }}>
@@ -1658,7 +1656,6 @@ const BookCourtView = () => {
                     </Radio>
                   </Space>
                 </Radio.Group>
-
                 {/* Payment summary section with VND currency */}
                 <div
                   style={{
@@ -1697,7 +1694,6 @@ const BookCourtView = () => {
                     </Col>
                   </Row>
                 </div>
-
                 {/* Payment method selection - Pay Online disabled */}
                 <Divider>Payment Method</Divider>
                 <Radio.Group
@@ -1709,8 +1705,8 @@ const BookCourtView = () => {
                       <Card
                         size="small"
                         style={{ marginLeft: 8, marginBottom: 8 }}
-                        bodyStyle={{ padding: 12 }}
                         hoverable
+                        styles={{ body: { padding: 12 } }}
                       >
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <BankOutlined
@@ -1741,7 +1737,7 @@ const BookCourtView = () => {
                       <Card
                         size="small"
                         style={{ marginLeft: 8, opacity: 0.5 }}
-                        bodyStyle={{ padding: 12 }}
+                        styles={{ body: { padding: 12 } }}
                       >
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <CreditCardOutlined
@@ -1767,7 +1763,6 @@ const BookCourtView = () => {
                     </Radio>
                   </Space>
                 </Radio.Group>
-
                 {/* Terms & Conditions */}
                 <Form.Item
                   name="agreement"
@@ -1790,7 +1785,6 @@ const BookCourtView = () => {
                     <a href="#privacy">privacy policy</a>
                   </Checkbox>
                 </Form.Item>
-
                 {/* Action Buttons */}
                 <div
                   style={{
@@ -1829,7 +1823,7 @@ const BookCourtView = () => {
               }
               className="summary-card"
               style={{ marginBottom: 24 }}
-              bordered={false}
+              variant={false}
             >
               {getSelectedCourt() ? (
                 // Court Information
@@ -2026,7 +2020,7 @@ const BookCourtView = () => {
                   </div>
                 }
                 className="summary-card"
-                bordered={false}
+                variant={false}
               >
                 <List
                   itemLayout="horizontal"

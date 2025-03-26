@@ -56,7 +56,7 @@ const UserCourtBookingManagementView = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(8);
 
   // State for filters
@@ -318,7 +318,7 @@ const UserCourtBookingManagementView = () => {
           dataSource={bookings}
           columns={columns}
           pagination={{
-            current: currentPage,
+            current: currentPage + 1,
             pageSize: pageSize,
             total: totalCount,
             onChange: (page, pageSize) => {
