@@ -27,6 +27,7 @@ import ChatView from "@/pages/ChatView/ChatView";
 import NewChatView from "@/pages/ChatView/NewChatView";
 import ChatPage from "../pages/ChatView/ChatPage";
 import NotFoundView from "../pages/GeneralView/NotFoundView";
+import UserProfileView from "../pages/GeneralView/UserProfileView";
 
 
 const GeneralRoutes = [
@@ -223,7 +224,7 @@ const GeneralRoutes = [
     key="chat-view"
     path="/chats"
     element={
-        <ChatView />
+      <ChatView />
     }
   />,
   <Route
@@ -244,6 +245,15 @@ const GeneralRoutes = [
       </Layout>
     }
   />,
+  <Route
+    key="settings"
+    path="/settings"
+    element={
+      <Layout>
+        <UserProfileView />
+      </Layout>
+    }
+  />
 ];
 
 export default GeneralRoutes;
