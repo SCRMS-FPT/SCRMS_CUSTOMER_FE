@@ -19,9 +19,14 @@ import court_mock_data from "@/data/court_mock_data";
 import PricingView from "@/pages/ServicePackage/PricingView";
 import WalletView from "@/pages/UserView/WalletView";
 import WalletHistoryView from "@/pages/UserView/WalletHistoryView";
-import DepositView from "../pages/UserView/DepositView";
-import SubscribePackageView from "../pages/ServicePackage/SubscribePackageView";
-import SportCenterDetails from "../pages/UserView/SportCenterDetails";
+import DepositView from "@/pages/UserView/DepositView";
+import SubscribePackageView from "@/pages/ServicePackage/SubscribePackageView";
+import SportCenterDetails from "@/pages/UserView/SportCenterDetails";
+
+import ChatListView from "@/pages/ChatView/ChatListView";
+import ChatView from "@/pages/ChatView/ChatView";
+import NewChatView from "@/pages/ChatView/NewChatView";
+
 
 const GeneralRoutes = [
   <Route
@@ -213,6 +218,33 @@ const GeneralRoutes = [
       </Layout>
     }
   />,
+  <Route
+    key="chat-list"
+    path="/chats"
+    element={
+      <Layout>
+        <ChatListView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="chat-view"
+    path="/chats/:chatSessionId"
+    element={
+      <Layout>
+        <ChatView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="new-chat"
+    path="/new-chat"
+    element={
+      <Layout>
+        <NewChatView />
+      </Layout>
+    }
+  />
 ];
 
 export default GeneralRoutes;
