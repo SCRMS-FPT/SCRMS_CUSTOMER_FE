@@ -95,10 +95,10 @@ const CourtDetails = () => {
           The court you're looking for doesn't exist or has been removed.
         </p>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/browse-courts")}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
         >
-          Return to Home
+          Continue Browsing Courts
         </button>
       </div>
     );

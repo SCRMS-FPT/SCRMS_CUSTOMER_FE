@@ -25,9 +25,10 @@ import SportCenterDetails from "@/pages/UserView/SportCenterDetails";
 import ChatListView from "@/pages/ChatView/ChatListView";
 import ChatView from "@/pages/ChatView/ChatView";
 import NewChatView from "@/pages/ChatView/NewChatView";
-import ChatPage from "../pages/ChatView/ChatPage";
-import NotFoundView from "../pages/GeneralView/NotFoundView";
-import UserProfileView from "../pages/GeneralView/UserProfileView";
+import ChatPage from "@/pages/ChatView/ChatPage";
+import NotFoundView from "@/pages/GeneralView/NotFoundView";
+import UserProfileView from "@/pages/GeneralView/UserProfileView";
+import Forbidden403 from "@/pages/Error/Forbidden403";
 
 
 const GeneralRoutes = [
@@ -245,6 +246,8 @@ const GeneralRoutes = [
       </Layout>
     }
   />,
+  // 403 Forbidden route
+  <Route key="forbidden" path="/forbidden" element={<Forbidden403 />} />,
   <Route
     key="settings"
     path="/settings"

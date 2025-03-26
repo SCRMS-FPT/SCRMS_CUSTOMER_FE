@@ -1,15 +1,26 @@
 import React from "react";
 import CourtCard from "./CourtCard";
+import { Grid, Typography, Box } from "@mui/material";
 
 const CourtList = ({ courts, animationClass }) => {
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 ${animationClass}`}>
-      {courts.length > 0 ? (
-        courts.map((court) => <CourtCard key={court.court_id} court={court} />)
-      ) : (
-        <p className="text-gray-600 text-center col-span-full">No courts available.</p>
-      )}
-    </div>
+    <Box className={animationClass}>
+      <Grid container spacing={3}>
+        {courts.length > 0 ? (
+          courts.map((court) => (
+            <Grid item xs={12} sm={6} key={court.court_id}>
+              <CourtCard court={court} />
+            </Grid>
+          ))
+        ) : (
+          <Grid item xs={12}>
+            <Typography variant="body1" align="center" color="text.secondary">
+              No courts available.
+            </Typography>
+          </Grid>
+        )}
+      </Grid>
+    </Box>
   );
 };
 
