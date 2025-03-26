@@ -1,293 +1,1736 @@
-import React, { useState } from "react";
-import CustomDatePicker from "@/components/BrowseCourtView/CustomDatePicker";
-import sportsData from "@/data/sportsData";
-import CourtCard from "@/components/BrowseCourtView/CourtCard";
-import courtsData from "@/data/courtsData";
-import { useEffect } from "react";
-import SearchBarList from "@/components/BrowseCourtView/SearchBarList";
-import { TimePicker } from 'antd';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import {
+  Container,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Pagination,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
+  IconButton,
+  Paper,
+  Skeleton,
+  CircularProgress,
+  Rating,
+  Slider,
+  Divider,
+  Tooltip,
+  ToggleButtonGroup,
+  ToggleButton,
+  Stack,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
+  Badge,
+  Alert,
+  Tabs,
+  Tab,
+  useMediaQuery,
+  useTheme,
+  Backdrop,
+  Fade,
+  Zoom,
+} from "@mui/material";
+import {
+  Search,
+  LocationOn,
+  Phone,
+  SportsHandball,
+  Clear,
+  ArrowForward,
+  FilterList,
+  CalendarMonth,
+  AccessTime,
+  AttachMoney,
+  ArrowDropDown,
+  SportsTennis,
+  Check,
+  ViewList,
+  ViewModule,
+  Star,
+  Whatshot,
+  AccessTimeFilled,
+  LocalOffer,
+  Discount,
+  Info,
+  FitnessCenter,
+  EventAvailable,
+} from "@mui/icons-material";
+import { Client } from "../../API/CourtApi";
+import { DatePicker, TimePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
+import soccerBg from "@/assets/soccer_04.jpg";
+// Common facilities that courts might have
+const FACILITIES = [
+  { id: "locker_room", name: "Locker Room", icon: "🚪", color: "#6d4c41" },
+  { id: "night_lights", name: "Night Lights", icon: "💡", color: "#ff9800" },
+  { id: "parking", name: "Parking", icon: "🅿️", color: "#2196f3" },
+  { id: "water", name: "Drinking Water", icon: "🥤", color: "#00bcd4" },
+  { id: "equipment", name: "Equipment Rental", icon: "🏸", color: "#4caf50" },
+  { id: "shower", name: "Shower", icon: "🚿", color: "#03a9f4" },
+  { id: "wifi", name: "Free Wi-Fi", icon: "📶", color: "#9c27b0" },
+  { id: "cafe", name: "Café", icon: "☕", color: "#795548" },
+];
 
+// Time slot presets for quick selection
+const TIME_PRESETS = [
+  {
+    label: "Morning",
+    startTime: "06:00",
+    endTime: "12:00",
+    icon: <AccessTimeFilled />,
+  },
+  {
+    label: "Afternoon",
+    startTime: "12:00",
+    endTime: "18:00",
+    icon: <AccessTimeFilled />,
+  },
+  {
+    label: "Evening",
+    startTime: "18:00",
+    endTime: "22:00",
+    icon: <AccessTimeFilled />,
+  },
+  {
+    label: "All Day",
+    startTime: "06:00",
+    endTime: "22:00",
+    icon: <AccessTimeFilled />,
+  },
+];
+
+// Sport center hero banner component
+const HeroBanner = () => (
+  <Box
+    sx={{
+      position: "relative",
+      height: { xs: 220, md: 280 },
+      borderRadius: 2,
+      overflow: "hidden",
+      mb: 5,
+      boxShadow: 3,
+      backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.3)), url(${soccerBg})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      display: "flex",
+      alignItems: "center",
+    }}
+  >
+    <Container>
+      <Zoom in={true} timeout={1000}>
+        <Box>
+          <Typography
+            variant="h3"
+            component="h1"
+            sx={{
+              color: "white",
+              fontWeight: 800,
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+              mb: 2,
+              fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+            }}
+          >
+            Find Your Perfect Court
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              color: "white",
+              maxWidth: 600,
+              textShadow: "1px 1px 3px rgba(0,0,0,0.6)",
+              fontWeight: 400,
+              fontSize: { xs: "1rem", md: "1.25rem" },
+            }}
+          >
+            Discover, compare and book sport courts across Vietnam with
+            real-time availability
+          </Typography>
+        </Box>
+      </Zoom>
+    </Container>
+  </Box>
+);
+
+// Featured sport center card component
+const FeaturedSportCenterCard = ({ center, onClick }) => {
+  return (
+    <Card
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        transition: "transform 0.25s, box-shadow 0.25s",
+        "&:hover": {
+          transform: "translateY(-8px)",
+          boxShadow: 8,
+        },
+        cursor: "pointer",
+      }}
+      onClick={() => onClick(center.id)}
+      elevation={3}
+    >
+      <Badge
+        badgeContent="Featured"
+        color="error"
+        sx={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          "& .MuiBadge-badge": {
+            fontSize: "0.8rem",
+            height: 22,
+            p: "0 8px",
+          },
+        }}
+      />
+      <CardMedia
+        component="img"
+        height={200}
+        image={
+          center.avatar ||
+          "https://via.placeholder.com/300x200?text=Sports+Center"
+        }
+        alt={center.name}
+        sx={{ objectFit: "cover" }}
+      />
+      <CardContent sx={{ flexGrow: 1, pb: 1 }}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="flex-start"
+          mb={1}
+        >
+          <Typography variant="h6" component="h2" fontWeight={600}>
+            {center.name}
+          </Typography>
+          <Box display="flex" alignItems="center">
+            <Rating value={4.5} precision={0.5} size="small" readOnly />
+            <Typography variant="body2" sx={{ ml: 0.5 }}>
+              (4.5)
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box display="flex" alignItems="center" mb={1}>
+          <LocationOn fontSize="small" color="primary" sx={{ mr: 0.5 }} />
+          <Typography variant="body2" color="text.secondary" noWrap>
+            {center.address}
+          </Typography>
+        </Box>
+
+        <Box display="flex" flexWrap="wrap" gap={0.5} mb={1}>
+          {center.sportNames?.slice(0, 3).map((sport, idx) => (
+            <Chip
+              key={idx}
+              label={sport}
+              size="small"
+              color="primary"
+              variant="outlined"
+              sx={{ height: 24 }}
+            />
+          ))}
+          {center.sportNames?.length > 3 && (
+            <Chip
+              label={`+${center.sportNames.length - 3}`}
+              size="small"
+              sx={{ height: 24 }}
+            />
+          )}
+        </Box>
+      </CardContent>
+      <Box sx={{ p: 2, pt: 0 }}>
+        <Button
+          fullWidth
+          variant="contained"
+          color="primary"
+          endIcon={<ArrowForward />}
+        >
+          View Details
+        </Button>
+      </Box>
+    </Card>
+  );
+};
 
 const BrowseCourtsView = () => {
-    const today = new Date().toISOString().split("T")[0]; // 📅 Get today's date (YYYY-MM-DD)
+  // Theme for responsive design
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedSport, setSelectedSport] = useState("All Sports");
-    const [selectedCity, setSelectedCity] = useState("All Cities");
-    const [selectedPriceRange, setSelectedPriceRange] = useState([0, 500]);
-    const [selectedDuration, setSelectedDuration] = useState(null);
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [selectedTime, setSelectedTime] = useState(null);
-    const [showAllSports, setShowAllSports] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [filteredCourts, setFilteredCourts] = useState([]);
+  // State management
+  const [sportCenters, setSportCenters] = useState([]);
+  const [featuredCenters, setFeaturedCenters] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [nameQuery, setNameQuery] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
+  const [sportFilter, setSportFilter] = useState("");
+  const [priceRange, setPriceRange] = useState([0, 2000000]); // Vietnamese dong
+  const [selectedFacilities, setSelectedFacilities] = useState([]);
+  const [viewMode, setViewMode] = useState("grid");
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
+  const [timePreset, setTimePreset] = useState(null);
+  const [filterTab, setFilterTab] = useState(0);
 
-    const itemsPerPage = 5;
+  // Time filters
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
 
-    const handleTimeChange = (timeString) => {
-        setSelectedTime(timeString);
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Cities state (fetched from API)
+  const [cities, setCities] = useState([]);
+  const [loadingCities, setLoadingCities] = useState(false);
+
+  // Sports state
+  const [sports, setSports] = useState([]);
+  const [loadingSports, setLoadingSports] = useState(false);
+
+  // API client
+  const courtClient = new Client();
+
+  // Extract featured centers when data is loaded
+  useEffect(() => {
+    if (sportCenters.length > 0 && !loading) {
+      // For now, just use the first 3 centers as "featured"
+      // In a real app, this would come from the API with a featured flag
+      setFeaturedCenters(sportCenters.slice(0, 3));
+    }
+  }, [sportCenters, loading]);
+
+  // Fetch cities from API
+  useEffect(() => {
+    const fetchCities = async () => {
+      setLoadingCities(true);
+      try {
+        const response = await axios.get(
+          "https://esgoo.net/api-tinhthanh/1/0.htm"
+        );
+        if (response.data && response.data.error === 0) {
+          setCities(response.data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching cities:", err);
+      } finally {
+        setLoadingCities(false);
+      }
     };
 
-    useEffect(() => {
-        const defaultFilteredCourts = courtsData.filter((court) => {
-            if (court.status !== "available") return false;
+    fetchCities();
+  }, []);
 
-            // Ensure today is within the court's available date range
-            return court.dateRange && court.dateRange.start <= today && court.dateRange.end >= today;
-        });
-        setFilteredCourts(defaultFilteredCourts);
-    }, []);
-
-    const applyFilters = () => {
-        const today = new Date().toISOString().split("T")[0]; // Get today's date (YYYY-MM-DD)
-
-        const filtered = courtsData.filter((court) => {
-            if (court.status !== "available") return false;
-
-            // **Ensure court's date range includes today**
-            if (!court.dateRange || court.dateRange.start > today || court.dateRange.end < today) {
-                return false;
-            }
-
-            // **Search Term Filtering (Court Name)**
-            if (searchTerm && String(searchTerm).toLowerCase().trim() !== "") {
-                if (!court.name.toLowerCase().includes(String(searchTerm).toLowerCase())) {
-                    return false;
-                }
-            }
-
-            // **Date Filtering**
-            if (selectedDate) {
-                const selectedDateStr = selectedDate.toLocaleDateString("en-CA");; // Convert selected date to YYYY-MM-DD
-                if (selectedDateStr < court.dateRange.start || selectedDateStr > court.dateRange.end) {
-                    return false;
-                }
-            }
-
-            // **City Filtering (Search Bar)**
-            if (selectedCity !== "All Cities" && court.city !== selectedCity) {
-                return false;
-            }
-
-            // **Price Filtering (Search Bar)**
-            if (court.price < selectedPriceRange[0] || court.price > selectedPriceRange[1]) {
-                return false;
-            }
-
-            // **Time Filtering**
-            if (selectedTime) {
-                const selectedTimeValue = Number(selectedTime.split(":")[0]) * 60 + Number(selectedTime.split(":")[1]);
-                const courtOpenTime = Number(court.availableHours.start.split(":")[0]) * 60 + Number(court.availableHours.start.split(":")[1]);
-                const courtCloseTime = Number(court.availableHours.end.split(":")[0]) * 60 + Number(court.availableHours.end.split(":")[1]);
-
-                if (selectedTimeValue < courtOpenTime || selectedTimeValue >= courtCloseTime) {
-                    return false; // ✅ Time must be within open-close range
-                }
-            }
-
-            // **Sport Filtering**
-            if (selectedSport !== "All Sports" && !court.sport.includes(selectedSport)) {
-                return false; // ✅ Sport must exist in the court.sport array
-            }
-
-            // **Duration Filtering**
-            if (selectedDuration && !court.durations.includes(selectedDuration)) {
-                return false; // ✅ Selected duration must be available
-            }
-
-            return true; // ✅ If all filters pass, include court
-        });
-
-        setFilteredCourts(filtered);
-        setCurrentPage(1); // Reset pagination
+  // Fetch sports list
+  useEffect(() => {
+    const fetchSports = async () => {
+      setLoadingSports(true);
+      try {
+        const response = await courtClient.getSports();
+        if (response && response.sports) {
+          setSports(response.sports);
+        }
+      } catch (err) {
+        console.error("Error fetching sports:", err);
+      } finally {
+        setLoadingSports(false);
+      }
     };
 
-    // **Reset Filters**
-    const clearFilters = () => {
-        setSearchTerm("");
-        setSelectedSport("All Sports");
-        setSelectedCity("All Cities");
-        setSelectedPriceRange([0, 500]);
-        setSelectedDuration(null);
-        setSelectedDate(null);
-        setSelectedTime(null);
-        setFilteredCourts(courtsData.filter((court) => court.status === "available" && court.date >= today));
-        setCurrentPage(1);
+    fetchSports();
+  }, []);
+
+  // Format time for API
+  const formatTimeForApi = (time) => {
+    if (!time) return null;
+    // Format as HH:MM:00 for the API
+    return time.format("HH:mm:00");
+  };
+
+  // Fetch sport centers from API
+  const fetchSportCenters = async () => {
+    setLoading(true);
+    try {
+      // Format start and end time for API
+      const formattedStartTime = formatTimeForApi(startTime) ?? undefined;
+      const formattedEndTime = formatTimeForApi(endTime) ?? undefined;
+
+      // Get selected date in the correct format
+      const formattedDate = selectedDate ? selectedDate.toDate() : undefined;
+
+      const response = await courtClient.getSportCenters(
+        page,
+        pageSize,
+        cityFilter || undefined,
+        nameQuery || undefined,
+        sportFilter || undefined,
+        formattedDate || undefined, // bookingDate
+        formattedStartTime || undefined, // startTime parameter
+        formattedEndTime || undefined // endTime parameter
+      );
+
+      setSportCenters(response.sportCenters.data || []);
+      setTotalCount(response.sportCenters.count || 0);
+    } catch (err) {
+      console.error("Failed to fetch sport centers:", err);
+      setError("Failed to load sport centers. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data when search/filter/pagination changes
+  useEffect(() => {
+    fetchSportCenters();
+  }, [page, pageSize, cityFilter, nameQuery, sportFilter, selectedDate]);
+
+  // Only run the search when start/end time are explicitly changed
+  useEffect(() => {
+    if (startTime !== null || endTime !== null) {
+      fetchSportCenters();
+    }
+  }, [startTime, endTime]);
+
+  // Handle time preset selection
+  const handleTimePresetChange = (preset) => {
+    if (timePreset === preset) {
+      // If clicking the same preset, clear it
+      setTimePreset(null);
+      setStartTime(null);
+      setEndTime(null);
+    } else {
+      setTimePreset(preset);
+      setStartTime(
+        dayjs()
+          .hour(parseInt(preset.startTime.split(":")[0]))
+          .minute(parseInt(preset.startTime.split(":")[1]))
+      );
+      setEndTime(
+        dayjs()
+          .hour(parseInt(preset.endTime.split(":")[0]))
+          .minute(parseInt(preset.endTime.split(":")[1]))
+      );
+    }
+    setPage(1);
+  };
+
+  // Handle changes for search and filters
+  const handleNameQueryChange = (event) => {
+    setNameQuery(event.target.value);
+    setPage(1); // Reset to first page when search changes
+  };
+
+  const handleCityChange = (event) => {
+    setCityFilter(event.target.value);
+    setPage(1); // Reset to first page when filter changes
+  };
+
+  const handleSportChange = (event) => {
+    setSportFilter(event.target.value);
+    setPage(1); // Reset to first page when filter changes
+  };
+
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+    setPage(1); // Reset to first page when date changes
+  };
+
+  const handleStartTimeChange = (newTime) => {
+    setStartTime(newTime);
+    setTimePreset(null); // Clear any selected preset
+    setPage(1); // Reset to first page when time changes
+  };
+
+  const handleEndTimeChange = (newTime) => {
+    setEndTime(newTime);
+    setTimePreset(null); // Clear any selected preset
+    setPage(1); // Reset to first page when time changes
+  };
+
+  const handlePriceRangeChange = (event, newValue) => {
+    setPriceRange(newValue);
+    setPage(1);
+  };
+
+  const handleFacilityChange = (event) => {
+    const facilityId = event.target.value;
+    setSelectedFacilities((prev) => {
+      if (prev.includes(facilityId)) {
+        return prev.filter((id) => id !== facilityId);
+      } else {
+        return [...prev, facilityId];
+      }
+    });
+    setPage(1);
+  };
+
+  // Handle page change
+  const handlePageChange = (event, value) => {
+    setPage(value);
+    // Scroll to top when changing page
+    window.scrollTo({
+      top: document.getElementById("search-results")?.offsetTop - 20 || 0,
+      behavior: "smooth",
+    });
+  };
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    setNameQuery("");
+    setCityFilter("");
+    setSportFilter("");
+    setPriceRange([0, 2000000]);
+    setSelectedDate(dayjs());
+    setStartTime(null);
+    setEndTime(null);
+    setTimePreset(null);
+    setSelectedFacilities([]);
+    setPage(1);
+  };
+
+  // Toggle view mode
+  const handleViewModeChange = (event, newMode) => {
+    if (newMode !== null) {
+      setViewMode(newMode);
+    }
+  };
+
+  // Handle filter tab change
+  const handleFilterTabChange = (event, newValue) => {
+    setFilterTab(newValue);
+  };
+
+  // Navigate to sport center details
+  const handleSportCenterClick = (centerId) => {
+    window.location.href = `/sports-center/${centerId}`;
+  };
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Format price for display
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN").format(price);
+  };
+
+  // Helper to get minimum and maximum price for a sport center
+  const getPriceRange = (sportCenter) => {
+    if (!sportCenter.courts || sportCenter.courts.length === 0) {
+      return { min: 0, max: 0 };
+    }
+
+    const prices = sportCenter.courts
+      .map((court) => court.price || 0)
+      .filter((price) => price > 0);
+
+    if (prices.length === 0) return { min: 0, max: 0 };
+
+    return {
+      min: Math.min(...prices),
+      max: Math.max(...prices),
     };
+  };
 
-    useEffect(() => {
-        applyFilters(); // ✅ Apply filters whenever search or filter state changes
-    }, [searchTerm, selectedSport, selectedCity, selectedPriceRange, selectedDate, selectedTime, selectedDuration]);
+  // Get unique sports from a sport center
+  const getUniqueSports = (sportCenter) => {
+    if (!sportCenter.courts) return [];
 
-
-    // **Pagination Logic**
-    const totalPages = Math.ceil(filteredCourts.length / itemsPerPage);
-    const paginatedCourts = filteredCourts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-    useEffect(() => {
-        console.log("🔍 Current Filters:");
-        console.log("📍 Selected City:", selectedCity)
-        console.log("🔍 Search Term:", searchTerm);
-        console.log("💰 Selected Price Range:", selectedPriceRange);
-        console.log("📅 Selected Date:", selectedDate ? selectedDate.toLocaleDateString("en-CA") : "None");
-        console.log("⏰ Selected Time:", selectedTime || "None");
-        console.log("🏅 Selected Sport:", selectedSport);
-        console.log("⏳ Selected Duration:", selectedDuration ? `${selectedDuration} mins` : "None");
-        console.log("📋 Filtered Courts:", filteredCourts.length, "courts available");
-        console.log(filteredCourts);
-    }, [selectedDate, selectedTime, selectedSport, selectedDuration, filteredCourts]);
-
-    return (
-        <div className="bg-white">
-            <SearchBarList onSearch={(term, sport, city, price) => {
-                setSearchTerm(term);
-                setSelectedSport(sport);
-                setSelectedCity(city);
-                setSelectedPriceRange(price);
-                applyFilters();
-            }} />
-            <div className="grid grid-cols-8 gap-6 p-6">
-                {/* Sidebar - Filters */}
-                <div className="col-span-3 bg-white p-6 rounded-lg flex flex-col justify-between">
-                    <div className="w-[70%] ml-auto">
-                        {/* Date Picker */}
-                        <div className="mb-4">
-                            <h3 className="text-lg font-semibold mb-2">Date</h3>
-                            <div className="flex justify-center">
-                                <CustomDatePicker selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
-                            </div>
-                        </div>
-
-                        {/* Time Picker */}
-                        <div className="mb-4">
-                            <h3 className="text-lg font-semibold mb-2">Time from</h3>
-                            <TimePicker
-                                format="HH:mm"
-                                use12Hours={true} // Ensures 12-hour format
-                                showNow={true}
-                                onChange={handleTimeChange}
-                                className="w-full"
-                                value={selectedTime ? dayjs(selectedTime, "HH:mm") : null}
-                            />
-                        </div>
-
-                        {/* Choose Sport */}
-                        <div className="mb-4">
-                            <h3 className="text-lg font-semibold mb-2">Choose Sport</h3>
-                            <div className="grid grid-cols-3 gap-3">
-                                {sportsData.slice(0, showAllSports ? sportsData.length : 6).map((sport) => (
-                                    <button
-                                        key={sport.name}
-                                        onClick={() => setSelectedSport(sport.name)}
-                                        className={`border p-3 rounded-md flex justify-center items-center transition-all 
-                            ${selectedSport === sport.name ? "border-green-500 bg-green-100" : "border-gray-300"}
-                            hover:bg-gray-100`}
-                                    >
-                                        <img src={sport.icon} alt={sport.name} className="w-10 h-10" />
-                                    </button>
-                                ))}
-                            </div>
-
-                            {sportsData.length > 6 && (
-                                <div className="mt-3 flex flex-col items-center">
-                                    <button
-                                        onClick={() => setShowAllSports(!showAllSports)}
-                                        className="text-lg font-semibold text-blue-600 hover:text-blue-800 transition-all"
-                                    >
-                                        {showAllSports ? "Show Less" : "Expand Here"}
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Match Duration */}
-                        <div className="mb-4">
-                            <h3 className="text-lg font-semibold mb-2">Match Duration</h3>
-                            <div className="flex gap-3">
-                                {[60, 90, 120].map((duration) => (
-                                    <button
-                                        key={duration}
-                                        onClick={() => setSelectedDuration(duration === selectedDuration ? null : duration)}
-                                        className={`border p-2 rounded-md transition-all
-                            ${selectedDuration === duration ? "border-green-500 bg-green-100" : "border-gray-300"}
-                            hover:bg-gray-100`}
-                                    >
-                                        {duration} Mins
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Clear & Filter Buttons */}
-                        <div className="flex justify-center gap-x-4 mt-8">
-                            <button
-                                onClick={clearFilters}
-                                className="border px-6 py-2 w-46 rounded-md text-gray-700 hover:bg-gray-100 transition-all"
-                            >
-                                Clear
-                            </button>
-                            {/* <button
-                                onClick={applyFilters}
-                                className="bg-green-600 text-white px-6 py-2 w-46 rounded-md hover:bg-green-700 transition-all"
-                            >
-                                Filter
-                            </button> */}
-                        </div>
-                    </div>
-                </div>
-
-
-                {/* Right Side - Court List */}
-                <div className="col-span-5">
-                    <div className="bg-white p-6 w-[85%] mr-auto">
-
-
-                        {/* Render Court Cards */}
-                        {paginatedCourts.length > 0 ? (
-                            paginatedCourts.map((court) => <CourtCard key={court.id} court={court} />)
-                        ) : (
-                            <p className="text-gray-500">No courts match your filters.</p>
-                        )}
-
-                        {/* Pagination Controls */}
-                        {totalPages > 1 && (
-                            <div className="flex justify-center mt-6">
-                                <button
-                                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                    disabled={currentPage === 1}
-                                    className={`px-4 py-2 mx-1 rounded ${currentPage === 1 ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
-                                        }`}
-                                >
-                                    Prev
-                                </button>
-
-                                {Array.from({ length: totalPages }, (_, index) => (
-                                    <button
-                                        key={index + 1}
-                                        onClick={() => setCurrentPage(index + 1)}
-                                        className={`px-4 py-2 mx-1 rounded ${currentPage === index + 1 ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
-                                            }`}
-                                    >
-                                        {index + 1}
-                                    </button>
-                                ))}
-
-                                <button
-                                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                    disabled={currentPage === totalPages}
-                                    className={`px-4 py-2 mx-1 rounded ${currentPage === totalPages ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
-                                        }`}
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
+    const uniqueSports = new Set(
+      sportCenter.courts.map((court) => court.sportName).filter(Boolean)
     );
+
+    return Array.from(uniqueSports);
+  };
+
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Box
+        sx={{
+          background: "linear-gradient(to bottom, #f8f9fa, #ffffff)",
+          minHeight: "100vh",
+        }}
+      >
+        {/* Hero Banner */}
+        <HeroBanner />
+
+        <Container maxWidth="lg">
+          {/* Main Search Bar */}
+          <Paper
+            elevation={3}
+            sx={{
+              p: { xs: 2, md: 3 },
+              mb: 4,
+              borderRadius: 2,
+              background: "#fff",
+              position: "relative",
+              zIndex: 2,
+              mt: -8,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+              border: "1px solid rgba(0,0,0,0.05)",
+            }}
+          >
+            <Grid container spacing={2} alignItems="center">
+              {/* Name Search */}
+              <Grid item xs={12} md={5}>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  placeholder="Search sport centers by name..."
+                  value={nameQuery}
+                  onChange={handleNameQueryChange}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search color="primary" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: nameQuery && (
+                      <InputAdornment position="end">
+                        <IconButton
+                          size="small"
+                          onClick={() => setNameQuery("")}
+                          aria-label="clear search"
+                        >
+                          <Clear fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    sx: { borderRadius: 2 },
+                  }}
+                />
+              </Grid>
+
+              {/* City Filter */}
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControl fullWidth variant="outlined">
+                  <InputLabel id="city-filter-label">City</InputLabel>
+                  <Select
+                    labelId="city-filter-label"
+                    value={cityFilter}
+                    onChange={handleCityChange}
+                    label="City"
+                    disabled={loadingCities}
+                    sx={{ borderRadius: 2 }}
+                    startAdornment={
+                      loadingCities ? (
+                        <InputAdornment position="start">
+                          <CircularProgress size={20} color="inherit" />
+                        </InputAdornment>
+                      ) : (
+                        <InputAdornment position="start">
+                          <LocationOn color="primary" />
+                        </InputAdornment>
+                      )
+                    }
+                  >
+                    <MenuItem value="">All Cities</MenuItem>
+                    {cities.map((city) => (
+                      <MenuItem key={city.id} value={city.name}>
+                        {city.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              {/* Date Picker */}
+              <Grid item xs={12} sm={6} md={2}>
+                <DatePicker
+                  label="Date"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      variant: "outlined",
+                      sx: { borderRadius: 2 },
+                      InputProps: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <CalendarMonth color="primary" />
+                          </InputAdornment>
+                        ),
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+
+              {/* Advanced Filter Toggle */}
+              <Grid item xs={12} md={2}>
+                <Button
+                  fullWidth
+                  variant={filtersExpanded ? "contained" : "outlined"}
+                  color="primary"
+                  onClick={() => setFiltersExpanded(!filtersExpanded)}
+                  endIcon={filtersExpanded ? <ArrowDropDown /> : <FilterList />}
+                  sx={{ borderRadius: 2, height: "56px" }}
+                >
+                  {filtersExpanded ? "Hide Filters" : "More Filters"}
+                </Button>
+              </Grid>
+            </Grid>
+
+            {/* Advanced Filters Section */}
+            <Fade in={filtersExpanded}>
+              <Box>
+                {filtersExpanded && (
+                  <Box mt={3} pt={3} borderTop={1} borderColor="divider">
+                    {/* Filter Tabs */}
+                    <Box
+                      sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}
+                    >
+                      <Tabs
+                        value={filterTab}
+                        onChange={handleFilterTabChange}
+                        variant={isMobile ? "scrollable" : "standard"}
+                        scrollButtons={isMobile ? "auto" : undefined}
+                      >
+                        <Tab
+                          icon={<SportsTennis fontSize="small" />}
+                          iconPosition="start"
+                          label="Sports & Time"
+                        />
+                        <Tab
+                          icon={<AttachMoney fontSize="small" />}
+                          iconPosition="start"
+                          label="Price"
+                        />
+                        <Tab
+                          icon={<Check fontSize="small" />}
+                          iconPosition="start"
+                          label="Facilities"
+                        />
+                      </Tabs>
+                    </Box>
+
+                    {/* Sports & Time Tab */}
+                    {filterTab === 0 && (
+                      <Grid container spacing={3}>
+                        {/* Sport Type */}
+                        <Grid item xs={12} md={4}>
+                          <FormControl fullWidth variant="outlined">
+                            <InputLabel id="sport-filter-label">
+                              Sport
+                            </InputLabel>
+                            <Select
+                              labelId="sport-filter-label"
+                              value={sportFilter}
+                              onChange={handleSportChange}
+                              label="Sport"
+                              disabled={loadingSports}
+                              sx={{ borderRadius: 2 }}
+                              startAdornment={
+                                loadingSports ? (
+                                  <InputAdornment position="start">
+                                    <CircularProgress
+                                      size={20}
+                                      color="inherit"
+                                    />
+                                  </InputAdornment>
+                                ) : (
+                                  <InputAdornment position="start">
+                                    <SportsTennis color="primary" />
+                                  </InputAdornment>
+                                )
+                              }
+                            >
+                              <MenuItem value="">All Sports</MenuItem>
+                              {sports.map((sport) => (
+                                <MenuItem key={sport.id} value={sport.id}>
+                                  {sport.name}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Grid>
+
+                        {/* Time Presets */}
+                        <Grid item xs={12} md={8}>
+                          <Typography
+                            variant="subtitle2"
+                            gutterBottom
+                            sx={{ display: "flex", alignItems: "center" }}
+                          >
+                            <EventAvailable color="primary" sx={{ mr: 0.5 }} />
+                            Time of Day
+                          </Typography>
+                          <Box display="flex" gap={1} flexWrap="wrap">
+                            {TIME_PRESETS.map((preset) => (
+                              <Chip
+                                key={preset.label}
+                                label={preset.label}
+                                icon={preset.icon}
+                                onClick={() => handleTimePresetChange(preset)}
+                                color={
+                                  timePreset === preset ? "primary" : "default"
+                                }
+                                variant={
+                                  timePreset === preset ? "filled" : "outlined"
+                                }
+                                sx={{ borderRadius: 2 }}
+                              />
+                            ))}
+                          </Box>
+
+                          {/* Custom Time Range */}
+                          <Stack direction="row" spacing={2} mt={2}>
+                            <TimePicker
+                              label="Start Time"
+                              value={startTime}
+                              onChange={handleStartTimeChange}
+                              slotProps={{
+                                textField: {
+                                  fullWidth: true,
+                                  variant: "outlined",
+                                  size: "small",
+                                  InputProps: {
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <AccessTime color="primary" />
+                                      </InputAdornment>
+                                    ),
+                                  },
+                                },
+                              }}
+                            />
+                            <TimePicker
+                              label="End Time"
+                              value={endTime}
+                              onChange={handleEndTimeChange}
+                              slotProps={{
+                                textField: {
+                                  fullWidth: true,
+                                  variant: "outlined",
+                                  size: "small",
+                                  InputProps: {
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <AccessTime color="primary" />
+                                      </InputAdornment>
+                                    ),
+                                  },
+                                },
+                              }}
+                            />
+                          </Stack>
+                        </Grid>
+                      </Grid>
+                    )}
+
+                    {/* Price Tab */}
+                    {filterTab === 1 && (
+                      <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                          <Box>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                mb: 2,
+                              }}
+                            >
+                              <AttachMoney color="primary" sx={{ mr: 0.5 }} />
+                              Price Range per Hour (VND)
+                            </Typography>
+                            <Slider
+                              value={priceRange}
+                              onChange={handlePriceRangeChange}
+                              valueLabelDisplay="auto"
+                              min={0}
+                              max={2000000}
+                              step={50000}
+                              valueLabelFormat={(value) => formatPrice(value)}
+                              sx={{ width: "95%", mx: "auto" }}
+                            />
+                            <Box
+                              display="flex"
+                              justifyContent="space-between"
+                              mt={1}
+                              px={1}
+                            >
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {formatPrice(priceRange[0])} VND
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {formatPrice(priceRange[1])} VND
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    )}
+
+                    {/* Facilities Tab */}
+                    {filterTab === 2 && (
+                      <Grid container spacing={2}>
+                        {FACILITIES.map((facility) => (
+                          <Grid item xs={6} sm={4} md={3} key={facility.id}>
+                            <Paper
+                              sx={{
+                                p: 1.5,
+                                display: "flex",
+                                alignItems: "center",
+                                cursor: "pointer",
+                                transition: "all 0.2s",
+                                border: selectedFacilities.includes(facility.id)
+                                  ? `2px solid ${facility.color}`
+                                  : "1px solid #e0e0e0",
+                                bgcolor: selectedFacilities.includes(
+                                  facility.id
+                                )
+                                  ? `${facility.color}10`
+                                  : "transparent",
+                                "&:hover": {
+                                  boxShadow: 2,
+                                },
+                              }}
+                              onClick={() =>
+                                handleFacilityChange({
+                                  target: { value: facility.id },
+                                })
+                              }
+                            >
+                              <Box
+                                sx={{
+                                  width: 36,
+                                  height: 36,
+                                  borderRadius: "50%",
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  mr: 1.5,
+                                  bgcolor: `${facility.color}20`,
+                                  fontSize: "1.2rem",
+                                }}
+                              >
+                                {facility.icon}
+                              </Box>
+                              <Typography variant="body2" sx={{ flex: 1 }}>
+                                {facility.name}
+                              </Typography>
+                              {selectedFacilities.includes(facility.id) && (
+                                <Check
+                                  fontSize="small"
+                                  sx={{ color: facility.color }}
+                                />
+                              )}
+                            </Paper>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    )}
+
+                    {/* Clear Filters Button */}
+                    <Box display="flex" justifyContent="flex-end" mt={2}>
+                      <Button
+                        onClick={handleClearFilters}
+                        startIcon={<Clear />}
+                        color="primary"
+                        variant="outlined"
+                        sx={{ borderRadius: 2 }}
+                      >
+                        Clear All Filters
+                      </Button>
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+            </Fade>
+
+            {/* Active Filter Chips */}
+            <Box
+              mt={2}
+              display="flex"
+              justifyContent="flex-start"
+              alignItems="center"
+              flexWrap="wrap"
+              gap={1}
+            >
+              {nameQuery && (
+                <Chip
+                  label={`Name: ${nameQuery}`}
+                  size="small"
+                  onDelete={() => setNameQuery("")}
+                  sx={{ borderRadius: 2 }}
+                />
+              )}
+              {cityFilter && (
+                <Chip
+                  label={`City: ${cityFilter}`}
+                  size="small"
+                  onDelete={() => setCityFilter("")}
+                  sx={{ borderRadius: 2 }}
+                />
+              )}
+              {sportFilter && (
+                <Chip
+                  label={`Sport: ${
+                    sports.find((s) => s.id === sportFilter)?.name ||
+                    sportFilter
+                  }`}
+                  size="small"
+                  onDelete={() => setSportFilter("")}
+                  sx={{ borderRadius: 2 }}
+                />
+              )}
+              {timePreset && (
+                <Chip
+                  label={`Time: ${timePreset.label}`}
+                  size="small"
+                  onDelete={() => {
+                    setTimePreset(null);
+                    setStartTime(null);
+                    setEndTime(null);
+                  }}
+                  sx={{ borderRadius: 2 }}
+                />
+              )}
+              {startTime && !timePreset && (
+                <Chip
+                  label={`From: ${startTime.format("HH:mm")}`}
+                  size="small"
+                  onDelete={() => setStartTime(null)}
+                  sx={{ borderRadius: 2 }}
+                />
+              )}
+              {endTime && !timePreset && (
+                <Chip
+                  label={`To: ${endTime.format("HH:mm")}`}
+                  size="small"
+                  onDelete={() => setEndTime(null)}
+                  sx={{ borderRadius: 2 }}
+                />
+              )}
+              {selectedFacilities.length > 0 && (
+                <Chip
+                  label={`Facilities: ${selectedFacilities.length}`}
+                  size="small"
+                  onDelete={() => setSelectedFacilities([])}
+                  sx={{ borderRadius: 2 }}
+                />
+              )}
+            </Box>
+          </Paper>
+
+          {/* Featured Sport Centers */}
+          {featuredCenters.length > 0 && !loading && (
+            <Box mb={6}>
+              <Box
+                display="flex"
+                alignItems="center"
+                mb={3}
+                sx={{
+                  borderBottom: "2px solid",
+                  borderColor: "primary.main",
+                  pb: 1,
+                }}
+              >
+                <Whatshot color="error" sx={{ mr: 1 }} />
+                <Typography variant="h5" component="h2" fontWeight={600}>
+                  Featured Sport Centers
+                </Typography>
+              </Box>
+
+              <Grid container spacing={3}>
+                {featuredCenters.map((center) => (
+                  <Grid item key={center.id} xs={12} sm={6} md={4}>
+                    <FeaturedSportCenterCard
+                      center={center}
+                      onClick={handleSportCenterClick}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          )}
+
+          {/* Results Info */}
+          <Box
+            id="search-results"
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={3}
+            sx={{
+              borderBottom: "2px solid",
+              borderColor: "divider",
+              pb: 1,
+            }}
+          >
+            <Typography variant="h5" component="h2" fontWeight={600}>
+              {loading ? (
+                <Skeleton width={180} />
+              ) : totalCount > 0 ? (
+                `All Sport Centers (${totalCount})`
+              ) : (
+                "Search Results"
+              )}
+            </Typography>
+
+            <Box display="flex" alignItems="center">
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                mr={2}
+                display={{ xs: "none", sm: "block" }}
+              >
+                {loading ? (
+                  <Skeleton width={100} />
+                ) : (
+                  `Page ${page} of ${totalPages || 1}`
+                )}
+              </Typography>
+              <ToggleButtonGroup
+                value={viewMode}
+                exclusive
+                onChange={handleViewModeChange}
+                size="small"
+                aria-label="view mode"
+              >
+                <ToggleButton value="grid" aria-label="grid view">
+                  <ViewModule />
+                </ToggleButton>
+                <ToggleButton value="list" aria-label="list view">
+                  <ViewList />
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          </Box>
+
+          {/* Error Message */}
+          {error && (
+            <Paper
+              elevation={2}
+              sx={{
+                p: 3,
+                mb: 4,
+                borderRadius: 2,
+                textAlign: "center",
+                bgcolor: "#fff5f5",
+                border: "1px solid #ffcdd2",
+              }}
+            >
+              <Typography color="error" gutterBottom>
+                {error}
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ mt: 2, borderRadius: 2 }}
+                onClick={fetchSportCenters}
+              >
+                Try Again
+              </Button>
+            </Paper>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+              {[...Array(6)].map((_, index) => (
+                <Grid
+                  item
+                  xs={12}
+                  sm={viewMode === "grid" ? 6 : 12}
+                  md={viewMode === "grid" ? 4 : 12}
+                  key={index}
+                >
+                  <Paper
+                    sx={{
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: viewMode === "list" ? "row" : "column",
+                      p: viewMode === "list" ? 0 : 0,
+                      overflow: "hidden",
+                      borderRadius: 2,
+                    }}
+                    elevation={2}
+                  >
+                    <Skeleton
+                      variant="rectangular"
+                      height={viewMode === "list" ? 180 : 200}
+                      width={viewMode === "list" ? 300 : "100%"}
+                      animation="wave"
+                    />
+                    <Box
+                      sx={{
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        p: viewMode === "list" ? 2 : 0,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          p: viewMode === "list" ? 0 : 2,
+                          pt: viewMode === "list" ? 0 : 2,
+                        }}
+                      >
+                        <Skeleton
+                          variant="text"
+                          height={32}
+                          width="80%"
+                          animation="wave"
+                        />
+                        <Skeleton
+                          variant="text"
+                          height={24}
+                          width="60%"
+                          animation="wave"
+                        />
+                        <Box display="flex" gap={1} mt={1} mb={1}>
+                          <Skeleton
+                            variant="rounded"
+                            height={24}
+                            width={60}
+                            animation="wave"
+                          />
+                          <Skeleton
+                            variant="rounded"
+                            height={24}
+                            width={60}
+                            animation="wave"
+                          />
+                          <Skeleton
+                            variant="rounded"
+                            height={24}
+                            width={60}
+                            animation="wave"
+                          />
+                        </Box>
+                        <Skeleton
+                          variant="text"
+                          height={20}
+                          width="90%"
+                          animation="wave"
+                        />
+                        <Skeleton
+                          variant="text"
+                          height={20}
+                          width="40%"
+                          animation="wave"
+                        />
+                      </Box>
+                      <Box sx={{ p: 2, pt: 0 }}>
+                        <Skeleton
+                          variant="rounded"
+                          height={36}
+                          width="100%"
+                          animation="wave"
+                        />
+                      </Box>
+                    </Box>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+
+          {/* Sport Centers Grid/List */}
+          {!loading && !error && (
+            <>
+              {sportCenters.length === 0 ? (
+                <Paper
+                  elevation={2}
+                  sx={{
+                    p: 4,
+                    textAlign: "center",
+                    borderRadius: 2,
+                    bgcolor: "#fff",
+                    mb: 4,
+                  }}
+                >
+                  <SportsHandball
+                    sx={{ fontSize: 60, color: "text.secondary", mb: 2 }}
+                  />
+                  <Typography variant="h5" gutterBottom color="text.secondary">
+                    No sports centers found
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" paragraph>
+                    Try adjusting your search or filters to find what you're
+                    looking for.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleClearFilters}
+                    sx={{ mt: 1, borderRadius: 2 }}
+                  >
+                    Clear All Filters
+                  </Button>
+                </Paper>
+              ) : (
+                <Grid container spacing={3} sx={{ mb: 4 }}>
+                  {sportCenters.map((center) => {
+                    const priceRange = getPriceRange(center);
+                    const uniqueSports = getUniqueSports(center);
+
+                    // Card for grid view
+                    if (viewMode === "grid") {
+                      return (
+                        <Grid item xs={12} sm={6} md={4} key={center.id}>
+                          <Paper
+                            sx={{
+                              height: "100%",
+                              display: "flex",
+                              flexDirection: "column",
+                              borderRadius: 2,
+                              overflow: "hidden",
+                              transition: "transform 0.3s, box-shadow 0.3s",
+                              "&:hover": {
+                                transform: "translateY(-8px)",
+                                boxShadow: 4,
+                              },
+                              cursor: "pointer",
+                            }}
+                            elevation={2}
+                            onClick={() => handleSportCenterClick(center.id)}
+                          >
+                            <Box sx={{ position: "relative" }}>
+                              <CardMedia
+                                component="img"
+                                height={200}
+                                image={
+                                  center.avatar ||
+                                  "https://via.placeholder.com/300x200?text=Sports+Center"
+                                }
+                                alt={center.name}
+                                sx={{ objectFit: "cover" }}
+                              />
+                              {/* Rating Badge */}
+                              <Box
+                                sx={{
+                                  position: "absolute",
+                                  top: 12,
+                                  right: 12,
+                                  bgcolor: "rgba(0,0,0,0.7)",
+                                  color: "white",
+                                  borderRadius: 2,
+                                  px: 1,
+                                  py: 0.5,
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Star
+                                  sx={{
+                                    fontSize: 16,
+                                    color: "#FFD700",
+                                    mr: 0.5,
+                                  }}
+                                />
+                                <Typography variant="body2" fontWeight="bold">
+                                  4.5
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                              <Typography
+                                variant="h6"
+                                component="h2"
+                                gutterBottom
+                                fontWeight={600}
+                              >
+                                {center.name}
+                              </Typography>
+
+                              <Box display="flex" alignItems="center" mb={1}>
+                                <LocationOn
+                                  fontSize="small"
+                                  color="primary"
+                                  sx={{ mr: 0.5, minWidth: 20 }}
+                                />
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {center.address}
+                                </Typography>
+                              </Box>
+
+                              <Box mb={1.5}>
+                                <Box display="flex" flexWrap="wrap" gap={0.5}>
+                                  {(center.sportNames || uniqueSports)
+                                    .slice(0, 3)
+                                    .map((sport, index) => (
+                                      <Chip
+                                        key={index}
+                                        label={sport}
+                                        size="small"
+                                        color="primary"
+                                        variant="outlined"
+                                        sx={{ borderRadius: 2, height: 24 }}
+                                      />
+                                    ))}
+                                  {(center.sportNames?.length ||
+                                    uniqueSports.length) > 3 && (
+                                    <Chip
+                                      label={`+${
+                                        (center.sportNames?.length ||
+                                          uniqueSports.length) - 3
+                                      }`}
+                                      size="small"
+                                      sx={{ borderRadius: 2, height: 24 }}
+                                    />
+                                  )}
+                                </Box>
+                              </Box>
+
+                              {/* Price Range */}
+                              {priceRange.max > 0 && (
+                                <Box display="flex" alignItems="center">
+                                  <LocalOffer
+                                    fontSize="small"
+                                    color="action"
+                                    sx={{ mr: 0.5, minWidth: 20 }}
+                                  />
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                  >
+                                    {priceRange.min === priceRange.max
+                                      ? `${formatPrice(priceRange.min)} VND`
+                                      : `${formatPrice(
+                                          priceRange.min
+                                        )} - ${formatPrice(
+                                          priceRange.max
+                                        )} VND`}
+                                  </Typography>
+                                </Box>
+                              )}
+                            </CardContent>
+
+                            <CardActions sx={{ p: 2, pt: 0 }}>
+                              <Button
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                endIcon={<ArrowForward />}
+                                sx={{ borderRadius: 2 }}
+                              >
+                                View Details
+                              </Button>
+                            </CardActions>
+                          </Paper>
+                        </Grid>
+                      );
+                    } else {
+                      // Card for list view
+                      return (
+                        <Grid item xs={12} key={center.id}>
+                          <Paper
+                            sx={{
+                              display: "flex",
+                              flexDirection: { xs: "column", sm: "row" },
+                              borderRadius: 2,
+                              overflow: "hidden",
+                              transition: "transform 0.2s, box-shadow 0.2s",
+                              "&:hover": {
+                                transform: "translateY(-4px)",
+                                boxShadow: 4,
+                              },
+                              cursor: "pointer",
+                            }}
+                            elevation={2}
+                            onClick={() => handleSportCenterClick(center.id)}
+                          >
+                            <Box
+                              sx={{
+                                position: "relative",
+                                width: { xs: "100%", sm: 280 },
+                                height: { xs: 180, sm: "auto" },
+                              }}
+                            >
+                              <CardMedia
+                                component="img"
+                                height="100%"
+                                image={
+                                  center.avatar ||
+                                  "https://via.placeholder.com/300x200?text=Sports+Center"
+                                }
+                                alt={center.name}
+                                sx={{
+                                  objectFit: "cover",
+                                  height: "100%",
+                                  width: "100%",
+                                }}
+                              />
+                              {/* Rating Badge */}
+                              <Box
+                                sx={{
+                                  position: "absolute",
+                                  top: 12,
+                                  right: 12,
+                                  bgcolor: "rgba(0,0,0,0.7)",
+                                  color: "white",
+                                  borderRadius: 2,
+                                  px: 1,
+                                  py: 0.5,
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Star
+                                  sx={{
+                                    fontSize: 16,
+                                    color: "#FFD700",
+                                    mr: 0.5,
+                                  }}
+                                />
+                                <Typography variant="body2" fontWeight="bold">
+                                  4.5
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            <Box
+                              sx={{
+                                flex: 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                p: 2,
+                              }}
+                            >
+                              <Box mb={1}>
+                                <Typography
+                                  variant="h6"
+                                  component="h2"
+                                  gutterBottom
+                                  fontWeight={600}
+                                >
+                                  {center.name}
+                                </Typography>
+
+                                <Grid container spacing={2}>
+                                  <Grid item xs={12} md={7}>
+                                    <Box
+                                      display="flex"
+                                      alignItems="center"
+                                      mb={1}
+                                    >
+                                      <LocationOn
+                                        fontSize="small"
+                                        color="primary"
+                                        sx={{ mr: 0.5, minWidth: 20 }}
+                                      />
+                                      <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                      >
+                                        {center.address}
+                                      </Typography>
+                                    </Box>
+
+                                    <Box
+                                      display="flex"
+                                      alignItems="center"
+                                      mb={1}
+                                    >
+                                      <Phone
+                                        fontSize="small"
+                                        color="primary"
+                                        sx={{ mr: 0.5, minWidth: 20 }}
+                                      />
+                                      <Typography variant="body2">
+                                        {center.phoneNumber}
+                                      </Typography>
+                                    </Box>
+
+                                    {/* Price Range */}
+                                    {priceRange.max > 0 && (
+                                      <Box display="flex" alignItems="center">
+                                        <LocalOffer
+                                          fontSize="small"
+                                          color="action"
+                                          sx={{ mr: 0.5, minWidth: 20 }}
+                                        />
+                                        <Typography
+                                          variant="body2"
+                                          color="text.secondary"
+                                        >
+                                          {priceRange.min === priceRange.max
+                                            ? `${formatPrice(
+                                                priceRange.min
+                                              )} VND/hour`
+                                            : `${formatPrice(
+                                                priceRange.min
+                                              )} - ${formatPrice(
+                                                priceRange.max
+                                              )} VND/hour`}
+                                        </Typography>
+                                      </Box>
+                                    )}
+                                  </Grid>
+
+                                  <Grid item xs={12} md={5}>
+                                    <Typography
+                                      variant="subtitle2"
+                                      gutterBottom
+                                      display="flex"
+                                      alignItems="center"
+                                    >
+                                      <SportsTennis
+                                        fontSize="small"
+                                        sx={{ mr: 0.5 }}
+                                      />
+                                      Available Sports:
+                                    </Typography>
+                                    <Box
+                                      display="flex"
+                                      flexWrap="wrap"
+                                      gap={0.5}
+                                    >
+                                      {(center.sportNames || uniqueSports).map(
+                                        (sport, index) => (
+                                          <Chip
+                                            key={index}
+                                            label={sport}
+                                            size="small"
+                                            color="primary"
+                                            variant="outlined"
+                                            sx={{ borderRadius: 2, height: 24 }}
+                                          />
+                                        )
+                                      )}
+                                    </Box>
+                                  </Grid>
+                                </Grid>
+                              </Box>
+
+                              {/* Description */}
+                              {center.description && (
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{
+                                    mt: 1,
+                                    mb: 2,
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                  }}
+                                >
+                                  {center.description}
+                                </Typography>
+                              )}
+
+                              <Box mt="auto" textAlign="right">
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  endIcon={<ArrowForward />}
+                                  sx={{ borderRadius: 2 }}
+                                >
+                                  View Details
+                                </Button>
+                              </Box>
+                            </Box>
+                          </Paper>
+                        </Grid>
+                      );
+                    }
+                  })}
+                </Grid>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  my={4}
+                  sx={{
+                    "& .MuiPaginationItem-root": {
+                      borderRadius: 2,
+                    },
+                  }}
+                >
+                  <Pagination
+                    count={totalPages}
+                    page={page}
+                    onChange={handlePageChange}
+                    color="primary"
+                    size="large"
+                    showFirstButton
+                    showLastButton
+                    siblingCount={isTablet ? 0 : 1}
+                  />
+                </Box>
+              )}
+            </>
+          )}
+
+          {/* Search Tips */}
+          <Paper
+            elevation={1}
+            sx={{
+              p: 2,
+              mb: 4,
+              mt: 2,
+              borderRadius: 2,
+              bgcolor: "#f1f8e9",
+              border: "1px solid #c5e1a5",
+            }}
+          >
+            <Box display="flex" alignItems="center" mb={1}>
+              <Info color="primary" sx={{ mr: 1 }} />
+              <Typography variant="subtitle1" fontWeight={600}>
+                Search Tips
+              </Typography>
+            </Box>
+            <Typography variant="body2" color="text.secondary">
+              • Use the date and time filters to find available courts for your
+              preferred schedule
+              <br />
+              • Filter by sport type to find centers that offer specific
+              activities
+              <br />• Check facility requirements (locker rooms, equipment
+              rental) to ensure the center meets your needs
+            </Typography>
+          </Paper>
+        </Container>
+      </Box>
+    </LocalizationProvider>
+  );
 };
 
 export default BrowseCourtsView;
