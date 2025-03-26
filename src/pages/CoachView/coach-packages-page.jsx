@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import CoachPackagesGrid from "../components/packages/coach-packages-grid"
-import Pagination from "../components/packages/pagination"
-import PackageFormModal from "../components/packages/package-form-modal"
-import ConfirmDeleteModal from "../components/packages/confirm-delete-modal"
-import { coachPackages as initialPackages } from "../data/coachPackageData"
+import CoachPackagesGrid from "../../components/packages/coach-packages-grid"
+import Pagination from "../../components/packages/pagination"
+import PackageFormModal from "../../components/packages/package-form-modal"
+import ConfirmDeleteModal from "../../components/packages/confirm-delete-modal"
+import { coachPackages as initialPackages } from "../../data/coachPackageData"
 import { useParams } from "react-router-dom"; // Import useParams
 
 

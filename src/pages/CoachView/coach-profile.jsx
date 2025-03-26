@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { CoachAvatar } from "../components/profile/coach-avatar"
-import { CoachInfo } from "../components/profile/coach-info"
-import { CoachBio } from "../components/profile/coach-bio"
-import { CoachActions } from "../components/profile/coach-actions"
-import { userData } from "../data/userData"
-import { coachData } from "../data/coachData"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
-import { Separator } from "../components/ui/separator"
+import { CoachAvatar } from "../../components/profile/coach-avatar"
+import { CoachInfo } from "../../components/profile/coach-info"
+import { CoachBio } from "../../components/profile/coach-bio"
+import { CoachActions } from "../../components/profile/coach-actions"
+import { userData } from "../../data/userData"
+import { coachData } from "../../data/coachData"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
+import { Separator } from "../../components/ui/separator"
 import { ChevronLeft, Award, Star, Trophy } from "lucide-react"
-import { Button } from "../components/ui/button"
-import { Card } from "../components/ui/card"
+import { Button } from "../../components/ui/button"
+import { Card } from "../../components/ui/card"
 
 export default function CoachProfile() {
   const { id } = useParams()

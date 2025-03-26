@@ -7,11 +7,11 @@ import CoachTrainingSessionManagementView from "@/pages/CoachView/CoachTrainingS
 import CoachTrainingPackageManagementView from "@/pages/CoachView/CoachTrainingPackageManagementView";
 import CoachAnalyticsView from "@/pages/CoachView/CoachAnalyticsView";
 import CoachSidebar from "../components/CoachPage/CoachSidebar";
-import CoachProfile from "@/pages/coach-profile"
-import CoachSchedules from "@/pages/coach-schedules"
-import CoachPackagesPage from "@/pages/coach-packages-page"
-import CoachBookingsPage from "@/pages/coach-bookings-page"
-import CoachPromotionManagementPage from "@/pages/CoachPromotionManagementPage"
+import CoachProfile from "@/pages/CoachView/coach-profile"
+import CoachSchedules from "@/pages/CoachView/coach-schedules"
+import CoachPackagesPage from "@/pages/CoachView/coach-packages-page"
+import CoachBookingsPage from "@/pages/CoachView/coach-bookings-page"
+import CoachPromotionManagementPage from "@/pages/CoachView/CoachPromotionManagementPage"
 
 const CoachRoutes = [
   <Route
