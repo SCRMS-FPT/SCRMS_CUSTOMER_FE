@@ -200,10 +200,8 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                ...this.getAuthHeaders(), // Add auth headers
-                "Content-Type": "application/json",
-            }
+            headers: this.getAuthHeaders(), // Add auth headers
+               
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -250,6 +248,7 @@ export class Client {
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
