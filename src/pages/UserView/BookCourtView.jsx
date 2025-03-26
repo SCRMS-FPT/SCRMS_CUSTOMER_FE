@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Client as CourtClient } from "../../API/CourtApi";
 import { Client as PaymentClient } from "../../API/PaymentApi";
+import { Button, Modal } from "antd";
+import { WalletOutlined, InfoCircleOutlined } from "@ant-design/icons";
+
 import {
   Layout,
   Typography,
   Steps,
   Card,
-  Button,
   DatePicker,
   Row,
   Col,
@@ -34,7 +36,6 @@ import {
   ClockCircleOutlined,
   CreditCardOutlined,
   UserOutlined,
-  InfoCircleOutlined,
   CheckCircleOutlined,
   EnvironmentOutlined,
   PhoneOutlined,
@@ -85,6 +86,9 @@ const BookCourtView = () => {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [error, setError] = useState(null);
 
+  const [walletBalance, setWalletBalance] = useState(null);
+  const [walletLoading, setWalletLoading] = useState(false);
+  const [walletError, setWalletError] = useState(null);
   // Booking states
   const [selectedDate, setSelectedDate] = useState(
     location.state?.selectedDate ? dayjs(location.state.selectedDate) : dayjs()
@@ -114,6 +118,34 @@ const BookCourtView = () => {
       icon: <CreditCardOutlined />,
     },
   ];
+  // Add this function to fetch wallet balance
+  const fetchWalletBalance = async () => {
+    try {
+      setWalletLoading(true);
+      setWalletError(null);
+
+      const paymentClient = new PaymentClient(API_PAYMENT_URL);
+      const balanceResponse = await paymentClient.getWalletBalance();
+
+      setWalletBalance(balanceResponse);
+      setWalletLoading(false);
+
+      return balanceResponse;
+    } catch (error) {
+      console.error("Error fetching wallet balance:", error);
+      setWalletError("Failed to fetch wallet balance");
+      setWalletLoading(false);
+
+      // Return a default balance of 0 when there's an error
+      return { balance: 0 };
+    }
+  };
+  useEffect(() => {
+    // Fetch wallet balance when entering payment step
+    if (current === 2) {
+      fetchWalletBalance();
+    }
+  }, [current]);
   // Check for preselected court from SportCenterDetails
   useEffect(() => {
     // If there's a preselected court in the location state, select it
@@ -432,7 +464,8 @@ const BookCourtView = () => {
   };
 
   // Steps navigation
-  const next = () => {
+  // Update the next function with balance check
+  const next = async () => {
     // When moving to step 2, ensure price is calculated
     if (current === 0) {
       calculateBookingPrice();
@@ -442,8 +475,74 @@ const BookCourtView = () => {
           behavior: "smooth",
         });
       }, 300);
+      setCurrent(current + 1);
     }
-    setCurrent(current + 1);
+    // Check balance before proceeding to payment step
+    else if (current === 1) {
+      try {
+        // Show loading first
+        message.loading({
+          content: "Checking wallet balance...",
+          key: "walletCheck",
+        });
+
+        // Get updated pricing if not already loaded
+        if (!priceDetails) {
+          await calculateBookingPrice();
+        }
+
+        // Get wallet balance
+        const balanceData = await fetchWalletBalance();
+
+        // Check if user has enough for deposit
+        const minimumDeposit = priceDetails?.minimumDeposit || 0;
+
+        if (balanceData.balance < minimumDeposit) {
+          // Not enough for deposit - show modal
+          message.error({
+            content: "Insufficient funds in your wallet for the deposit",
+            key: "walletCheck",
+          });
+
+          Modal.confirm({
+            title: "Insufficient Wallet Balance",
+            icon: <InfoCircleOutlined style={{ color: "#ff4d4f" }} />,
+            content: (
+              <div>
+                <p>
+                  Your wallet balance is{" "}
+                  {new Intl.NumberFormat("vi-VN").format(balanceData.balance)}{" "}
+                  VND, but the minimum deposit required is{" "}
+                  {new Intl.NumberFormat("vi-VN").format(minimumDeposit)} VND.
+                </p>
+                <p>Would you like to add funds to your wallet?</p>
+              </div>
+            ),
+            okText: "Go to Wallet",
+            cancelText: "Cancel",
+            onOk() {
+              navigate("/wallet");
+            },
+          });
+          return;
+        }
+
+        // Enough for deposit - proceed to step 3
+        message.success({
+          content: "Wallet check successful",
+          key: "walletCheck",
+        });
+        setCurrent(current + 1);
+      } catch (error) {
+        message.error({
+          content: "Error checking wallet balance. Please try again.",
+          key: "walletCheck",
+        });
+        console.error("Error in wallet balance check:", error);
+      }
+    } else {
+      setCurrent(current + 1);
+    }
   };
 
   const prev = () => {
@@ -464,6 +563,44 @@ const BookCourtView = () => {
         key: "bookingMessage",
       });
 
+      // Check wallet balance one more time before processing
+      const balanceData = await fetchWalletBalance();
+      const paymentAmount =
+        paymentChoice === "deposit"
+          ? priceDetails?.minimumDeposit || 0
+          : priceDetails?.totalPrice || 0;
+
+      if (balanceData.balance < paymentAmount) {
+        message.error({
+          content:
+            "Insufficient funds in your wallet. Please add funds to continue.",
+          key: "bookingMessage",
+        });
+
+        Modal.confirm({
+          title: "Insufficient Wallet Balance",
+          icon: <InfoCircleOutlined style={{ color: "#ff4d4f" }} />,
+          content: (
+            <div>
+              <p>
+                Your wallet balance (
+                {new Intl.NumberFormat("vi-VN").format(balanceData.balance)}{" "}
+                VND) is not enough for the{" "}
+                {paymentChoice === "deposit" ? "deposit" : "full payment"} (
+                {new Intl.NumberFormat("vi-VN").format(paymentAmount)} VND).
+              </p>
+              <p>Would you like to add funds to your wallet?</p>
+            </div>
+          ),
+          okText: "Go to Wallet",
+          cancelText: "Cancel",
+          onOk() {
+            navigate("/user/wallet");
+          },
+        });
+        return;
+      }
+
       // 1. Create booking request for Court API
       const bookingDetails = [];
       Object.entries(selectedTimeSlots).forEach(([courtId, slots]) => {
@@ -481,7 +618,7 @@ const BookCourtView = () => {
         paymentChoice === "deposit"
           ? priceDetails?.minimumDeposit ||
             (priceDetails?.totalPrice ? priceDetails.totalPrice * 0.3 : 0)
-          : priceDetails?.totalPrice || 0;
+          : 0;
 
       const bookingRequest = {
         booking: {
@@ -995,7 +1132,7 @@ const BookCourtView = () => {
                                                   {new Intl.NumberFormat(
                                                     "vi-VN"
                                                   ).format(slot.price)}{" "}
-                                                  VND
+                                                  VND/giờ
                                                 </div>
                                               </>
                                             ) : (
@@ -1251,7 +1388,7 @@ const BookCourtView = () => {
                         extra={
                           <Text strong>
                             {new Intl.NumberFormat("vi-VN").format(courtTotal)}{" "}
-                            VND
+                            VND/giờ
                           </Text>
                         }
                       >
@@ -1421,171 +1558,9 @@ const BookCourtView = () => {
               )}
             {/* Step 3 - Payment (redesigned for better user experience) */}
             {current === 2 && (
-              <Card
-                title={
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <CreditCardOutlined style={{ marginRight: 8 }} />
-                    <span>Payment Details</span>
-                  </div>
-                }
-                variant={false}
-                className="step-card"
-              >
-                <Alert
-                  message="Payment Information"
-                  description="Payment will be processed at the venue. This booking reserves your spot."
-                  type="info"
-                  showIcon
-                  style={{ marginBottom: 24 }}
-                />
-                <div className="booking-summary-section">
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginBottom: 16,
-                    }}
-                  >
-                    <CalendarOutlined
-                      style={{ fontSize: 18, marginRight: 8, color: "#1890ff" }}
-                    />
-                    <Title level={5} style={{ margin: 0 }}>
-                      Booking Summary
-                    </Title>
-                  </div>
-
-                  <div
-                    className="summary-container"
-                    style={{
-                      background: "#f5f7fa",
-                      padding: 16,
-                      borderRadius: 8,
-                      marginBottom: 24,
-                    }}
-                  >
-                    <Row gutter={[0, 12]}>
-                      <Col span={24}>
-                        <div className="summary-item">
-                          <Text strong>Date:</Text>
-                          <Text>{formatDate(selectedDate)}</Text>
-                        </div>
-                      </Col>
-
-                      <Col span={24}>
-                        <div className="summary-item">
-                          <Text strong>Sport Center:</Text>
-                          <Text>{sportCenter?.name}</Text>
-                        </div>
-                      </Col>
-
-                      <Col span={24}>
-                        <div className="summary-item">
-                          <Text strong>Location:</Text>
-                          <Text>{formatAddress(sportCenter)}</Text>
-                        </div>
-                      </Col>
-
-                      <Col span={24}>
-                        <div className="summary-item">
-                          <Text strong>Total Duration:</Text>
-                          <Text>
-                            {Object.values(selectedTimeSlots).reduce(
-                              (total, slots) => {
-                                let minutes = 0;
-                                slots.forEach((slot) => {
-                                  const start = dayjs(
-                                    `2023-01-01 ${slot.startTime}`
-                                  );
-                                  const end = dayjs(
-                                    `2023-01-01 ${slot.endTime}`
-                                  );
-                                  minutes += end.diff(start, "minute");
-                                });
-                                return total + minutes;
-                              },
-                              0
-                            )}{" "}
-                            minutes
-                          </Text>
-                        </div>
-                      </Col>
-
-                      <Col span={24}>
-                        <div className="summary-item">
-                          <Text strong>Total Courts:</Text>
-                          <Text>{Object.keys(selectedTimeSlots).length}</Text>
-                        </div>
-                      </Col>
-                    </Row>
-                  </div>
-                </div>
-                <List
-                  header={
-                    <div style={{ fontWeight: "bold" }}>
-                      Selected Time Slots
-                    </div>
-                  }
-                  bordered
-                  dataSource={Object.entries(selectedTimeSlots)}
-                  renderItem={([courtId, slots]) => {
-                    const court = courts.find((c) => c.id === courtId);
-                    const courtTotal = slots.reduce(
-                      (total, slot) => total + (slot.price || 0),
-                      0
-                    );
-
-                    return (
-                      <List.Item
-                        extra={
-                          <Text strong>
-                            {new Intl.NumberFormat("vi-VN").format(courtTotal)}{" "}
-                            VND
-                          </Text>
-                        }
-                      >
-                        <List.Item.Meta
-                          title={court.courtName}
-                          description={
-                            <div>
-                              {slots.map((slot, index) => (
-                                <Tag key={index} color="blue">
-                                  {slot.displayTime}
-                                </Tag>
-                              ))}
-                              <div style={{ marginTop: 8 }}>
-                                <Text type="secondary">
-                                  {slots.reduce((total, slot) => {
-                                    const start = dayjs(
-                                      `2023-01-01 ${slot.startTime}`
-                                    );
-                                    const end = dayjs(
-                                      `2023-01-01 ${slot.endTime}`
-                                    );
-                                    return total + end.diff(start, "minute");
-                                  }, 0)}{" "}
-                                  minutes
-                                </Text>
-                              </div>
-                            </div>
-                          }
-                        />
-                      </List.Item>
-                    );
-                  }}
-                />
-                {bookingNote && (
-                  <div style={{ marginTop: 16, marginBottom: 16 }}>
-                    <Divider>Your Note</Divider>
-                    <Alert
-                      message="Your Note"
-                      description={bookingNote}
-                      type="info"
-                      showIcon
-                    />
-                  </div>
-                )}
-                {/* Payment amount selection - New feature */}
+              <>
                 <Divider>Payment Amount</Divider>
+
                 <Radio.Group
                   value={paymentChoice}
                   onChange={(e) => setPaymentChoice(e.target.value)}
@@ -1624,10 +1599,72 @@ const BookCourtView = () => {
                       </Card>
                     </Radio>
 
-                    <Radio value="full">
+                    <Radio
+                      value="full"
+                      disabled={
+                        walletBalance &&
+                        priceDetails &&
+                        walletBalance.balance < priceDetails.totalPrice
+                      }
+                      onClick={() => {
+                        // If already selected or not disabled, don't show modal
+                        if (
+                          paymentChoice === "full" ||
+                          !(
+                            walletBalance &&
+                            priceDetails &&
+                            walletBalance.balance < priceDetails.totalPrice
+                          )
+                        ) {
+                          return;
+                        }
+
+                        // Show modal for insufficient funds for full payment
+                        Modal.info({
+                          title: "Insufficient Wallet Balance for Full Payment",
+                          icon: <WalletOutlined style={{ color: "#faad14" }} />,
+                          content: (
+                            <div>
+                              <p>
+                                Your wallet balance (
+                                {new Intl.NumberFormat("vi-VN").format(
+                                  walletBalance?.balance || 0
+                                )}{" "}
+                                VND) is not enough for full payment (
+                                {new Intl.NumberFormat("vi-VN").format(
+                                  priceDetails?.totalPrice || 0
+                                )}{" "}
+                                VND).
+                              </p>
+                              <p>You can either:</p>
+                              <ul>
+                                <li>Pay the deposit only</li>
+                                <li>Add funds to your wallet</li>
+                              </ul>
+                            </div>
+                          ),
+                          okText: "Add Funds",
+                          cancelText: "Use Deposit",
+                          onOk() {
+                            navigate("/user/wallet");
+                          },
+                          onCancel() {
+                            setPaymentChoice("deposit");
+                          },
+                        });
+                      }}
+                    >
                       <Card
                         size="small"
-                        style={{ marginLeft: 8 }}
+                        style={{
+                          marginLeft: 8,
+                          opacity:
+                            walletBalance &&
+                            priceDetails &&
+                            walletBalance.balance < priceDetails.totalPrice
+                              ? 0.6
+                              : 1,
+                        }}
                         bodyStyle={{ padding: 12 }}
                         hoverable
                       >
@@ -1650,160 +1687,30 @@ const BookCourtView = () => {
                             >
                               Pay the entire amount now (recommended)
                             </div>
+                            {walletBalance &&
+                              priceDetails &&
+                              walletBalance.balance <
+                                priceDetails.totalPrice && (
+                                <div
+                                  style={{
+                                    color: "#ff4d4f",
+                                    fontSize: "12px",
+                                    marginTop: "6px",
+                                  }}
+                                >
+                                  <InfoCircleOutlined
+                                    style={{ marginRight: "4px" }}
+                                  />
+                                  Insufficient funds in wallet
+                                </div>
+                              )}
                           </div>
                         </div>
                       </Card>
                     </Radio>
                   </Space>
                 </Radio.Group>
-                {/* Payment summary section with VND currency */}
-                <div
-                  style={{
-                    marginTop: 24,
-                    background: "#f9f9f9",
-                    padding: 16,
-                    borderRadius: 8,
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                  }}
-                >
-                  <Row justify="space-between" style={{ marginBottom: 8 }}>
-                    <Col>Subtotal:</Col>
-                    <Col>
-                      {new Intl.NumberFormat("vi-VN").format(
-                        calculateSubtotal()
-                      )}{" "}
-                      VND
-                    </Col>
-                  </Row>
-                  <Row justify="space-between" style={{ marginBottom: 8 }}>
-                    <Col>Tax (10%):</Col>
-                    <Col>
-                      {new Intl.NumberFormat("vi-VN").format(calculateTaxes())}{" "}
-                      VND
-                    </Col>
-                  </Row>
-                  <Divider style={{ margin: "12px 0" }} />
-                  <Row
-                    justify="space-between"
-                    style={{ fontWeight: "bold", fontSize: "16px" }}
-                  >
-                    <Col>Total:</Col>
-                    <Col>
-                      {new Intl.NumberFormat("vi-VN").format(calculateTotal())}{" "}
-                      VND
-                    </Col>
-                  </Row>
-                </div>
-                {/* Payment method selection - Pay Online disabled */}
-                <Divider>Payment Method</Divider>
-                <Radio.Group
-                  defaultValue="venue"
-                  style={{ width: "100%", marginBottom: 24 }}
-                >
-                  <Space direction="vertical" style={{ width: "100%" }}>
-                    <Radio value="venue">
-                      <Card
-                        size="small"
-                        style={{ marginLeft: 8, marginBottom: 8 }}
-                        hoverable
-                        styles={{ body: { padding: 12 } }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <BankOutlined
-                            style={{
-                              fontSize: 20,
-                              marginRight: 12,
-                              color: "#1890ff",
-                            }}
-                          />
-                          <div>
-                            <div style={{ fontWeight: "bold" }}>
-                              Pay with wallet
-                            </div>
-                            <div
-                              style={{
-                                color: "rgba(0, 0, 0, 0.45)",
-                                fontSize: "12px",
-                              }}
-                            >
-                              Pay in app with your wallet
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    </Radio>
-
-                    <Radio value="online" disabled>
-                      <Card
-                        size="small"
-                        style={{ marginLeft: 8, opacity: 0.5 }}
-                        styles={{ body: { padding: 12 } }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <CreditCardOutlined
-                            style={{
-                              fontSize: 20,
-                              marginRight: 12,
-                              color: "#52c41a",
-                            }}
-                          />
-                          <div>
-                            <div style={{ fontWeight: "bold" }}>Pay Online</div>
-                            <div
-                              style={{
-                                color: "rgba(0, 0, 0, 0.45)",
-                                fontSize: "12px",
-                              }}
-                            >
-                              Coming soon - Currently in development
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    </Radio>
-                  </Space>
-                </Radio.Group>
-                {/* Terms & Conditions */}
-                <Form.Item
-                  name="agreement"
-                  valuePropName="checked"
-                  rules={[
-                    {
-                      validator: (_, value) =>
-                        value
-                          ? Promise.resolve()
-                          : Promise.reject(
-                              new Error(
-                                "Please accept the terms and conditions"
-                              )
-                            ),
-                    },
-                  ]}
-                >
-                  <Checkbox>
-                    I agree to the <a href="#terms">terms and conditions</a> and{" "}
-                    <a href="#privacy">privacy policy</a>
-                  </Checkbox>
-                </Form.Item>
-                {/* Action Buttons */}
-                <div
-                  style={{
-                    marginTop: 24,
-                    display: "flex",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Button onClick={prev}>Back</Button>
-                  <Button
-                    type="primary"
-                    onClick={handleBooking}
-                    size="large"
-                    icon={<CheckCircleOutlined />}
-                  >
-                    Complete Booking
-                  </Button>
-                </div>
-              </Card>
+              </>
             )}
           </Col>
 
@@ -2101,15 +2008,44 @@ const BookCourtView = () => {
                         );
                       }
                     )}
-
                     <Divider style={{ margin: "16px 0" }} />
-
-                    <Statistic
-                      title="Total Price"
-                      value={(calculateTotal() / 1000).toFixed(2)}
-                      prefix="$"
-                      valueStyle={{ color: "#1890ff", fontWeight: "bold" }}
-                    />
+                    {current === 2 ? (
+                      <>
+                        <Statistic
+                          title={
+                            paymentChoice === "deposit"
+                              ? "Payment Amount (Deposit)"
+                              : "Payment Amount (Full)"
+                          }
+                          value={
+                            paymentChoice === "deposit"
+                              ? priceDetails?.minimumDeposit || 0
+                              : priceDetails?.totalPrice || 0
+                          }
+                          suffix="VND"
+                          valueStyle={{ color: "#1890ff", fontWeight: "bold" }}
+                        />
+                        {paymentChoice === "deposit" && (
+                          <div style={{ marginTop: 8 }}>
+                            <Text type="secondary">
+                              Remaining balance:{" "}
+                              {new Intl.NumberFormat("vi-VN").format(
+                                (priceDetails?.totalPrice || 0) -
+                                  (priceDetails?.minimumDeposit || 0)
+                              )}{" "}
+                              VND
+                            </Text>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <Statistic
+                        title="Total Price"
+                        value={priceDetails?.totalPrice || calculateTotal()}
+                        suffix="VND"
+                        valueStyle={{ color: "#1890ff", fontWeight: "bold" }}
+                      />
+                    )}
                   </>
                 )}
               </Card>
