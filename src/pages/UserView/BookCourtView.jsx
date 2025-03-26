@@ -44,7 +44,6 @@ import {
   EnvironmentOutlined,
   PhoneOutlined,
   TagOutlined,
-  BankOutlined,
   AppstoreOutlined,
   TeamOutlined,
   CheckOutlined,

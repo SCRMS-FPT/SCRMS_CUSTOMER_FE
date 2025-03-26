@@ -1,104 +1,139 @@
-import React, { useState } from "react";
-import { Card, Table, Button, Tag, Tooltip, Input, Select, Space } from "antd";
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  Table,
+  Button,
+  Tag,
+  Tooltip,
+  Input,
+  Select,
+  Space,
+  message,
+  Spin,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
-import venuesData from "@/data/venue_mock_data";
+import { Client } from "@/API/CourtApi";
 
 const { Option } = Select;
 const MAX_SPORTS_DISPLAY = 3;
-const MAX_AMENITIES_DISPLAY = 4;
+const client = new Client();
 
 const CourtOwnerVenueListView = () => {
   const navigate = useNavigate();
+  const [venues, setVenues] = useState([]);
+  const [sports, setSports] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [selectedSport, setSelectedSport] = useState("all");
-  const [selectedAmenity, setSelectedAmenity] = useState("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
 
-  // Get all unique sports and amenities for filtering options
-  const allSports = [...new Set(venuesData.flatMap(venue => venue.sports_available))];
-  const allAmenities = [...new Set(venuesData.flatMap(venue => venue.amenities))];
+  // Fetch sports and venues when component mounts or filters change
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  // Filter venues based on search & filters
-  const filteredVenues = venuesData.filter((venue) => {
-    const matchesSearch = venue.name.toLowerCase().includes(searchText.toLowerCase());
-    const matchesSport = selectedSport === "all" || venue.sports_available.includes(selectedSport);
-    const matchesAmenity = selectedAmenity === "all" || venue.amenities.includes(selectedAmenity);
-    return matchesSearch && matchesSport && matchesAmenity;
-  });
+        // Fetch sports for filter dropdown
+        const sportsResponse = await client.getSports();
+        setSports(sportsResponse.sports || []);
+
+        // Fetch venues (sport centers) owned by the current user
+        const venuesResponse = await client.getOwnedSportCenters(
+          page,
+          pageSize,
+          undefined, // city
+          searchText || undefined, // name
+          selectedSport !== "all" ? selectedSport : undefined, // sportId
+          undefined, // bookingDate
+          undefined, // startTime
+          undefined // endTime
+        );
+
+        setVenues(venuesResponse.sportCenters?.data || []);
+        setTotalCount(venuesResponse.sportCenters?.count || 0);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error("Failed to load data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [page, pageSize, searchText, selectedSport]);
+
+  // Handle search with debounce
+  const handleSearch = (value) => {
+    setSearchText(value);
+    setPage(1); // Reset to first page when searching
+  };
 
   const columns = [
     {
       title: "Venue Name",
       dataIndex: "name",
       key: "name",
-      sorter: (a, b) => a.name.localeCompare(b.name), // ✅ Sort Alphabetically
-      render: (text) => <span className="font-semibold text-indigo-600">{text}</span>,
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (text) => (
+        <span className="font-semibold text-indigo-600">{text}</span>
+      ),
     },
     {
       title: "Location",
       dataIndex: "address",
       key: "location",
-      sorter: (a, b) => a.address.city.localeCompare(b.address.city), // ✅ Sort by City Name
-      render: (address) => `${address.city}, ${address.state}`,
+      render: (address) => address || "No address provided",
     },
     {
-      title: "Rating",
-      dataIndex: "rating",
-      key: "rating",
-      sorter: (a, b) => b.rating - a.rating, // ✅ Sort Numerically (Highest First)
-      render: (rating) => <span className="font-bold text-yellow-500">{rating} ⭐</span>,
+      title: "Phone",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
     },
     {
       title: "Sports",
-      dataIndex: "sports_available",
+      dataIndex: "sportNames",
       key: "sports",
-      render: (sports) => {
-        const limitedSports = sports.slice(0, MAX_SPORTS_DISPLAY);
-        const remainingSports = sports.slice(MAX_SPORTS_DISPLAY);
+      render: (sportNames = []) => {
+        const limitedSports = sportNames.slice(0, MAX_SPORTS_DISPLAY);
+        const remainingSports = sportNames.slice(MAX_SPORTS_DISPLAY);
         return (
           <>
-            {limitedSports.map((sport) => <Tag color="blue" key={sport}>{sport}</Tag>)}
+            {limitedSports.map((sport) => (
+              <Tag color="blue" key={sport}>
+                {sport}
+              </Tag>
+            ))}
             {remainingSports.length > 0 && (
               <Tooltip title={remainingSports.join(", ")}>
-                <Tag color="gray" className="cursor-pointer">+{remainingSports.length}</Tag>
+                <Tag color="gray" className="cursor-pointer">
+                  +{remainingSports.length}
+                </Tag>
               </Tooltip>
             )}
           </>
         );
       },
-    },
-    {
-      title: "Amenities",
-      dataIndex: "amenities",
-      key: "amenities",
-      render: (amenities) => {
-        const limitedAmenities = amenities.slice(0, MAX_AMENITIES_DISPLAY);
-        const remainingAmenities = amenities.slice(MAX_AMENITIES_DISPLAY);
-        return (
-          <>
-            {limitedAmenities.map((amenity) => <Tag color="green" key={amenity}>{amenity}</Tag>)}
-            {remainingAmenities.length > 0 && (
-              <Tooltip title={remainingAmenities.join(", ")}>
-                <Tag color="gray" className="cursor-pointer">+{remainingAmenities.length}</Tag>
-              </Tooltip>
-            )}
-          </>
-        );
-      },
-    },
-    {
-      title: "Courts",
-      dataIndex: "courts",
-      key: "courts",
-      render: (courts) => <span className="font-semibold">{courts.length}</span>,
     },
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <Button type="primary" onClick={() => navigate(`/court-owner/venues/${record.id}`)}>
-          Manage
-        </Button>
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => navigate(`/court-owner/venues/${record.id}`)}
+          >
+            Manage
+          </Button>
+          <Button
+            onClick={() => navigate(`/court-owner/venues/${record.id}/courts`)}
+          >
+            Courts
+          </Button>
+        </Space>
       ),
     },
   ];
@@ -106,47 +141,65 @@ const CourtOwnerVenueListView = () => {
   return (
     <Card
       title="My Venues"
-      extra={<Button type="primary" onClick={() => navigate("/court-owner/venues/create")}>Add New Venue</Button>}
+      extra={
+        <Button
+          type="primary"
+          onClick={() => navigate("/court-owner/venues/create")}
+        >
+          Add New Venue
+        </Button>
+      }
     >
       {/* Search & Filter Controls */}
       <Space className="mb-4" wrap>
         <Input
           placeholder="Search Venue Name"
           value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
           style={{ width: 200 }}
         />
         <Select
           value={selectedSport}
-          onChange={setSelectedSport}
+          onChange={(value) => {
+            setSelectedSport(value);
+            setPage(1); // Reset to first page when changing filters
+          }}
           style={{ width: 150 }}
           placeholder="Filter by Sport"
         >
           <Option value="all">All Sports</Option>
-          {allSports.map((sport) => (
-            <Option key={sport} value={sport}>{sport}</Option>
-          ))}
-        </Select>
-        <Select
-          value={selectedAmenity}
-          onChange={setSelectedAmenity}
-          style={{ width: 150 }}
-          placeholder="Filter by Amenity"
-        >
-          <Option value="all">All Amenities</Option>
-          {allAmenities.map((amenity) => (
-            <Option key={amenity} value={amenity}>{amenity}</Option>
+          {sports.map((sport) => (
+            <Option key={sport.id} value={sport.id}>
+              {sport.name}
+            </Option>
           ))}
         </Select>
       </Space>
 
       {/* Venues Table */}
-      <Table
-        dataSource={filteredVenues}
-        rowKey="id"
-        columns={columns}
-        pagination={{ pageSize: 10 }}
-      />
+      {loading ? (
+        <div className="flex justify-center items-center p-10">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Table
+          dataSource={venues}
+          rowKey="id"
+          columns={columns}
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: totalCount,
+            onChange: (page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            },
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50"],
+          }}
+          locale={{ emptyText: "No venues found" }}
+        />
+      )}
     </Card>
   );
 };
