@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../store/userSlice";
-import logo from "../../assets/logo.svg";
-import defaultAvatar from "../../assets/default_avatar.jpg";
-import { Client } from "../../API/PaymentApi";
+import { logout } from "@/store/userSlice";
+import logo from "@/assets/logo.svg";
+import defaultAvatar from "@/assets/default_avatar.jpg";
+import { Client } from "@/API/PaymentApi";
+import { HomeOutlined, TrophyOutlined } from "@ant-design/icons";
 // Import MUI components
 import {
   AppBar,
@@ -348,6 +349,44 @@ const Navbar = () => {
                       <SportsIcon fontSize="small" sx={{ color: "#2563eb" }} />
                     </ListItemIcon>
                     <Typography variant="body1">Coaches</Typography>
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleDiscoverMenuClose();
+                      navigate("/courts/sport");
+                    }}
+                    sx={{
+                      py: 1.5,
+                      borderRadius: 1,
+                      mx: 0.5,
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                    }}
+                  >
+                    <ListItemIcon>
+                      <TrophyOutlined style={{ fontSize: 18, color: "#2563eb" }} /> {/* Ant Design Trophy Icon */}
+                    </ListItemIcon>
+                    <Typography variant="body1">Discover Sports</Typography>
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleDiscoverMenuClose();
+                      navigate("/courts/venue");
+                    }}
+                    sx={{
+                      py: 1.5,
+                      borderRadius: 1,
+                      mx: 0.5,
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                    }}
+                  >
+                    <ListItemIcon>
+                      <HomeOutlined style={{ fontSize: 17, color: "#2563eb" }} /> {/* Ant Design Home Icon */}
+                    </ListItemIcon>
+                    <Typography variant="body1">Discover Venues</Typography>
                   </MenuItem>
                 </Menu>
               </Box>

@@ -1,76 +1,130 @@
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import coachesData from "../../data/coachesData";
+import React, { useState, useEffect } from "react";
+import { Card, Row, Col, Tabs, Divider, Button, Spin } from "antd";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import CoachImageCarousel from "../../components/CoachComponents/CoachImageCarousel";
 import CoachInfo from "../../components/CoachComponents/CoachInfo";
 import CoachSpecialties from "../../components/CoachComponents/CoachSpecialties";
 import CoachDescription from "../../components/CoachComponents/CoachDescription";
-import CoachLocation from "../../components/CoachComponents/CoachLocation";
 import CoachContact from "../../components/CoachComponents/CoachContact";
 import CoachFeedback from "../../components/CoachComponents/CoachFeedback";
+import coachesData from "../../data/coachesData";
+import AvailabilityTab from "../../components/CoachComponents/AvailabilityTab";
+
+const { TabPane } = Tabs;
 
 const CoachDetails = () => {
-  const { id } = useParams(); // Get coach ID from URL
-  const navigate = useNavigate(); // Hook for navigation
-  const coach = coachesData.find((c) => c.id === parseInt(id)); // Find coach by ID
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const previousTab = searchParams.get("tab") || "1";
+  const [coach, setCoach] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [feedbacks, setFeedbacks] = useState([]);
 
-  const handleAddFeedback = (feedback) => {
-    setFeedbacks([...feedbacks, feedback]);
+  // Fetch coach data from mock data
+  useEffect(() => {
+    const foundCoach = coachesData.find((c) => c.id.toString() === id);
+    if (foundCoach) {
+      setCoach(foundCoach);
+    } else {
+      navigate("/404");
+    }
+    setLoading(false);
+  }, [id, navigate]);
+
+  const handleAddFeedback = (newFeedback) => {
+    setFeedbacks([...feedbacks, newFeedback]);
   };
 
   const handleBookSession = () => {
     navigate(`/book-coach/${id}`);
   };
 
-  if (!coach) {
-    return <div className="text-center text-red-500">Coach not found!</div>;
+  if (loading || !coach) {
+    return <Spin size="large" style={{ display: "block", margin: "20px auto" }} />;
   }
 
   return (
-    <div className="container mx-auto p-6 flex flex-col gap-6">
-      {/* Title */}
-      <h1 className="text-3xl font-bold mb-6">Chi tiết Huấn luyện viên</h1>
+    <div className="container mx-auto p-6">
+      <Card
+        title={<h2 className="text-3xl font-bold">{coach.name}</h2>}
+        extra={
+          <Button type="primary" onClick={() => navigate(`/user/coachings?tab=${previousTab}`)}>
+            Back to Coaches
+          </Button>
+        }
+        bordered={false}
+        className="shadow-lg"
+        style={{ maxWidth: "1200px", margin: "0 auto" }}
+      >
+        <Tabs defaultActiveKey="1" size="large" type="line">
+          {/* Overview Tab */}
+          <TabPane tab="Overview" key="1">
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12}>
+                <CoachImageCarousel images={coach.image_details} name={coach.name} />
+              </Col>
+              <Col xs={24} md={12}>
+                <CoachInfo
+                  name={coach.name}
+                  location={coach.location}
+                  availableHours={coach.availableHours}
+                  fee={coach.fee}
+                  rating={coach.rating}
+                />
+                <div className="mt-4">
+                  <Button type="primary" onClick={handleBookSession}>
+                    Book Now
+                  </Button>
+                </div>
+                <Divider />
+                <CoachSpecialties specialties={coach.specialties} />
+                <Divider />
+                <CoachDescription description={coach.description} />
+              </Col>
+            </Row>
+          </TabPane>
 
-      {/* Top Section (Coach Details + Carousel) */}
-      <div className="flex gap-6">
-        <div className="w-5/8 bg-white shadow-md p-4 rounded-lg">
-          <CoachImageCarousel images={coach.image_details} name={coach.name} />
-          <CoachInfo
-            name={coach.name}
-            location={coach.location}
-            availableHours={coach.availableHours}
-            fee={coach.fee}
-            rating={coach.rating}
-          />
-          <button
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-            onClick={handleBookSession}
-          >
-            Book Now
-          </button>
-          <CoachSpecialties specialties={coach.specialties} />
-          <CoachDescription description={coach.description} />
-          <CoachContact
-            email={coach.contact.email}
-            phone={coach.contact.phone}
-            website={coach.contact.website}
-          />
-        </div>
+          {/* Availability Tab */}
+          <TabPane tab="Availability" key="2">
+            <AvailabilityTab schedule={coach.schedule} />
+          </TabPane>
 
-        {/* Right Side (Google Maps Location) */}
-        <div className="w-3/8 bg-white shadow-md p-4 rounded-lg">
-          <CoachLocation location={coach.location} />
-        </div>
-      </div>
+          {/* Location & Contact Tab */}
+          <TabPane tab="Location & Contact" key="3">
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12}>
+                <h3 className="text-xl font-bold mb-4">Location</h3>
+                <div style={{ height: "300px", width: "100%" }}>
+                  <iframe
+                    title="Coach Location"
+                    width="100%"
+                    height="100%"
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                      coach.location
+                    )}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                    frameBorder="0"
+                    style={{ border: "0" }}
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </Col>
+              <Col xs={24} md={12}>
+                <CoachContact
+                  email={coach.contact.email}
+                  phone={coach.contact.phone}
+                  website={coach.contact.website}
+                />
+              </Col>
+            </Row>
+          </TabPane>
 
-      {/* Bottom Section (Feedback) */}
-      <div className="bg-white shadow-md p-4 rounded-lg">
-        <CoachFeedback
-          feedbacks={feedbacks}
-          onAddFeedback={handleAddFeedback}
-        />
-      </div>
+          {/* Feedback Tab */}
+          <TabPane tab="Feedback" key="4">
+            <CoachFeedback feedbacks={feedbacks} onAddFeedback={handleAddFeedback} />
+          </TabPane>
+        </Tabs>
+      </Card>
     </div>
   );
 };

@@ -15,7 +15,6 @@ import SportsCenter from "@/pages/UserView/SportsCenter";
 import CoachList from "@/pages/CoachBooking/CoachList";
 import CoachDetails from "@/pages/CoachBooking/CoachDetails";
 
-import court_mock_data from "@/data/court_mock_data";
 import PricingView from "@/pages/ServicePackage/PricingView";
 import WalletView from "@/pages/UserView/WalletView";
 import WalletHistoryView from "@/pages/UserView/WalletHistoryView";
@@ -27,6 +26,7 @@ import ChatListView from "@/pages/ChatView/ChatListView";
 import ChatView from "@/pages/ChatView/ChatView";
 import NewChatView from "@/pages/ChatView/NewChatView";
 import ChatPage from "../pages/ChatView/ChatPage";
+import NotFoundView from "../pages/GeneralView/NotFoundView";
 
 
 const GeneralRoutes = [
@@ -125,7 +125,7 @@ const GeneralRoutes = [
     path="/courts/sport"
     element={
       <Layout className="bg-gray-50">
-        <FindCourtBySportView data={court_mock_data} />
+        <FindCourtBySportView />
       </Layout>
     }
   />,
@@ -134,7 +134,7 @@ const GeneralRoutes = [
     path="/courts/sport/:sportType"
     element={
       <Layout className="bg-gray-50">
-        <FindCourtBySportView data={court_mock_data} />
+        <FindCourtBySportView />
       </Layout>
     }
   />,
@@ -234,7 +234,16 @@ const GeneralRoutes = [
         <NewChatView />
       </Layout>
     }
-  />
+  />,
+  <Route
+    key="not-found"
+    path="/404"
+    element={
+      <Layout>
+        <NotFoundView />
+      </Layout>
+    }
+  />,
 ];
 
 export default GeneralRoutes;
