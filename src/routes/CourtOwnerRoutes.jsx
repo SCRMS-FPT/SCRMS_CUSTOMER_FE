@@ -1,6 +1,7 @@
-import { Route } from "react-router-dom";
+import { Route, Navigate, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Layout from "@/components/GeneralComponents/Layout";
-
+import CourtOwnerOnboarding from "@/pages/CourtOwnerView/CourtOwnerOnboarding";
 import CourtOwnerDashboardView from "@/pages/CourtOwnerView/CourtOwnerDashboardView";
 import CourtOwnerVenueListView from "@/pages/CourtOwnerView/CourtOwnerVenueListView";
 import CourtOwnerVenueDetailView from "@/pages/CourtOwnerView/CourtOwnerVenueDetailView";
@@ -19,206 +20,331 @@ import PromotionManagement from "@/pages/PromotionManagementPage";
 import CourtsManage from "@/pages/CourtsManage";
 import CourtReport from "@/pages/CourtReport";
 import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
+import Forbidden403 from "@/pages/Error/Forbidden403";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+import { Client } from "../API/CourtApi";
+// Protected route component that checks for CourtOwner role
+const ProtectedCourtOwnerRoute = ({ children }) => {
+  // Get user info from Redux
+  const user = useSelector((state) => state.user.userProfile);
 
+  // Check if user has specific roles
+  const isCourtOwner = user?.roles?.includes("CourtOwner");
+  const [loading, setLoading] = useState(true);
+  const [hasSportCenters, setHasSportCenters] = useState(true);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    if (isCourtOwner) {
+      const checkSportCenters = async () => {
+        try {
+          const client = new Client();
+          const response = await client.getOwnedSportCenters(1, 10);
 
+          // Check if the court owner has any sport centers
+          if (response.sportCenters?.data?.length === 0) {
+            setHasSportCenters(false);
+          } else {
+            setHasSportCenters(true);
+          }
+        } catch (error) {
+          console.error("Error checking sport centers:", error);
+          // If API fails, we'll assume they have centers to avoid blocking access
+          setHasSportCenters(true);
+        } finally {
+          setLoading(false);
+        }
+      };
 
+      checkSportCenters();
+    } else {
+      setLoading(false);
+    }
+  }, [isCourtOwner]);
 
+  // While checking, show nothing (or could add a loading spinner)
+  if (loading) {
+    return null;
+  }
+
+  // If not a court owner, redirect to forbidden
+  if (!isCourtOwner) {
+    return <Navigate to="/forbidden" replace />;
+  }
+
+  // If a court owner but has no sport centers, redirect to onboarding
+  if (
+    !hasSportCenters &&
+    !window.location.pathname.includes("/court-owner/onboarding")
+  ) {
+    return <Navigate to="/court-owner/onboarding" replace />;
+  }
+
+  // If onboarding is complete and trying to access onboarding page, redirect to dashboard
+  if (
+    hasSportCenters &&
+    window.location.pathname === "/court-owner/onboarding"
+  ) {
+    return <Navigate to="/court-owner/dashboard" replace />;
+  }
+
+  return children;
+};
+ProtectedCourtOwnerRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 const CourtOwnerRoutes = [
+  // 403 Forbidden route
+  <Route key="forbidden" path="/forbidden" element={<Forbidden403 />} />,
+  <Route
+    key="court-owner-onboarding"
+    path="/court-owner/onboarding"
+    element={
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerOnboarding />
+      </ProtectedCourtOwnerRoute>
+    }
+  />,
+  // Protected Court Owner routes
   <Route
     key="court-owner-dashboard"
     path="/court-owner/dashboard"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerDashboardView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerDashboardView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-venues"
     path="/court-owner/venues"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerVenueListView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerVenueListView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-venue-detail"
     path="/court-owner/venues/:venueId"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerVenueDetailView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerVenueDetailView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-venue-create"
     path="/court-owner/venues/create"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerVenueCreateView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerVenueCreateView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-courts"
     path="/court-owner/courts"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerCourtListView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerCourtListView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-court-details"
     path="/court-owner/courts/:courtId"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerCourtDetailView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerCourtDetailView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-court-create-venue"
     path="/court-owner/courts/create/:venueId"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerCourtCreateView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerCourtCreateView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-court-create"
     path="/court-owner/courts/create"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerCourtCreateView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerCourtCreateView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-court-update"
     path="/court-owner/courts/update/:courtId"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerCourtCreateView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerCourtCreateView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-bookings"
     path="/court-owner/bookings"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerBookingView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerBookingView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-schedule"
     path="/court-owner/schedule"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerScheduleView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerScheduleView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-promotions"
     path="/court-owner/promotions"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerPromotionView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerPromotionView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-promotion-create"
     path="/court-owner/promotions/create"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerPromotionCreateView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerPromotionCreateView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-promotion-edit"
     path="/court-owner/promotions/edit/:promotionId"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerPromotionCreateView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerPromotionCreateView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-promotion-details"
     path="/court-owner/promotions/details/:promotionId"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerPromotionDetailView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerPromotionDetailView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-notifications"
     path="/court-owner/notifications"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerNotificationView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerNotificationView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="court-owner-reports"
     path="/court-owner/reports"
     element={
-      <CourtOwnerSidebar>
-        <CourtOwnerReportsView />
-      </CourtOwnerSidebar>
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerReportsView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="courts-manage"
     path="/courts-manage"
     element={
-      <Layout>
-        <CourtsManage />
-      </Layout>
+      <ProtectedCourtOwnerRoute>
+        <Layout>
+          <CourtsManage />
+        </Layout>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="courts-manage-center"
     path="/courts-manage/:centerId"
     element={
-      <Layout>
-        <CourtsManage />
-      </Layout>
+      <ProtectedCourtOwnerRoute>
+        <Layout>
+          <CourtsManage />
+        </Layout>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="promotion-management"
     path="/PromotionManagement"
     element={
-      <Layout>
-        <PromotionManagement />
-      </Layout>
+      <ProtectedCourtOwnerRoute>
+        <Layout>
+          <PromotionManagement />
+        </Layout>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="promotion-management-court"
     path="/PromotionManagement/:courtId"
     element={
-      <Layout>
-        <PromotionManagement />
-      </Layout>
+      <ProtectedCourtOwnerRoute>
+        <Layout>
+          <PromotionManagement />
+        </Layout>
+      </ProtectedCourtOwnerRoute>
     }
   />,
   <Route
     key="reports"
     path="/reports"
     element={
-      <CourtReport />
+      <ProtectedCourtOwnerRoute>
+        <CourtReport />
+      </ProtectedCourtOwnerRoute>
     }
   />,
 ];

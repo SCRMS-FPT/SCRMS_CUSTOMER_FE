@@ -51,9 +51,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
+            headers: this.getAuthHeaders(), // Add auth headers
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -233,6 +231,97 @@ export class Client {
         }
         return Promise.resolve<GetBookingsResult>(null as any);
     }
+/**
+     * Get Sport Centers by Owner
+     * @param page (optional) 
+     * @param limit (optional) 
+     * @param city (optional) 
+     * @param name (optional) 
+     * @param sportId (optional) 
+     * @param bookingDate (optional) 
+     * @param startTime (optional) 
+     * @param endTime (optional) 
+     * @return OK
+     */
+getOwnedSportCenters(page: number | undefined, limit: number | undefined, city: string | undefined, name: string | undefined, sportId: string | undefined, bookingDate: Date | undefined, startTime: string | undefined, endTime: string | undefined): Promise<GetOwnedSportCentersResponse> {
+    let url_ = this.baseUrl + "/api/sportcenters/owned?";
+    if (page === null)
+        throw new Error("The parameter 'page' cannot be null.");
+    else if (page !== undefined)
+        url_ += "page=" + encodeURIComponent("" + page) + "&";
+    if (limit === null)
+        throw new Error("The parameter 'limit' cannot be null.");
+    else if (limit !== undefined)
+        url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+    if (city === null)
+        throw new Error("The parameter 'city' cannot be null.");
+    else if (city !== undefined)
+        url_ += "city=" + encodeURIComponent("" + city) + "&";
+    if (name === null)
+        throw new Error("The parameter 'name' cannot be null.");
+    else if (name !== undefined)
+        url_ += "name=" + encodeURIComponent("" + name) + "&";
+    if (sportId === null)
+        throw new Error("The parameter 'sportId' cannot be null.");
+    else if (sportId !== undefined)
+        url_ += "SportId=" + encodeURIComponent("" + sportId) + "&";
+    if (bookingDate === null)
+        throw new Error("The parameter 'bookingDate' cannot be null.");
+    else if (bookingDate !== undefined)
+        url_ += "BookingDate=" + encodeURIComponent(bookingDate ? "" + bookingDate.toISOString() : "") + "&";
+    if (startTime === null)
+        throw new Error("The parameter 'startTime' cannot be null.");
+    else if (startTime !== undefined)
+        url_ += "StartTime=" + encodeURIComponent("" + startTime) + "&";
+    if (endTime === null)
+        throw new Error("The parameter 'endTime' cannot be null.");
+    else if (endTime !== undefined)
+        url_ += "EndTime=" + encodeURIComponent("" + endTime) + "&";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: this.getAuthHeaders(),
+        credentials: 'include'
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetOwnedSportCenters(_response);
+    });
+}
+
+protected processGetOwnedSportCenters(response: Response): Promise<GetOwnedSportCentersResponse> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = GetOwnedSportCentersResponse.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status === 403) {
+        return response.text().then((_responseText) => {
+        let result403: any = null;
+        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result403 = ProblemDetails.fromJS(resultData403);
+        return throwException("Forbidden", status, _responseText, _headers, result403);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<GetOwnedSportCentersResponse>(null as any);
+}
+
 
     /**
      * Get Booking By Id
@@ -307,6 +396,7 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
@@ -370,6 +460,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
@@ -598,6 +689,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
@@ -837,6 +929,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
@@ -889,6 +982,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
@@ -982,6 +1076,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
@@ -1031,6 +1126,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
@@ -1188,6 +1284,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
@@ -1234,7 +1331,8 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/json"
+                "Accept": "application/json",
+                credentials: 'include'
             }
         };
 
@@ -1282,6 +1380,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
@@ -1417,18 +1516,54 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
      * Create Sport Center
      * @return Created
      */
-    createSportCenter(body: CreateSportCenterCommand): Promise<CreateSportCenterResponse> {
+    createSportCenter(model: CreateSportCenterFormModel | undefined): Promise<CreateSportCenterResponse> {
         let url_ = this.baseUrl + "/api/sportcenters";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+        const content_ = new FormData();
+        if (model === null || model === undefined)
+            throw new Error("The parameter 'model' cannot be null.");
+        else {
+            // Validate required fields
+            if (!model.name) throw new Error("Name is required");
+            if (!model.phoneNumber) throw new Error("PhoneNumber is required");
+
+            // Append each field individually
+            content_.append("Name", model.name);
+            content_.append("PhoneNumber", model.phoneNumber);
+            if (model.addressLine) content_.append("AddressLine", model.addressLine);
+            if (model.city) content_.append("City", model.city);
+            if (model.district) content_.append("District", model.district);
+            if (model.commune) content_.append("Commune", model.commune);
+            if (model.latitude !== undefined) content_.append("Latitude", model.latitude.toString());
+            if (model.longitude !== undefined) content_.append("Longitude", model.longitude.toString());
+            if (model.description) content_.append("Description", model.description);
+            
+            // Handle files correctly
+            if (model.avatarImage) content_.append("AvatarImage", model.avatarImage);
+            
+            // Append each gallery image separately
+            if (model.galleryImages && model.galleryImages.length) {
+                model.galleryImages.forEach(image => {
+                    content_.append("GalleryImages", image);
+                });
+            }
+        }
+        
+        // const xsrfToken = (() => {
+        //     const match = document.cookie.match('(^|;)\\s*XSRF-TOKEN\\s*=\\s*([^;]+)');
+        //     if (!match) throw new Error("CSRF token not found");
+        //     return decodeURIComponent(match[2]);
+        // })();
 
         let options_: RequestInit = {
             body: content_,
             method: "POST",
+            
             headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
+                ...this.getAuthHeaders(),
+                "Accept": "application/json",
+                // "X-XSRF-TOKEN": xsrfToken // ✅ Đảm bảo token luôn có giá trị
             }
         };
 
@@ -1461,6 +1596,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         }
         return Promise.resolve<CreateSportCenterResponse>(null as any);
     }
+
 
     /**
      * Get Sport Centers
@@ -1613,6 +1749,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
@@ -2883,6 +3020,89 @@ export interface ICreateCourtPromotionRequest {
     validFrom?: Date;
     validTo?: Date;
 }
+export class CreateSportCenterFormModel implements ICreateSportCenterFormModel {
+    name?: string | undefined;
+    phoneNumber?: string | undefined;
+    addressLine?: string | undefined;
+    city?: string | undefined;
+    district?: string | undefined;
+    commune?: string | undefined;
+    latitude?: number;
+    longitude?: number;
+    description?: string | undefined;
+    avatarImage?: File | undefined; // Changed from string to File
+    galleryImages?: File[] | undefined; // Changed from string[] to File[]
+
+    constructor(data?: ICreateSportCenterFormModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.addressLine = _data["addressLine"];
+            this.city = _data["city"];
+            this.district = _data["district"];
+            this.commune = _data["commune"];
+            this.latitude = _data["latitude"];
+            this.longitude = _data["longitude"];
+            this.description = _data["description"];
+            this.avatarImage = _data["avatarImage"];
+            if (Array.isArray(_data["galleryImages"])) {
+                this.galleryImages = [] as any;
+                for (let item of _data["galleryImages"])
+                    this.galleryImages!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateSportCenterFormModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateSportCenterFormModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["phoneNumber"] = this.phoneNumber;
+        data["addressLine"] = this.addressLine;
+        data["city"] = this.city;
+        data["district"] = this.district;
+        data["commune"] = this.commune;
+        data["latitude"] = this.latitude;
+        data["longitude"] = this.longitude;
+        data["description"] = this.description;
+        data["avatarImage"] = this.avatarImage;
+        if (Array.isArray(this.galleryImages)) {
+            data["galleryImages"] = [];
+            for (let item of this.galleryImages)
+                data["galleryImages"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICreateSportCenterFormModel {
+    name?: string | undefined;
+    phoneNumber?: string | undefined;
+    addressLine?: string | undefined;
+    city?: string | undefined;
+    district?: string | undefined;
+    commune?: string | undefined;
+    latitude?: number;
+    longitude?: number;
+    description?: string | undefined;
+    avatarImage?: File | undefined; // Changed from string to File
+    galleryImages?: File[] | undefined; // Changed from string[] to File[]
+}
 
 export class CreateCourtRequest implements ICreateCourtRequest {
     court?: CourtCreateDTO;
@@ -3052,89 +3272,6 @@ export interface ICreateCourtScheduleResponse {
     id?: string;
 }
 
-export class CreateSportCenterCommand implements ICreateSportCenterCommand {
-    name?: string | undefined;
-    phoneNumber?: string | undefined;
-    addressLine?: string | undefined;
-    city?: string | undefined;
-    district?: string | undefined;
-    commune?: string | undefined;
-    latitude?: number;
-    longitude?: number;
-    avatar?: string | undefined;
-    imageUrls?: string[] | undefined;
-    description?: string | undefined;
-
-    constructor(data?: ICreateSportCenterCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.addressLine = _data["addressLine"];
-            this.city = _data["city"];
-            this.district = _data["district"];
-            this.commune = _data["commune"];
-            this.latitude = _data["latitude"];
-            this.longitude = _data["longitude"];
-            this.avatar = _data["avatar"];
-            if (Array.isArray(_data["imageUrls"])) {
-                this.imageUrls = [] as any;
-                for (let item of _data["imageUrls"])
-                    this.imageUrls!.push(item);
-            }
-            this.description = _data["description"];
-        }
-    }
-
-    static fromJS(data: any): CreateSportCenterCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateSportCenterCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["phoneNumber"] = this.phoneNumber;
-        data["addressLine"] = this.addressLine;
-        data["city"] = this.city;
-        data["district"] = this.district;
-        data["commune"] = this.commune;
-        data["latitude"] = this.latitude;
-        data["longitude"] = this.longitude;
-        data["avatar"] = this.avatar;
-        if (Array.isArray(this.imageUrls)) {
-            data["imageUrls"] = [];
-            for (let item of this.imageUrls)
-                data["imageUrls"].push(item);
-        }
-        data["description"] = this.description;
-        return data;
-    }
-}
-
-export interface ICreateSportCenterCommand {
-    name?: string | undefined;
-    phoneNumber?: string | undefined;
-    addressLine?: string | undefined;
-    city?: string | undefined;
-    district?: string | undefined;
-    commune?: string | undefined;
-    latitude?: number;
-    longitude?: number;
-    avatar?: string | undefined;
-    imageUrls?: string[] | undefined;
-    description?: string | undefined;
-}
 
 export class CreateSportCenterResponse implements ICreateSportCenterResponse {
     id?: string;
@@ -3635,6 +3772,42 @@ export class GetCourtDetailsResponse implements IGetCourtDetailsResponse {
 export interface IGetCourtDetailsResponse {
     court?: CourtDTO;
 }
+export class GetOwnedSportCentersResponse implements IGetOwnedSportCentersResponse {
+    sportCenters?: SportCenterListDTOPaginatedResult;
+
+    constructor(data?: IGetOwnedSportCentersResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sportCenters = _data["sportCenters"] ? SportCenterListDTOPaginatedResult.fromJS(_data["sportCenters"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetOwnedSportCentersResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetOwnedSportCentersResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sportCenters"] = this.sportCenters ? this.sportCenters.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGetOwnedSportCentersResponse {
+    sportCenters?: SportCenterListDTOPaginatedResult;
+}
+
 
 export class GetCourtStatsResponse implements IGetCourtStatsResponse {
     total_courts?: number;
