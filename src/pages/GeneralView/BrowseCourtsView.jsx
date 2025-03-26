@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import {
   Container,
@@ -277,7 +277,8 @@ const BrowseCourtsView = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
-
+  // URL Search params
+  const [searchParams] = useSearchParams();
   // State management
   const [sportCenters, setSportCenters] = useState([]);
   const [featuredCenters, setFeaturedCenters] = useState([]);
@@ -313,7 +314,45 @@ const BrowseCourtsView = () => {
 
   // API client
   const courtClient = new Client();
+  // Parse URL parameters on component load
+  useEffect(() => {
+    // Get parameters from URL
+    const sportParam = searchParams.get("sport");
+    const cityParam = searchParams.get("city");
+    const dateParam = searchParams.get("date");
+    const startTimeParam = searchParams.get("startTime");
+    const endTimeParam = searchParams.get("endTime");
 
+    // Set filters based on URL parameters
+    if (sportParam) setSportFilter(sportParam);
+    if (cityParam) setCityFilter(cityParam);
+
+    // Handle date parameter
+    if (dateParam) {
+      const parsedDate = dayjs(dateParam);
+      if (parsedDate.isValid()) {
+        setSelectedDate(parsedDate);
+      }
+    }
+
+    // Handle time parameters
+    if (startTimeParam) {
+      const [hours, minutes] = startTimeParam.split(":");
+      const parsedStartTime = dayjs().hour(hours).minute(minutes);
+      setStartTime(parsedStartTime);
+    }
+
+    if (endTimeParam) {
+      const [hours, minutes] = endTimeParam.split(":");
+      const parsedEndTime = dayjs().hour(hours).minute(minutes);
+      setEndTime(parsedEndTime);
+    }
+
+    // If any parameters are present, expand the filters automatically
+    if (sportParam || cityParam || startTimeParam || endTimeParam) {
+      setFiltersExpanded(true);
+    }
+  }, [searchParams]);
   // Extract featured centers when data is loaded
   useEffect(() => {
     if (sportCenters.length > 0 && !loading) {
