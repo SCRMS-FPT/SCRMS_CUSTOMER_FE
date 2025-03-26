@@ -1,20 +1,78 @@
 import React from "react";
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const CourtCard = ({ court }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/court/${court.court_id}`);
+  };
+
   return (
-    <div className="bg-white shadow-lg rounded-lg overflow-hidden flex">
-      <img
+    <Card
+      elevation={3}
+      onClick={handleCardClick}
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column", sm: "row" },
+        borderRadius: 2,
+        overflow: "hidden",
+        height: "100%",
+        cursor: "pointer",
+        transition: "transform 0.3s, box-shadow 0.3s",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: 6,
+        },
+      }}
+    >
+      <CardMedia
+        component="img"
+        image={court.images?.[0] || "https://placehold.co/200x200"}
         alt={court.name}
-        className="w-1/3 h-full object-cover"
-        src={court.images?.[0] || "https://placehold.co/200x200"}
+        sx={{
+          width: { xs: "100%", sm: "33%" },
+          height: isMobile ? 200 : "auto",
+          objectFit: "cover",
+        }}
       />
-      <div className="p-6 w-2/3">
-        <h2 className="text-2xl font-bold text-indigo-600">{court.name}</h2>
-        <p className="text-gray-700 mt-2">Location: {court.venue?.name}</p>
-        <p className="text-gray-700 mt-1">Sport: {court.sport_type}</p>
-        <p className="text-gray-700 mt-1">Availability: {court.weekly_availability?.monday?.[0]?.start || "N/A"} - {court.weekly_availability?.monday?.[0]?.end || "N/A"}</p>
-      </div>
-    </div>
+      <CardContent
+        sx={{
+          p: 2,
+          width: { xs: "100%", sm: "67%" },
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
+        <div>
+          <Typography variant="h6" color="primary" fontWeight="bold">
+            {court.name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mt={1}>
+            Location: {court.venue?.name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mt={1}>
+            Sport: {court.sport_type}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mt={1}>
+            Availability:{" "}
+            {court.weekly_availability?.monday?.[0]?.start || "N/A"} -{" "}
+            {court.weekly_availability?.monday?.[0]?.end || "N/A"}
+          </Typography>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

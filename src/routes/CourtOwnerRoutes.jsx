@@ -20,7 +20,6 @@ import PromotionManagement from "@/pages/PromotionManagementPage";
 import CourtsManage from "@/pages/CourtsManage";
 import CourtReport from "@/pages/CourtReport";
 import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
-import Forbidden403 from "@/pages/Error/Forbidden403";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { Client } from "../API/CourtApi";
@@ -95,8 +94,6 @@ ProtectedCourtOwnerRoute.propTypes = {
   children: PropTypes.node.isRequired,
 };
 const CourtOwnerRoutes = [
-  // 403 Forbidden route
-  <Route key="forbidden" path="/forbidden" element={<Forbidden403 />} />,
   <Route
     key="court-owner-onboarding"
     path="/court-owner/onboarding"

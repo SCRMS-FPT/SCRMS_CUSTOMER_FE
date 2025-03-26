@@ -1,11 +1,6 @@
 import React from "react";
-import {
-  FaSearch,
-  FaMapMarkerAlt,
-  FaDollarSign,
-  FaFutbol,
-  FaBasketballBall,
-} from "react-icons/fa";
+import { Box, Typography, Button, TextField, Grid } from "@mui/material";
+import { FaMapMarkerAlt, FaDollarSign } from "react-icons/fa";
 import sportsData from "../../data/sportsData";
 
 const CoachFilter = ({
@@ -19,75 +14,79 @@ const CoachFilter = ({
   clearFilters,
 }) => {
   return (
-    <div className="bg-white p-6 rounded-lg">
-      {/* Choose Sport */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold mb-2">Choose Sport</h3>
-        <div className="grid grid-cols-3 gap-3">
-          {sportsData.slice(0, 6).map((sport) => (
-            <button
-              key={sport.name}
+    <Box>
+      <Typography variant="h6" gutterBottom>
+        Choose Sport
+      </Typography>
+      <Grid container spacing={2}>
+        {sportsData.slice(0, 6).map((sport) => (
+          <Grid item xs={4} key={sport.name}>
+            <Button
+              fullWidth
+              variant={selectedSport === sport.name ? "contained" : "outlined"}
+              color="primary"
               onClick={() => setSelectedSport(sport.name)}
-              className={`border p-3 rounded-md flex justify-center items-center transition-all 
-                                ${
-                                  selectedSport === sport.name
-                                    ? "border-green-500 bg-green-100"
-                                    : "border-gray-300"
-                                }
-                                hover:bg-gray-100`}
+              sx={{ borderRadius: 2, textTransform: "none" }}
             >
-              <img src={sport.icon} alt={sport.name} className="w-10 h-10" />
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Location Input */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold mb-2">Location</h3>
-        <div className="flex items-center border p-2 rounded-md">
-          <FaMapMarkerAlt className="mr-2 text-gray-500" />
-          <input
-            type="text"
-            value={selectedLocation}
-            onChange={(e) => setSelectedLocation(e.target.value)}
-            className="w-full outline-none"
-            placeholder="Enter location"
-          />
-        </div>
-      </div>
-
-      {/* Fee Input */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold mb-2">Max Fee</h3>
-        <div className="flex items-center border p-2 rounded-md">
-          <FaDollarSign className="mr-2 text-gray-500" />
-          <input
-            type="number"
-            value={selectedFee}
-            onChange={(e) => setSelectedFee(e.target.value)}
-            className="w-full outline-none"
-            placeholder="Enter max fee"
-          />
-        </div>
-      </div>
-
-      {/* Clear & Filter Buttons */}
-      <div className="flex justify-center gap-x-4 mt-6">
-        <button
-          onClick={clearFilters}
-          className="border px-6 py-2 w-46 rounded-md text-gray-700 hover:bg-gray-100 transition-all"
-        >
+              <Box
+                component="img"
+                src={sport.icon}
+                alt={sport.name}
+                sx={{ width: 32, height: 32, mr: 1 }}
+              />
+              {sport.name}
+            </Button>
+          </Grid>
+        ))}
+      </Grid>
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Location
+        </Typography>
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Enter location"
+          value={selectedLocation}
+          onChange={(e) => setSelectedLocation(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <Box sx={{ mr: 1, display: "flex", alignItems: "center" }}>
+                <FaMapMarkerAlt style={{ color: "#6d6d6d" }} />
+              </Box>
+            ),
+          }}
+        />
+      </Box>
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Max Fee
+        </Typography>
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Enter max fee"
+          type="number"
+          value={selectedFee || ""}
+          onChange={(e) => setSelectedFee(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <Box sx={{ mr: 1, display: "flex", alignItems: "center" }}>
+                <FaDollarSign style={{ color: "#6d6d6d" }} />
+              </Box>
+            ),
+          }}
+        />
+      </Box>
+      <Box sx={{ mt: 4, display: "flex", justifyContent: "space-around" }}>
+        <Button variant="outlined" onClick={clearFilters} sx={{ textTransform: "none" }}>
           Clear
-        </button>
-        <button
-          onClick={applyFilters}
-          className="bg-green-600 text-white px-6 py-2 w-46 rounded-md hover:bg-green-700 transition-all"
-        >
+        </Button>
+        <Button variant="contained" onClick={applyFilters} sx={{ textTransform: "none" }}>
           Filter
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Box>
+    </Box>
   );
 };
 

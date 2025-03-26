@@ -121,7 +121,8 @@ const Navbar = () => {
       setTabValue(0);
     } else if (
       pathname.includes("/browse-courts") ||
-      pathname.includes("/court/")
+      pathname.includes("/court/") || 
+      pathname.includes("/courts/sport")
     ) {
       setTabValue(1);
     } else if (pathname.includes("/coaches") || pathname.includes("/coach/")) {

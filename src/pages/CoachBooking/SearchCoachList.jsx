@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Box, TextField, InputAdornment } from "@mui/material";
-import { FaSearch } from "react-icons/fa";
+import { Search } from "@mui/icons-material";
 
 const SearchCoachList = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [localSearch, setLocalSearch] = useState("");
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      onSearch(searchTerm);
+    const timer = setTimeout(() => {
+      onSearch(localSearch);
     }, 300);
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm, onSearch]);
+    return () => clearTimeout(timer);
+  }, [localSearch, onSearch]);
 
   return (
     <Box
@@ -30,12 +30,12 @@ const SearchCoachList = ({ onSearch }) => {
           fullWidth
           variant="outlined"
           placeholder="Search for coaches..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          value={localSearch}
+          onChange={(e) => setLocalSearch(e.target.value)}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <FaSearch style={{ color: "#6d6d6d" }} />
+                <Search color="primary" />
               </InputAdornment>
             ),
           }}

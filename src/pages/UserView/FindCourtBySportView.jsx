@@ -8,6 +8,8 @@ import "@/styles/animations.css";
 import data from "@/data/court_mock_data";
 import sportsData from "@/data/sportsData"; // Import sports data
 
+import { Container, Grid, Box, Typography, Paper } from "@mui/material";
+
 const ITEMS_PER_PAGE = 6;
 
 // Derive valid sports names from the imported sportsData array
@@ -70,39 +72,53 @@ const FindCourtBySportView = () => {
   );
 
   return (
-    <div className="container mx-auto p-4">
-      <header className="mt-8 mb-16">
-        <h1 className="text-4xl font-bold text-center text-indigo-600">
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box sx={{ mt: 0, mb: 4 }}>
+        <Typography
+          variant="h4"
+          align="center"
+          color="primary"
+          fontWeight="bold"
+          gutterBottom
+        >
           Find Your Sport Court
-        </h1>
-      </header>
+        </Typography>
+      </Box>
 
-      {/* Sidebar - Sport Selection */}
-      <div className="grid grid-cols-12 gap-10">
-        <div className="col-span-12 md:col-span-4">
-          <SportSelection
-            selectedSport={selectedSport}
-            setSelectedSport={handleSportChange}
-          />
-        </div>
+      {/* Main Content Grid */}
+      <Grid container spacing={4}>
+        {/* Sidebar - Sport Selection */}
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 2, borderRadius: 2 }} elevation={3}>
+            <SportSelection
+              selectedSport={selectedSport}
+              setSelectedSport={handleSportChange}
+            />
+          </Paper>
+        </Grid>
 
         {/* Courts List Section */}
-        <div className="col-span-12 md:col-span-8">
-          {loading ? (
-            <LoadingIndicator />
-          ) : (
-            <CourtList courts={paginatedCourts} animationClass={animationClass} />
-          )}
-          {filteredCourts.length > ITEMS_PER_PAGE && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          )}
-        </div>
-      </div>
-    </div>
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 2, borderRadius: 2 }} elevation={3}>
+            {loading ? (
+              <LoadingIndicator />
+            ) : (
+              <CourtList courts={paginatedCourts} animationClass={animationClass} />
+            )}
+            {filteredCourts.length > ITEMS_PER_PAGE && (
+              <Box sx={{ mt: 2 }}>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </Box>
+            )}
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 
