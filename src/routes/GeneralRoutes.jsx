@@ -26,6 +26,7 @@ import SportCenterDetails from "@/pages/UserView/SportCenterDetails";
 import ChatListView from "@/pages/ChatView/ChatListView";
 import ChatView from "@/pages/ChatView/ChatView";
 import NewChatView from "@/pages/ChatView/NewChatView";
+import ChatPage from "../pages/ChatView/ChatPage";
 
 
 const GeneralRoutes = [
@@ -219,21 +220,10 @@ const GeneralRoutes = [
     }
   />,
   <Route
-    key="chat-list"
+    key="chat-view"
     path="/chats"
     element={
-      <Layout>
-        <ChatListView />
-      </Layout>
-    }
-  />,
-  <Route
-    key="chat-view"
-    path="/chats/:chatSessionId"
-    element={
-      <Layout>
         <ChatView />
-      </Layout>
     }
   />,
   <Route

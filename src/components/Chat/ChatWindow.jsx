@@ -1,34 +1,30 @@
 // /src/components/Chat/ChatWindow.jsx
 import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
 import { Client } from "@/API/ChatApi";
 import ChatHeader from "@/components/Chat/ChatHeader";
 import MessageBubble from "@/components/Chat/MessageBubble";
 import ChatInput from "@/components/Chat/ChatInput";
 import TypingIndicator from "@/components/Chat/TypingIndicator";
 import { Spin } from "antd";
-import { format } from "date-fns";
 
 const chatApiClient = new Client();
 
-const ChatWindow = () => {
-  const { chatSessionId } = useParams();
+const ChatWindow = ({ chatSessionId, isMini = false, onMarkChatRead }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [typing, setTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    setMessages([]);
     loadMessages();
-    // Setup your WebSocket/SignalR connection here if needed
+    // Setup your WebSocket/SignalR connection here if needed.
   }, [chatSessionId]);
 
   const loadMessages = async () => {
     setLoading(true);
     try {
-      // NOTE: In your real implementation, update getChatMessages to return message data.
-      // const response = await chatApiClient.getChatMessages(chatSessionId, 1, 50);
-      // For demo, simulate dummy messages:
+      // Simulated dummy messages for demo:
       const response = [
         {
           message_id: "101",
@@ -44,6 +40,8 @@ const ChatWindow = () => {
         },
       ];
       setMessages(response);
+      // After loading messages, mark the chat as read.
+      onMarkChatRead && onMarkChatRead(chatSessionId);
     } catch (error) {
       console.error("Error loading messages:", error);
     } finally {
@@ -53,20 +51,37 @@ const ChatWindow = () => {
   };
 
   const handleSendMessage = async (text) => {
+    const newMsg = {
+      message_id: Date.now().toString(),
+      sender_id: "current-user",
+      message_text: text,
+      sent_at: new Date().toISOString(),
+      status: "sending",
+    };
+    setMessages((prev) => [...prev, newMsg]);
+    scrollToBottom();
+
     try {
-      // Call API to send the message
       await chatApiClient.sendMessage(chatSessionId, { messageText: text });
-      // Append sent message to local state
-      const newMsg = {
-        message_id: Date.now().toString(),
-        sender_id: "current-user",
-        message_text: text,
-        sent_at: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, newMsg]);
-      scrollToBottom();
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.message_id === newMsg.message_id ? { ...msg, status: "sent" } : msg
+        )
+      );
+      setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.message_id === newMsg.message_id ? { ...msg, status: undefined } : msg
+          )
+        );
+      }, 2000);
     } catch (error) {
       console.error("Failed to send message:", error);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.message_id === newMsg.message_id ? { ...msg, status: "error" } : msg
+        )
+      );
     }
   };
 
@@ -74,19 +89,26 @@ const ChatWindow = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  if (loading) return <Spin tip="Loading messages..." />;
+  if (loading) return <Spin tip="Loading messages..." className="p-6" />;
 
   return (
-    <div className="flex flex-col h-full">
-      <ChatHeader chatSessionId={chatSessionId} />
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+    <div className="flex flex-col h-full bg-white rounded-lg shadow overflow-hidden">
+      {/* Header */}
+      {!isMini && (
+        <div className="flex-none bg-gradient-to-r from-blue-500 to-indigo-500 px-6 py-4">
+          <ChatHeader chatSessionId={chatSessionId} />
+        </div>
+      )}
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0 bg-gradient-to-b from-gray-100 to-gray-50">
         {messages.map((msg) => (
           <MessageBubble key={msg.message_id} message={msg} />
         ))}
         {typing && <TypingIndicator />}
         <div ref={messagesEndRef} />
       </div>
-      <div className="flex-none">
+      {/* Input Section */}
+      <div className="flex-none border-t bg-white px-6 py-4 shadow-inner">
         <ChatInput onSend={handleSendMessage} />
       </div>
     </div>
