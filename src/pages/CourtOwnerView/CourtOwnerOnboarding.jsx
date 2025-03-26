@@ -21,17 +21,17 @@ import {
   Fade,
   Zoom,
   Divider,
-  IconButton,
 } from "@mui/material";
 import {
-  Result,
   Spin,
   notification,
   Upload,
   Timeline,
-  Empty,
   Badge,
   Progress,
+  Tag,
+  Collapse,
+  Typography as AntTypography,
 } from "antd";
 import {
   SportsTennisOutlined,
@@ -45,11 +45,51 @@ import {
   SportsSoccerOutlined as SportsCenterOutlined,
   AddCircleOutlined,
   PlayArrowRounded,
+  DeleteOutlined,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Client } from "@/API/CourtApi";
+
+const { Panel } = Collapse;
+const { Title, Text } = AntTypography;
+
+// Default operating hours format - same as in CourtCreateView
+const defaultSchedules = [
+  {
+    days: [1, 2, 3, 4, 5], // Monday to Friday
+    startTime: "07:00",
+    endTime: "17:00",
+    priceSlot: 150000,
+    name: "Weekday Regular Hours",
+  },
+  {
+    days: [1, 2, 3, 4, 5], // Monday to Friday
+    startTime: "17:00",
+    endTime: "22:00",
+    priceSlot: 200000,
+    name: "Weekday Evening Hours",
+  },
+  {
+    days: [6, 7], // Saturday and Sunday (7 is Sunday)
+    startTime: "08:00",
+    endTime: "22:00",
+    priceSlot: 250000,
+    name: "Weekend Hours",
+  },
+];
+
+// Day options for schedule selection
+const dayOptions = [
+  { label: "Monday", value: 1 },
+  { label: "Tuesday", value: 2 },
+  { label: "Wednesday", value: 3 },
+  { label: "Thursday", value: 4 },
+  { label: "Friday", value: 5 },
+  { label: "Saturday", value: 6 },
+  { label: "Sunday", value: 7 },
+];
 
 const CourtOwnerOnboarding = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -65,7 +105,7 @@ const CourtOwnerOnboarding = () => {
     imageUrls: [],
     avatar: "",
   });
-
+  const [schedules, setSchedules] = useState(defaultSchedules);
   // Add these new state variables for tracking actual files
   const [avatarFile, setAvatarFile] = useState(null);
   const [galleryFiles, setGalleryFiles] = useState([]);
@@ -77,12 +117,24 @@ const CourtOwnerOnboarding = () => {
     courtName: "",
     sportId: "",
     description: "",
-    facilities: [],
+    facilities: [], // Add initial empty array for facilities
     slotDuration: "01:00:00",
     minDepositPercentage: 30,
     courtType: 1,
     cancellationWindowHours: 24,
     refundPercentage: 50,
+    courtSchedules: [], // Add initial empty array for court schedules
+  });
+
+  // Add state to manage a new facility input
+  const [newFacility, setNewFacility] = useState({ name: "", description: "" });
+
+  // Add state to manage a new schedule input
+  const [newSchedule, setNewSchedule] = useState({
+    dayOfWeek: [],
+    startTime: "08:00:00",
+    endTime: "17:00:00",
+    priceSlot: 100000,
   });
   const [sports, setSports] = useState([]);
   const [sportCenterId, setSportCenterId] = useState("");
@@ -143,7 +195,28 @@ const CourtOwnerOnboarding = () => {
       });
     }
   };
+  const addSchedule = () => {
+    const newSchedule = {
+      days: [1, 2, 3, 4, 5],
+      startTime: "08:00",
+      endTime: "17:00",
+      priceSlot: 150000,
+      name: `Schedule ${schedules.length + 1}`,
+    };
+    setSchedules([...schedules, newSchedule]);
+  };
 
+  const removeSchedule = (index) => {
+    const newSchedules = [...schedules];
+    newSchedules.splice(index, 1);
+    setSchedules(newSchedules);
+  };
+
+  const updateSchedule = (index, field, value) => {
+    const newSchedules = [...schedules];
+    newSchedules[index][field] = value;
+    setSchedules(newSchedules);
+  };
   // Custom upload handler for gallery images
   const customGalleryUpload = async ({ file, onSuccess }) => {
     try {
@@ -235,36 +308,82 @@ const CourtOwnerOnboarding = () => {
   };
 
   const handleCreateCourt = async () => {
-    setLoading(true);
     try {
-      const client = new Client();
-      const response = await client.createCourt({
-        court: {
-          ...court,
-          sportCenterId: sportCenterId,
-        },
-      });
+      setLoading(true);
 
-      if (response.id) {
-        notification.success({
-          message: "Success",
-          description: "Court created successfully!",
-        });
-        handleNext();
-      }
+      // Format facilities
+      const formattedFacilities = court.facilities.map((facility) => ({
+        name: facility.name,
+        description: facility.description,
+      }));
+
+      // Format schedules - similar to CourtOwnerCourtCreateView
+      const courtSchedules = schedules.map((schedule) => ({
+        dayOfWeek: schedule.days,
+        startTime: `${schedule.startTime}:00`, // Add seconds to match API format
+        endTime: `${schedule.endTime}:00`, // Add seconds to match API format
+        priceSlot: schedule.priceSlot,
+      }));
+
+      // Prepare request data
+      const requestData = {
+        court: {
+          courtName: court.courtName,
+          sportId: court.sportId,
+          sportCenterId: sportCenterId,
+          description: court.description || "",
+          facilities: formattedFacilities,
+          slotDuration: court.slotDuration,
+          minDepositPercentage: court.minDepositPercentage,
+          courtType: court.courtType,
+          courtSchedules: courtSchedules,
+          cancellationWindowHours: court.cancellationWindowHours,
+          refundPercentage: court.refundPercentage,
+        },
+      };
+
+      const client = new Client();
+      const response = await client.createCourt(requestData);
+
+      // Success, go to next step
+      handleNext();
     } catch (error) {
       console.error("Error creating court:", error);
-      notification.error({
-        message: "Error",
-        description: "Failed to create court. Please try again.",
-      });
+      // Show error message to user
     } finally {
       setLoading(false);
     }
   };
-
   const handleFinish = () => {
     navigate("/court-owner/dashboard");
+  };
+  // Add facility to court
+  const addFacility = () => {
+    if (!newFacility.name) {
+      notification.warning({
+        message: "Validation Error",
+        description: "Facility name is required",
+      });
+      return;
+    }
+
+    setCourt({
+      ...court,
+      facilities: [...court.facilities, { ...newFacility }],
+    });
+
+    // Reset the input
+    setNewFacility({ name: "", description: "" });
+  };
+
+  // Remove facility from court
+  const removeFacility = (index) => {
+    const updatedFacilities = [...court.facilities];
+    updatedFacilities.splice(index, 1);
+    setCourt({
+      ...court,
+      facilities: updatedFacilities,
+    });
   };
 
   // Custom file upload component
@@ -704,7 +823,6 @@ const CourtOwnerOnboarding = () => {
                       }}
                     />
                   </motion.div>
-
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -770,7 +888,6 @@ const CourtOwnerOnboarding = () => {
                       </Upload>
                     </Paper>
                   </motion.div>
-
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -931,6 +1048,7 @@ const CourtOwnerOnboarding = () => {
               </Box>
 
               <Grid container spacing={3}>
+                {/* General court info - first column */}
                 <Grid item xs={12} md={6}>
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -1033,6 +1151,7 @@ const CourtOwnerOnboarding = () => {
                   </motion.div>
                 </Grid>
 
+                {/* Second column */}
                 <Grid item xs={12} md={6}>
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -1160,6 +1279,171 @@ const CourtOwnerOnboarding = () => {
                   </Paper>
                 </Grid>
               </Grid>
+
+              {/* New section for Court Schedules - similar to CourtOwnerCourtCreateView */}
+              <Box sx={{ mt: 4 }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 2,
+                    bgcolor: "rgba(0, 0, 0, 0.02)",
+                    border: "1px solid rgba(0, 0, 0, 0.08)",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{ color: "primary.main" }}
+                  >
+                    Court Schedules
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    Define when your court is available and set pricing for
+                    different times.
+                  </Typography>
+
+                  <Collapse defaultActiveKey={["0"]} sx={{ mb: 2 }}>
+                    {schedules.map((schedule, index) => (
+                      <Panel
+                        header={
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              width: "100%",
+                            }}
+                          >
+                            <Typography>{schedule.name}</Typography>
+                            <Tag color="blue">
+                              {schedule.startTime} - {schedule.endTime}
+                            </Tag>
+                          </Box>
+                        }
+                        key={index}
+                        extra={
+                          <Button
+                            color="error"
+                            size="small"
+                            startIcon={<DeleteOutlined />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeSchedule(index);
+                            }}
+                            sx={{ minWidth: "auto" }}
+                          >
+                            Remove
+                          </Button>
+                        }
+                      >
+                        <Grid container spacing={2}>
+                          <Grid item xs={12}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: 1,
+                                mb: 2,
+                              }}
+                            >
+                              {dayOptions.map((day) => (
+                                <Tag
+                                  key={day.value}
+                                  color={
+                                    schedule.days.includes(day.value)
+                                      ? "blue"
+                                      : "default"
+                                  }
+                                  style={{
+                                    cursor: "pointer",
+                                    margin: "0 4px 8px 0",
+                                  }}
+                                  onClick={() => {
+                                    const newDays = schedule.days.includes(
+                                      day.value
+                                    )
+                                      ? schedule.days.filter(
+                                          (d) => d !== day.value
+                                        )
+                                      : [...schedule.days, day.value];
+                                    updateSchedule(index, "days", newDays);
+                                  }}
+                                >
+                                  {day.label}
+                                </Tag>
+                              ))}
+                            </Box>
+                          </Grid>
+
+                          <Grid item xs={12} sm={4}>
+                            <TextField
+                              fullWidth
+                              label="Start Time (HH:MM)"
+                              variant="outlined"
+                              value={schedule.startTime}
+                              onChange={(e) =>
+                                updateSchedule(
+                                  index,
+                                  "startTime",
+                                  e.target.value
+                                )
+                              }
+                              InputProps={{ sx: { borderRadius: 2 } }}
+                            />
+                          </Grid>
+
+                          <Grid item xs={12} sm={4}>
+                            <TextField
+                              fullWidth
+                              label="End Time (HH:MM)"
+                              variant="outlined"
+                              value={schedule.endTime}
+                              onChange={(e) =>
+                                updateSchedule(index, "endTime", e.target.value)
+                              }
+                              InputProps={{ sx: { borderRadius: 2 } }}
+                            />
+                          </Grid>
+
+                          <Grid item xs={12} sm={4}>
+                            <TextField
+                              fullWidth
+                              label="Price per hour (₫)"
+                              variant="outlined"
+                              type="number"
+                              value={schedule.priceSlot}
+                              onChange={(e) =>
+                                updateSchedule(
+                                  index,
+                                  "priceSlot",
+                                  Number(e.target.value)
+                                )
+                              }
+                              InputProps={{ sx: { borderRadius: 2 } }}
+                            />
+                          </Grid>
+                        </Grid>
+                      </Panel>
+                    ))}
+                  </Collapse>
+
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    startIcon={<AddCircleOutlined />}
+                    onClick={addSchedule}
+                    sx={{ mt: 1, borderRadius: 2 }}
+                  >
+                    Add Schedule
+                  </Button>
+                </Paper>
+              </Box>
             </CardContent>
 
             <Divider />
