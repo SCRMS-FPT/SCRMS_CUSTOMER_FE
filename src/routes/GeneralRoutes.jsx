@@ -4,6 +4,7 @@ import Layout from "@/components/GeneralComponents/Layout";
 import HomeView from "@/pages/GeneralView/HomeView";
 import LoginView from "@/pages/GeneralView/LoginView";
 import SignUpView from "@/pages/GeneralView/SignUpView";
+import SignoutView from "@/components/GeneralComponents/SignoutView";
 import SupportView from "@/pages/GeneralView/SupportView";
 import ForgotPasswordView from "@/pages/GeneralView/ForgotPasswordView";
 import BrowseCourtsView from "@/pages/GeneralView/BrowseCourtsView";
@@ -29,6 +30,7 @@ import ChatPage from "@/pages/ChatView/ChatPage";
 import NotFoundView from "@/pages/GeneralView/NotFoundView";
 import UserProfileView from "@/pages/GeneralView/UserProfileView";
 import Forbidden403 from "@/pages/Error/Forbidden403";
+
 
 
 
@@ -66,6 +68,15 @@ const GeneralRoutes = [
     element={
       <Layout>
         <SignUpView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="logout"
+    path="/logout"
+    element={
+      <Layout>
+        <SignoutView />
       </Layout>
     }
   />,
@@ -250,8 +261,8 @@ const GeneralRoutes = [
   // 403 Forbidden route
   <Route key="forbidden" path="/forbidden" element={<Forbidden403 />} />,
   <Route
-    key="settings"
-    path="/settings"
+    key="-profile-settings"
+    path="/profile"
     element={
       <Layout>
         <UserProfileView />
