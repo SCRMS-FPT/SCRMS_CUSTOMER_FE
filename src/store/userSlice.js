@@ -116,12 +116,6 @@ const userSlice = createSlice({
         state.status = "failed";
         state.error = action.payload || action.error.message;
       })
-
-      // ✅ Login bằng Google
-      .addCase(loginWithGoogle.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
       .addCase(loginWithGoogle.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.token = action.payload.token;
