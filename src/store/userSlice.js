@@ -116,16 +116,6 @@ const userSlice = createSlice({
         state.status = "failed";
         state.error = action.payload || action.error.message;
       })
-      .addCase(loginWithGoogle.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.token = action.payload.token;
-        state.userProfile = action.payload.userProfile;
-      })
-      .addCase(loginWithGoogle.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload || action.error.message;
-      })
-      // Add cases for updating user profile
       .addCase(updateUserProfile.fulfilled, (state, action) => {
         state.userProfile = action.payload.userProfile;
       });
