@@ -15,11 +15,10 @@
     "isolatedModules": true,
     "jsx": "react",
     "baseUrl": "./src",
+    "outDir": "dist",
+    "rootDir": "src",
     "paths": {
-      "@components/*": ["components/*"],
-      "@hooks/*": ["hooks/*"],
-      "@utils/*": ["utils/*"],
-      "@api/*": ["API/*"]
+      "@/*": ["*"]
     }
   },
   "include": ["src"],

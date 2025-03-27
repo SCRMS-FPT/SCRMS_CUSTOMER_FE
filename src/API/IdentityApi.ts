@@ -27,10 +27,8 @@ export class Client {
   }
 
   private getAuthHeaders(): HeadersInit {
-    // Get token from localStorage (which is synced with Redux store)
     const token = localStorage.getItem("token");
 
-    // Return headers with Authorization if token exists
     return token
       ? {
           Authorization: `Bearer ${token}`,
@@ -106,19 +104,26 @@ export class Client {
   protected processLogin(response: Response): Promise<void> {
     const status = response.status;
     let _headers: any = {};
+
     if (response.headers && response.headers.forEach) {
       response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
+
     if (status === 200) {
       return response.json();
     } else if (status !== 200 && status !== 204) {
       return response.text().then((_responseText) => {
-        return throwException(
-          "An unexpected server error occurred.",
-          status,
-          _responseText,
-          _headers
-        );
+        // return throwException(
+        //   "An unexpected server error occurred.",
+        //   status,
+        //   _responseText,
+        //   _headers
+        // );
+        throw {
+          message: _responseText || "An unexpected server error occurred.",
+          status: status,
+          headers: _headers,
+        };
       });
     }
     return Promise.resolve<void>(null as any);
@@ -279,6 +284,7 @@ export class Client {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
       },
     };
 
@@ -329,27 +335,29 @@ export class Client {
     });
   }
 
-  protected processGetProfile(response: Response): Promise<void> {
+  protected async processGetProfile(response: Response): Promise<any> {
     const status = response.status;
     let _headers: any = {};
     if (response.headers && response.headers.forEach) {
       response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
+
     if (status === 200) {
-      return response.text().then((_responseText) => {
-        return;
-      });
+      const _responseText = await response.text();
+      if (_responseText) {
+        return JSON.parse(_responseText); // ✅ Trả về dữ liệu JSON
+      }
+      return null; // ✅ Trả về null nếu không có dữ liệu
     } else if (status !== 200 && status !== 204) {
-      return response.text().then((_responseText) => {
-        return throwException(
-          "An unexpected server error occurred.",
-          status,
-          _responseText,
-          _headers
-        );
-      });
+      const _responseText = await response.text();
+      throwException(
+        "An unexpected server error occurred.",
+        status,
+        _responseText,
+        _headers
+      );
     }
-    return Promise.resolve<void>(null as any);
+    return null;
   }
 
   /**
@@ -366,6 +374,7 @@ export class Client {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
       },
     };
 

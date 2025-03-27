@@ -12,7 +12,6 @@ import BookCoachSession from "@/pages/BookCoachSession";
 import TransactionHistoryPage from "@/pages/TransactionHistoryPage";
 import ProfilePage from "../pages/UserView/ProfilePage";
 import ChangePasswordPage from "../pages/UserView/ChangePasswordPage";
-import ProtectedRoute from "@/routes/ProtectedRoutes";
 
 const UserRoutes = [
   <Route
@@ -84,11 +83,9 @@ const UserRoutes = [
     key="profile"
     path="profile"
     element={
-      // <ProtectedRoute>
       <Layout>
         <ProfilePage />
       </Layout>
-      // </ProtectedRoute>
     }
   />,
   <Route

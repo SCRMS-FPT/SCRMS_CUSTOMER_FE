@@ -7,7 +7,7 @@ import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { Client } from "@/API/IdentityApi";
 import { API_IDENTITY_URL } from "@/API/config";
 import { notification } from "antd";
-import { useAuth } from "@/features/auth/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 const GOOGLE_CLIENT_ID =
@@ -21,24 +21,42 @@ const LoginView = () => {
 
   const navigate = useNavigate();
 
-  const { status, error } = useSelector((state) => state.user);
+  const { status } = useSelector((state) => state.user);
 
   const handleGoogleSuccess = async (response) => {
-    try {
-      const googleToken = response.credential;
-      await loginWithGoogle(googleToken);
-      notification.success({
-        message: "Đăng nhập thành công",
-        description: "Bạn đã đăng nhập bằng Google.",
-        placement: "topRight",
-      });
-    } catch (error) {
-      notification.error({
-        message: "Đăng nhập Google thất bại",
-        description: `Lỗi: ${error.response}`,
-        placement: "topRight",
-      });
+    const googleToken = response.credential;
+    const loginResponse = await loginWithGoogle(googleToken);
+
+    if (loginResponse.error) {
+      const { payload } = response;
+
+      const [statusCode, errorMessage] = payload.split(": ", 2);
+
+      switch (statusCode) {
+        case 401:
+          notification.error({
+            message: "Đăng nhập thất bại",
+            description: "Tài khoản không tồn tại.",
+            placement: "topRight",
+          });
+          break;
+        default:
+          notification.error({
+            message: "Đăng nhập thất bại",
+            description: "Lỗi hệ thống, vui lòng thử lại sau.",
+            placement: "topRight",
+          });
+      }
+      return;
     }
+
+    notification.success({
+      message: "Đăng nhập thành công",
+      description: "Bạn đã đăng nhập bằng Google.",
+      placement: "topRight",
+    });
+
+    navigate("/");
   };
 
   const handleGoogleFailure = () => {
@@ -59,21 +77,37 @@ const LoginView = () => {
       return;
     }
 
-    try {
-      await login(email, password);
-      notification.success({
-        message: "Đăng nhập thành công",
-        description: "Bạn đã đăng nhập thành công!",
-        placement: "topRight",
-      });
-      navigate("/");
-    } catch (errorMessage) {
-      notification.error({
-        message: "Đăng nhập thất bại",
-        description: errorMessage.message || "Thông tin không hợp lệ.",
-        placement: "topRight",
-      });
+    const response = await login(email, password);
+
+    if (response.error) {
+      const { payload } = response;
+
+      const [statusCode, errorMessage] = payload.split(": ", 2);
+
+      switch (parseInt(statusCode)) {
+        case 401:
+          notification.error({
+            message: "Đăng nhập thất bại",
+            description: "Mật khẩu hoặc tài khoản không đúng.",
+            placement: "topRight",
+          });
+          break;
+        default:
+          notification.error({
+            message: "Đăng nhập thất bại",
+            description: "Lỗi hệ thống, vui lòng thử lại sau.",
+            placement: "topRight",
+          });
+      }
+      return;
     }
+
+    notification.success({
+      message: "Đăng nhập thành công",
+      description: "Bạn đã đăng nhập thành công!",
+      placement: "topRight",
+    });
+    navigate("/");
   };
 
   return (
@@ -128,7 +162,7 @@ const LoginView = () => {
             </p>
           </Link>
 
-          {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+          {/* {error && <p className="text-red-500 text-center mt-2">{error}</p>} */}
 
           <button
             onClick={handleLogin}

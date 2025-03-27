@@ -35,42 +35,53 @@ export default function ProfilePage() {
       "Tôi là một người đam mê công nghệ và thích khám phá những điều mới mẻ.",
   });
 
-  const getUser = async () => {
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await client.getProfile();
+        const formattedData = {
+          ...response,
+          birthDate: response.birthDate ? dayjs(response.birthDate) : null,
+        };
+        setInitialValues(formattedData);
+        form.setFieldsValue(formattedData);
+      } catch (error) {
+        console.log(error);
+        notification.error({
+          message: "Lỗi tải thông tin",
+          description: "Không thể lấy thông tin người dùng.",
+        });
+      }
+    };
+
+    getUser();
+  }, []);
+
+  const onFinish = async (values) => {
     try {
-      const response = await client.getProfile();
-      setInitialValues({
-        ...response,
-        birthDate: response.birthDate
-          ? dayjs(response.birthDate).isValid()
-            ? dayjs(response.birthDate)
-            : null
-          : null,
+      const payload = {
+        ...values,
+        birthDate: values.birthDate ? values.birthDate.toISOString() : null,
+      };
+
+      await client.updateProfile(payload);
+      notification.success({
+        message: "Cập nhật thành công",
+        description: "Thông tin cá nhân của bạn đã được cập nhật.",
       });
-      form.setFieldsValue(response); // Cập nhật form
+
+      setIsEditing(false);
+      setInitialValues(payload);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       notification.error({
-        message: "Lỗi tải thông tin",
-        description: "Không thể lấy thông tin người dùng.",
+        message: "Lỗi cập nhật",
+        description: "Không thể cập nhật thông tin cá nhân.",
       });
     }
   };
 
-  useEffect(() => {
-    getUser();
-  }, []);
-
-  const onFinish = (values) => {
-    console.log("Form values:", values);
-
-    notification.success({
-      message: "Cập nhật thành công",
-      description: "Thông tin cá nhân của bạn đã được cập nhật.",
-      placement: "topRight",
-    });
-
-    setIsEditing(false);
-  };
+  if (!initialValues) return <p>Đang tải...</p>;
 
   return (
     <div className="bg-gray-100 min-h-screen flex items-center justify-center">
@@ -168,9 +179,9 @@ export default function ProfilePage() {
             >
               <Radio.Group>
                 <Space direction="horizontal">
-                  <Radio value="male">Nam</Radio>
-                  <Radio value="female">Nữ</Radio>
-                  <Radio value="other">Khác</Radio>
+                  <Radio value="Male">Nam</Radio>
+                  <Radio value="Female">Nữ</Radio>
+                  <Radio value="Other">Khác</Radio>
                 </Space>
               </Radio.Group>
             </Form.Item>
@@ -196,12 +207,11 @@ export default function ProfilePage() {
               <Button
                 danger
                 onClick={() => {
-                  form.resetFields();
+                  form.setFieldsValue(initialValues);
                   setIsEditing(false);
                   notification.info({
                     message: "Đã hủy",
                     description: "Các thay đổi đã được hủy bỏ.",
-                    placement: "topRight",
                   });
                 }}
               >

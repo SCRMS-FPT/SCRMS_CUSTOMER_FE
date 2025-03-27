@@ -23,8 +23,6 @@ export default function ChangePasswordPage() {
   const client = new Client("http://localhost:6001", null);
 
   const onFinish = async (values) => {
-    console.log("Form values:", values);
-
     if (values.newPassword !== values.confirmPassword) {
       notification.error({
         message: "Lỗi",
