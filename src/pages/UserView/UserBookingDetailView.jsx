@@ -208,7 +208,7 @@ const UserBookingDetailView = () => {
                   : "-"}
               </Descriptions.Item>
               <Descriptions.Item label="Total Time">
-                {booking.totalTime || 0} minutes
+                {booking.totalTime || 0} hours
               </Descriptions.Item>
               <Descriptions.Item label="Total Price">
                 {booking.totalPrice?.toLocaleString() || 0} VND

@@ -4,6 +4,7 @@ import Layout from "@/components/GeneralComponents/Layout";
 import HomeView from "@/pages/GeneralView/HomeView";
 import LoginView from "@/pages/GeneralView/LoginView";
 import SignUpView from "@/pages/GeneralView/SignUpView";
+import SignoutView from "@/components/GeneralComponents/SignoutView";
 import SupportView from "@/pages/GeneralView/SupportView";
 import ForgotPasswordView from "@/pages/GeneralView/ForgotPasswordView";
 import BrowseCourtsView from "@/pages/GeneralView/BrowseCourtsView";
@@ -12,7 +13,7 @@ import FindCourtByVenueView from "@/pages/UserView/FindCourtByVenueView";
 import VenueDetailView from "@/pages/GeneralView/VenueDetailView";
 import CourtDetailsView from "@/pages/GeneralView/CourtDetailsView";
 import SportsCenter from "@/pages/UserView/SportsCenter";
-import CoachList from "@/pages/CoachBooking/CoachList";
+import CoachListView from "@/pages/GeneralView/CoachListView";
 import CoachDetails from "@/pages/CoachBooking/CoachDetails";
 
 import PricingView from "@/pages/ServicePackage/PricingView";
@@ -29,6 +30,8 @@ import ChatPage from "@/pages/ChatView/ChatPage";
 import NotFoundView from "@/pages/GeneralView/NotFoundView";
 import UserProfileView from "@/pages/GeneralView/UserProfileView";
 import Forbidden403 from "@/pages/Error/Forbidden403";
+
+
 
 
 const GeneralRoutes = [
@@ -65,6 +68,15 @@ const GeneralRoutes = [
     element={
       <Layout>
         <SignUpView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="logout"
+    path="/logout"
+    element={
+      <Layout>
+        <SignoutView />
       </Layout>
     }
   />,
@@ -163,7 +175,7 @@ const GeneralRoutes = [
     path="/coaches"
     element={
       <Layout>
-        <CoachList />
+        <CoachListView />
       </Layout>
     }
   />,
@@ -249,8 +261,8 @@ const GeneralRoutes = [
   // 403 Forbidden route
   <Route key="forbidden" path="/forbidden" element={<Forbidden403 />} />,
   <Route
-    key="settings"
-    path="/settings"
+    key="-profile-settings"
+    path="/profile"
     element={
       <Layout>
         <UserProfileView />

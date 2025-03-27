@@ -205,6 +205,9 @@ const FilterForm = () => {
                       paddingTop: "16px",
                       paddingBottom: "16px",
                     },
+                    "& .MuiSvgIcon-root": {
+                      color: "#1976D2", // Set icon color
+                    },
                   },
                 },
                 InputProps: {
@@ -250,6 +253,9 @@ const FilterForm = () => {
                     "& .MuiFilledInput-input": {
                       paddingTop: "16px",
                       paddingBottom: "16px",
+                    },
+                    "& .MuiSvgIcon-root": {
+                      color: "#1976D2", // Set icon color
                     },
                   },
                 },
