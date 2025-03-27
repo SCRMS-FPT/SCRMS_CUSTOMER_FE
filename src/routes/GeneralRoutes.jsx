@@ -12,7 +12,7 @@ import FindCourtByVenueView from "@/pages/UserView/FindCourtByVenueView";
 import VenueDetailView from "@/pages/GeneralView/VenueDetailView";
 import CourtDetailsView from "@/pages/GeneralView/CourtDetailsView";
 import SportsCenter from "@/pages/UserView/SportsCenter";
-import CoachList from "@/pages/CoachBooking/CoachList";
+import CoachListView from "@/pages/GeneralView/CoachListView";
 import CoachDetails from "@/pages/CoachBooking/CoachDetails";
 
 import PricingView from "@/pages/ServicePackage/PricingView";
@@ -29,6 +29,7 @@ import ChatPage from "@/pages/ChatView/ChatPage";
 import NotFoundView from "@/pages/GeneralView/NotFoundView";
 import UserProfileView from "@/pages/GeneralView/UserProfileView";
 import Forbidden403 from "@/pages/Error/Forbidden403";
+
 
 
 const GeneralRoutes = [
@@ -163,7 +164,7 @@ const GeneralRoutes = [
     path="/coaches"
     element={
       <Layout>
-        <CoachList />
+        <CoachListView />
       </Layout>
     }
   />,
