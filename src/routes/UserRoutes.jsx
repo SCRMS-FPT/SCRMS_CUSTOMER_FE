@@ -23,6 +23,8 @@ import UserSidebar from "@/components/Userpage/UserSidebar";
 import ChatWidget from "../components/Chat/ChatWidget";
 
 
+import ProfilePage from "../pages/UserView/ProfilePage";
+import ChangePasswordPage from "../pages/UserView/ChangePasswordPage";
 
 const UserRoutes = [
   <Route
@@ -185,11 +187,24 @@ const UserRoutes = [
       </Layout>
     }
   />,
-
-
-
-
-
+  <Route
+    key="profile"
+    path="profile"
+    element={
+      <Layout>
+        <ProfilePage />
+      </Layout>
+    }
+  />,
+  <Route
+    key="changepassword"
+    path="/change-password"
+    element={
+      <Layout>
+        <ChangePasswordPage />
+      </Layout>
+    }
+  />,
 ];
 
 export default UserRoutes;

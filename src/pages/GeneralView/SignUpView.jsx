@@ -5,6 +5,10 @@ import { FaFacebook } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import { Client, RegisterUserRequest, ApiException } from "@/API/IdentityApi";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+
+const GOOGLE_CLIENT_ID =
+  "698950573891-c4q4ig6r5pm95tj2tro79j4ktnsbh7fj.apps.googleusercontent.com";
 
 const SignUpView = () => {
   const [formData, setFormData] = useState({
@@ -28,12 +32,33 @@ const SignUpView = () => {
       [name]: value,
     });
   };
+  const handleGoogleSuccess = async (response) => {
+    try {
+      const client = new Client("http://localhost:6001", null);
+      const googleToken = response.credential;
 
-  const showUnavailableNotification = () => {
-    notification.info({
-      message: "Feature Unavailable",
-      description:
-        "This login method is currently unavailable. Please use email and password.",
+      await client.registerWithGoogle(googleToken);
+
+      notification.success({
+        message: "Đăng ký thành công",
+        description: "Bạn đã đăng ký bằng Google.",
+        placement: "topRight",
+      });
+
+      navigate("/login");
+    } catch (error) {
+      notification.error({
+        message: "Đăng ký Google thất bại",
+        description: `Lỗi: ${error.response}`,
+        placement: "topRight",
+      });
+    }
+  };
+
+  const handleGoogleFailure = () => {
+    notification.error({
+      message: "Đăng ký Google thất bại",
+      description: "Đã xảy ra lỗi khi đăng ký bằng Google.",
       placement: "topRight",
     });
   };
@@ -44,9 +69,8 @@ const SignUpView = () => {
     setErrorMessage(null);
 
     try {
-      const client = new Client();
+      const client = new Client("http://localhost:6001", null);
 
-      // Create a RegisterUserRequest object with all required fields
       const registerRequest = new RegisterUserRequest({
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -59,33 +83,32 @@ const SignUpView = () => {
         password: formData.password,
       });
 
-      // Call the register API
       await client.register(registerRequest);
 
       notification.success({
-        message: "Registration Successful",
-        description: "Your account has been created. Please log in.",
+        message: "Đăng ký thành công",
+        description:
+          "Tài khoản của bạn đã được tạo. Vui lòng xác minh ở mail bạn đã đăng ký.",
         placement: "topRight",
       });
 
       navigate("/login");
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Lỗi đăng ký:", error);
 
-      let errorMsg = "An error occurred during registration. Please try again.";
+      let errorMsg = "Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.";
 
       if (error instanceof ApiException) {
         try {
           const errorResponse = JSON.parse(error.response);
           errorMsg = errorResponse.detail || errorMsg;
 
-          // Handle specific error messages
           if (errorMsg.includes("already taken")) {
             errorMsg =
-              "This email is already registered. Please use a different email or login.";
+              "Email này đã được đăng ký. Vui lòng sử dụng email khác hoặc đăng nhập.";
           } else if (errorMsg.includes("password")) {
             errorMsg =
-              "Please provide a valid password (at least 8 characters with letters and numbers).";
+              "Vui lòng nhập mật khẩu hợp lệ (ít nhất 8 ký tự bao gồm chữ và số).";
           }
         } catch (e) {
           errorMsg = e.message || errorMsg;
@@ -94,7 +117,7 @@ const SignUpView = () => {
 
       setErrorMessage(errorMsg);
       notification.error({
-        message: "Registration Failed",
+        message: "Đăng ký thất bại",
         description: errorMsg,
         placement: "topRight",
       });
@@ -104,155 +127,138 @@ const SignUpView = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 bg-[url('/src/assets/soccer.jpg')] bg-cover bg-center">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-4">
-          <h2 className="text-2xl font-bold text-blue-600">courtsite</h2>
-        </div>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 bg-[url('/src/assets/soccer.jpg')] bg-cover bg-center">
+        <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+          <h2 className="text-xl font-semibold text-center mb-4">Đăng ký</h2>
+          <p className="text-center text-gray-600">
+            Đã có tài khoản?{" "}
+            <Link to="/login" className="text-blue-600 font-medium">
+              Đăng nhập
+            </Link>
+          </p>
 
-        <h2 className="text-xl font-semibold text-center mb-4">Sign Up</h2>
-        <p className="text-center text-gray-600">
-          Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 font-medium">
-            Log In
-          </Link>
-        </p>
-
-        {/* Sign Up Form */}
-        <form onSubmit={handleSignUp} className="mt-6">
-          {/* First Name Input */}
-          <label className="block text-gray-700">First Name</label>
-          <input
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your first name"
-            required
-          />
-
-          {/* Last Name Input */}
-          <label className="block text-gray-700 mt-4">Last Name</label>
-          <input
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your last name"
-            required
-          />
-
-          {/* Email Input */}
-          <label className="block text-gray-700 mt-4">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your email"
-            required
-          />
-          {/* Password Input */}
-          <label className="block text-gray-700 mt-4">Password</label>
-          <div className="relative">
+          {/* Biểu mẫu đăng ký */}
+          <form onSubmit={handleSignUp} className="mt-6">
+            {/* Họ */}
+            <label className="block text-gray-700">Họ</label>
             <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              value={formData.password}
+              type="text"
+              name="firstName"
+              value={formData.firstName}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
+              placeholder="Nhập họ của bạn"
               required
             />
-            <span
-              className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <IoEyeOutline /> : <IoEyeOffOutline />}
-            </span>
-          </div>
-          {/* Phone Number Input */}
-          <label className="block text-gray-700 mt-4">Phone Number</label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your phone number"
-            required
-          />
 
-          {/* Birth Date and Gender Inputs in the same row */}
-          <div className="flex space-x-4 mt-4">
-            {/* Birth Date Input */}
-            <div className="flex-1">
-              <label className="block text-gray-700">Birth Date</label>
+            <label className="block text-gray-700 mt-4">Tên</label>
+            <input
+              type="text"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+              placeholder="Nhập tên của bạn"
+              required
+            />
+
+            <label className="block text-gray-700 mt-4">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+              placeholder="Nhập email của bạn"
+              required
+            />
+
+            <label className="block text-gray-700 mt-4">Mật khẩu</label>
+            <div className="relative">
               <input
-                type="date"
-                name="birthDate"
-                value={formData.birthDate}
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+                placeholder="Nhập mật khẩu của bạn"
                 required
               />
-            </div>
-
-            {/* Gender Selection */}
-            <div className="flex-1">
-              <label className="block text-gray-700">Gender</label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-                required
+              <span
+                className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
               >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-                <option value="Undisclosed">Prefer not to say</option>
-              </select>
+                {showPassword ? <IoEyeOutline /> : <IoEyeOffOutline />}
+              </span>
             </div>
-          </div>
 
-          {/* Error Message */}
-          {errorMessage && (
-            <div className="mt-4 text-red-500 text-center">{errorMessage}</div>
-          )}
+            <label className="block text-gray-700 mt-4">Số điện thoại</label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+              placeholder="Nhập số điện thoại của bạn"
+              required
+            />
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-          >
-            {isLoading ? "Signing Up..." : "Sign Up"}
-          </button>
-        </form>
+            <div className="flex space-x-4 mt-4">
+              <div className="flex-1">
+                <label className="block text-gray-700">Ngày sinh</label>
+                <input
+                  type="date"
+                  name="birthDate"
+                  value={formData.birthDate}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
 
-        {/* Social Login */}
-        <div className="mt-6 text-center text-gray-500">or</div>
-        <button
-          className="flex items-center justify-center w-full mt-4 border border-gray-300 py-2 rounded-lg hover:bg-gray-100"
-          onClick={showUnavailableNotification}
-        >
-          <FaFacebook className="text-blue-600 mr-2" />
-          Continue with Facebook
-        </button>
-        <button
-          className="flex items-center justify-center w-full mt-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-100"
-          onClick={showUnavailableNotification}
-        >
-          <FcGoogle className="mr-2" />
-          Continue with Google
-        </button>
+              <div className="flex-1">
+                <label className="block text-gray-700">Giới tính</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="Male">Nam</option>
+                  <option value="Female">Nữ</option>
+                  <option value="Other">Khác</option>
+                </select>
+              </div>
+            </div>
+
+            {errorMessage && (
+              <div className="mt-4 text-red-500 text-center">
+                {errorMessage}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isLoading ? "Đang đăng ký..." : "Đăng ký"}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center text-gray-500">hoặc</div>
+
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleFailure}
+            useOneTap
+            scope="profile email https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.phonenumbers.read"
+          />
+        </div>
       </div>
-    </div>
+    </GoogleOAuthProvider>
   );
 };
 

@@ -1,23 +1,42 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Client, LoginUserRequest } from "../API/IdentityApi";
+import { Client, LoginUserRequest } from "@/API/IdentityApi";
 
-// Async thunk dùng để gọi API login qua ApiClient
 export const login = createAsyncThunk(
   "user/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const apiClient = new Client();
+      const apiClient = new Client("http://localhost:6001");
       const loginRequest = new LoginUserRequest({
         email: credentials.email,
         password: credentials.password,
       });
 
       const data = await apiClient.login(loginRequest);
-      console.log("Login Response:", data); // ✅ Debug Log
 
-      // Ensure data is valid before accessing properties
       if (!data || !data.token || !data.user) {
         return rejectWithValue("Invalid login response");
+      }
+
+      // Lưu token và user vào localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userProfile", JSON.stringify(data.user));
+
+      return { token: data.token, userProfile: data.user };
+    } catch (error) {
+      return rejectWithValue(error.status + ": " + error.message);
+    }
+  }
+);
+
+export const loginWithGoogle = createAsyncThunk(
+  "user/loginWithGoogle",
+  async (googleToken, { rejectWithValue }) => {
+    try {
+      const apiClient = new Client("http://localhost:6001");
+      const data = await apiClient.loginWithGoogle(googleToken);
+
+      if (!data || !data.token || !data.user) {
+        return rejectWithValue("Invalid Google login response");
       }
 
       localStorage.setItem("token", data.token);
@@ -25,7 +44,7 @@ export const login = createAsyncThunk(
 
       return { token: data.token, userProfile: data.user };
     } catch (error) {
-      return rejectWithValue(error.message || "Login failed");
+      return rejectWithValue(error.status + ": " + error.message);
     }
   }
 );
@@ -56,7 +75,6 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    // Nếu muốn có action logout
     logout(state) {
       state.token = "";
       state.userProfile = null;
@@ -71,6 +89,7 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // ✅ Login bằng email/password
       .addCase(login.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -81,6 +100,34 @@ const userSlice = createSlice({
         state.userProfile = action.payload.userProfile;
       })
       .addCase(login.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || action.error.message;
+      })
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.token = action.payload.token;
+        state.userProfile = action.payload.userProfile;
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || action.error.message;
+      })
+
+      // ✅ Login bằng Google
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.token = action.payload.token;
+        state.userProfile = action.payload.userProfile;
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || action.error.message;
       })

@@ -11,1701 +11,2067 @@ import { API_IDENTITY_URL } from "./config";
 // ReSharper disable InconsistentNaming
 
 export class Client {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+  private http: {
+    fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+  };
+  private baseUrl: string;
+  protected jsonParseReviver: ((key: string, value: any) => any) | undefined =
+    undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? API_IDENTITY_URL;
-    }
+  constructor(
+    baseUrl?: string,
+    http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }
+  ) {
+    this.http = http ? http : (window as any);
+    this.baseUrl = baseUrl ?? API_IDENTITY_URL;
+  }
 
-    // Helper method to get authorization headers
-    private getAuthHeaders(): HeadersInit {
-        // Get token from localStorage (which is synced with Redux store)
-        const token = localStorage.getItem("token");
-        
-        // Return headers with Authorization if token exists
-        return token ? {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/json"
-        } : {
-            "Accept": "application/json"
-        };
-    }
+  private getAuthHeaders(): HeadersInit {
+    const token = localStorage.getItem("token");
 
-    /**
-     * @return OK
-     */
-    stats(): Promise<void> {
-        let url_ = this.baseUrl + "/api/admin/dashboard/stats";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processStats(_response);
-        });
-    }
-
-    protected processStats(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
+    return token
+      ? {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
         }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * @return OK
-     */
-    login(body: LoginUserRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/identity/login";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
+      : {
+          Accept: "application/json",
         };
+  }
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processLogin(_response);
-        });
+  /**
+   * @return OK
+   */
+  stats(): Promise<void> {
+    let url_ = this.baseUrl + "/api/admin/dashboard/stats";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+      method: "GET",
+      headers: {},
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processStats(_response);
+    });
+  }
+
+  protected processStats(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+    }
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
+    }
+    return Promise.resolve<void>(null as any);
+  }
+
+  /**
+   * @return OK
+   */
+  login(body: LoginUserRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/login";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(body);
+
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processLogin(_response);
+    });
+  }
+
+  protected processLogin(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
 
-    protected processLogin(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.json();
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * @return OK
-     */
-    register(body: RegisterUserRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/identity/register";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
+    if (status === 200) {
+      return response.json();
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        // return throwException(
+        //   "An unexpected server error occurred.",
+        //   status,
+        //   _responseText,
+        //   _headers
+        // );
+        throw {
+          message: _responseText || "An unexpected server error occurred.",
+          status: status,
+          headers: _headers,
         };
+      });
+    }
+    return Promise.resolve<void>(null as any);
+  }
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processRegister(_response);
-        });
+  /**
+   * @return OK
+   */
+  register(body: RegisterUserRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/register";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(body);
+
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processRegister(_response);
+    });
+  }
+  protected processRegister<T>(response: Response): Promise<T> {
+    const status = response.status;
+    let _headers: any = {};
+
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
 
-    protected processRegister(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.json().then((data) => {
+        return data as T; // Return the parsed object
+      });
+    } else if (status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
 
-    /**
-     * @return OK
-     */
-    changePassword(body: ChangePasswordRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/identity/change-password";
-        url_ = url_.replace(/[?&]$/, "");
+    return Promise.resolve<T>(null as any);
+  }
 
-        const content_ = JSON.stringify(body);
+  /**
+   * Sign in using Google OAuth token
+   * @param googleToken The Google ID token
+   * @returns JWT token on success
+   */
+  loginWithGoogle(googleToken: string): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/loginwithgoogle";
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    const content_ = JSON.stringify({ Token: googleToken });
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processChangePassword(_response);
-        });
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processLoginWithGoogle(_response);
+    });
+  }
+
+  protected processLoginWithGoogle(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+    }
+    if (status === 200) {
+      return response.json();
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "Google login failed.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
+    }
+    return Promise.resolve<void>(null as any);
+  }
+
+  /**
+   * Register using Google OAuth token
+   * @param googleToken The Google ID token
+   * @returns User profile on success
+   */
+  registerWithGoogle(googleToken: string): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/registerwithgoogle";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify({
+      Token: googleToken,
+    });
+
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processRegisterWithGoogle(_response);
+    });
+  }
+
+  protected processRegisterWithGoogle(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+    }
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "Google registration failed.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
+    }
+    return Promise.resolve<void>(null as any);
+  }
+
+  /**
+   * @return OK
+   */
+  changePassword(body: ChangePasswordRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/change-password";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(body);
+
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processChangePassword(_response);
+    });
+  }
+
+  protected processChangePassword(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+    }
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
+    }
+    return Promise.resolve<void>(null as any);
+  }
+
+  /**
+   * @return OK
+   */
+  getProfile(): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/get-profile";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+      method: "GET",
+      headers: {
+        ...this.getAuthHeaders(),
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processGetProfile(_response);
+    });
+  }
+
+  protected async processGetProfile(response: Response): Promise<any> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
 
-    protected processChangePassword(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      const _responseText = await response.text();
+      if (_responseText) {
+        return JSON.parse(_responseText); // ✅ Trả về dữ liệu JSON
+      }
+      return null; // ✅ Trả về null nếu không có dữ liệu
+    } else if (status !== 200 && status !== 204) {
+      const _responseText = await response.text();
+      throwException(
+        "An unexpected server error occurred.",
+        status,
+        _responseText,
+        _headers
+      );
     }
+    return null;
+  }
 
-    /**
-     * @return OK
-     */
-    getProfile(): Promise<void> {
-        let url_ = this.baseUrl + "/api/identity/get-profile";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  updateProfile(body: UpdateProfileRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/update-profile";
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
+    const content_ = JSON.stringify(body);
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetProfile(_response);
-        });
+    let options_: RequestInit = {
+      body: content_,
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processUpdateProfile(_response);
+    });
+  }
+
+  protected processUpdateProfile(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processGetProfile(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    updateProfile(body: UpdateProfileRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/identity/update-profile";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  resetPassword(body: ResetPasswordRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/users/reset-password";
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+    const content_ = JSON.stringify(body);
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateProfile(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processResetPassword(_response);
+    });
+  }
+
+  protected processResetPassword(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processUpdateProfile(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    resetPassword(body: ResetPasswordRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/identity/users/reset-password";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  assignRoles(body: AssignRolesRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/admin/assign-roles";
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+    const content_ = JSON.stringify(body);
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processResetPassword(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processAssignRoles(_response);
+    });
+  }
+
+  protected processAssignRoles(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processResetPassword(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    assignRoles(body: AssignRolesRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/identity/admin/assign-roles";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @param pageIndex (optional)
+   * @param pageSize (optional)
+   * @param search (optional)
+   * @param associatedRole (optional)
+   * @param status (optional)
+   * @param sortByPrice (optional)
+   * @return OK
+   */
+  servicePackages(
+    pageIndex: number | undefined,
+    pageSize: number | undefined,
+    search: string | undefined,
+    associatedRole: string | undefined,
+    status: string | undefined,
+    sortByPrice: string | undefined
+  ): Promise<void> {
+    let url_ = this.baseUrl + "/api/service-packages?";
+    if (pageIndex === null)
+      throw new Error("The parameter 'pageIndex' cannot be null.");
+    else if (pageIndex !== undefined)
+      url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+    if (pageSize === null)
+      throw new Error("The parameter 'pageSize' cannot be null.");
+    else if (pageSize !== undefined)
+      url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+    if (search === null)
+      throw new Error("The parameter 'search' cannot be null.");
+    else if (search !== undefined)
+      url_ += "Search=" + encodeURIComponent("" + search) + "&";
+    if (associatedRole === null)
+      throw new Error("The parameter 'associatedRole' cannot be null.");
+    else if (associatedRole !== undefined)
+      url_ += "AssociatedRole=" + encodeURIComponent("" + associatedRole) + "&";
+    if (status === null)
+      throw new Error("The parameter 'status' cannot be null.");
+    else if (status !== undefined)
+      url_ += "Status=" + encodeURIComponent("" + status) + "&";
+    if (sortByPrice === null)
+      throw new Error("The parameter 'sortByPrice' cannot be null.");
+    else if (sortByPrice !== undefined)
+      url_ += "SortByPrice=" + encodeURIComponent("" + sortByPrice) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+    let options_: RequestInit = {
+      method: "GET",
+      headers: {},
+    };
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processServicePackages(_response);
+    });
+  }
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAssignRoles(_response);
-        });
+  protected processServicePackages(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processAssignRoles(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.json();
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @param pageIndex (optional) 
-     * @param pageSize (optional) 
-     * @param search (optional) 
-     * @param associatedRole (optional) 
-     * @param status (optional) 
-     * @param sortByPrice (optional) 
-     * @return OK
-     */
-    servicePackages(pageIndex: number | undefined, pageSize: number | undefined, search: string | undefined, associatedRole: string | undefined, status: string | undefined, sortByPrice: string | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/service-packages?";
-        if (pageIndex === null)
-            throw new Error("The parameter 'pageIndex' cannot be null.");
-        else if (pageIndex !== undefined)
-            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
-        if (pageSize === null)
-            throw new Error("The parameter 'pageSize' cannot be null.");
-        else if (pageSize !== undefined)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        if (search === null)
-            throw new Error("The parameter 'search' cannot be null.");
-        else if (search !== undefined)
-            url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        if (associatedRole === null)
-            throw new Error("The parameter 'associatedRole' cannot be null.");
-        else if (associatedRole !== undefined)
-            url_ += "AssociatedRole=" + encodeURIComponent("" + associatedRole) + "&";
-        if (status === null)
-            throw new Error("The parameter 'status' cannot be null.");
-        else if (status !== undefined)
-            url_ += "Status=" + encodeURIComponent("" + status) + "&";
-        if (sortByPrice === null)
-            throw new Error("The parameter 'sortByPrice' cannot be null.");
-        else if (sortByPrice !== undefined)
-            url_ += "SortByPrice=" + encodeURIComponent("" + sortByPrice) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  servicePackages2(id: string): Promise<void> {
+    let url_ = this.baseUrl + "/api/service-packages/{id}";
+    if (id === undefined || id === null)
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
+    let options_: RequestInit = {
+      method: "GET",
+      headers: {},
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processServicePackages(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processServicePackages2(_response);
+    });
+  }
+
+  protected processServicePackages2(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processServicePackages(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.json();
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    servicePackages2(id: string): Promise<void> {
-        let url_ = this.baseUrl + "/api/service-packages/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  subscribe(body: SubscribeRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/service-packages/subscribe";
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
+    const content_ = JSON.stringify(body);
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processServicePackages2(_response);
-        });
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processSubscribe(_response);
+    });
+  }
+
+  protected processSubscribe(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processServicePackages2(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    subscribe(body: SubscribeRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/service-packages/subscribe";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  renew(body: RenewRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/service-packages/subscribe/renew";
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+    const content_ = JSON.stringify(body);
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    let options_: RequestInit = {
+      body: content_,
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processSubscribe(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processRenew(_response);
+    });
+  }
+
+  protected processRenew(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processSubscribe(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    renew(body: RenewRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/service-packages/subscribe/renew";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  cancel(body: CancelRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/service-packages/subscribe/cancel";
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+    const content_ = JSON.stringify(body);
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    let options_: RequestInit = {
+      body: content_,
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processRenew(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processCancel(_response);
+    });
+  }
+
+  protected processCancel(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processRenew(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    cancel(body: CancelRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/service-packages/subscribe/cancel";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  create(body: CreateServicePackageRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/manage-packages/create";
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+    const content_ = JSON.stringify(body);
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCancel(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processCreate(_response);
+    });
+  }
+
+  protected processCreate(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processCancel(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    create(body: CreateServicePackageRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/manage-packages/create";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  update(id: string, body: UpdateServicePackageRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/manage-packages/update/{id}";
+    if (id === undefined || id === null)
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+    const content_ = JSON.stringify(body);
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    let options_: RequestInit = {
+      body: content_,
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreate(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processUpdate(_response);
+    });
+  }
+
+  protected processUpdate(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processCreate(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    update(id: string, body: UpdateServicePackageRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/manage-packages/update/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  delete(id: string): Promise<void> {
+    let url_ = this.baseUrl + "/api/manage-packages/delete/{id}";
+    if (id === undefined || id === null)
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+    let options_: RequestInit = {
+      method: "DELETE",
+      headers: {},
+    };
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processDelete(_response);
+    });
+  }
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdate(_response);
-        });
+  protected processDelete(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processUpdate(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    delete(id: string): Promise<void> {
-        let url_ = this.baseUrl + "/api/manage-packages/delete/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @param pageIndex (optional)
+   * @param pageSize (optional)
+   * @param search (optional)
+   * @param discountType (optional)
+   * @return OK
+   */
+  promotionsGET(
+    packageIdPath: string,
+    pageIndex: number | undefined,
+    pageSize: number | undefined,
+    search: string | undefined,
+    discountType: string | undefined
+  ): Promise<void> {
+    let url_ = this.baseUrl + "/api/service-packages/{packageId}/promotions?";
+    if (packageIdPath === undefined || packageIdPath === null)
+      throw new Error("The parameter 'packageIdPath' must be defined.");
+    url_ = url_.replace("{packageId}", encodeURIComponent("" + packageIdPath));
+    if (pageIndex === null)
+      throw new Error("The parameter 'pageIndex' cannot be null.");
+    else if (pageIndex !== undefined)
+      url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+    if (pageSize === null)
+      throw new Error("The parameter 'pageSize' cannot be null.");
+    else if (pageSize !== undefined)
+      url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+    if (search === null)
+      throw new Error("The parameter 'search' cannot be null.");
+    else if (search !== undefined)
+      url_ += "Search=" + encodeURIComponent("" + search) + "&";
+    if (discountType === null)
+      throw new Error("The parameter 'discountType' cannot be null.");
+    else if (discountType !== undefined)
+      url_ += "DiscountType=" + encodeURIComponent("" + discountType) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-            }
-        };
+    let options_: RequestInit = {
+      method: "GET",
+      headers: {},
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDelete(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processPromotionsGET(_response);
+    });
+  }
+
+  protected processPromotionsGET(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processDelete(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @param pageIndex (optional) 
-     * @param pageSize (optional) 
-     * @param search (optional) 
-     * @param discountType (optional) 
-     * @return OK
-     */
-    promotionsGET(packageIdPath: string, pageIndex: number | undefined, pageSize: number | undefined, search: string | undefined, discountType: string | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/service-packages/{packageId}/promotions?";
-        if (packageIdPath === undefined || packageIdPath === null)
-            throw new Error("The parameter 'packageIdPath' must be defined.");
-        url_ = url_.replace("{packageId}", encodeURIComponent("" + packageIdPath));
-        if (pageIndex === null)
-            throw new Error("The parameter 'pageIndex' cannot be null.");
-        else if (pageIndex !== undefined)
-            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
-        if (pageSize === null)
-            throw new Error("The parameter 'pageSize' cannot be null.");
-        else if (pageSize !== undefined)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        if (search === null)
-            throw new Error("The parameter 'search' cannot be null.");
-        else if (search !== undefined)
-            url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        if (discountType === null)
-            throw new Error("The parameter 'discountType' cannot be null.");
-        else if (discountType !== undefined)
-            url_ += "DiscountType=" + encodeURIComponent("" + discountType) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  promotionsPOST(
+    packageId: string,
+    body: AddNewPromotionRequest
+  ): Promise<void> {
+    let url_ = this.baseUrl + "/api/service-packages/{packageId}/promotions";
+    if (packageId === undefined || packageId === null)
+      throw new Error("The parameter 'packageId' must be defined.");
+    url_ = url_.replace("{packageId}", encodeURIComponent("" + packageId));
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
+    const content_ = JSON.stringify(body);
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPromotionsGET(_response);
-        });
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processPromotionsPOST(_response);
+    });
+  }
+
+  protected processPromotionsPOST(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processPromotionsGET(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    promotionsPOST(packageId: string, body: AddNewPromotionRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/service-packages/{packageId}/promotions";
-        if (packageId === undefined || packageId === null)
-            throw new Error("The parameter 'packageId' must be defined.");
-        url_ = url_.replace("{packageId}", encodeURIComponent("" + packageId));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  promotionsPUT(
+    promotionId: string,
+    body: UpdatePromotionRequest
+  ): Promise<void> {
+    let url_ = this.baseUrl + "/api/service-packages/promotions/{promotionId}";
+    if (promotionId === undefined || promotionId === null)
+      throw new Error("The parameter 'promotionId' must be defined.");
+    url_ = url_.replace("{promotionId}", encodeURIComponent("" + promotionId));
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+    const content_ = JSON.stringify(body);
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    let options_: RequestInit = {
+      body: content_,
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPromotionsPOST(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processPromotionsPUT(_response);
+    });
+  }
+
+  protected processPromotionsPUT(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processPromotionsPOST(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    promotionsPUT(promotionId: string, body: UpdatePromotionRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/service-packages/promotions/{promotionId}";
-        if (promotionId === undefined || promotionId === null)
-            throw new Error("The parameter 'promotionId' must be defined.");
-        url_ = url_.replace("{promotionId}", encodeURIComponent("" + promotionId));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  promotionsDELETE(promotionId: string): Promise<void> {
+    let url_ = this.baseUrl + "/api/service-packages/promotions/{promotionId}";
+    if (promotionId === undefined || promotionId === null)
+      throw new Error("The parameter 'promotionId' must be defined.");
+    url_ = url_.replace("{promotionId}", encodeURIComponent("" + promotionId));
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
+    let options_: RequestInit = {
+      method: "DELETE",
+      headers: {},
+    };
 
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processPromotionsDELETE(_response);
+    });
+  }
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPromotionsPUT(_response);
-        });
+  protected processPromotionsDELETE(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processPromotionsPUT(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    promotionsDELETE(promotionId: string): Promise<void> {
-        let url_ = this.baseUrl + "/api/service-packages/promotions/{promotionId}";
-        if (promotionId === undefined || promotionId === null)
-            throw new Error("The parameter 'promotionId' must be defined.");
-        url_ = url_.replace("{promotionId}", encodeURIComponent("" + promotionId));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  usersDELETE(userId: string): Promise<void> {
+    let url_ = this.baseUrl + "/api/users/{userId}";
+    if (userId === undefined || userId === null)
+      throw new Error("The parameter 'userId' must be defined.");
+    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-            }
-        };
+    let options_: RequestInit = {
+      method: "DELETE",
+      headers: {},
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPromotionsDELETE(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processUsersDELETE(_response);
+    });
+  }
+
+  protected processUsersDELETE(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processPromotionsDELETE(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    usersDELETE(userId: string): Promise<void> {
-        let url_ = this.baseUrl + "/api/users/{userId}";
-        if (userId === undefined || userId === null)
-            throw new Error("The parameter 'userId' must be defined.");
-        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @param searchTerm (optional)
+   * @param role (optional)
+   * @param pageIndex (optional)
+   * @param pageSize (optional)
+   * @return OK
+   */
+  usersGET(
+    searchTerm: string | undefined,
+    role: string | undefined,
+    pageIndex: number | undefined,
+    pageSize: number | undefined
+  ): Promise<void> {
+    let url_ = this.baseUrl + "/api/users?";
+    if (searchTerm === null)
+      throw new Error("The parameter 'searchTerm' cannot be null.");
+    else if (searchTerm !== undefined)
+      url_ += "searchTerm=" + encodeURIComponent("" + searchTerm) + "&";
+    if (role === null) throw new Error("The parameter 'role' cannot be null.");
+    else if (role !== undefined)
+      url_ += "role=" + encodeURIComponent("" + role) + "&";
+    if (pageIndex === null)
+      throw new Error("The parameter 'pageIndex' cannot be null.");
+    else if (pageIndex !== undefined)
+      url_ += "pageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+    if (pageSize === null)
+      throw new Error("The parameter 'pageSize' cannot be null.");
+    else if (pageSize !== undefined)
+      url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-            }
-        };
+    let options_: RequestInit = {
+      method: "GET",
+      headers: {},
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUsersDELETE(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processUsersGET(_response);
+    });
+  }
+
+  protected processUsersGET(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processUsersDELETE(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @param searchTerm (optional) 
-     * @param role (optional) 
-     * @param pageIndex (optional) 
-     * @param pageSize (optional) 
-     * @return OK
-     */
-    usersGET(searchTerm: string | undefined, role: string | undefined, pageIndex: number | undefined, pageSize: number | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/users?";
-        if (searchTerm === null)
-            throw new Error("The parameter 'searchTerm' cannot be null.");
-        else if (searchTerm !== undefined)
-            url_ += "searchTerm=" + encodeURIComponent("" + searchTerm) + "&";
-        if (role === null)
-            throw new Error("The parameter 'role' cannot be null.");
-        else if (role !== undefined)
-            url_ += "role=" + encodeURIComponent("" + role) + "&";
-        if (pageIndex === null)
-            throw new Error("The parameter 'pageIndex' cannot be null.");
-        else if (pageIndex !== undefined)
-            url_ += "pageIndex=" + encodeURIComponent("" + pageIndex) + "&";
-        if (pageSize === null)
-            throw new Error("The parameter 'pageSize' cannot be null.");
-        else if (pageSize !== undefined)
-            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  full(id: string): Promise<void> {
+    let url_ = this.baseUrl + "/api/users/{id}/full";
+    if (id === undefined || id === null)
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
+    let options_: RequestInit = {
+      method: "GET",
+      headers: {},
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUsersGET(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processFull(_response);
+    });
+  }
+
+  protected processFull(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processUsersGET(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    full(id: string): Promise<void> {
-        let url_ = this.baseUrl + "/api/users/{id}/full";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  profile(id: string): Promise<void> {
+    let url_ = this.baseUrl + "/api/users/{id}/profile";
+    if (id === undefined || id === null)
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
+    let options_: RequestInit = {
+      method: "GET",
+      headers: {},
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processFull(_response);
-        });
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processProfile(_response);
+    });
+  }
+
+  protected processProfile(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processFull(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
+    return Promise.resolve<void>(null as any);
+  }
 
-    /**
-     * @return OK
-     */
-    profile(id: string): Promise<void> {
-        let url_ = this.baseUrl + "/api/users/{id}/profile";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
+  /**
+   * @return OK
+   */
+  usersPUT(id: string, body: UpdateUserRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/users/{id}";
+    if (id === undefined || id === null)
+      throw new Error("The parameter 'id' must be defined.");
+    url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-            }
-        };
+    const content_ = JSON.stringify(body);
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processProfile(_response);
-        });
+    let options_: RequestInit = {
+      body: content_,
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processUsersPUT(_response);
+    });
+  }
+
+  protected processUsersPUT(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-
-    protected processProfile(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
+    if (status === 200) {
+      return response.text().then((_responseText) => {
+        return;
+      });
+    } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
     }
-
-    /**
-     * @return OK
-     */
-    usersPUT(id: string, body: UpdateUserRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/users/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUsersPUT(_response);
-        });
-    }
-
-    protected processUsersPUT(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
+    return Promise.resolve<void>(null as any);
+  }
 }
 
 export class AddNewPromotionRequest implements IAddNewPromotionRequest {
-    packageId?: string;
-    description?: string | undefined;
-    type?: string | undefined;
-    value?: number;
-    validFrom?: Date;
-    validTo?: Date;
+  packageId?: string;
+  description?: string | undefined;
+  type?: string | undefined;
+  value?: number;
+  validFrom?: Date;
+  validTo?: Date;
 
-    constructor(data?: IAddNewPromotionRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IAddNewPromotionRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.packageId = _data["packageId"];
-            this.description = _data["description"];
-            this.type = _data["type"];
-            this.value = _data["value"];
-            this.validFrom = _data["validFrom"] ? new Date(_data["validFrom"].toString()) : <any>undefined;
-            this.validTo = _data["validTo"] ? new Date(_data["validTo"].toString()) : <any>undefined;
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.packageId = _data["packageId"];
+      this.description = _data["description"];
+      this.type = _data["type"];
+      this.value = _data["value"];
+      this.validFrom = _data["validFrom"]
+        ? new Date(_data["validFrom"].toString())
+        : <any>undefined;
+      this.validTo = _data["validTo"]
+        ? new Date(_data["validTo"].toString())
+        : <any>undefined;
     }
+  }
 
-    static fromJS(data: any): AddNewPromotionRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new AddNewPromotionRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): AddNewPromotionRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new AddNewPromotionRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["packageId"] = this.packageId;
-        data["description"] = this.description;
-        data["type"] = this.type;
-        data["value"] = this.value;
-        data["validFrom"] = this.validFrom ? this.validFrom.toISOString() : <any>undefined;
-        data["validTo"] = this.validTo ? this.validTo.toISOString() : <any>undefined;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["packageId"] = this.packageId;
+    data["description"] = this.description;
+    data["type"] = this.type;
+    data["value"] = this.value;
+    data["validFrom"] = this.validFrom
+      ? this.validFrom.toISOString()
+      : <any>undefined;
+    data["validTo"] = this.validTo
+      ? this.validTo.toISOString()
+      : <any>undefined;
+    return data;
+  }
 }
 
 export interface IAddNewPromotionRequest {
-    packageId?: string;
-    description?: string | undefined;
-    type?: string | undefined;
-    value?: number;
-    validFrom?: Date;
-    validTo?: Date;
+  packageId?: string;
+  description?: string | undefined;
+  type?: string | undefined;
+  value?: number;
+  validFrom?: Date;
+  validTo?: Date;
 }
 
 export class AssignRolesRequest implements IAssignRolesRequest {
-    userId?: string;
-    roles?: string[] | undefined;
+  userId?: string;
+  roles?: string[] | undefined;
 
-    constructor(data?: IAssignRolesRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IAssignRolesRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.userId = _data["userId"];
-            if (Array.isArray(_data["roles"])) {
-                this.roles = [] as any;
-                for (let item of _data["roles"])
-                    this.roles!.push(item);
-            }
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.userId = _data["userId"];
+      if (Array.isArray(_data["roles"])) {
+        this.roles = [] as any;
+        for (let item of _data["roles"]) this.roles!.push(item);
+      }
     }
+  }
 
-    static fromJS(data: any): AssignRolesRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new AssignRolesRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): AssignRolesRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new AssignRolesRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
-        if (Array.isArray(this.roles)) {
-            data["roles"] = [];
-            for (let item of this.roles)
-                data["roles"].push(item);
-        }
-        return data;
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["userId"] = this.userId;
+    if (Array.isArray(this.roles)) {
+      data["roles"] = [];
+      for (let item of this.roles) data["roles"].push(item);
     }
+    return data;
+  }
 }
 
 export interface IAssignRolesRequest {
-    userId?: string;
-    roles?: string[] | undefined;
+  userId?: string;
+  roles?: string[] | undefined;
 }
 
 export class CancelRequest implements ICancelRequest {
-    subscriptionId?: string;
+  subscriptionId?: string;
 
-    constructor(data?: ICancelRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: ICancelRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.subscriptionId = _data["subscriptionId"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.subscriptionId = _data["subscriptionId"];
     }
+  }
 
-    static fromJS(data: any): CancelRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new CancelRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): CancelRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new CancelRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["subscriptionId"] = this.subscriptionId;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["subscriptionId"] = this.subscriptionId;
+    return data;
+  }
 }
 
 export interface ICancelRequest {
-    subscriptionId?: string;
+  subscriptionId?: string;
 }
 
 export class ChangePasswordRequest implements IChangePasswordRequest {
-    oldPassword?: string | undefined;
-    newPassword?: string | undefined;
+  oldPassword?: string | undefined;
+  newPassword?: string | undefined;
 
-    constructor(data?: IChangePasswordRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IChangePasswordRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.oldPassword = _data["oldPassword"];
-            this.newPassword = _data["newPassword"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.oldPassword = _data["oldPassword"];
+      this.newPassword = _data["newPassword"];
     }
+  }
 
-    static fromJS(data: any): ChangePasswordRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChangePasswordRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): ChangePasswordRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new ChangePasswordRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["oldPassword"] = this.oldPassword;
-        data["newPassword"] = this.newPassword;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["oldPassword"] = this.oldPassword;
+    data["newPassword"] = this.newPassword;
+    return data;
+  }
 }
 
 export interface IChangePasswordRequest {
-    oldPassword?: string | undefined;
-    newPassword?: string | undefined;
+  oldPassword?: string | undefined;
+  newPassword?: string | undefined;
 }
 
-export class CreateServicePackageRequest implements ICreateServicePackageRequest {
-    name?: string | undefined;
-    description?: string | undefined;
-    price?: number;
-    associatedRole?: string | undefined;
-    status?: string | undefined;
-    durationDays?: number;
+export class CreateServicePackageRequest
+  implements ICreateServicePackageRequest
+{
+  name?: string | undefined;
+  description?: string | undefined;
+  price?: number;
+  associatedRole?: string | undefined;
+  status?: string | undefined;
+  durationDays?: number;
 
-    constructor(data?: ICreateServicePackageRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: ICreateServicePackageRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.price = _data["price"];
-            this.associatedRole = _data["associatedRole"];
-            this.status = _data["status"];
-            this.durationDays = _data["durationDays"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.name = _data["name"];
+      this.description = _data["description"];
+      this.price = _data["price"];
+      this.associatedRole = _data["associatedRole"];
+      this.status = _data["status"];
+      this.durationDays = _data["durationDays"];
     }
+  }
 
-    static fromJS(data: any): CreateServicePackageRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateServicePackageRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): CreateServicePackageRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new CreateServicePackageRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["price"] = this.price;
-        data["associatedRole"] = this.associatedRole;
-        data["status"] = this.status;
-        data["durationDays"] = this.durationDays;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name;
+    data["description"] = this.description;
+    data["price"] = this.price;
+    data["associatedRole"] = this.associatedRole;
+    data["status"] = this.status;
+    data["durationDays"] = this.durationDays;
+    return data;
+  }
 }
 
 export interface ICreateServicePackageRequest {
-    name?: string | undefined;
-    description?: string | undefined;
-    price?: number;
-    associatedRole?: string | undefined;
-    status?: string | undefined;
-    durationDays?: number;
+  name?: string | undefined;
+  description?: string | undefined;
+  price?: number;
+  associatedRole?: string | undefined;
+  status?: string | undefined;
+  durationDays?: number;
 }
 
 export class LoginUserRequest implements ILoginUserRequest {
-    email?: string | undefined;
-    password?: string | undefined;
+  email?: string | undefined;
+  password?: string | undefined;
 
-    constructor(data?: ILoginUserRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: ILoginUserRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.email = _data["email"];
-            this.password = _data["password"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.email = _data["email"];
+      this.password = _data["password"];
     }
+  }
 
-    static fromJS(data: any): LoginUserRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new LoginUserRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): LoginUserRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new LoginUserRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["email"] = this.email;
-        data["password"] = this.password;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["email"] = this.email;
+    data["password"] = this.password;
+    return data;
+  }
 }
 
 export interface ILoginUserRequest {
-    email?: string | undefined;
-    password?: string | undefined;
+  email?: string | undefined;
+  password?: string | undefined;
 }
 
 export class RegisterUserRequest implements IRegisterUserRequest {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    email?: string | undefined;
-    phone?: string | undefined;
-    birthDate?: Date;
-    gender?: string | undefined;
-    password?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+  email?: string | undefined;
+  phone?: string | undefined;
+  birthDate?: Date;
+  gender?: string | undefined;
+  password?: string | undefined;
 
-    constructor(data?: IRegisterUserRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IRegisterUserRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.email = _data["email"];
-            this.phone = _data["phone"];
-            this.birthDate = _data["birthDate"] ? new Date(_data["birthDate"].toString()) : <any>undefined;
-            this.gender = _data["gender"];
-            this.password = _data["password"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.firstName = _data["firstName"];
+      this.lastName = _data["lastName"];
+      this.email = _data["email"];
+      this.phone = _data["phone"];
+      this.birthDate = _data["birthDate"]
+        ? new Date(_data["birthDate"].toString())
+        : <any>undefined;
+      this.gender = _data["gender"];
+      this.password = _data["password"];
     }
+  }
 
-    static fromJS(data: any): RegisterUserRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new RegisterUserRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): RegisterUserRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new RegisterUserRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["email"] = this.email;
-        data["phone"] = this.phone;
-        data["birthDate"] = this.birthDate ? this.birthDate.toISOString() : <any>undefined;
-        data["gender"] = this.gender;
-        data["password"] = this.password;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["firstName"] = this.firstName;
+    data["lastName"] = this.lastName;
+    data["email"] = this.email;
+    data["phone"] = this.phone;
+    data["birthDate"] = this.birthDate
+      ? this.birthDate.toISOString()
+      : <any>undefined;
+    data["gender"] = this.gender;
+    data["password"] = this.password;
+    return data;
+  }
 }
 
 export interface IRegisterUserRequest {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    email?: string | undefined;
-    phone?: string | undefined;
-    birthDate?: Date;
-    gender?: string | undefined;
-    password?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+  email?: string | undefined;
+  phone?: string | undefined;
+  birthDate?: Date;
+  gender?: string | undefined;
+  password?: string | undefined;
 }
 
 export class RenewRequest implements IRenewRequest {
-    subscriptionId?: string;
-    additionalDurationDays?: number;
+  subscriptionId?: string;
+  additionalDurationDays?: number;
 
-    constructor(data?: IRenewRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IRenewRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.subscriptionId = _data["subscriptionId"];
-            this.additionalDurationDays = _data["additionalDurationDays"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.subscriptionId = _data["subscriptionId"];
+      this.additionalDurationDays = _data["additionalDurationDays"];
     }
+  }
 
-    static fromJS(data: any): RenewRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new RenewRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): RenewRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new RenewRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["subscriptionId"] = this.subscriptionId;
-        data["additionalDurationDays"] = this.additionalDurationDays;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["subscriptionId"] = this.subscriptionId;
+    data["additionalDurationDays"] = this.additionalDurationDays;
+    return data;
+  }
 }
 
 export interface IRenewRequest {
-    subscriptionId?: string;
-    additionalDurationDays?: number;
+  subscriptionId?: string;
+  additionalDurationDays?: number;
 }
 
 export class ResetPasswordRequest implements IResetPasswordRequest {
-    email?: string | undefined;
+  email?: string | undefined;
 
-    constructor(data?: IResetPasswordRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IResetPasswordRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.email = _data["email"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.email = _data["email"];
     }
+  }
 
-    static fromJS(data: any): ResetPasswordRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new ResetPasswordRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): ResetPasswordRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new ResetPasswordRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["email"] = this.email;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["email"] = this.email;
+    return data;
+  }
 }
 
 export interface IResetPasswordRequest {
-    email?: string | undefined;
+  email?: string | undefined;
 }
 
 export class SubscribeRequest implements ISubscribeRequest {
-    packageId?: string;
+  packageId?: string;
 
-    constructor(data?: ISubscribeRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: ISubscribeRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.packageId = _data["packageId"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.packageId = _data["packageId"];
     }
+  }
 
-    static fromJS(data: any): SubscribeRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new SubscribeRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): SubscribeRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new SubscribeRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["packageId"] = this.packageId;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["packageId"] = this.packageId;
+    return data;
+  }
 }
 
 export interface ISubscribeRequest {
-    packageId?: string;
+  packageId?: string;
 }
 
 export class UpdateProfileRequest implements IUpdateProfileRequest {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    phone?: string | undefined;
-    birthDate?: Date;
-    gender?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+  phone?: string | undefined;
+  birthDate?: Date;
+  gender?: string | undefined;
 
-    constructor(data?: IUpdateProfileRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IUpdateProfileRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.phone = _data["phone"];
-            this.birthDate = _data["birthDate"] ? new Date(_data["birthDate"].toString()) : <any>undefined;
-            this.gender = _data["gender"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.firstName = _data["firstName"];
+      this.lastName = _data["lastName"];
+      this.phone = _data["phone"];
+      this.birthDate = _data["birthDate"]
+        ? new Date(_data["birthDate"].toString())
+        : <any>undefined;
+      this.gender = _data["gender"];
     }
+  }
 
-    static fromJS(data: any): UpdateProfileRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateProfileRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): UpdateProfileRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new UpdateProfileRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["phone"] = this.phone;
-        data["birthDate"] = this.birthDate ? this.birthDate.toISOString() : <any>undefined;
-        data["gender"] = this.gender;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["firstName"] = this.firstName;
+    data["lastName"] = this.lastName;
+    data["phone"] = this.phone;
+    data["birthDate"] = this.birthDate
+      ? this.birthDate.toISOString()
+      : <any>undefined;
+    data["gender"] = this.gender;
+    return data;
+  }
 }
 
 export interface IUpdateProfileRequest {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    phone?: string | undefined;
-    birthDate?: Date;
-    gender?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+  phone?: string | undefined;
+  birthDate?: Date;
+  gender?: string | undefined;
 }
 
 export class UpdatePromotionRequest implements IUpdatePromotionRequest {
-    promotionId?: string;
-    packageId?: string;
-    description?: string | undefined;
-    type?: string | undefined;
-    value?: number;
-    validFrom?: Date;
-    validTo?: Date;
+  promotionId?: string;
+  packageId?: string;
+  description?: string | undefined;
+  type?: string | undefined;
+  value?: number;
+  validFrom?: Date;
+  validTo?: Date;
 
-    constructor(data?: IUpdatePromotionRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IUpdatePromotionRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.promotionId = _data["promotionId"];
-            this.packageId = _data["packageId"];
-            this.description = _data["description"];
-            this.type = _data["type"];
-            this.value = _data["value"];
-            this.validFrom = _data["validFrom"] ? new Date(_data["validFrom"].toString()) : <any>undefined;
-            this.validTo = _data["validTo"] ? new Date(_data["validTo"].toString()) : <any>undefined;
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.promotionId = _data["promotionId"];
+      this.packageId = _data["packageId"];
+      this.description = _data["description"];
+      this.type = _data["type"];
+      this.value = _data["value"];
+      this.validFrom = _data["validFrom"]
+        ? new Date(_data["validFrom"].toString())
+        : <any>undefined;
+      this.validTo = _data["validTo"]
+        ? new Date(_data["validTo"].toString())
+        : <any>undefined;
     }
+  }
 
-    static fromJS(data: any): UpdatePromotionRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdatePromotionRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): UpdatePromotionRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new UpdatePromotionRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["promotionId"] = this.promotionId;
-        data["packageId"] = this.packageId;
-        data["description"] = this.description;
-        data["type"] = this.type;
-        data["value"] = this.value;
-        data["validFrom"] = this.validFrom ? this.validFrom.toISOString() : <any>undefined;
-        data["validTo"] = this.validTo ? this.validTo.toISOString() : <any>undefined;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["promotionId"] = this.promotionId;
+    data["packageId"] = this.packageId;
+    data["description"] = this.description;
+    data["type"] = this.type;
+    data["value"] = this.value;
+    data["validFrom"] = this.validFrom
+      ? this.validFrom.toISOString()
+      : <any>undefined;
+    data["validTo"] = this.validTo
+      ? this.validTo.toISOString()
+      : <any>undefined;
+    return data;
+  }
 }
 
 export interface IUpdatePromotionRequest {
-    promotionId?: string;
-    packageId?: string;
-    description?: string | undefined;
-    type?: string | undefined;
-    value?: number;
-    validFrom?: Date;
-    validTo?: Date;
+  promotionId?: string;
+  packageId?: string;
+  description?: string | undefined;
+  type?: string | undefined;
+  value?: number;
+  validFrom?: Date;
+  validTo?: Date;
 }
 
-export class UpdateServicePackageRequest implements IUpdateServicePackageRequest {
-    name?: string | undefined;
-    description?: string | undefined;
-    price?: number;
-    associatedRole?: string | undefined;
-    status?: string | undefined;
-    durationDays?: number;
+export class UpdateServicePackageRequest
+  implements IUpdateServicePackageRequest
+{
+  name?: string | undefined;
+  description?: string | undefined;
+  price?: number;
+  associatedRole?: string | undefined;
+  status?: string | undefined;
+  durationDays?: number;
 
-    constructor(data?: IUpdateServicePackageRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IUpdateServicePackageRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.price = _data["price"];
-            this.associatedRole = _data["associatedRole"];
-            this.status = _data["status"];
-            this.durationDays = _data["durationDays"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.name = _data["name"];
+      this.description = _data["description"];
+      this.price = _data["price"];
+      this.associatedRole = _data["associatedRole"];
+      this.status = _data["status"];
+      this.durationDays = _data["durationDays"];
     }
+  }
 
-    static fromJS(data: any): UpdateServicePackageRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateServicePackageRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): UpdateServicePackageRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new UpdateServicePackageRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["price"] = this.price;
-        data["associatedRole"] = this.associatedRole;
-        data["status"] = this.status;
-        data["durationDays"] = this.durationDays;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["name"] = this.name;
+    data["description"] = this.description;
+    data["price"] = this.price;
+    data["associatedRole"] = this.associatedRole;
+    data["status"] = this.status;
+    data["durationDays"] = this.durationDays;
+    return data;
+  }
 }
 
 export interface IUpdateServicePackageRequest {
-    name?: string | undefined;
-    description?: string | undefined;
-    price?: number;
-    associatedRole?: string | undefined;
-    status?: string | undefined;
-    durationDays?: number;
+  name?: string | undefined;
+  description?: string | undefined;
+  price?: number;
+  associatedRole?: string | undefined;
+  status?: string | undefined;
+  durationDays?: number;
 }
 
 export class UpdateUserRequest implements IUpdateUserRequest {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    birthDate?: Date;
-    gender?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+  birthDate?: Date;
+  gender?: string | undefined;
 
-    constructor(data?: IUpdateUserRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
+  constructor(data?: IUpdateUserRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
     }
+  }
 
-    init(_data?: any) {
-        if (_data) {
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.birthDate = _data["birthDate"] ? new Date(_data["birthDate"].toString()) : <any>undefined;
-            this.gender = _data["gender"];
-        }
+  init(_data?: any) {
+    if (_data) {
+      this.firstName = _data["firstName"];
+      this.lastName = _data["lastName"];
+      this.birthDate = _data["birthDate"]
+        ? new Date(_data["birthDate"].toString())
+        : <any>undefined;
+      this.gender = _data["gender"];
     }
+  }
 
-    static fromJS(data: any): UpdateUserRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateUserRequest();
-        result.init(data);
-        return result;
-    }
+  static fromJS(data: any): UpdateUserRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new UpdateUserRequest();
+    result.init(data);
+    return result;
+  }
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["birthDate"] = this.birthDate ? this.birthDate.toISOString() : <any>undefined;
-        data["gender"] = this.gender;
-        return data;
-    }
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["firstName"] = this.firstName;
+    data["lastName"] = this.lastName;
+    data["birthDate"] = this.birthDate
+      ? this.birthDate.toISOString()
+      : <any>undefined;
+    data["gender"] = this.gender;
+    return data;
+  }
 }
 
 export interface IUpdateUserRequest {
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    birthDate?: Date;
-    gender?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+  birthDate?: Date;
+  gender?: string | undefined;
 }
 
 export class ApiException extends Error {
-    message: string;
-    status: number;
-    response: string;
-    headers: { [key: string]: any; };
-    result: any;
+  message: string;
+  status: number;
+  response: string;
+  headers: { [key: string]: any };
+  result: any;
 
-    constructor(message: string, status: number, response: string, headers: { [key: string]: any; }, result: any) {
-        super();
+  constructor(
+    message: string,
+    status: number,
+    response: string,
+    headers: { [key: string]: any },
+    result: any
+  ) {
+    super();
 
-        this.message = message;
-        this.status = status;
-        this.response = response;
-        this.headers = headers;
-        this.result = result;
-    }
+    this.message = message;
+    this.status = status;
+    this.response = response;
+    this.headers = headers;
+    this.result = result;
+  }
 
-    protected isApiException = true;
+  protected isApiException = true;
 
-    static isApiException(obj: any): obj is ApiException {
-        return obj.isApiException === true;
-    }
+  static isApiException(obj: any): obj is ApiException {
+    return obj.isApiException === true;
+  }
 }
 
-function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): any {
-    if (result !== null && result !== undefined)
-        throw result;
-    else
-        throw new ApiException(message, status, response, headers, null);
+function throwException(
+  message: string,
+  status: number,
+  response: string,
+  headers: { [key: string]: any },
+  result?: any
+): any {
+  if (result !== null && result !== undefined) throw result;
+  else throw new ApiException(message, status, response, headers, null);
 }
