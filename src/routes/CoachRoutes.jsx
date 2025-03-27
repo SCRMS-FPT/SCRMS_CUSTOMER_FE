@@ -7,6 +7,11 @@ import CoachTrainingSessionManagementView from "@/pages/CoachView/CoachTrainingS
 import CoachTrainingPackageManagementView from "@/pages/CoachView/CoachTrainingPackageManagementView";
 import CoachAnalyticsView from "@/pages/CoachView/CoachAnalyticsView";
 import CoachSidebar from "../components/CoachPage/CoachSidebar";
+import CoachProfile from "@/pages/CoachView/coach-profile"
+import CoachSchedules from "@/pages/CoachView/coach-schedules"
+import CoachPackagesPage from "@/pages/CoachView/coach-packages-page"
+import CoachBookingsPage from "@/pages/CoachView/coach-bookings-page"
+import CoachPromotionManagementPage from "@/pages/CoachView/CoachPromotionManagementPage"
 
 const CoachRoutes = [
   <Route
@@ -63,6 +68,100 @@ const CoachRoutes = [
       </CoachSidebar>
     }
   />,
+  //// Hồ Sơ Coach
+  <Route
+    key="coach-profile"
+    path="/coach-profile"
+    element={
+      <CoachSidebar>
+        <CoachProfile />
+      </CoachSidebar>
+    }
+  />,
+
+  <Route
+    key="coach-profile"
+    path="/coach-profile/:id"
+    element={
+      <CoachSidebar>
+        <CoachProfile />
+      </CoachSidebar>
+    }
+  />,
+  /////Lịch Làm Việc Coach
+
+  <Route
+    key="coach-schedules"
+    path="/coach-schedules"
+    element={
+      <CoachSidebar>
+        <CoachSchedules />
+      </CoachSidebar>
+    }
+  />,
+
+  <Route
+    key="/coach-schedules"
+    path="/coach-schedules/:id"
+    element={
+      <CoachSidebar>
+        <CoachSchedules />
+      </CoachSidebar>
+    }
+  />,
+
+
+
+  /////Gói Đào Tạo Coach
+
+  <Route
+    key="coach-packages"
+    path="/coach-packages"
+    element={
+      <CoachSidebar>
+        <CoachPackagesPage />
+      </CoachSidebar>
+    }
+  />,
+
+  <Route
+    key="coach-packages"
+    path="/coach-packages/:coach_id"
+    element={
+      <CoachSidebar>
+        <CoachPackagesPage />
+      </CoachSidebar>
+    }
+  />,
+
+
+  /////Booking của Coach
+
+  <Route
+    key="coach-bookings"
+    path="/coach-bookings"
+    element={
+      <CoachSidebar>
+        <CoachBookingsPage />
+      </CoachSidebar>
+    }
+  />,
+
+
+  /////Quản Lý Khuyến Mãi cho Coach
+
+  <Route
+    key="coach-promotions"
+    path="/coach-promotions"
+    element={
+      <CoachSidebar>
+        <CoachPromotionManagementPage />
+      </CoachSidebar>
+    }
+  />,
+
+
+
 ];
 
 export default CoachRoutes;

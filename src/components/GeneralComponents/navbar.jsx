@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/userSlice";
 import logo from "../../assets/logo.svg";
@@ -26,6 +26,15 @@ import {
   Container,
   Badge,
   CircularProgress,
+  alpha,
+  Paper,
+  Fade,
+  Chip,
+  useScrollTrigger,
+  Zoom,
+  Fab,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -41,22 +50,101 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import AppsIcon from "@mui/icons-material/Apps";
+import HomeIcon from "@mui/icons-material/Home";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import PersonSearchIcon from "@mui/icons-material/PersonSearch";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+
+// Scroll to top button component
+import PropTypes from "prop-types";
+
+function ScrollTop(props) {
+  const { children } = props;
+
+  ScrollTop.propTypes = {
+    children: PropTypes.node.isRequired,
+  };
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100,
+  });
+
+  const handleClick = (event) => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  return (
+    <Zoom in={trigger}>
+      <Box
+        onClick={handleClick}
+        role="presentation"
+        sx={{ position: "fixed", bottom: 16, right: 16, zIndex: 1000 }}
+      >
+        {children}
+      </Box>
+    </Zoom>
+  );
+}
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [discoverAnchorEl, setDiscoverAnchorEl] = useState(null);
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+  const [appsMenuAnchorEl, setAppsMenuAnchorEl] = useState(null);
   const [walletBalance, setWalletBalance] = useState(null);
   const [loadingBalance, setLoadingBalance] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+
+  // For navbar elevation on scroll
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 0,
+  });
 
   // Get user info from Redux
   const user = useSelector((state) => state.user.userProfile);
 
   // Check if user has specific roles
   const isCoach = user?.roles?.includes("Coach");
-  const isCourtOwner = user?.roles?.includes("Court Owner");
+  const isCourtOwner = user?.roles?.includes("CourtOwner");
+
+  // Set active tab based on current location
+  useEffect(() => {
+    const pathname = location.pathname;
+    if (pathname === "/" || pathname === "/home") {
+      setTabValue(0);
+    } else if (
+      pathname.includes("/browse-courts") ||
+      pathname.includes("/court/") || 
+      pathname.includes("/courts/sport")
+    ) {
+      setTabValue(1);
+    } else if (pathname.includes("/coaches") || pathname.includes("/coach/")) {
+      setTabValue(2);
+    } else if (pathname.includes("/pricing")) {
+      setTabValue(3);
+    } else if (pathname.includes("/match-opponents")) {
+      setTabValue(4);
+    } else {
+      setTabValue(false);
+    }
+  }, [location]);
+
+  // Check active route for highlighting
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
+  // Handle tab change
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   // Fetch wallet balance when dropdown opens
   const fetchWalletBalance = async () => {
@@ -92,6 +180,13 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  // Navigate to user dashboard
+  const navigateToUserDashboard = () => {
+    navigate("/user/dashboard");
+    handleProfileMenuClose();
+    setIsOpen(false);
+  };
+
   // Discover menu handlers
   const handleDiscoverMenuOpen = (event) => {
     setDiscoverAnchorEl(event.currentTarget);
@@ -99,6 +194,24 @@ const Navbar = () => {
 
   const handleDiscoverMenuClose = () => {
     setDiscoverAnchorEl(null);
+  };
+
+  // Apps menu handlers
+  const handleAppsMenuOpen = (event) => {
+    setAppsMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleAppsMenuClose = () => {
+    setAppsMenuAnchorEl(null);
+  };
+
+  // Notification handlers
+  const handleNotificationOpen = (event) => {
+    setNotificationAnchorEl(event.currentTarget);
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationAnchorEl(null);
   };
 
   // Logout function
@@ -115,271 +228,1109 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  // Mock notifications data
+  const notifications = [
+    {
+      id: 1,
+      message: "Your court reservation is confirmed",
+      time: "10 mins ago",
+      isNew: true,
+    },
+    {
+      id: 2,
+      message: "New coach schedule available",
+      time: "2 hours ago",
+      isNew: true,
+    },
+    { id: 3, message: "Payment successful", time: "Yesterday", isNew: false },
+  ];
+
   return (
-    <AppBar
-      position="static"
-      color="default"
-      elevation={2}
-      sx={{
-        backgroundColor: "white",
-        borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
-      }}
-    >
-      <Container maxWidth="xl">
-        <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
-          {/* Logo and discover (desktop) */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Link
-              to="/"
-              style={{
-                textDecoration: "none",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <img
-                src={logo}
-                alt="Courtsite"
-                style={{ height: "32px", marginRight: "8px" }}
-              />
-              <Typography
-                variant="h6"
-                component="div"
-                sx={{
-                  fontWeight: "bold",
-                  color: "#2563eb",
-                  display: { xs: "none", md: "flex" },
+    <>
+      <AppBar
+        position="sticky"
+        color="default"
+        elevation={trigger ? 4 : 0}
+        sx={{
+          backgroundColor: "white",
+          borderBottom: trigger ? "none" : "1px solid rgba(0, 0, 0, 0.08)",
+          transition: "all 0.3s",
+        }}
+      >
+        {/* Main toolbar with logo and user controls */}
+        <Container maxWidth="lg">
+          <Toolbar
+            disableGutters
+            sx={{ justifyContent: "space-between", py: 0.5 }}
+          >
+            {/* Logo section */}
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Link
+                to="/"
+                style={{
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
                 }}
               >
-                Courtsite
-              </Typography>
-            </Link>
+                <img
+                  src={logo}
+                  alt="Courtsite"
+                  style={{
+                    height: "36px",
+                    marginRight: "10px",
+                    transition: "transform 0.3s",
+                  }}
+                  className="logo-hover"
+                />
+                <Typography
+                  variant="h5"
+                  component="div"
+                  sx={{
+                    fontWeight: 700,
+                    color: "#2563eb",
+                    display: { xs: "none", md: "flex" },
+                    letterSpacing: "-0.5px",
+                  }}
+                >
+                  Courtsite
+                </Typography>
+              </Link>
+            </Box>
 
-            {/* Discover dropdown */}
-            <Box sx={{ ml: 3, display: { xs: "none", md: "flex" } }}>
-              <Button
-                color="inherit"
-                onClick={handleDiscoverMenuOpen}
-                endIcon={<KeyboardArrowDownIcon />}
-                startIcon={<ExploreIcon />}
+            {/* Mobile menu button */}
+            <Box sx={{ display: { xs: "flex", md: "none" } }}>
+              <IconButton
+                size="large"
+                color="primary"
+                aria-label="menu"
+                onClick={() => setIsOpen(true)}
                 sx={{
-                  transition: "all 0.2s",
+                  transition: "transform 0.3s, background 0.3s",
+                  borderRadius: 2,
                   "&:hover": {
-                    backgroundColor: "rgba(37, 99, 235, 0.08)",
+                    transform: "scale(1.05)",
+                    backgroundColor: alpha("#2563eb", 0.08),
                   },
                 }}
               >
-                Discover
-              </Button>
+                <MenuIcon />
+              </IconButton>
+            </Box>
+
+            {/* Desktop right controls */}
+            <Box
+              sx={{
+                display: { xs: "none", md: "flex" },
+                alignItems: "center",
+                gap: 1.5,
+              }}
+            >
+              {/* Apps menu button */}
+              <Tooltip title="More options" arrow>
+                <IconButton
+                  onClick={handleAppsMenuOpen}
+                  sx={{
+                    transition: "all 0.3s",
+                    backgroundColor: Boolean(appsMenuAnchorEl)
+                      ? alpha("#2563eb", 0.08)
+                      : "transparent",
+                    "&:hover": {
+                      backgroundColor: alpha("#2563eb", 0.08),
+                    },
+                    mr: 0.5,
+                  }}
+                >
+                  <AppsIcon />
+                </IconButton>
+              </Tooltip>
+
+              {/* Apps Menu */}
               <Menu
-                anchorEl={discoverAnchorEl}
-                open={Boolean(discoverAnchorEl)}
-                onClose={handleDiscoverMenuClose}
+                anchorEl={appsMenuAnchorEl}
+                open={Boolean(appsMenuAnchorEl)}
+                onClose={handleAppsMenuClose}
+                TransitionComponent={Fade}
                 PaperProps={{
                   elevation: 3,
-                  sx: { borderRadius: 1, mt: 1 },
-                }}
-              >
-                <MenuItem
-                  onClick={() => {
-                    handleDiscoverMenuClose();
-                    navigate("/browse-courts");
-                  }}
-                  sx={{ minWidth: 180 }}
-                >
-                  <ListItemIcon>
-                    <SportsTennisIcon fontSize="small" />
-                  </ListItemIcon>
-                  Browse Courts
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    handleDiscoverMenuClose();
-                    navigate("/coaches");
-                  }}
-                >
-                  <ListItemIcon>
-                    <SportsIcon fontSize="small" />
-                  </ListItemIcon>
-                  Coaches
-                </MenuItem>
-              </Menu>
-            </Box>
-          </Box>
-
-          {/* Mobile menu button */}
-          <Box sx={{ display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              color="inherit"
-              aria-label="menu"
-              onClick={() => setIsOpen(true)}
-              sx={{
-                transition: "transform 0.2s",
-                "&:hover": { transform: "scale(1.05)" },
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-          </Box>
-
-          {/* Desktop navigation links */}
-          <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              alignItems: "center",
-              gap: 2,
-            }}
-          >
-            <Button
-              color="inherit"
-              component={Link}
-              to="/pricing"
-              startIcon={<PriceCheckIcon />}
-              sx={{
-                transition: "all 0.2s",
-                "&:hover": {
-                  backgroundColor: "rgba(37, 99, 235, 0.08)",
-                },
-              }}
-            >
-              Pricing
-            </Button>
-
-            <Button
-              color="inherit"
-              component={Link}
-              to="/support"
-              startIcon={<HelpIcon />}
-              sx={{
-                transition: "all 0.2s",
-                "&:hover": {
-                  backgroundColor: "rgba(37, 99, 235, 0.08)",
-                },
-              }}
-            >
-              Support
-            </Button>
-
-            {/* Wallet Button - Show if user is logged in */}
-            {user && (
-              <Button
-                color="inherit"
-                onClick={navigateToWallet}
-                startIcon={<AccountBalanceWalletIcon />}
-                sx={{
-                  transition: "all 0.2s",
-                  "&:hover": {
-                    backgroundColor: "rgba(37, 99, 235, 0.08)",
+                  sx: {
+                    borderRadius: 2,
+                    mt: 1.5,
+                    width: 320,
+                    padding: 1,
+                    overflow: "visible",
+                    "&::before": {
+                      content: '""',
+                      display: "block",
+                      position: "absolute",
+                      top: -5,
+                      right: 28,
+                      width: 10,
+                      height: 10,
+                      bgcolor: "background.paper",
+                      transform: "rotate(45deg)",
+                      zIndex: 0,
+                    },
                   },
                 }}
               >
-                Ví của tôi
-              </Button>
-            )}
-
-            {/* Role-based dashboard buttons */}
-            {isCoach && (
-              <Tooltip title="Coach Dashboard">
-                <Button
-                  color="primary"
-                  variant="outlined"
-                  startIcon={<DashboardIcon />}
-                  onClick={() => navigate("/coach/dashboard")}
+                <Typography
+                  variant="subtitle2"
+                  sx={{ px: 2, py: 1, color: "text.secondary" }}
+                >
+                  Quick Access
+                </Typography>
+                <Box
                   sx={{
-                    transition: "all 0.2s",
-                    "&:hover": {
-                      backgroundColor: "rgba(37, 99, 235, 0.08)",
-                      transform: "translateY(-2px)",
-                    },
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: 1,
+                    px: 1,
                   }}
                 >
-                  Coach Portal
-                </Button>
-              </Tooltip>
-            )}
+                  <Paper
+                    elevation={0}
+                    onClick={() => {
+                      handleAppsMenuClose();
+                      navigate("/support");
+                    }}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      p: 1,
+                      borderRadius: 2,
+                      cursor: "pointer",
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                    }}
+                  >
+                    <HelpIcon sx={{ color: "#2563eb", mb: 0.5 }} />
+                    <Typography variant="body2" align="center">
+                      Support
+                    </Typography>
+                  </Paper>
 
-            {isCourtOwner && (
-              <Tooltip title="Court Owner Dashboard">
-                <Button
-                  color="primary"
-                  variant="outlined"
-                  startIcon={<DashboardIcon />}
-                  onClick={() => navigate("/court-owner/dashboard")}
-                  sx={{
-                    transition: "all 0.2s",
-                    "&:hover": {
-                      backgroundColor: "rgba(37, 99, 235, 0.08)",
-                      transform: "translateY(-2px)",
-                    },
-                  }}
-                >
-                  Court Owner Portal
-                </Button>
-              </Tooltip>
-            )}
+                  <Paper
+                    elevation={0}
+                    onClick={() => {
+                      handleAppsMenuClose();
+                      navigate("/wallet");
+                    }}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      p: 1,
+                      borderRadius: 2,
+                      cursor: "pointer",
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                    }}
+                  >
+                    <AccountBalanceWalletIcon
+                      sx={{ color: "#2563eb", mb: 0.5 }}
+                    />
+                    <Typography variant="body2" align="center">
+                      Wallet
+                    </Typography>
+                  </Paper>
 
-            {/* User profile or auth buttons */}
-            {user ? (
-              <>
-                <Tooltip title="Notifications">
-                  <IconButton color="inherit">
-                    <Badge badgeContent={3} color="error">
-                      <NotificationsIcon />
-                    </Badge>
+                  <Paper
+                    elevation={0}
+                    onClick={() => {
+                      handleAppsMenuClose();
+                      navigate("/user/bookings");
+                    }}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      p: 1,
+                      borderRadius: 2,
+                      cursor: "pointer",
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                    }}
+                  >
+                    <CalendarMonthIcon sx={{ color: "#2563eb", mb: 0.5 }} />
+                    <Typography variant="body2" align="center">
+                      My Bookings
+                    </Typography>
+                  </Paper>
+
+                  <Paper
+                    elevation={0}
+                    onClick={() => {
+                      handleAppsMenuClose();
+                      navigate("/user/dashboard");
+                    }}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      p: 1,
+                      borderRadius: 2,
+                      cursor: "pointer",
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                    }}
+                  >
+                    <DashboardIcon sx={{ color: "#2563eb", mb: 0.5 }} />
+                    <Typography variant="body2" align="center">
+                      Dashboard
+                    </Typography>
+                  </Paper>
+
+                  <Paper
+                    elevation={0}
+                    onClick={() => {
+                      handleAppsMenuClose();
+                      navigate("/user/coachings");
+                    }}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      p: 1,
+                      borderRadius: 2,
+                      cursor: "pointer",
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                    }}
+                  >
+                    <SportsIcon sx={{ color: "#2563eb", mb: 0.5 }} />
+                    <Typography variant="body2" align="center">
+                      Coaching
+                    </Typography>
+                  </Paper>
+
+                  <Paper
+                    elevation={0}
+                    onClick={() => {
+                      handleAppsMenuClose();
+                      navigate("/user/matching");
+                    }}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      p: 1,
+                      borderRadius: 2,
+                      cursor: "pointer",
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                    }}
+                  >
+                    <PersonSearchIcon sx={{ color: "#2563eb", mb: 0.5 }} />
+                    <Typography variant="body2" align="center">
+                      Matching
+                    </Typography>
+                  </Paper>
+                </Box>
+
+                {/* Professional services section */}
+                {(isCoach || isCourtOwner) && (
+                  <>
+                    <Divider sx={{ my: 1.5 }} />
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ px: 2, py: 1, color: "text.secondary" }}
+                    >
+                      Professional Services
+                    </Typography>
+                    <Box sx={{ display: "flex", gap: 1, px: 1, pb: 1 }}>
+                      {isCoach && (
+                        <Paper
+                          elevation={0}
+                          onClick={() => {
+                            handleAppsMenuClose();
+                            navigate("/coach/dashboard");
+                          }}
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            p: 1.5,
+                            borderRadius: 2,
+                            flex: 1,
+                            cursor: "pointer",
+                            "&:hover": {
+                              backgroundColor: alpha("#2563eb", 0.08),
+                            },
+                          }}
+                        >
+                          <SportsIcon sx={{ color: "#2563eb", mb: 0.5 }} />
+                          <Typography variant="body2" align="center">
+                            Coach Portal
+                          </Typography>
+                        </Paper>
+                      )}
+
+                      {isCourtOwner && (
+                        <Paper
+                          elevation={0}
+                          onClick={() => {
+                            handleAppsMenuClose();
+                            navigate("/court-owner/dashboard");
+                          }}
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            p: 1.5,
+                            borderRadius: 2,
+                            flex: 1,
+                            cursor: "pointer",
+                            "&:hover": {
+                              backgroundColor: alpha("#2563eb", 0.08),
+                            },
+                          }}
+                        >
+                          <SportsTennisIcon
+                            sx={{ color: "#2563eb", mb: 0.5 }}
+                          />
+                          <Typography variant="body2" align="center">
+                            Court Owner Portal
+                          </Typography>
+                        </Paper>
+                      )}
+                    </Box>
+                  </>
+                )}
+              </Menu>
+
+              {/* Role-based dashboard buttons */}
+              {isCoach && (
+                <Tooltip title="Coach Dashboard" arrow>
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    size="small"
+                    startIcon={<DashboardIcon />}
+                    onClick={() => navigate("/coach/dashboard")}
+                    sx={{
+                      textTransform: "none",
+                      fontWeight: 600,
+                      borderRadius: 2,
+                      py: 0.75,
+                      transition: "all 0.3s",
+                      border: "1.5px solid",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 4px 12px rgba(37, 99, 235, 0.2)",
+                        border: "1.5px solid",
+                      },
+                    }}
+                  >
+                    Coach
+                  </Button>
+                </Tooltip>
+              )}
+
+              {isCourtOwner && (
+                <Tooltip title="Court Owner Dashboard" arrow>
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    size="small"
+                    startIcon={<DashboardIcon />}
+                    onClick={() => navigate("/court-owner/dashboard")}
+                    sx={{
+                      textTransform: "none",
+                      fontWeight: 600,
+                      borderRadius: 2,
+                      py: 0.75,
+                      transition: "all 0.3s",
+                      border: "1.5px solid",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 4px 12px rgba(37, 99, 235, 0.2)",
+                        border: "1.5px solid",
+                      },
+                    }}
+                  >
+                    Court Owner
+                  </Button>
+                </Tooltip>
+              )}
+
+              {/* Wallet Button - Show if user is logged in */}
+              {user && (
+                <Tooltip title="Your wallet" arrow>
+                  <IconButton
+                    onClick={navigateToWallet}
+                    sx={{
+                      transition: "all 0.3s",
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                      backgroundColor: isActive("/wallet")
+                        ? alpha("#2563eb", 0.08)
+                        : "transparent",
+                    }}
+                  >
+                    <AccountBalanceWalletIcon />
                   </IconButton>
                 </Tooltip>
+              )}
 
-                <Button
-                  onClick={handleProfileMenuOpen}
-                  color="inherit"
-                  endIcon={<KeyboardArrowDownIcon />}
+              {/* User profile or auth buttons */}
+              {user ? (
+                <>
+                  <Tooltip title="Notifications" arrow>
+                    <IconButton
+                      color="inherit"
+                      onClick={handleNotificationOpen}
+                      sx={{
+                        transition: "all 0.3s",
+                        "&:hover": {
+                          backgroundColor: alpha("#2563eb", 0.08),
+                        },
+                        backgroundColor: notificationAnchorEl
+                          ? alpha("#2563eb", 0.08)
+                          : "transparent",
+                      }}
+                    >
+                      <Badge
+                        badgeContent={
+                          notifications.filter((n) => n.isNew).length
+                        }
+                        color="error"
+                        overlap="circular"
+                        sx={{
+                          "& .MuiBadge-badge": {
+                            fontSize: "10px",
+                            minWidth: "16px",
+                            height: "16px",
+                            padding: 0,
+                          },
+                        }}
+                      >
+                        <NotificationsIcon />
+                      </Badge>
+                    </IconButton>
+                  </Tooltip>
+
+                  {/* Notifications Menu */}
+                  <Menu
+                    anchorEl={notificationAnchorEl}
+                    open={Boolean(notificationAnchorEl)}
+                    onClose={handleNotificationClose}
+                    TransitionComponent={Fade}
+                    PaperProps={{
+                      elevation: 3,
+                      sx: {
+                        borderRadius: 2,
+                        mt: 1.5,
+                        width: 360,
+                        maxHeight: 400,
+                        overflow: "auto",
+                        boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                        "&::before": {
+                          content: '""',
+                          display: "block",
+                          position: "absolute",
+                          top: -5,
+                          right: 16,
+                          width: 10,
+                          height: 10,
+                          bgcolor: "background.paper",
+                          transform: "rotate(45deg)",
+                          zIndex: 0,
+                        },
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{ p: 2, borderBottom: "1px solid rgba(0,0,0,0.06)" }}
+                    >
+                      <Typography variant="subtitle1" fontWeight={600}>
+                        Notifications
+                      </Typography>
+                    </Box>
+                    {notifications.map((notification) => (
+                      <MenuItem
+                        key={notification.id}
+                        onClick={handleNotificationClose}
+                        sx={{
+                          py: 2,
+                          position: "relative",
+                          backgroundColor: notification.isNew
+                            ? alpha("#2563eb", 0.04)
+                            : "transparent",
+                          "&:hover": {
+                            backgroundColor: alpha("#2563eb", 0.08),
+                          },
+                        }}
+                      >
+                        <Box sx={{ width: "100%" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Typography variant="body1">
+                              {notification.message}
+                            </Typography>
+                            {notification.isNew && (
+                              <Box
+                                sx={{
+                                  width: 8,
+                                  height: 8,
+                                  borderRadius: "50%",
+                                  bgcolor: "error.main",
+                                  ml: 1,
+                                  mt: 1,
+                                }}
+                              />
+                            )}
+                          </Box>
+                          <Typography variant="caption" color="text.secondary">
+                            {notification.time}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                    <Box
+                      sx={{
+                        p: 1,
+                        borderTop: "1px solid rgba(0,0,0,0.06)",
+                        textAlign: "center",
+                      }}
+                    >
+                      <Button
+                        color="primary"
+                        size="small"
+                        onClick={handleNotificationClose}
+                        sx={{
+                          textTransform: "none",
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        View all notifications
+                      </Button>
+                    </Box>
+                  </Menu>
+
+                  <Button
+                    onClick={handleProfileMenuOpen}
+                    color="inherit"
+                    endIcon={
+                      <KeyboardArrowDownIcon
+                        sx={{
+                          transition: "transform 0.3s",
+                          transform: anchorEl ? "rotate(180deg)" : "rotate(0)",
+                        }}
+                      />
+                    }
+                    sx={{
+                      textTransform: "none",
+                      borderRadius: 2,
+                      px: 1,
+                      py: 0.75,
+                      ml: 0.5,
+                      transition: "all 0.3s",
+                      backgroundColor: anchorEl
+                        ? alpha("#2563eb", 0.08)
+                        : "transparent",
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                    }}
+                    startIcon={
+                      <Avatar
+                        src={user.profileImage || defaultAvatar}
+                        alt={`${user.firstName} ${user.lastName}`}
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          border: "2px solid #e5e7eb",
+                        }}
+                      />
+                    }
+                  >
+                    <Typography variant="body1" fontWeight={500} color="#444">
+                      {user.firstName}
+                    </Typography>
+                  </Button>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleProfileMenuClose}
+                    TransitionComponent={Fade}
+                    PaperProps={{
+                      elevation: 3,
+                      sx: {
+                        borderRadius: 2,
+                        mt: 1.5,
+                        minWidth: 240,
+                        boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+                        overflow: "visible",
+                        "&::before": {
+                          content: '""',
+                          display: "block",
+                          position: "absolute",
+                          top: -5,
+                          right: 16,
+                          width: 10,
+                          height: 10,
+                          bgcolor: "background.paper",
+                          transform: "rotate(45deg)",
+                          zIndex: 0,
+                        },
+                      },
+                    }}
+                  >
+                    {/* User info */}
+                    <Box
+                      sx={{ p: 2, borderBottom: "1px solid rgba(0,0,0,0.06)" }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", mb: 1 }}
+                      >
+                        <Avatar
+                          src={user.profileImage || defaultAvatar}
+                          alt={`${user.firstName} ${user.lastName}`}
+                          sx={{
+                            width: 42,
+                            height: 42,
+                            mr: 1.5,
+                            border: "2px solid #e5e7eb",
+                          }}
+                        />
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            {user.firstName} {user.lastName}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {user.email}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {/* Wallet Balance */}
+                    <Box
+                      sx={{
+                        px: 2,
+                        py: 1.5,
+                        display: "flex",
+                        alignItems: "center",
+                        backgroundColor: alpha("#2563eb", 0.05),
+                        borderRadius: 1.5,
+                        mx: 1.5,
+                        my: 1.5,
+                      }}
+                    >
+                      <AccountBalanceWalletIcon
+                        fontSize="small"
+                        sx={{ color: "#2563eb", mr: 1.5 }}
+                      />
+                      <Box>
+                        <Typography
+                          variant="caption"
+                          component="div"
+                          color="text.secondary"
+                        >
+                          Số dư ví
+                        </Typography>
+                        {loadingBalance ? (
+                          <CircularProgress size={16} sx={{ my: 0.5 }} />
+                        ) : (
+                          <Typography
+                            variant="body2"
+                            component="div"
+                            fontWeight="bold"
+                          >
+                            {walletBalance?.balance?.toLocaleString()} VND
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+
+                    <MenuItem
+                      onClick={() => {
+                        handleProfileMenuClose();
+                        navigate("/profile");
+                      }}
+                      sx={{
+                        py: 1.5,
+                        px: 2,
+                        borderRadius: 1.5,
+                        mx: 1,
+                        "&:hover": {
+                          backgroundColor: alpha("#2563eb", 0.08),
+                        },
+                      }}
+                    >
+                      <ListItemIcon>
+                        <AccountCircleIcon
+                          fontSize="small"
+                          sx={{ color: "#2563eb" }}
+                        />
+                      </ListItemIcon>
+                      <Typography variant="body1">View Profile</Typography>
+                    </MenuItem>
+
+                    {/* Dashboard Link */}
+                    <MenuItem
+                      onClick={navigateToUserDashboard}
+                      sx={{
+                        py: 1.5,
+                        px: 2,
+                        borderRadius: 1.5,
+                        mx: 1,
+                        "&:hover": {
+                          backgroundColor: alpha("#2563eb", 0.08),
+                        },
+                      }}
+                    >
+                      <ListItemIcon>
+                        <DashboardIcon
+                          fontSize="small"
+                          sx={{ color: "#2563eb" }}
+                        />
+                      </ListItemIcon>
+                      <Typography variant="body1">My Dashboard</Typography>
+                    </MenuItem>
+
+                    {/* Wallet Menu Item */}
+                    <MenuItem
+                      onClick={navigateToWallet}
+                      sx={{
+                        py: 1.5,
+                        px: 2,
+                        borderRadius: 1.5,
+                        mx: 1,
+                        "&:hover": {
+                          backgroundColor: alpha("#2563eb", 0.08),
+                        },
+                      }}
+                    >
+                      <ListItemIcon>
+                        <AccountBalanceWalletIcon
+                          fontSize="small"
+                          sx={{ color: "#2563eb" }}
+                        />
+                      </ListItemIcon>
+                      <Typography variant="body1">Quản lý ví</Typography>
+                    </MenuItem>
+
+                    {isCoach && (
+                      <MenuItem
+                        onClick={() => navigateToDashboard("/coach/dashboard")}
+                        sx={{
+                          py: 1.5,
+                          px: 2,
+                          borderRadius: 1.5,
+                          mx: 1,
+                          "&:hover": {
+                            backgroundColor: alpha("#2563eb", 0.08),
+                          },
+                        }}
+                      >
+                        <ListItemIcon>
+                          <DashboardIcon
+                            fontSize="small"
+                            sx={{ color: "#2563eb" }}
+                          />
+                        </ListItemIcon>
+                        <Typography variant="body1">Coach Dashboard</Typography>
+                      </MenuItem>
+                    )}
+                    {isCourtOwner && (
+                      <MenuItem
+                        onClick={() =>
+                          navigateToDashboard("/court-owner/dashboard")
+                        }
+                        sx={{
+                          py: 1.5,
+                          px: 2,
+                          borderRadius: 1.5,
+                          mx: 1,
+                          "&:hover": {
+                            backgroundColor: alpha("#2563eb", 0.08),
+                          },
+                        }}
+                      >
+                        <ListItemIcon>
+                          <DashboardIcon
+                            fontSize="small"
+                            sx={{ color: "#2563eb" }}
+                          />
+                        </ListItemIcon>
+                        <Typography variant="body1">
+                          Court Owner Dashboard
+                        </Typography>
+                      </MenuItem>
+                    )}
+                    <Divider sx={{ my: 1 }} />
+                    <MenuItem
+                      onClick={handleLogout}
+                      sx={{
+                        py: 1.5,
+                        px: 2,
+                        borderRadius: 1.5,
+                        mx: 1,
+                        "&:hover": {
+                          backgroundColor: alpha("#ef4444", 0.08),
+                        },
+                      }}
+                    >
+                      <ListItemIcon>
+                        <LogoutIcon
+                          fontSize="small"
+                          sx={{ color: "#ef4444" }}
+                        />
+                      </ListItemIcon>
+                      <Typography variant="body1" sx={{ color: "#ef4444" }}>
+                        Log Out
+                      </Typography>
+                    </MenuItem>
+                  </Menu>
+                </>
+              ) : (
+                <>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/signup"
+                    startIcon={<PersonAddIcon />}
+                    sx={{
+                      textTransform: "none",
+                      fontSize: "0.9rem",
+                      fontWeight: 500,
+                      borderRadius: 2,
+                      py: 0.75,
+                      transition: "all 0.3s",
+                      "&:hover": {
+                        backgroundColor: alpha("#2563eb", 0.08),
+                      },
+                    }}
+                  >
+                    Sign Up
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component={Link}
+                    to="/login"
+                    startIcon={<LoginIcon />}
+                    sx={{
+                      textTransform: "none",
+                      fontSize: "0.9rem",
+                      fontWeight: 600,
+                      borderRadius: 2,
+                      py: 0.75,
+                      boxShadow: "0 4px 10px rgba(37, 99, 235, 0.2)",
+                      transition: "all 0.3s",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 6px 15px rgba(37, 99, 235, 0.3)",
+                      },
+                    }}
+                  >
+                    Log In
+                  </Button>
+                </>
+              )}
+            </Box>
+          </Toolbar>
+        </Container>
+        {/* Secondary navigation bar with tabs */}
+        <Box
+          sx={{
+            borderTop: "1px solid rgba(0, 0, 0, 0.06)",
+            display: { xs: "none", md: "block" },
+          }}
+        >
+          <Container maxWidth="xl">
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              indicatorColor="primary"
+              textColor="primary"
+              variant="standard"
+              centered
+              aria-label="main navigation tabs"
+              sx={{
+                "& .MuiTabs-scroller": {
+                  display: "flex",
+                },
+                "& .MuiTabs-flexContainer": {
+                  gap: "8px",
+                  width: "100%",
+                },
+                "& .MuiTab-root": {
+                  py: 0.75, // Reduced height
+                  px: 1,
+                  minWidth: 0,
+                  maxWidth: "none",
+                  fontSize: "0.85rem",
+                  textTransform: "none",
+                  fontWeight: 500,
+                  color: "#555",
+                  borderRadius: "8px 8px 0 0",
+                  "&:hover": {
+                    backgroundColor: alpha("#2563eb", 0.04),
+                    color: "#2563eb",
+                  },
+                },
+                "& .Mui-selected": {
+                  color: "#2563eb !important",
+                  fontWeight: 600,
+                },
+                "& .MuiTabs-indicator": {
+                  height: 3,
+                  borderRadius: "3px 3px 0 0",
+                },
+              }}
+            >
+              <Tab
+                icon={<HomeIcon sx={{ fontSize: "0.9rem" }} />}
+                iconPosition="start"
+                label="Home"
+                onClick={() => navigate("/")}
+              />
+              <Tab
+                icon={<SportsTennisIcon sx={{ fontSize: "0.9rem" }} />}
+                iconPosition="start"
+                label="Courts"
+                onClick={() => navigate("/browse-courts")}
+              />
+              <Tab
+                icon={<SportsIcon sx={{ fontSize: "0.9rem" }} />}
+                iconPosition="start"
+                label="Coaches"
+                onClick={() => navigate("/coaches")}
+              />
+              <Tab
+                icon={<PriceCheckIcon sx={{ fontSize: "0.9rem" }} />}
+                iconPosition="start"
+                label="Pricing"
+                onClick={() => navigate("/pricing")}
+              />
+              <Tab
+                icon={<PersonSearchIcon sx={{ fontSize: "0.9rem" }} />}
+                iconPosition="start"
+                label="Find Opponents"
+                onClick={() => navigate("/match-opponents")}
+              />
+              {user && (
+                <Tab
+                  icon={<ShoppingCartIcon sx={{ fontSize: "0.9rem" }} />}
+                  iconPosition="start"
+                  label="My Bookings"
+                  onClick={() => navigate("/user/bookings")}
+                />
+              )}
+              <Tab
+                icon={<HelpIcon sx={{ fontSize: "0.9rem" }} />}
+                iconPosition="start"
+                label="Support"
+                onClick={() => navigate("/support")}
+              />
+            </Tabs>
+          </Container>
+        </Box>
+      </AppBar>
+
+      {/* Mobile drawer */}
+      <Drawer
+        anchor="right"
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        PaperProps={{
+          sx: {
+            width: 300,
+            borderTopLeftRadius: 16,
+            borderBottomLeftRadius: 16,
+          },
+        }}
+      >
+        <Box sx={{ width: "100%" }} role="presentation">
+          <List>
+            <ListItem sx={{ pb: 2, pt: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  component="div"
+                  sx={{ fontWeight: "bold", color: "#2563eb" }}
+                >
+                  <SportsTennisIcon sx={{ mr: 1, verticalAlign: "middle" }} />
+                  Courtsite
+                </Typography>
+                <IconButton
+                  onClick={() => setIsOpen(false)}
+                  size="small"
                   sx={{
-                    textTransform: "none",
-                    transition: "all 0.2s",
+                    backgroundColor: alpha("#2563eb", 0.08),
                     "&:hover": {
-                      backgroundColor: "rgba(37, 99, 235, 0.08)",
+                      backgroundColor: alpha("#2563eb", 0.12),
                     },
                   }}
-                  startIcon={
-                    <Avatar
-                      src={user.profileImage || defaultAvatar}
-                      alt={`${user.firstName} ${user.lastName}`}
-                      sx={{
-                        width: 32,
-                        height: 32,
-                        border: "2px solid #e5e7eb",
-                      }}
-                    />
-                  }
                 >
-                  {user.firstName}
-                </Button>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleProfileMenuClose}
-                  PaperProps={{
-                    elevation: 3,
-                    sx: { borderRadius: 1, mt: 1, minWidth: 200 },
-                  }}
-                >
-                  {/* Wallet Balance */}
+                  <KeyboardArrowUpIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            </ListItem>
+
+            {/* User info if logged in */}
+            {user && (
+              <Box
+                sx={{ px: 2, py: 1.5, backgroundColor: alpha("#2563eb", 0.03) }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <Avatar
+                    src={user.profileImage || defaultAvatar}
+                    alt={`${user.firstName} ${user.lastName}`}
+                    sx={{
+                      width: 42,
+                      height: 42,
+                      mr: 1.5,
+                      border: "2px solid #e5e7eb",
+                    }}
+                  />
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight={600}>
+                      {user.firstName} {user.lastName}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" noWrap>
+                      {user.email}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Wallet balance in drawer */}
+                {walletBalance !== null && (
                   <Box
                     sx={{
-                      px: 2,
-                      py: 1.5,
+                      mt: 1.5,
+                      p: 1.5,
                       display: "flex",
                       alignItems: "center",
-                      backgroundColor: "rgba(37, 99, 235, 0.08)",
-                      borderRadius: "4px",
-                      mx: 1,
-                      mb: 1,
+                      backgroundColor: alpha("#2563eb", 0.05),
+                      borderRadius: 1.5,
                     }}
                   >
                     <AccountBalanceWalletIcon
                       fontSize="small"
-                      sx={{ color: "#2563eb", mr: 1 }}
+                      sx={{ color: "#2563eb", mr: 1.5 }}
                     />
                     <Box>
                       <Typography
@@ -402,119 +1353,41 @@ const Navbar = () => {
                       )}
                     </Box>
                   </Box>
-
-                  <MenuItem
-                    onClick={() => {
-                      handleProfileMenuClose();
-                      navigate("/profile");
-                    }}
-                  >
-                    <ListItemIcon>
-                      <AccountCircleIcon fontSize="small" />
-                    </ListItemIcon>
-                    View Profile
-                  </MenuItem>
-
-                  {/* Wallet Menu Item */}
-                  <MenuItem onClick={navigateToWallet}>
-                    <ListItemIcon>
-                      <AccountBalanceWalletIcon fontSize="small" />
-                    </ListItemIcon>
-                    Quản lý ví
-                  </MenuItem>
-
-                  {isCoach && (
-                    <MenuItem
-                      onClick={() => navigateToDashboard("/coach/dashboard")}
-                    >
-                      <ListItemIcon>
-                        <DashboardIcon fontSize="small" />
-                      </ListItemIcon>
-                      Coach Dashboard
-                    </MenuItem>
-                  )}
-                  {isCourtOwner && (
-                    <MenuItem
-                      onClick={() =>
-                        navigateToDashboard("/court-owner/dashboard")
-                      }
-                    >
-                      <ListItemIcon>
-                        <DashboardIcon fontSize="small" />
-                      </ListItemIcon>
-                      Court Owner Dashboard
-                    </MenuItem>
-                  )}
-                  <Divider />
-                  <MenuItem onClick={handleLogout}>
-                    <ListItemIcon>
-                      <LogoutIcon fontSize="small" color="error" />
-                    </ListItemIcon>
-                    <ListItemText primary="Log Out" sx={{ color: "#ef4444" }} />
-                  </MenuItem>
-                </Menu>
-              </>
-            ) : (
-              <>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/signup"
-                  startIcon={<PersonAddIcon />}
-                  sx={{
-                    transition: "all 0.2s",
-                    "&:hover": {
-                      backgroundColor: "rgba(37, 99, 235, 0.08)",
-                    },
-                  }}
-                >
-                  Sign Up
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  component={Link}
-                  to="/login"
-                  startIcon={<LoginIcon />}
-                  sx={{
-                    boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.2)",
-                    transition: "all 0.2s",
-                    "&:hover": {
-                      transform: "translateY(-2px)",
-                      boxShadow: "0 6px 10px -1px rgba(37, 99, 235, 0.3)",
-                    },
-                  }}
-                >
-                  Log In
-                </Button>
-              </>
+                )}
+              </Box>
             )}
-          </Box>
-        </Toolbar>
-      </Container>
 
-      {/* Mobile drawer */}
-      <Drawer
-        anchor="right"
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
-        PaperProps={{
-          sx: { width: 280 },
-        }}
-      >
-        <Box sx={{ width: "100%" }} role="presentation">
-          <List>
-            <ListItem sx={{ pb: 2, pt: 2 }}>
-              <Typography
-                variant="h6"
-                component="div"
-                sx={{ fontWeight: "bold", color: "#2563eb" }}
-              >
-                <SportsTennisIcon sx={{ mr: 1, verticalAlign: "middle" }} />
-                Courtsite
-              </Typography>
-            </ListItem>
             <Divider />
+
+            {/* Main Navigation Items */}
+            <ListItem
+              button
+              onClick={() => {
+                setIsOpen(false);
+                navigate("/");
+              }}
+              sx={{
+                py: 1.5,
+                borderRadius: 1.5,
+                mx: 1,
+                my: 0.5,
+                backgroundColor:
+                  isActive("/") || isActive("/home")
+                    ? alpha("#2563eb", 0.08)
+                    : "transparent",
+                "&:hover": {
+                  backgroundColor: alpha("#2563eb", 0.08),
+                },
+              }}
+            >
+              <ListItemIcon>
+                <HomeIcon sx={{ color: "#2563eb" }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Home"
+                primaryTypographyProps={{ fontWeight: 500 }}
+              />
+            </ListItem>
 
             <ListItem
               button
@@ -522,11 +1395,26 @@ const Navbar = () => {
                 setIsOpen(false);
                 navigate("/browse-courts");
               }}
+              sx={{
+                py: 1.5,
+                borderRadius: 1.5,
+                mx: 1,
+                my: 0.5,
+                backgroundColor: location.pathname.includes("/browse-courts")
+                  ? alpha("#2563eb", 0.08)
+                  : "transparent",
+                "&:hover": {
+                  backgroundColor: alpha("#2563eb", 0.08),
+                },
+              }}
             >
               <ListItemIcon>
-                <SportsTennisIcon color="primary" />
+                <SportsTennisIcon sx={{ color: "#2563eb" }} />
               </ListItemIcon>
-              <ListItemText primary="Browse Courts" />
+              <ListItemText
+                primary="Browse Courts"
+                primaryTypographyProps={{ fontWeight: 500 }}
+              />
             </ListItem>
 
             <ListItem
@@ -535,11 +1423,26 @@ const Navbar = () => {
                 setIsOpen(false);
                 navigate("/coaches");
               }}
+              sx={{
+                py: 1.5,
+                borderRadius: 1.5,
+                mx: 1,
+                my: 0.5,
+                backgroundColor: location.pathname.includes("/coaches")
+                  ? alpha("#2563eb", 0.08)
+                  : "transparent",
+                "&:hover": {
+                  backgroundColor: alpha("#2563eb", 0.08),
+                },
+              }}
             >
               <ListItemIcon>
-                <SportsIcon color="primary" />
+                <SportsIcon sx={{ color: "#2563eb" }} />
               </ListItemIcon>
-              <ListItemText primary="Coaches" />
+              <ListItemText
+                primary="Coaches"
+                primaryTypographyProps={{ fontWeight: 500 }}
+              />
             </ListItem>
 
             <ListItem
@@ -548,11 +1451,54 @@ const Navbar = () => {
                 setIsOpen(false);
                 navigate("/pricing");
               }}
+              sx={{
+                py: 1.5,
+                borderRadius: 1.5,
+                mx: 1,
+                my: 0.5,
+                backgroundColor: isActive("/pricing")
+                  ? alpha("#2563eb", 0.08)
+                  : "transparent",
+                "&:hover": {
+                  backgroundColor: alpha("#2563eb", 0.08),
+                },
+              }}
             >
               <ListItemIcon>
-                <PriceCheckIcon color="primary" />
+                <PriceCheckIcon sx={{ color: "#2563eb" }} />
               </ListItemIcon>
-              <ListItemText primary="Pricing" />
+              <ListItemText
+                primary="Pricing"
+                primaryTypographyProps={{ fontWeight: 500 }}
+              />
+            </ListItem>
+
+            <ListItem
+              button
+              onClick={() => {
+                setIsOpen(false);
+                navigate("/match-opponents");
+              }}
+              sx={{
+                py: 1.5,
+                borderRadius: 1.5,
+                mx: 1,
+                my: 0.5,
+                backgroundColor: isActive("/match-opponents")
+                  ? alpha("#2563eb", 0.08)
+                  : "transparent",
+                "&:hover": {
+                  backgroundColor: alpha("#2563eb", 0.08),
+                },
+              }}
+            >
+              <ListItemIcon>
+                <PersonSearchIcon sx={{ color: "#2563eb" }} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Find Opponents"
+                primaryTypographyProps={{ fontWeight: 500 }}
+              />
             </ListItem>
 
             <ListItem
@@ -561,84 +1507,337 @@ const Navbar = () => {
                 setIsOpen(false);
                 navigate("/support");
               }}
+              sx={{
+                py: 1.5,
+                borderRadius: 1.5,
+                mx: 1,
+                my: 0.5,
+                backgroundColor: isActive("/support")
+                  ? alpha("#2563eb", 0.08)
+                  : "transparent",
+                "&:hover": {
+                  backgroundColor: alpha("#2563eb", 0.08),
+                },
+              }}
             >
               <ListItemIcon>
-                <HelpIcon color="primary" />
+                <HelpIcon sx={{ color: "#2563eb" }} />
               </ListItemIcon>
-              <ListItemText primary="Support" />
+              <ListItemText
+                primary="Support"
+                primaryTypographyProps={{ fontWeight: 500 }}
+              />
             </ListItem>
 
-            <Divider />
-
-            {user ? (
+            {user && (
               <>
+                <Divider sx={{ my: 1.5 }} />
+                <Typography
+                  variant="subtitle2"
+                  sx={{ px: 3, py: 1, color: "text.secondary" }}
+                >
+                  My Account
+                </Typography>
+
+                <ListItem
+                  button
+                  onClick={navigateToUserDashboard}
+                  sx={{
+                    py: 1.5,
+                    borderRadius: 1.5,
+                    mx: 1,
+                    my: 0.5,
+                    backgroundColor: location.pathname.includes(
+                      "/user/dashboard"
+                    )
+                      ? alpha("#2563eb", 0.08)
+                      : "transparent",
+                    "&:hover": {
+                      backgroundColor: alpha("#2563eb", 0.08),
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <DashboardIcon sx={{ color: "#2563eb" }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Dashboard"
+                    primaryTypographyProps={{ fontWeight: 500 }}
+                  />
+                </ListItem>
+
                 <ListItem
                   button
                   onClick={() => {
                     setIsOpen(false);
                     navigate("/profile");
                   }}
+                  sx={{
+                    py: 1.5,
+                    borderRadius: 1.5,
+                    mx: 1,
+                    my: 0.5,
+                    backgroundColor: isActive("/profile")
+                      ? alpha("#2563eb", 0.08)
+                      : "transparent",
+                    "&:hover": {
+                      backgroundColor: alpha("#2563eb", 0.08),
+                    },
+                  }}
                 >
                   <ListItemIcon>
-                    <AccountCircleIcon color="primary" />
+                    <AccountCircleIcon sx={{ color: "#2563eb" }} />
                   </ListItemIcon>
-                  <ListItemText primary="View Profile" />
+                  <ListItemText
+                    primary="Profile"
+                    primaryTypographyProps={{ fontWeight: 500 }}
+                  />
+                </ListItem>
+
+                <ListItem
+                  button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate("/user/bookings");
+                  }}
+                  sx={{
+                    py: 1.5,
+                    borderRadius: 1.5,
+                    mx: 1,
+                    my: 0.5,
+                    backgroundColor: location.pathname.includes(
+                      "/user/bookings"
+                    )
+                      ? alpha("#2563eb", 0.08)
+                      : "transparent",
+                    "&:hover": {
+                      backgroundColor: alpha("#2563eb", 0.08),
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <CalendarMonthIcon sx={{ color: "#2563eb" }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="My Bookings"
+                    primaryTypographyProps={{ fontWeight: 500 }}
+                  />
+                </ListItem>
+
+                <ListItem
+                  button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate("/user/coachings");
+                  }}
+                  sx={{
+                    py: 1.5,
+                    borderRadius: 1.5,
+                    mx: 1,
+                    my: 0.5,
+                    backgroundColor: location.pathname.includes(
+                      "/user/coachings"
+                    )
+                      ? alpha("#2563eb", 0.08)
+                      : "transparent",
+                    "&:hover": {
+                      backgroundColor: alpha("#2563eb", 0.08),
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <SportsIcon sx={{ color: "#2563eb" }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="My Coaching"
+                    primaryTypographyProps={{ fontWeight: 500 }}
+                  />
+                </ListItem>
+
+                <ListItem
+                  button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate("/user/matching");
+                  }}
+                  sx={{
+                    py: 1.5,
+                    borderRadius: 1.5,
+                    mx: 1,
+                    my: 0.5,
+                    backgroundColor: location.pathname.includes(
+                      "/user/matching"
+                    )
+                      ? alpha("#2563eb", 0.08)
+                      : "transparent",
+                    "&:hover": {
+                      backgroundColor: alpha("#2563eb", 0.08),
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <PersonSearchIcon sx={{ color: "#2563eb" }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="My Matches"
+                    primaryTypographyProps={{ fontWeight: 500 }}
+                  />
                 </ListItem>
 
                 {/* Wallet mobile menu item */}
-                <ListItem button onClick={navigateToWallet}>
+                <ListItem
+                  button
+                  onClick={navigateToWallet}
+                  sx={{
+                    py: 1.5,
+                    borderRadius: 1.5,
+                    mx: 1,
+                    my: 0.5,
+                    backgroundColor: location.pathname.includes("/wallet")
+                      ? alpha("#2563eb", 0.08)
+                      : "transparent",
+                    "&:hover": {
+                      backgroundColor: alpha("#2563eb", 0.08),
+                    },
+                  }}
+                >
                   <ListItemIcon>
-                    <AccountBalanceWalletIcon color="primary" />
+                    <AccountBalanceWalletIcon sx={{ color: "#2563eb" }} />
                   </ListItemIcon>
-                  <ListItemText primary="Quản lý ví" />
+                  <ListItemText
+                    primary="Quản lý ví"
+                    primaryTypographyProps={{ fontWeight: 500 }}
+                  />
                 </ListItem>
 
-                {isCoach && (
-                  <ListItem
-                    button
-                    onClick={() => navigateToDashboard("/coach/dashboard")}
-                  >
-                    <ListItemIcon>
-                      <DashboardIcon color="primary" />
-                    </ListItemIcon>
-                    <ListItemText primary="Coach Dashboard" />
-                  </ListItem>
+                {/* Professional services in mobile */}
+                {(isCoach || isCourtOwner) && (
+                  <>
+                    <Divider sx={{ my: 1.5 }} />
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ px: 3, py: 1, color: "text.secondary" }}
+                    >
+                      Professional Services
+                    </Typography>
+
+                    {isCoach && (
+                      <ListItem
+                        button
+                        onClick={() => navigateToDashboard("/coach/dashboard")}
+                        sx={{
+                          py: 1.5,
+                          borderRadius: 1.5,
+                          mx: 1,
+                          my: 0.5,
+                          backgroundColor: location.pathname.includes(
+                            "/coach/dashboard"
+                          )
+                            ? alpha("#2563eb", 0.08)
+                            : "transparent",
+                          "&:hover": {
+                            backgroundColor: alpha("#2563eb", 0.08),
+                          },
+                        }}
+                      >
+                        <ListItemIcon>
+                          <DashboardIcon sx={{ color: "#2563eb" }} />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Coach Dashboard"
+                          primaryTypographyProps={{ fontWeight: 500 }}
+                        />
+                      </ListItem>
+                    )}
+
+                    {isCourtOwner && (
+                      <ListItem
+                        button
+                        onClick={() =>
+                          navigateToDashboard("/court-owner/dashboard")
+                        }
+                        sx={{
+                          py: 1.5,
+                          borderRadius: 1.5,
+                          mx: 1,
+                          my: 0.5,
+                          backgroundColor: location.pathname.includes(
+                            "/court-owner/dashboard"
+                          )
+                            ? alpha("#2563eb", 0.08)
+                            : "transparent",
+                          "&:hover": {
+                            backgroundColor: alpha("#2563eb", 0.08),
+                          },
+                        }}
+                      >
+                        <ListItemIcon>
+                          <DashboardIcon sx={{ color: "#2563eb" }} />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Court Owner Dashboard"
+                          primaryTypographyProps={{ fontWeight: 500 }}
+                        />
+                      </ListItem>
+                    )}
+                  </>
                 )}
 
-                {isCourtOwner && (
-                  <ListItem
-                    button
-                    onClick={() =>
-                      navigateToDashboard("/court-owner/dashboard")
-                    }
-                  >
-                    <ListItemIcon>
-                      <DashboardIcon color="primary" />
-                    </ListItemIcon>
-                    <ListItemText primary="Court Owner Dashboard" />
-                  </ListItem>
-                )}
+                <Divider sx={{ my: 1 }} />
 
-                <ListItem button onClick={handleLogout}>
+                <ListItem
+                  button
+                  onClick={handleLogout}
+                  sx={{
+                    py: 1.5,
+                    borderRadius: 1.5,
+                    mx: 1,
+                    my: 0.5,
+                    "&:hover": {
+                      backgroundColor: alpha("#ef4444", 0.08),
+                    },
+                  }}
+                >
                   <ListItemIcon>
                     <LogoutIcon sx={{ color: "#ef4444" }} />
                   </ListItemIcon>
-                  <ListItemText primary="Log Out" sx={{ color: "#ef4444" }} />
+                  <ListItemText
+                    primary="Log Out"
+                    primaryTypographyProps={{
+                      fontWeight: 500,
+                      color: "#ef4444",
+                    }}
+                  />
                 </ListItem>
               </>
-            ) : (
+            )}
+
+            {!user && (
               <>
+                <Divider sx={{ my: 1 }} />
                 <ListItem
                   button
                   onClick={() => {
                     setIsOpen(false);
                     navigate("/signup");
                   }}
+                  sx={{
+                    py: 1.5,
+                    borderRadius: 1.5,
+                    mx: 1,
+                    my: 0.5,
+                    "&:hover": {
+                      backgroundColor: alpha("#2563eb", 0.08),
+                    },
+                  }}
                 >
                   <ListItemIcon>
-                    <PersonAddIcon color="primary" />
+                    <PersonAddIcon sx={{ color: "#2563eb" }} />
                   </ListItemIcon>
-                  <ListItemText primary="Sign Up" />
+                  <ListItemText
+                    primary="Sign Up"
+                    primaryTypographyProps={{ fontWeight: 500 }}
+                  />
                 </ListItem>
 
                 <ListItem
@@ -647,13 +1846,23 @@ const Navbar = () => {
                     setIsOpen(false);
                     navigate("/login");
                   }}
+                  sx={{
+                    py: 1.5,
+                    m: 1.5,
+                    borderRadius: 2,
+                    backgroundColor: "#2563eb",
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "#1d4ed8",
+                    },
+                  }}
                 >
                   <ListItemIcon>
-                    <LoginIcon sx={{ color: "#2563eb" }} />
+                    <LoginIcon sx={{ color: "white" }} />
                   </ListItemIcon>
                   <ListItemText
                     primary="Log In"
-                    sx={{ color: "#2563eb", fontWeight: "bold" }}
+                    primaryTypographyProps={{ fontWeight: 600, color: "white" }}
                   />
                 </ListItem>
               </>
@@ -661,7 +1870,24 @@ const Navbar = () => {
           </List>
         </Box>
       </Drawer>
-    </AppBar>
+
+      {/* Scroll to top button */}
+      <ScrollTop>
+        <Fab
+          color="primary"
+          size="small"
+          aria-label="scroll back to top"
+          sx={{
+            boxShadow: "0 4px 14px rgba(37, 99, 235, 0.3)",
+            "&:hover": {
+              backgroundColor: "#1d4ed8",
+            },
+          }}
+        >
+          <KeyboardArrowUpIcon />
+        </Fab>
+      </ScrollTop>
+    </>
   );
 };
 

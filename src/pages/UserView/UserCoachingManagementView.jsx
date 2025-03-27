@@ -1,31 +1,40 @@
-import React from "react";
-import UserSidebar from "@/components/UserSidebar";
-import { Card, Table, Tag, Button } from "antd";
+import React, { useEffect } from "react";
+import { Card, Tabs } from "antd";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import UserCoachRegisteredView from "@/components/UserPage/UserCoachRegisteredView";
+import UserCoachScheduleListView from "@/components/UserPage/UserCoachScheduleListView";
+import UserCoachScheduleView from "@/components/UserPage/UserCoachScheduleView";
 
-const coachingData = [
-  { key: "1", date: "2025-03-18", time: "10:00", coach: "Coach James", status: "Upcoming" },
-  { key: "2", date: "2025-03-22", time: "14:00", coach: "Coach Emily", status: "Completed" },
-];
+const UserCoachManagementView = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
+  // Get the tab from the URL, default to "1" if not set
+  const activeTab = searchParams.get("tab") || "1";
 
-const columns = [
-  { title: "Date", dataIndex: "date", key: "date" },
-  { title: "Time", dataIndex: "time", key: "time" },
-  { title: "Coach", dataIndex: "coach", key: "coach" },
-  { title: "Status", dataIndex: "status", key: "status", render: (status) => <Tag color={status === "Upcoming" ? "blue" : "green"}>{status}</Tag> },
-  { title: "Actions", key: "actions", render: (_, record) => record.status === "Upcoming" ? <Button type="primary">Reschedule</Button> : "-" },
-];
+  const handleTabChange = (key) => {
+    setSearchParams({ tab: key }); // Update URL when the tab changes
+  };
 
-const UserCoachingManagementView = () => {
+  const tabItems = [
+    { key: "1", label: "Registered Coaches", children: <UserCoachRegisteredView /> },
+    { key: "2", label: "Schedule List", children: <UserCoachScheduleListView /> },
+    { key: "3", label: "Schedule Calendar", children: <UserCoachScheduleView /> },
+  ];
+
+  useEffect(() => {
+    // If URL contains an invalid tab, reset to "1"
+    const validTabKeys = tabItems.map(item => item.key);
+    if (!validTabKeys.includes(activeTab)) {
+      navigate("/user/coaches?tab=1", { replace: true });
+    }
+  }, [activeTab, navigate]);
+
   return (
-    <UserSidebar>
-      <Card title="Coaching Management">
-        <p>Manage your coaching sessions with professional trainers.</p>
-        <p>View upcoming lessons, schedule new sessions, and track progress.</p>
-
-        <Table dataSource={coachingData} columns={columns} />
-      </Card>
-    </UserSidebar>
+    <Card title="Coach Management">
+      <Tabs activeKey={activeTab} onChange={handleTabChange} items={tabItems} />
+    </Card>
   );
 };
 
-export default UserCoachingManagementView;
+export default UserCoachManagementView;

@@ -1,12 +1,15 @@
-import allSportsIcon from "../assets/all_sport_icon.png";
-import pickleballIcon from "../assets/pickleball_icon.png";
-import badmintonIcon from "../assets/badminton_icon.png";
-import futsalIcon from "../assets/futsal_icon.png";
-import volleyballIcon from "../assets/volleyball_icon.png";
-import footballIcon from "../assets/soccer_icon.png";
-import tennisIcon from "../assets/tennis_icon.png";
-import swimmingIcon from "../assets/swimming_icon.png";
-import basketballIcon from "../assets/basketball_icon.png";
+import allSportsIcon from "@/assets/all_sport_icon.png";
+import pickleballIcon from "@/assets/pickleball_icon.png";
+import badmintonIcon from "@/assets/badminton_icon.png";
+import futsalIcon from "@/assets/futsal_icon.png";
+import volleyballIcon from "@/assets/volleyball_icon.png";
+import footballIcon from "@/assets/soccer_icon.png";
+import tennisIcon from "@/assets/tennis_icon.png";
+import swimmingIcon from "@/assets/swimming_icon.png";
+import basketballIcon from "@/assets/basketball_icon.png";
+import gamingIcon from "@/assets/gaming_icon.png";
+import adventureIcon from "@/assets/adventure_icon.png";
+import gymIcon from "@/assets/gym_icon.png";
 
 const sportsData = [
   {
@@ -44,6 +47,18 @@ const sportsData = [
   {
     name: "Swimming",
     icon: swimmingIcon,
+  },
+  {
+    name: "Gaming",
+    icon: gamingIcon,
+  },
+  {
+    name: "Adventure",
+    icon: adventureIcon,
+  },
+  {
+    name: "Gym",
+    icon: gymIcon,
   },
 ];
 

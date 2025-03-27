@@ -1,52 +1,108 @@
-// src/components/SportSelection.jsx
 import React, { useState } from "react";
-import { Dropdown, Menu } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-
-const sports = ["All Sports", "Soccer", "Tennis", "Hockey", "Basketball", "Volleyball", "Badminton"];
+import {
+  Button,
+  Menu,
+  MenuItem,
+  Typography,
+  Grid,
+  Box,
+  Avatar,
+} from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import sportsData from "@/data/sportsData";
 
 const SportSelection = ({ selectedSport, setSelectedSport }) => {
-  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
-  const handleSelect = (sport) => {
-    setSelectedSport(sport);
-    setDropdownVisible(false);
-  };
-
-  const menu = (
-    <Menu>
-      {sports.map((sport) => (
-        <Menu.Item key={sport} onClick={() => handleSelect(sport)}>
-          {sport}
-        </Menu.Item>
-      ))}
-    </Menu>
+  // Filter popular sports: Football, Tennis, Badminton, Basketball.
+  const popularSports = sportsData.filter(
+    (sport) =>
+      sport.name === "Football" ||
+      sport.name === "Tennis" ||
+      sport.name === "Badminton" ||
+      sport.name === "Basketball"
   );
 
-  return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-700 mb-4">Popular Sports:</h2>
-      <div className="grid grid-cols-2 gap-2">
-        {sports.slice(1).map((sport) => (
-          <button
-            key={sport}
-            className={`sport-button bg-indigo-600 text-white py-2 px-4 rounded-lg ${
-              selectedSport === sport ? "bg-indigo-800" : ""
-            }`}
-            onClick={() => setSelectedSport(sport)}
-          >
-            {sport}
-          </button>
-        ))}
-      </div>
+  const handlePopularClick = (sportName) => {
+    setSelectedSport(sportName);
+  };
 
-      <h2 className="text-2xl font-bold text-gray-700 mt-8 mb-4">Select Sport:</h2>
-      <Dropdown overlay={menu} visible={dropdownVisible} onVisibleChange={setDropdownVisible}>
-        <button className="w-full bg-white border border-gray-300 py-2 px-4 rounded-lg flex items-center justify-between">
-          {selectedSport} <DownOutlined />
-        </button>
-      </Dropdown>
-    </div>
+  const handleButtonClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuItemClick = (sportName) => {
+    setSelectedSport(sportName);
+    setAnchorEl(null);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <Box>
+      <Typography variant="h6" fontWeight="bold" color="text.primary" mb={2}>
+        Popular Sports:
+      </Typography>
+      <Grid container spacing={2}>
+        {popularSports.map((sport) => (
+          <Grid item xs={6} key={sport.name}>
+            <Button
+              fullWidth
+              variant={selectedSport === sport.name ? "contained" : "outlined"}
+              color="primary"
+              onClick={() => handlePopularClick(sport.name)}
+              sx={{ textTransform: "none", borderRadius: 2 }}
+            >
+              <Avatar
+                src={sport.icon}
+                alt={sport.name}
+                sx={{ width: 24, height: 24, mr: 1 }}
+              />
+              {sport.name}
+            </Button>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Typography variant="h6" fontWeight="bold" color="text.primary" mt={4} mb={2}>
+        Select Sport:
+      </Typography>
+      <Button
+        fullWidth
+        variant="outlined"
+        color="primary"
+        onClick={handleButtonClick}
+        endIcon={<ArrowDropDownIcon />}
+        sx={{ textTransform: "none", borderRadius: 2 }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Avatar
+            src={
+              (sportsData.find((s) => s.name === selectedSport) || sportsData[0])
+                .icon
+            }
+            alt={selectedSport}
+            sx={{ width: 24, height: 24, mr: 1 }}
+          />
+          {selectedSport}
+        </Box>
+      </Button>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        {sportsData.map((sport) => (
+          <MenuItem key={sport.name} onClick={() => handleMenuItemClick(sport.name)}>
+            <Avatar
+              src={sport.icon}
+              alt={sport.name}
+              sx={{ width: 24, height: 24, mr: 1 }}
+            />
+            {sport.name}
+          </MenuItem>
+        ))}
+      </Menu>
+    </Box>
   );
 };
 

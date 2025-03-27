@@ -102,17 +102,16 @@ export class Client {
     protected processProcessBookingPayment(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
+        if (status === 200 || status === 201) {
+            return response.json();
+        } else if (status !== 200 && status !== 201 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
     }
+
 
     /**
      * @return OK
@@ -210,10 +209,8 @@ export class Client {
     protected processDepositFunds(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+        if (status === 200 || status === 201) {
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -268,11 +265,10 @@ export class ProcessPaymentRequest implements IProcessPaymentRequest {
     description?: string | undefined;
     paymentType?: string | undefined;
     referenceId?: string | undefined;
-    packageType?: string | undefined;
-    validUntil?: Date | undefined;
     coachId?: string | undefined;
     bookingId?: string | undefined;
     packageId?: string | undefined;
+    status?: string | undefined;
 
     constructor(data?: IProcessPaymentRequest) {
         if (data) {
@@ -289,11 +285,10 @@ export class ProcessPaymentRequest implements IProcessPaymentRequest {
             this.description = _data["description"];
             this.paymentType = _data["paymentType"];
             this.referenceId = _data["referenceId"];
-            this.packageType = _data["packageType"];
-            this.validUntil = _data["validUntil"] ? new Date(_data["validUntil"].toString()) : <any>undefined;
             this.coachId = _data["coachId"];
             this.bookingId = _data["bookingId"];
             this.packageId = _data["packageId"];
+            this.status = _data["status"];
         }
     }
 
@@ -310,11 +305,10 @@ export class ProcessPaymentRequest implements IProcessPaymentRequest {
         data["description"] = this.description;
         data["paymentType"] = this.paymentType;
         data["referenceId"] = this.referenceId;
-        data["packageType"] = this.packageType;
-        data["validUntil"] = this.validUntil ? this.validUntil.toISOString() : <any>undefined;
         data["coachId"] = this.coachId;
         data["bookingId"] = this.bookingId;
         data["packageId"] = this.packageId;
+        data["status"] = this.status;
         return data;
     }
 }
@@ -324,12 +318,12 @@ export interface IProcessPaymentRequest {
     description?: string | undefined;
     paymentType?: string | undefined;
     referenceId?: string | undefined;
-    packageType?: string | undefined;
-    validUntil?: Date | undefined;
     coachId?: string | undefined;
     bookingId?: string | undefined;
     packageId?: string | undefined;
+    status?: string | undefined;
 }
+
 
 export class ApiException extends Error {
     message: string;
