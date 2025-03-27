@@ -89,7 +89,6 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ✅ Login bằng email/password
       .addCase(login.pending, (state) => {
         state.status = "loading";
         state.error = null;

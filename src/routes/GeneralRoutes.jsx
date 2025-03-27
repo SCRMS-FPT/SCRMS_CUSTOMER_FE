@@ -31,9 +31,6 @@ import NotFoundView from "@/pages/GeneralView/NotFoundView";
 import UserProfileView from "@/pages/GeneralView/UserProfileView";
 import Forbidden403 from "@/pages/Error/Forbidden403";
 
-
-
-
 const GeneralRoutes = [
   <Route
     key="home"
@@ -233,13 +230,7 @@ const GeneralRoutes = [
       </Layout>
     }
   />,
-  <Route
-    key="chat-view"
-    path="/chats"
-    element={
-      <ChatView />
-    }
-  />,
+  <Route key="chat-view" path="/chats" element={<ChatView />} />,
   <Route
     key="new-chat"
     path="/new-chat"
@@ -260,15 +251,15 @@ const GeneralRoutes = [
   />,
   // 403 Forbidden route
   <Route key="forbidden" path="/forbidden" element={<Forbidden403 />} />,
-  <Route
-    key="-profile-settings"
-    path="/profile"
-    element={
-      <Layout>
-        <UserProfileView />
-      </Layout>
-    }
-  />
+  // <Route
+  //   key="-profile-settings"
+  //   path="/profile"
+  //   element={
+  //     <Layout>
+  //       <UserProfileView />
+  //     </Layout>
+  //   }
+  // />,
 ];
 
 export default GeneralRoutes;
