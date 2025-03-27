@@ -19,8 +19,6 @@ export class Client {
         this.http = http ? http : window as any;
         this.baseUrl = baseUrl ?? API_COACH_URL;
     }
-
-    // Helper method to get authorization headers
     private getAuthHeaders(): HeadersInit {
         // Get token from localStorage (which is synced with Redux store)
         const token = localStorage.getItem("token");
@@ -33,7 +31,6 @@ export class Client {
             "Accept": "application/json"
         };
     }
-
     /**
      * Update Booking Status
      * @return No Content
@@ -103,7 +100,10 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: this.getAuthHeaders()
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -179,7 +179,10 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: this.getAuthHeaders()
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -227,7 +230,8 @@ export class Client {
             method: "POST",
             headers: {
                 ...this.getAuthHeaders(),
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             }
         };
 
@@ -263,6 +267,7 @@ export class Client {
 
     /**
      * Update Coach
+     * @param request (optional) 
      * @return OK
      */
     updateCoach(coachId: string, request: UpdateCoachRequest | undefined): Promise<void> {
@@ -282,7 +287,7 @@ export class Client {
         let options_: RequestInit = {
             body: content_,
             method: "PUT",
-		headers: {
+            headers: {
                 ...this.getAuthHeaders(),
                 "Content-Type": "multipart/form-data",
             }
@@ -322,6 +327,58 @@ export class Client {
         return Promise.resolve<void>(null as any);
     }
 
+    /**
+     * Get authenticated coach's profile
+     * @return OK
+     */
+    getMyCoachProfile(): Promise<CoachResponse> {
+        let url_ = this.baseUrl + "/coaches/me";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyCoachProfile(_response);
+        });
+    }
+
+    protected processGetMyCoachProfile(response: Response): Promise<CoachResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CoachResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CoachResponse>(null as any);
+    }
 
     /**
      * @return OK
@@ -332,7 +389,10 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: this.getAuthHeaders()
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -367,6 +427,7 @@ export class Client {
 
     /**
      * Create Coach
+     * @param request (optional) 
      * @return Created
      */
     createCoach(request: CreateCoachRequest | undefined): Promise<CreateCoachResponse> {
@@ -376,18 +437,28 @@ export class Client {
         let content_ = "";
         if (request === null)
             throw new Error("The parameter 'request' cannot be null.");
-        else if (request !== undefined)
-            content_ += encodeURIComponent("request") + "=" + encodeURIComponent("" + request) + "&";
-        content_ = content_.replace(/&$/, "");
-
+        
+        let formData = new FormData();
+    
+        // Thêm dữ liệu từ request vào formData
+        if (request?.sportId) formData.append('sportId', request.sportId);
+        if (request?.fullName) formData.append('fullName', request.fullName);
+        if (request?.email) formData.append('email', request.email);
+        if (request?.phone) formData.append('phone', request.phone);
+        if (request?.bio) formData.append('bio', request.bio);
+        if (request?.ratePerHour) formData.append('ratePerHour', request.ratePerHour.toString());
+        if (request?.avatar) formData.append('avatar', request.avatar);
+        if (request?.images) {
+            request?.images.forEach(image => formData.append('images', image));
+        }
+    
         let options_: RequestInit = {
-            body: content_,
+            body: formData,  // Sử dụng FormData làm body của yêu cầu
             method: "POST",
             headers: {
                 ...this.getAuthHeaders(),
-                "Content-Type": "multipart/form-data",
+                "Accept": "application/json"
             }
-
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -427,7 +498,6 @@ export class Client {
         return Promise.resolve<CreateCoachResponse>(null as any);
     }
 
-
     /**
      * @return OK
      */
@@ -440,7 +510,9 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: this.getAuthHeaders()
+            headers: {
+                "Accept": "application/json"
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -497,7 +569,10 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: this.getAuthHeaders()
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -551,7 +626,8 @@ export class Client {
             method: "POST",
             headers: {
                 ...this.getAuthHeaders(),
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             }
         };
 
@@ -607,7 +683,10 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: this.getAuthHeaders()
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -652,7 +731,10 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: this.getAuthHeaders()
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -733,7 +815,6 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
-                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -771,7 +852,9 @@ export class Client {
 
         let options_: RequestInit = {
             method: "DELETE",
-            headers: this.getAuthHeaders()
+            headers: {
+                ...this.getAuthHeaders(),
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -817,7 +900,10 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: this.getAuthHeaders()
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -920,7 +1006,10 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: this.getAuthHeaders()
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -1022,7 +1111,9 @@ export class Client {
 
         let options_: RequestInit = {
             method: "DELETE",
-            headers: this.getAuthHeaders()
+            headers: {
+                ...this.getAuthHeaders(),
+            }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -1074,7 +1165,8 @@ export class Client {
             method: "POST",
             headers: {
                 ...this.getAuthHeaders(),
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             }
         };
 
@@ -1401,12 +1493,18 @@ export interface ICoachPackageResponse {
 }
 
 export class CoachResponse implements ICoachResponse {
-    userId?: string;
+    id?: string;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phone?: string | undefined;
+    avatar?: string | undefined;
+    imageUrls?: string[] | undefined;
     sportIds?: string[] | undefined;
     bio?: string | undefined;
     ratePerHour?: number;
     createdAt?: Date;
     packages?: CoachPackageResponse[] | undefined;
+    weeklySchedule?: CoachWeeklyScheduleResponse[] | undefined;
 
     constructor(data?: ICoachResponse) {
         if (data) {
@@ -1419,7 +1517,16 @@ export class CoachResponse implements ICoachResponse {
 
     init(_data?: any) {
         if (_data) {
-            this.userId = _data["userId"];
+            this.id = _data["id"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.avatar = _data["avatar"];
+            if (Array.isArray(_data["imageUrls"])) {
+                this.imageUrls = [] as any;
+                for (let item of _data["imageUrls"])
+                    this.imageUrls!.push(item);
+            }
             if (Array.isArray(_data["sportIds"])) {
                 this.sportIds = [] as any;
                 for (let item of _data["sportIds"])
@@ -1433,6 +1540,11 @@ export class CoachResponse implements ICoachResponse {
                 for (let item of _data["packages"])
                     this.packages!.push(CoachPackageResponse.fromJS(item));
             }
+            if (Array.isArray(_data["weeklySchedule"])) {
+                this.weeklySchedule = [] as any;
+                for (let item of _data["weeklySchedule"])
+                    this.weeklySchedule!.push(CoachWeeklyScheduleResponse.fromJS(item));
+            }
         }
     }
 
@@ -1445,7 +1557,16 @@ export class CoachResponse implements ICoachResponse {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
+        data["id"] = this.id;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["avatar"] = this.avatar;
+        if (Array.isArray(this.imageUrls)) {
+            data["imageUrls"] = [];
+            for (let item of this.imageUrls)
+                data["imageUrls"].push(item);
+        }
         if (Array.isArray(this.sportIds)) {
             data["sportIds"] = [];
             for (let item of this.sportIds)
@@ -1459,17 +1580,28 @@ export class CoachResponse implements ICoachResponse {
             for (let item of this.packages)
                 data["packages"].push(item.toJSON());
         }
+        if (Array.isArray(this.weeklySchedule)) {
+            data["weeklySchedule"] = [];
+            for (let item of this.weeklySchedule)
+                data["weeklySchedule"].push(item.toJSON());
+        }
         return data;
     }
 }
 
 export interface ICoachResponse {
-    userId?: string;
+    id?: string;
+    fullName?: string | undefined;
+    email?: string | undefined;
+    phone?: string | undefined;
+    avatar?: string | undefined;
+    imageUrls?: string[] | undefined;
     sportIds?: string[] | undefined;
     bio?: string | undefined;
     ratePerHour?: number;
     createdAt?: Date;
     packages?: CoachPackageResponse[] | undefined;
+    weeklySchedule?: CoachWeeklyScheduleResponse[] | undefined;
 }
 
 export class CoachSchedulesResponse implements ICoachSchedulesResponse {
@@ -1530,6 +1662,58 @@ export interface ICoachSchedulesResponse {
     totalRecords?: number;
     totalPages?: number;
     schedules?: ScheduleSlotResponse[] | undefined;
+}
+
+export class CoachWeeklyScheduleResponse implements ICoachWeeklyScheduleResponse {
+    dayOfWeek?: number;
+    dayName?: string | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    scheduleId?: string;
+
+    constructor(data?: ICoachWeeklyScheduleResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.dayOfWeek = _data["dayOfWeek"];
+            this.dayName = _data["dayName"];
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
+            this.scheduleId = _data["scheduleId"];
+        }
+    }
+
+    static fromJS(data: any): CoachWeeklyScheduleResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CoachWeeklyScheduleResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["dayOfWeek"] = this.dayOfWeek;
+        data["dayName"] = this.dayName;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
+        data["scheduleId"] = this.scheduleId;
+        return data;
+    }
+}
+
+export interface ICoachWeeklyScheduleResponse {
+    dayOfWeek?: number;
+    dayName?: string | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    scheduleId?: string;
 }
 
 export class CreateBookingRequest implements ICreateBookingRequest {
@@ -1748,9 +1932,11 @@ export interface ICreateCoachRequest {
     images?: string[] | undefined;
 }
 
-
 export class CreateCoachResponse implements ICreateCoachResponse {
     id?: string;
+    fullName?: string | undefined;
+    avatarUrl?: string | undefined;
+    imageUrls?: string[] | undefined;
     createdAt?: Date;
     sportIds?: string[] | undefined;
 
@@ -1766,6 +1952,13 @@ export class CreateCoachResponse implements ICreateCoachResponse {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.fullName = _data["fullName"];
+            this.avatarUrl = _data["avatarUrl"];
+            if (Array.isArray(_data["imageUrls"])) {
+                this.imageUrls = [] as any;
+                for (let item of _data["imageUrls"])
+                    this.imageUrls!.push(item);
+            }
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             if (Array.isArray(_data["sportIds"])) {
                 this.sportIds = [] as any;
@@ -1785,6 +1978,13 @@ export class CreateCoachResponse implements ICreateCoachResponse {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["fullName"] = this.fullName;
+        data["avatarUrl"] = this.avatarUrl;
+        if (Array.isArray(this.imageUrls)) {
+            data["imageUrls"] = [];
+            for (let item of this.imageUrls)
+                data["imageUrls"].push(item);
+        }
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         if (Array.isArray(this.sportIds)) {
             data["sportIds"] = [];
@@ -1797,6 +1997,9 @@ export class CreateCoachResponse implements ICreateCoachResponse {
 
 export interface ICreateCoachResponse {
     id?: string;
+    fullName?: string | undefined;
+    avatarUrl?: string | undefined;
+    imageUrls?: string[] | undefined;
     createdAt?: Date;
     sportIds?: string[] | undefined;
 }
@@ -2520,7 +2723,6 @@ export interface IUpdateCoachRequest {
     existingImageUrls?: string[] | undefined;
     imagesToDelete?: string[] | undefined;
 }
-
 
 export class UpdateScheduleRequest implements IUpdateScheduleRequest {
     dayOfWeek?: number;

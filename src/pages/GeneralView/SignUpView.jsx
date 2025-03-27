@@ -1,33 +1,48 @@
-import { useState } from "react";
-import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
-import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from "react-icons/fa";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { notification } from "antd";
+// Ant Design imports
+import {
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Button,
+  Divider,
+  notification,
+  Spin,
+  Alert,
+  Typography,
+  Space,
+  Row,
+  Col,
+} from "antd";
+import {
+  FacebookOutlined,
+  GoogleOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
+  UserOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  CalendarOutlined,
+} from "@ant-design/icons";
+// MUI imports
+import { Box, Container, Paper, Avatar } from "@mui/material";
+import { blue } from "@mui/material/colors";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+// API import
 import { Client, RegisterUserRequest, ApiException } from "@/API/IdentityApi";
 
-const SignUpView = () => {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    birthDate: "",
-    gender: "Male", // Default selection
-    password: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+const { Title, Text } = Typography;
+const { Option } = Select;
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
+const SignUpView = () => {
+  const [form] = Form.useForm();
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
 
   const showUnavailableNotification = () => {
     notification.info({
@@ -38,8 +53,12 @@ const SignUpView = () => {
     });
   };
 
-  const handleSignUp = async (e) => {
-    e.preventDefault();
+  const handleSignUp = async (values) => {
+    if (values.password !== values.confirmPassword) {
+      setErrorMessage("Passwords do not match");
+      return;
+    }
+
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -48,15 +67,13 @@ const SignUpView = () => {
 
       // Create a RegisterUserRequest object with all required fields
       const registerRequest = new RegisterUserRequest({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        birthDate: formData.birthDate
-          ? new Date(formData.birthDate)
-          : new Date(),
-        gender: formData.gender,
-        password: formData.password,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        phone: values.phone,
+        birthDate: values.birthDate ? values.birthDate.toDate() : new Date(),
+        gender: values.gender,
+        password: values.password,
       });
 
       // Call the register API
@@ -104,155 +121,234 @@ const SignUpView = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 bg-[url('/src/assets/soccer.jpg')] bg-cover bg-center">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-4">
-          <h2 className="text-2xl font-bold text-blue-600">courtsite</h2>
-        </div>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundImage: "url('/src/assets/soccer.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        padding: 2,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={8}
+          sx={{
+            p: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Avatar sx={{ bgcolor: blue[600], mb: 1 }}>
+            <LockOutlinedIcon />
+          </Avatar>
 
-        <h2 className="text-xl font-semibold text-center mb-4">Sign Up</h2>
-        <p className="text-center text-gray-600">
-          Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 font-medium">
-            Log In
-          </Link>
-        </p>
+          <Title level={3} style={{ margin: "0 0 8px 0" }}>
+            courtsite
+          </Title>
 
-        {/* Sign Up Form */}
-        <form onSubmit={handleSignUp} className="mt-6">
-          {/* First Name Input */}
-          <label className="block text-gray-700">First Name</label>
-          <input
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your first name"
-            required
-          />
+          <Title level={4} style={{ margin: "0 0 16px 0" }}>
+            Sign Up
+          </Title>
 
-          {/* Last Name Input */}
-          <label className="block text-gray-700 mt-4">Last Name</label>
-          <input
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your last name"
-            required
-          />
+          <Text type="secondary" style={{ marginBottom: 24 }}>
+            Already have an account?{" "}
+            <Link to="/login" style={{ color: blue[600], fontWeight: 500 }}>
+              Log In
+            </Link>
+          </Text>
 
-          {/* Email Input */}
-          <label className="block text-gray-700 mt-4">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your email"
-            required
-          />
-          {/* Password Input */}
-          <label className="block text-gray-700 mt-4">Password</label>
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
-              required
-            />
-            <span
-              className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <IoEyeOutline /> : <IoEyeOffOutline />}
-            </span>
-          </div>
-          {/* Phone Number Input */}
-          <label className="block text-gray-700 mt-4">Phone Number</label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your phone number"
-            required
-          />
-
-          {/* Birth Date and Gender Inputs in the same row */}
-          <div className="flex space-x-4 mt-4">
-            {/* Birth Date Input */}
-            <div className="flex-1">
-              <label className="block text-gray-700">Birth Date</label>
-              <input
-                type="date"
-                name="birthDate"
-                value={formData.birthDate}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            {/* Gender Selection */}
-            <div className="flex-1">
-              <label className="block text-gray-700">Gender</label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-                <option value="Undisclosed">Prefer not to say</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Error Message */}
           {errorMessage && (
-            <div className="mt-4 text-red-500 text-center">{errorMessage}</div>
+            <Alert
+              message={errorMessage}
+              type="error"
+              showIcon
+              style={{ marginBottom: 16, width: "100%" }}
+            />
           )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          <Form
+            form={form}
+            layout="vertical"
+            requiredMark={false}
+            onFinish={handleSignUp}
+            style={{ width: "100%" }}
+            initialValues={{ gender: "Male" }}
           >
-            {isLoading ? "Signing Up..." : "Sign Up"}
-          </button>
-        </form>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="firstName"
+                  label="First Name"
+                  rules={[
+                    { required: true, message: "Please enter your first name" },
+                  ]}
+                >
+                  <Input prefix={<UserOutlined />} placeholder="First Name" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="lastName"
+                  label="Last Name"
+                  rules={[
+                    { required: true, message: "Please enter your last name" },
+                  ]}
+                >
+                  <Input prefix={<UserOutlined />} placeholder="Last Name" />
+                </Form.Item>
+              </Col>
+            </Row>
 
-        {/* Social Login */}
-        <div className="mt-6 text-center text-gray-500">or</div>
-        <button
-          className="flex items-center justify-center w-full mt-4 border border-gray-300 py-2 rounded-lg hover:bg-gray-100"
-          onClick={showUnavailableNotification}
-        >
-          <FaFacebook className="text-blue-600 mr-2" />
-          Continue with Facebook
-        </button>
-        <button
-          className="flex items-center justify-center w-full mt-2 border border-gray-300 py-2 rounded-lg hover:bg-gray-100"
-          onClick={showUnavailableNotification}
-        >
-          <FcGoogle className="mr-2" />
-          Continue with Google
-        </button>
-      </div>
-    </div>
+            <Form.Item
+              name="email"
+              label="Email"
+              rules={[
+                { required: true, message: "Please enter your email" },
+                { type: "email", message: "Please enter a valid email" },
+              ]}
+            >
+              <Input prefix={<MailOutlined />} placeholder="Email" />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              label="Password"
+              rules={[
+                { required: true, message: "Please enter your password" },
+                { min: 8, message: "Password must be at least 8 characters" },
+              ]}
+            >
+              <Input.Password
+                prefix={<LockOutlinedIcon fontSize="small" />}
+                placeholder="Password"
+                visibilityToggle={{
+                  visible: showPassword,
+                  onVisibleChange: setShowPassword,
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="confirmPassword"
+              label="Confirm Password"
+              dependencies={["password"]}
+              rules={[
+                { required: true, message: "Please confirm your password" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("password") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error("Passwords do not match"));
+                  },
+                }),
+              ]}
+            >
+              <Input.Password
+                prefix={<LockOutlinedIcon fontSize="small" />}
+                placeholder="Confirm Password"
+                visibilityToggle={{
+                  visible: showConfirmPassword,
+                  onVisibleChange: setShowConfirmPassword,
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="phone"
+              label="Phone Number"
+              rules={[
+                { required: true, message: "Please enter your phone number" },
+              ]}
+            >
+              <Input prefix={<PhoneOutlined />} placeholder="Phone Number" />
+            </Form.Item>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="birthDate"
+                  label="Birth Date"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select your birth date",
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    style={{ width: "100%" }}
+                    format="YYYY-MM-DD"
+                    placeholder="Birth Date"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="gender"
+                  label="Gender"
+                  rules={[
+                    { required: true, message: "Please select your gender" },
+                  ]}
+                >
+                  <Select placeholder="Select gender">
+                    <Option value="Male">Male</Option>
+                    <Option value="Female">Female</Option>
+                    <Option value="Other">Other</Option>
+                    <Option value="Undisclosed">Prefer not to say</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={isLoading}
+                block
+                size="large"
+                style={{
+                  backgroundColor: blue[600],
+                  height: 46,
+                  marginTop: 16,
+                }}
+              >
+                {isLoading ? "Signing Up..." : "Sign Up"}
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <Divider plain>or</Divider>
+
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Button
+              icon={<FacebookOutlined style={{ color: blue[600] }} />}
+              block
+              size="large"
+              onClick={showUnavailableNotification}
+              style={{ height: 46 }}
+            >
+              Continue with Facebook
+            </Button>
+            <Button
+              icon={<GoogleOutlined />}
+              block
+              size="large"
+              onClick={showUnavailableNotification}
+              style={{ height: 46 }}
+            >
+              Continue with Google
+            </Button>
+          </Space>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 
