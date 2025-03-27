@@ -1,4 +1,5 @@
 import { Routes } from "react-router-dom";
+import { AuthProvider } from "@/features/auth/AuthContext";
 import {
   GeneralRoutes,
   UserRoutes,
@@ -9,22 +10,24 @@ import {
 
 function App() {
   return (
-    <Routes>
-      {/* General Routes */}
-      {GeneralRoutes}
+    <AuthProvider>
+      <Routes>
+        {/* General Routes */}
+        {GeneralRoutes}
 
-      {/* User Routes */}
-      {UserRoutes}
+        {/* User Routes */}
+        {UserRoutes}
 
-      {/* Court Owner Routes */}
-      {CourtOwnerRoutes}
+        {/* Court Owner Routes */}
+        {CourtOwnerRoutes}
 
-      {/* Coach Routes */}
-      {CoachRoutes}
+        {/* Coach Routes */}
+        {CoachRoutes}
 
-      {/* Legacy Routes - To be updated */}
-      {LegacyRoutes}
-    </Routes>
+        {/* Legacy Routes - To be updated */}
+        {LegacyRoutes}
+      </Routes>
+    </AuthProvider>
   );
 }
 

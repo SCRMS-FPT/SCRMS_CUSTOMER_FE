@@ -10,6 +10,9 @@ import MatchFinder from "@/pages/MatchFinder";
 import Feedback from "@/pages/Feedback";
 import BookCoachSession from "@/pages/BookCoachSession";
 import TransactionHistoryPage from "@/pages/TransactionHistoryPage";
+import ProfilePage from "../pages/UserView/ProfilePage";
+import ChangePasswordPage from "../pages/UserView/ChangePasswordPage";
+import ProtectedRoute from "@/routes/ProtectedRoutes";
 
 const UserRoutes = [
   <Route
@@ -74,6 +77,26 @@ const UserRoutes = [
     element={
       <Layout>
         <TransactionHistoryPage />
+      </Layout>
+    }
+  />,
+  <Route
+    key="profile"
+    path="profile"
+    element={
+      // <ProtectedRoute>
+      <Layout>
+        <ProfilePage />
+      </Layout>
+      // </ProtectedRoute>
+    }
+  />,
+  <Route
+    key="changepassword"
+    path="/change-password"
+    element={
+      <Layout>
+        <ChangePasswordPage />
       </Layout>
     }
   />,
