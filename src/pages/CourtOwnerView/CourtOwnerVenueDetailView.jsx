@@ -103,9 +103,9 @@ const CourtOwnerVenueDetailView = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => navigate(`/court-owner/courts/create/${venueId}`)}
+            onClick={() => navigate(`/court-owner/venues/create`)}
           >
-            Add New Court
+            Add New Sport Center
           </Button>
         </div>
       }
