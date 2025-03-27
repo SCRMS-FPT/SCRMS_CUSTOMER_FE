@@ -2440,6 +2440,8 @@ export class CourtDTO implements ICourtDTO {
     status?: CourtStatus;
     courtType?: CourtType;
     minDepositPercentage?: number;
+    cancellationWindowHours?: number;
+    refundPercentage?: number;
     sportName?: string | undefined;
     sportCenterName?: string | undefined;
     promotions?: CourtPromotionDTO[] | undefined;
@@ -2471,6 +2473,8 @@ export class CourtDTO implements ICourtDTO {
             this.status = _data["status"];
             this.courtType = _data["courtType"];
             this.minDepositPercentage = _data["minDepositPercentage"];
+            this.cancellationWindowHours = _data["cancellationWindowHours"];
+            this.refundPercentage = _data["refundPercentage"];
             this.sportName = _data["sportName"];
             this.sportCenterName = _data["sportCenterName"];
             if (Array.isArray(_data["promotions"])) {
@@ -2506,6 +2510,8 @@ export class CourtDTO implements ICourtDTO {
         data["status"] = this.status;
         data["courtType"] = this.courtType;
         data["minDepositPercentage"] = this.minDepositPercentage;
+        data["cancellationWindowHours"] = this.cancellationWindowHours;
+        data["refundPercentage"] = this.refundPercentage;
         data["sportName"] = this.sportName;
         data["sportCenterName"] = this.sportCenterName;
         if (Array.isArray(this.promotions)) {
@@ -2530,6 +2536,8 @@ export interface ICourtDTO {
     status?: CourtStatus;
     courtType?: CourtType;
     minDepositPercentage?: number;
+    cancellationWindowHours?: number;
+    refundPercentage?: number;
     sportName?: string | undefined;
     sportCenterName?: string | undefined;
     promotions?: CourtPromotionDTO[] | undefined;
