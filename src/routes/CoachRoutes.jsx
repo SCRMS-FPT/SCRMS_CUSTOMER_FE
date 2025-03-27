@@ -1,4 +1,6 @@
-import { Outlet, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Client } from "@/API/CoachApi";
+import PropTypes from "prop-types";
 
 import CoachDashboardView from "@/pages/CoachView/CoachDashboardView";
 import CoachScheduleManagementView from "@/pages/CoachView/CoachScheduleManagementView";
@@ -7,65 +9,157 @@ import CoachTrainingSessionManagementView from "@/pages/CoachView/CoachTrainingS
 import CoachTrainingPackageManagementView from "@/pages/CoachView/CoachTrainingPackageManagementView";
 import CoachAnalyticsView from "@/pages/CoachView/CoachAnalyticsView";
 import CoachSidebar from "../components/CoachPage/CoachSidebar";
-import CoachProfile from "@/pages/CoachView/coach-profile"
-import CoachSchedules from "@/pages/CoachView/coach-schedules"
-import CoachPackagesPage from "@/pages/CoachView/coach-packages-page"
-import CoachBookingsPage from "@/pages/CoachView/coach-bookings-page"
-import CoachPromotionManagementPage from "@/pages/CoachView/CoachPromotionManagementPage"
+import CoachProfile from "@/pages/CoachView/coach-profile";
+import CoachSchedules from "@/pages/CoachView/coach-schedules";
+import CoachPackagesPage from "@/pages/CoachView/coach-packages-page";
+import CoachBookingsPage from "@/pages/CoachView/coach-bookings-page";
+import CoachPromotionManagementPage from "@/pages/CoachView/CoachPromotionManagementPage";
+import CoachOnboarding from "@/pages/CoachView/CoachOnboarding";
+import { useSelector } from "react-redux";
+import { Navigate, Route } from "react-router-dom";
+
+// Protected route component that checks for Coach role
+const ProtectedCoachRoute = ({ children }) => {
+  // Get user info from Redux
+  const user = useSelector((state) => state.user.userProfile);
+
+  // Check if user has specific roles
+  const isCoach = user?.roles?.includes("Coach");
+  const [loading, setLoading] = useState(true);
+  const [hasCoachProfile, setHasCoachProfile] = useState(false);
+
+  useEffect(() => {
+    if (isCoach) {
+      const checkCoachProfile = async () => {
+        try {
+          const client = new Client();
+          const response = await client.getMyCoachProfile();
+
+          // If we get a valid response, the coach profile exists
+          if (response && response.id) {
+            setHasCoachProfile(true);
+          } else {
+            setHasCoachProfile(false);
+          }
+        } catch (error) {
+          console.error("Error checking coach profile:", error);
+          // If API fails with 404, they don't have a profile
+          setHasCoachProfile(false);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      checkCoachProfile();
+    } else {
+      setLoading(false);
+    }
+  }, [isCoach]);
+
+  // While checking, show nothing (or could add a loading spinner)
+  if (loading) {
+    return null;
+  }
+
+  // If not a coach, redirect to forbidden
+  if (!isCoach) {
+    return <Navigate to="/forbidden" replace />;
+  }
+
+  // If a coach but has no profile, redirect to onboarding
+  if (
+    !hasCoachProfile &&
+    !window.location.pathname.includes("/coach/onboarding")
+  ) {
+    return <Navigate to="/coach/onboarding" replace />;
+  }
+
+  // If onboarding is complete and trying to access onboarding page, redirect to dashboard
+  if (hasCoachProfile && window.location.pathname === "/coach/onboarding") {
+    return <Navigate to="/coach/dashboard" replace />;
+  }
+
+  return children;
+};
+
+ProtectedCoachRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 const CoachRoutes = [
+  <Route
+    key="coach-onboarding"
+    path="/coach/onboarding"
+    element={
+      <ProtectedCoachRoute>
+        <CoachOnboarding />
+      </ProtectedCoachRoute>
+    }
+  />,
   <Route
     key="coach-dashboard"
     path="/coach/dashboard"
     element={
-      <CoachSidebar>
-        <CoachDashboardView />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachDashboardView />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
   <Route
     key="coach-sessions"
     path="/coach/sessions"
     element={
-      <CoachSidebar>
-        <CoachTrainingSessionManagementView />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachTrainingSessionManagementView />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
   <Route
     key="coach-schedule"
     path="/coach/schedule"
     element={
-      <CoachSidebar>
-        <CoachScheduleManagementView />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachScheduleManagementView />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
   <Route
     key="coach-trainees"
     path="/coach/trainees"
     element={
-      <CoachSidebar>
-        <CoachTraineeManagementView />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachTraineeManagementView />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
   <Route
     key="coach-packages"
     path="/coach/packages"
     element={
-      <CoachSidebar>
-        <CoachTrainingPackageManagementView />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachTrainingPackageManagementView />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
   <Route
     key="coach-analytics"
     path="/coach/analytics"
     element={
-      <CoachSidebar>
-        <CoachAnalyticsView />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachAnalyticsView />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
   //// Hồ Sơ Coach
@@ -73,9 +167,11 @@ const CoachRoutes = [
     key="coach-profile"
     path="/coach-profile"
     element={
-      <CoachSidebar>
-        <CoachProfile />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachProfile />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
 
@@ -83,9 +179,11 @@ const CoachRoutes = [
     key="coach-profile"
     path="/coach-profile/:id"
     element={
-      <CoachSidebar>
-        <CoachProfile />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachProfile />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
   /////Lịch Làm Việc Coach
@@ -94,9 +192,11 @@ const CoachRoutes = [
     key="coach-schedules"
     path="/coach-schedules"
     element={
-      <CoachSidebar>
-        <CoachSchedules />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachSchedules />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
 
@@ -104,13 +204,13 @@ const CoachRoutes = [
     key="/coach-schedules"
     path="/coach-schedules/:id"
     element={
-      <CoachSidebar>
-        <CoachSchedules />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachSchedules />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
-
-
 
   /////Gói Đào Tạo Coach
 
@@ -118,9 +218,11 @@ const CoachRoutes = [
     key="coach-packages"
     path="/coach-packages"
     element={
-      <CoachSidebar>
-        <CoachPackagesPage />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachPackagesPage />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
 
@@ -128,12 +230,13 @@ const CoachRoutes = [
     key="coach-packages"
     path="/coach-packages/:coach_id"
     element={
-      <CoachSidebar>
-        <CoachPackagesPage />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachPackagesPage />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
-
 
   /////Booking của Coach
 
@@ -141,12 +244,13 @@ const CoachRoutes = [
     key="coach-bookings"
     path="/coach-bookings"
     element={
-      <CoachSidebar>
-        <CoachBookingsPage />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachBookingsPage />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
-
 
   /////Quản Lý Khuyến Mãi cho Coach
 
@@ -154,14 +258,13 @@ const CoachRoutes = [
     key="coach-promotions"
     path="/coach-promotions"
     element={
-      <CoachSidebar>
-        <CoachPromotionManagementPage />
-      </CoachSidebar>
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachPromotionManagementPage />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
     }
   />,
-
-
-
 ];
 
 export default CoachRoutes;

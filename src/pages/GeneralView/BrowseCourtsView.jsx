@@ -46,7 +46,7 @@ import {
   Backdrop,
   Fade,
   Zoom,
-  Avatar
+  Avatar,
 } from "@mui/material";
 import {
   Search,
@@ -278,7 +278,7 @@ const BrowseCourtsView = () => {
   const [error, setError] = useState(null);
   const [nameQuery, setNameQuery] = useState("");
   const [cityFilter, setCityFilter] = useState("");
-  const [sportFilter, setSportFilter] = useState(sportsData[0].name);
+  const [sportFilter, setSportFilter] = useState(undefined);
   const [priceRange, setPriceRange] = useState([0, 2000000]); // Vietnamese dong
   const [selectedFacilities, setSelectedFacilities] = useState([]);
   const [viewMode, setViewMode] = useState("grid");
@@ -764,7 +764,9 @@ const BrowseCourtsView = () => {
                         {/* Sport Type */}
                         <Grid item xs={12} md={4}>
                           <FormControl fullWidth variant="outlined">
-                            <InputLabel id="sport-filter-label">Sport</InputLabel>
+                            <InputLabel id="sport-filter-label">
+                              Sport
+                            </InputLabel>
                             <Select
                               labelId="sport-filter-label"
                               value={sportFilter}
@@ -773,10 +775,49 @@ const BrowseCourtsView = () => {
                               disabled={loadingSports}
                               sx={{ borderRadius: 2 }}
                               renderValue={(selected) => {
-                                const sport = sports.find((s) => s.name === selected);
+                                // Check if the selected value is an ID
+                                if (selected && selected.includes("-")) {
+                                  // Find the sport with this ID
+                                  const sport = sports.find(
+                                    (s) => s.id === selected
+                                  );
+                                  if (sport) {
+                                    return (
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: 8,
+                                        }}
+                                      >
+                                        <Avatar
+                                          src={sport.icon}
+                                          sx={{ width: 24, height: 24 }}
+                                        />
+                                        <Typography variant="body1" noWrap>
+                                          {sport.name}
+                                        </Typography>
+                                      </div>
+                                    );
+                                  }
+                                }
+
+                                // Default case - show the selected value
+                                const sport = sports.find(
+                                  (s) => s.name === selected
+                                );
                                 return (
-                                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                    <Avatar src={sport?.icon} sx={{ width: 24, height: 24 }} />
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 8,
+                                    }}
+                                  >
+                                    <Avatar
+                                      src={sport?.icon}
+                                      sx={{ width: 24, height: 24 }}
+                                    />
                                     <Typography variant="body1" noWrap>
                                       {selected}
                                     </Typography>
@@ -786,7 +827,10 @@ const BrowseCourtsView = () => {
                               startAdornment={
                                 loadingSports ? (
                                   <InputAdornment position="start">
-                                    <CircularProgress size={20} color="inherit" />
+                                    <CircularProgress
+                                      size={20}
+                                      color="inherit"
+                                    />
                                   </InputAdornment>
                                 ) : (
                                   <InputAdornment position="start">
@@ -795,17 +839,20 @@ const BrowseCourtsView = () => {
                                 )
                               }
                             >
+                              <MenuItem value="">All Sports</MenuItem>
                               {sports.map((sport) => (
-                                <MenuItem key={sport.name} value={sport.name}>
+                                <MenuItem key={sport.id} value={sport.id}>
                                   <ListItemIcon>
-                                    <Avatar src={sport.icon} sx={{ width: 24, height: 24 }} />
+                                    <Avatar
+                                      src={sport.icon}
+                                      sx={{ width: 24, height: 24 }}
+                                    />
                                   </ListItemIcon>
                                   <ListItemText primary={sport.name} />
                                 </MenuItem>
                               ))}
                             </Select>
                           </FormControl>
-
                         </Grid>
 
                         {/* Time Presets */}
@@ -1035,9 +1082,12 @@ const BrowseCourtsView = () => {
               )}
               {sportFilter && (
                 <Chip
-                  label={`Sport: ${sports.find((s) => s.id === sportFilter)?.name ||
-                    sportFilter
-                    }`}
+                  label={`Sport: ${
+                    sportFilter.includes("-")
+                      ? sports.find((s) => s.id === sportFilter)?.name ||
+                        sportFilter
+                      : sportFilter
+                  }`}
                   size="small"
                   onDelete={() => setSportFilter("")}
                   sx={{ borderRadius: 2 }}
@@ -1440,14 +1490,15 @@ const BrowseCourtsView = () => {
                                     ))}
                                   {(center.sportNames?.length ||
                                     uniqueSports.length) > 3 && (
-                                      <Chip
-                                        label={`+${(center.sportNames?.length ||
+                                    <Chip
+                                      label={`+${
+                                        (center.sportNames?.length ||
                                           uniqueSports.length) - 3
-                                          }`}
-                                        size="small"
-                                        sx={{ borderRadius: 2, height: 24 }}
-                                      />
-                                    )}
+                                      }`}
+                                      size="small"
+                                      sx={{ borderRadius: 2, height: 24 }}
+                                    />
+                                  )}
                                 </Box>
                               </Box>
 
@@ -1466,10 +1517,10 @@ const BrowseCourtsView = () => {
                                     {priceRange.min === priceRange.max
                                       ? `${formatPrice(priceRange.min)} VND`
                                       : `${formatPrice(
-                                        priceRange.min
-                                      )} - ${formatPrice(
-                                        priceRange.max
-                                      )} VND`}
+                                          priceRange.min
+                                        )} - ${formatPrice(
+                                          priceRange.max
+                                        )} VND`}
                                   </Typography>
                                 </Box>
                               )}
@@ -1625,13 +1676,13 @@ const BrowseCourtsView = () => {
                                         >
                                           {priceRange.min === priceRange.max
                                             ? `${formatPrice(
-                                              priceRange.min
-                                            )} VND/hour`
+                                                priceRange.min
+                                              )} VND/hour`
                                             : `${formatPrice(
-                                              priceRange.min
-                                            )} - ${formatPrice(
-                                              priceRange.max
-                                            )} VND/hour`}
+                                                priceRange.min
+                                              )} - ${formatPrice(
+                                                priceRange.max
+                                              )} VND/hour`}
                                         </Typography>
                                       </Box>
                                     )}

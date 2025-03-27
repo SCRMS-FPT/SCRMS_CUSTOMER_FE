@@ -355,7 +355,7 @@ const CourtOwnerOnboarding = () => {
     }
   };
   const handleFinish = () => {
-    navigate("/court-owner/dashboard");
+    window.location.href = "/court-owner/dashboard";
   };
   // Add facility to court
   const addFacility = () => {
