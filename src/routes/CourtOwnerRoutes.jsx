@@ -25,6 +25,7 @@ import { useEffect, useState } from "react";
 import { Client } from "../API/CourtApi";
 import CourtOwnerCourtUpdateView from "../pages/CourtOwnerView/CourtOwnerCourtUpdateView";
 import CourtOwnerVenueUpdateView from "../pages/CourtOwnerView/CourtOwnerVenueUpdateView";
+import CourtOwnerBookingDetailView from "../pages/CourtOwnerView/CourtOwnerBookingDetailView";
 // Protected route component that checks for CourtOwner role
 const ProtectedCourtOwnerRoute = ({ children }) => {
   // Get user info from Redux
@@ -223,6 +224,17 @@ const CourtOwnerRoutes = [
       <ProtectedCourtOwnerRoute>
         <CourtOwnerSidebar>
           <CourtOwnerBookingView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
+    }
+  />,
+  <Route
+    key="court-owner-booking-details"
+    path="/court-owner/bookings/:bookingId"
+    element={
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerBookingDetailView />
         </CourtOwnerSidebar>
       </ProtectedCourtOwnerRoute>
     }

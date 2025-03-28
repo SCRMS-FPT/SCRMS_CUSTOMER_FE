@@ -21,10 +21,13 @@ import {
   FilterOutlined,
   ExclamationCircleOutlined,
   InfoCircleOutlined,
+  EyeOutlined,
+  StopOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { Client } from "@/API/CourtApi";
 import dayjs from "dayjs";
+import { CheckCircleOutlined } from "@mui/icons-material";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -60,6 +63,35 @@ const CourtOwnerBookingView = () => {
 
   const navigate = useNavigate();
   const client = new Client();
+  const handleMarkAsComplete = (bookingId) => {
+    Modal.confirm({
+      title: "Mark Booking as Complete",
+      icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
+      content:
+        "Are you sure this booking has been completed? This will update the booking status.",
+      okText: "Yes, Mark as Complete",
+      okButtonProps: {
+        style: { background: "#52c41a", borderColor: "#52c41a" },
+      },
+      cancelText: "No",
+      onOk: async () => {
+        try {
+          await client.updateBookingStatus(bookingId, {
+            status: "Completed",
+          });
+
+          message.success("Booking has been marked as completed");
+          fetchBookings(); // Refresh booking list
+        } catch (err) {
+          console.error("Error updating booking status:", err);
+          message.error(
+            "Failed to update booking status: " +
+              (err.message || "Unknown error")
+          );
+        }
+      },
+    });
+  };
 
   // Fetch bookings from API
   useEffect(() => {
@@ -335,18 +367,34 @@ const CourtOwnerBookingView = () => {
       render: (_, record) => (
         <Space>
           <Button
-            type="link"
+            type="primary"
             onClick={() => navigate(`/court-owner/bookings/${record.id}`)}
+            icon={<EyeOutlined />}
           >
             View Details
           </Button>
 
-          {/* Only show cancel option for bookings that can be cancelled */}
-          {(record.status === 0 || record.status === 1) && (
+          {/* Show Mark as Complete button for Confirmed bookings */}
+          {["PendingPayment", "Deposited"].includes(record.status) && (
             <Button
-              type="link"
+              type="primary"
+              style={{ background: "#52c41a", borderColor: "#52c41a" }}
+              onClick={() => handleMarkAsComplete(record.id)}
+              icon={<CheckCircleOutlined />}
+            >
+              Mark as Complete
+            </Button>
+          )}
+
+          {/* Only show cancel option for bookings that can be cancelled */}
+          {["Pending", "PendingPayment", "Confirmed"].includes(
+            record.status
+          ) && (
+            <Button
+              type="default"
               danger
               onClick={() => handleCancelBooking(record.id)}
+              icon={<StopOutlined />}
             >
               Cancel
             </Button>

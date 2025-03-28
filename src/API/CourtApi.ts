@@ -231,6 +231,127 @@ export class Client {
         }
         return Promise.resolve<GetBookingsResult>(null as any);
     }
+
+     /**
+     * Update Booking Status
+     * @return OK
+     */
+     updateBookingStatus(bookingId: string, body: UpdateBookingStatusRequest): Promise<UpdateBookingStatusResponse> {
+        let url_ = this.baseUrl + "/api/bookings/bookings/{bookingId}/status";
+        if (bookingId === undefined || bookingId === null)
+            throw new Error("The parameter 'bookingId' must be defined.");
+        url_ = url_.replace("{bookingId}", encodeURIComponent("" + bookingId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                ...this.getAuthHeaders(), // Add auth headers
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateBookingStatus(_response);
+        });
+    }
+
+    protected processUpdateBookingStatus(response: Response): Promise<UpdateBookingStatusResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UpdateBookingStatusResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UpdateBookingStatusResponse>(null as any);
+    }
+
+    /**
+     * Update Booking Note
+     * @return OK
+     */
+    updateBookingNote(bookingId: string, body: UpdateBookingNoteRequest): Promise<UpdateBookingNoteResponse> {
+        let url_ = this.baseUrl + "/api/bookings/bookings/{bookingId}/note";
+        if (bookingId === undefined || bookingId === null)
+            throw new Error("The parameter 'bookingId' must be defined.");
+        url_ = url_.replace("{bookingId}", encodeURIComponent("" + bookingId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                ...this.getAuthHeaders(), 
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateBookingNote(_response);
+        });
+    }
+
+    protected processUpdateBookingNote(response: Response): Promise<UpdateBookingNoteResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UpdateBookingNoteResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UpdateBookingNoteResponse>(null as any);
+    }
+
 /**
      * Get Sport Centers by Owner
      * @param page (optional) 
@@ -3445,6 +3566,152 @@ export interface ICreateSportRequest {
     description?: string | undefined;
     icon?: string | undefined;
 }
+
+export class UpdateBookingNoteRequest implements IUpdateBookingNoteRequest {
+    note?: string | undefined;
+
+    constructor(data?: IUpdateBookingNoteRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.note = _data["note"];
+        }
+    }
+
+    static fromJS(data: any): UpdateBookingNoteRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateBookingNoteRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["note"] = this.note;
+        return data;
+    }
+}
+
+export interface IUpdateBookingNoteRequest {
+    note?: string | undefined;
+}
+
+export class UpdateBookingNoteResponse implements IUpdateBookingNoteResponse {
+    isSuccess?: boolean;
+
+    constructor(data?: IUpdateBookingNoteResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isSuccess = _data["isSuccess"];
+        }
+    }
+
+    static fromJS(data: any): UpdateBookingNoteResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateBookingNoteResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isSuccess"] = this.isSuccess;
+        return data;
+    }
+}
+
+export interface IUpdateBookingNoteResponse {
+    isSuccess?: boolean;
+}
+
+export class UpdateBookingStatusRequest implements IUpdateBookingStatusRequest {
+    status?: string | undefined;
+
+    constructor(data?: IUpdateBookingStatusRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UpdateBookingStatusRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateBookingStatusRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUpdateBookingStatusRequest {
+    status?: string | undefined;
+}
+
+export class UpdateBookingStatusResponse implements IUpdateBookingStatusResponse {
+    isSuccess?: boolean;
+
+    constructor(data?: IUpdateBookingStatusResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isSuccess = _data["isSuccess"];
+        }
+    }
+
+    static fromJS(data: any): UpdateBookingStatusResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateBookingStatusResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isSuccess"] = this.isSuccess;
+        return data;
+    }
+}
+
+export interface IUpdateBookingStatusResponse {
+    isSuccess?: boolean;
+}
+
+
 export class UpdateSportCenterFormModel implements IUpdateSportCenterFormModel {
     name?: string | undefined;
     phoneNumber?: string | undefined;
