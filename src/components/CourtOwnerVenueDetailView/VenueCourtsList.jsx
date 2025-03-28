@@ -120,7 +120,7 @@ const VenueCourtsList = ({ courts }) => {
           </Button>
           <Button
             type="default"
-            onClick={() => navigate(`/court-owner/courts/${record.id}/edit`)}
+            onClick={() => navigate(`/court-owner/courts/update/${record.id}`)}
           >
             Edit
           </Button>

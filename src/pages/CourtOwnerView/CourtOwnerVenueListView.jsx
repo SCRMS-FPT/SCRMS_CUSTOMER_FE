@@ -128,9 +128,7 @@ const CourtOwnerVenueListView = () => {
           >
             Manage
           </Button>
-          <Button
-            onClick={() => navigate(`/court-owner/venues/${record.id}/courts`)}
-          >
+          <Button onClick={() => navigate(`/court-owner/venues/${record.id}`)}>
             Courts
           </Button>
         </Space>

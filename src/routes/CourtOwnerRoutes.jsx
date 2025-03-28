@@ -23,6 +23,9 @@ import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { Client } from "../API/CourtApi";
+import CourtOwnerCourtUpdateView from "../pages/CourtOwnerView/CourtOwnerCourtUpdateView";
+import CourtOwnerVenueUpdateView from "../pages/CourtOwnerView/CourtOwnerVenueUpdateView";
+import CourtOwnerBookingDetailView from "../pages/CourtOwnerView/CourtOwnerBookingDetailView";
 // Protected route component that checks for CourtOwner role
 const ProtectedCourtOwnerRoute = ({ children }) => {
   // Get user info from Redux
@@ -138,6 +141,17 @@ const CourtOwnerRoutes = [
     }
   />,
   <Route
+    key="court-owner-venue-update"
+    path="/court-owner/venues/update/:venueId"
+    element={
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerVenueUpdateView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
+    }
+  />,
+  <Route
     key="court-owner-venue-create"
     path="/court-owner/venues/create"
     element={
@@ -198,7 +212,7 @@ const CourtOwnerRoutes = [
     element={
       <ProtectedCourtOwnerRoute>
         <CourtOwnerSidebar>
-          <CourtOwnerCourtCreateView />
+          <CourtOwnerCourtUpdateView />
         </CourtOwnerSidebar>
       </ProtectedCourtOwnerRoute>
     }
@@ -210,6 +224,17 @@ const CourtOwnerRoutes = [
       <ProtectedCourtOwnerRoute>
         <CourtOwnerSidebar>
           <CourtOwnerBookingView />
+        </CourtOwnerSidebar>
+      </ProtectedCourtOwnerRoute>
+    }
+  />,
+  <Route
+    key="court-owner-booking-details"
+    path="/court-owner/bookings/:bookingId"
+    element={
+      <ProtectedCourtOwnerRoute>
+        <CourtOwnerSidebar>
+          <CourtOwnerBookingDetailView />
         </CourtOwnerSidebar>
       </ProtectedCourtOwnerRoute>
     }

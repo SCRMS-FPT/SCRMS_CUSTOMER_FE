@@ -1,7 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, Spin, Button, message, Row, Col, Divider } from "antd";
-import { LeftOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Spin,
+  Button,
+  message,
+  Row,
+  Col,
+  Divider,
+  Tag,
+  Descriptions,
+  Typography,
+  Image,
+  Space,
+} from "antd";
+import {
+  LeftOutlined,
+  PlusOutlined,
+  EditOutlined,
+  EnvironmentOutlined,
+  PhoneOutlined,
+  TagOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
 import { Client } from "@/API/CourtApi";
 
 import VenueOverview from "@/components/CourtOwnerVenueDetailView/VenueOverview";
@@ -11,6 +32,7 @@ import VenuePricingMembership from "@/components/CourtOwnerVenueDetailView/Venue
 import VenueBookingPolicy from "@/components/CourtOwnerVenueDetailView/VenueBookingPolicy";
 import VenueCourtsList from "@/components/CourtOwnerVenueDetailView/VenueCourtsList";
 
+const { Title, Text } = Typography;
 const client = new Client();
 
 const CourtOwnerVenueDetailView = () => {
@@ -88,33 +110,174 @@ const CourtOwnerVenueDetailView = () => {
     booking_policy: venue.bookingPolicy || {},
   };
 
+  // Extract unique sports from courts
+  const sportsList = Array.from(
+    new Set(courts.map((court) => court.sportName))
+  ).filter(Boolean);
+
+  // Extract unique amenities/facilities from courts
+  const facilitiesList = Array.from(
+    new Set(
+      courts.flatMap(
+        (court) => court.facilities?.map((facility) => facility.name) || []
+      )
+    )
+  ).filter(Boolean);
+
   return (
     <Card
       title={
         <div className="flex items-center justify-between w-full">
-          <Button
-            type="link"
-            icon={<LeftOutlined />}
-            onClick={() => navigate("/court-owner/venues")}
-            className="mr-2"
-          >
-            Back to Venues
-          </Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => navigate(`/court-owner/venues/create`)}
-          >
-            Add New Sport Center
-          </Button>
+          <div className="flex items-center">
+            <Button
+              type="link"
+              icon={<LeftOutlined />}
+              onClick={() => navigate("/court-owner/venues")}
+              className="mr-2"
+            >
+              Back to Venues
+            </Button>
+            <Title level={4} style={{ margin: 0 }}>
+              Sport Center Details
+            </Title>
+          </div>
+          <Space>
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              onClick={() => navigate(`/court-owner/venues/update/${venueId}`)}
+            >
+              Edit Sport Center
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => navigate(`/court-owner/venues/create`)}
+            >
+              Add New Sport Center
+            </Button>
+          </Space>
         </div>
       }
     >
-      <VenueOverview venue={venueForComponents} />
+      <Row gutter={[24, 24]}>
+        <Col span={24}>
+          <Card bordered={false} className="venue-overview-card">
+            <Row gutter={[24, 24]}>
+              <Col xs={24} md={8}>
+                <div style={{ textAlign: "center" }}>
+                  <Image
+                    src={
+                      venue.avatar ||
+                      "https://via.placeholder.com/300x200?text=No+Image"
+                    }
+                    alt={venue.name}
+                    style={{
+                      maxWidth: "100%",
+                      borderRadius: "8px",
+                      maxHeight: "200px",
+                      objectFit: "cover",
+                    }}
+                    fallback="https://via.placeholder.com/300x200?text=No+Image"
+                  />
+                </div>
+              </Col>
+              <Col xs={24} md={16}>
+                <Title level={3}>{venue.name}</Title>
+                <Space
+                  direction="vertical"
+                  size="small"
+                  style={{ width: "100%" }}
+                >
+                  <Text>
+                    <EnvironmentOutlined style={{ marginRight: 8 }} />
+                    {venue.address}
+                  </Text>
+                  <Text>
+                    <PhoneOutlined style={{ marginRight: 8 }} />
+                    {venue.phoneNumber}
+                  </Text>
+
+                  <div style={{ marginTop: 12 }}>
+                    <Text strong style={{ marginRight: 8 }}>
+                      <TagOutlined style={{ marginRight: 4 }} />
+                      Sports:
+                    </Text>
+                    <Space size={[0, 8]} wrap>
+                      {sportsList.length > 0 ? (
+                        sportsList.map((sport) => (
+                          <Tag color="blue" key={sport}>
+                            {sport}
+                          </Tag>
+                        ))
+                      ) : (
+                        <Text type="secondary">No sports available</Text>
+                      )}
+                    </Space>
+                  </div>
+
+                  <div style={{ marginTop: 12 }}>
+                    <Text strong style={{ marginRight: 8 }}>
+                      <InfoCircleOutlined style={{ marginRight: 4 }} />
+                      Amenities:
+                    </Text>
+                    <Space size={[0, 8]} wrap>
+                      {facilitiesList.length > 0 ? (
+                        facilitiesList.map((facility) => (
+                          <Tag color="green" key={facility}>
+                            {facility}
+                          </Tag>
+                        ))
+                      ) : (
+                        <Text type="secondary">No amenities available</Text>
+                      )}
+                    </Space>
+                  </div>
+                </Space>
+              </Col>
+            </Row>
+          </Card>
+        </Col>
+
+        <Col span={24}>
+          <Card title="Description" bordered={false}>
+            <Text>{venue.description || "No description available."}</Text>
+          </Card>
+        </Col>
+
+        {venue.imageUrl && venue.imageUrl.length > 0 && (
+          <Col span={24}>
+            <Card title="Gallery" bordered={false}>
+              <div
+                style={{
+                  display: "flex",
+                  overflowX: "auto",
+                  gap: "16px",
+                  padding: "8px 0",
+                }}
+              >
+                {venue.imageUrl.map((img, index) => (
+                  <Image
+                    key={index}
+                    src={img}
+                    alt={`Gallery image ${index + 1}`}
+                    style={{
+                      height: "150px",
+                      objectFit: "cover",
+                      borderRadius: "4px",
+                    }}
+                    fallback="https://via.placeholder.com/150x150?text=No+Image"
+                  />
+                ))}
+              </div>
+            </Card>
+          </Col>
+        )}
+      </Row>
 
       <Divider />
 
-      <VenueDetails venue={venueForComponents} />
+      {/* <VenueDetails venue={venueForComponents} /> */}
 
       {/* Conditionally render these components if the data exists */}
       {venueForComponents.operating_hours &&
@@ -150,7 +313,7 @@ const CourtOwnerVenueDetailView = () => {
       <Row className="mb-4">
         <Col span={24}>
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Courts</h2>
+            <Title level={4}>Courts ({courts.length})</Title>
             <Button
               type="primary"
               icon={<PlusOutlined />}
