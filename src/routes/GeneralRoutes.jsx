@@ -30,7 +30,6 @@ import NotFoundView from "@/pages/GeneralView/NotFoundView";
 import UserProfileView from "@/pages/GeneralView/UserProfileView";
 import Forbidden403 from "@/pages/Error/Forbidden403";
 
-
 const GeneralRoutes = [
   <Route
     key="home"
@@ -169,7 +168,7 @@ const GeneralRoutes = [
   />,
   <Route
     key="coach-details"
-    path="/coach/:id"
+    path="/coaches/:id"
     element={
       <Layout>
         <CoachDetails />
@@ -221,13 +220,7 @@ const GeneralRoutes = [
       </Layout>
     }
   />,
-  <Route
-    key="chat-view"
-    path="/chats"
-    element={
-      <ChatView />
-    }
-  />,
+  <Route key="chat-view" path="/chats" element={<ChatView />} />,
   <Route
     key="new-chat"
     path="/new-chat"
@@ -256,7 +249,7 @@ const GeneralRoutes = [
         <UserProfileView />
       </Layout>
     }
-  />
+  />,
 ];
 
 export default GeneralRoutes;

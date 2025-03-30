@@ -383,47 +383,70 @@ export class Client {
     /**
      * @return OK
      */
-    getCoaches(): Promise<CoachResponse[]> {
-        let url_ = this.baseUrl + "/coaches";
-        url_ = url_.replace(/[?&]$/, "");
+ /**
+     * @param name (optional) 
+     * @param sportId (optional) 
+     * @param minPrice (optional) 
+     * @param maxPrice (optional) 
+     * @return OK
+     */
+ getCoaches(name: string | undefined, sportId: string | undefined, minPrice: number | undefined, maxPrice: number | undefined): Promise<CoachResponse[]> {
+    let url_ = this.baseUrl + "/coaches?";
+    if (name === null)
+        throw new Error("The parameter 'name' cannot be null.");
+    else if (name !== undefined)
+        url_ += "name=" + encodeURIComponent("" + name) + "&";
+    if (sportId === null)
+        throw new Error("The parameter 'sportId' cannot be null.");
+    else if (sportId !== undefined)
+        url_ += "sportId=" + encodeURIComponent("" + sportId) + "&";
+    if (minPrice === null)
+        throw new Error("The parameter 'minPrice' cannot be null.");
+    else if (minPrice !== undefined)
+        url_ += "minPrice=" + encodeURIComponent("" + minPrice) + "&";
+    if (maxPrice === null)
+        throw new Error("The parameter 'maxPrice' cannot be null.");
+    else if (maxPrice !== undefined)
+        url_ += "maxPrice=" + encodeURIComponent("" + maxPrice) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                ...this.getAuthHeaders(),
-                "Accept": "application/json"
-            }
-        };
+    let options_: RequestInit = {
+        method: "GET",
+        headers: {
+            ...this.getAuthHeaders(),
+            "Accept": "application/json"
+        }
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCoaches(_response);
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetCoaches(_response);
+    });
+}
+
+protected processGetCoaches(response: Response): Promise<CoachResponse[]> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200)
+                result200!.push(CoachResponse.fromJS(item));
+        }
+        else {
+            result200 = <any>null;
+        }
+        return result200;
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         });
     }
-
-    protected processGetCoaches(response: Response): Promise<CoachResponse[]> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(CoachResponse.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<CoachResponse[]>(null as any);
-    }
+    return Promise.resolve<CoachResponse[]>(null as any);
+}
 
     /**
      * Create Coach
@@ -977,6 +1000,71 @@ export class Client {
         }
         return Promise.resolve<void>(null as any);
     }
+ /**
+     * Get Public Coach Schedules
+     * @param page (optional) 
+     * @param recordPerPage (optional) 
+     * @return OK
+     */
+ getPublicCoachSchedules(coachId: string, start_date: string, end_date: string, page: number | undefined, recordPerPage: number | undefined): Promise<CoachSchedulesResponse> {
+    let url_ = this.baseUrl + "/api/public/coach-schedules/{coachId}?";
+    if (coachId === undefined || coachId === null)
+        throw new Error("The parameter 'coachId' must be defined.");
+    url_ = url_.replace("{coachId}", encodeURIComponent("" + coachId));
+    if (start_date === undefined || start_date === null)
+        throw new Error("The parameter 'start_date' must be defined and cannot be null.");
+    else
+        url_ += "start_date=" + encodeURIComponent("" + start_date) + "&";
+    if (end_date === undefined || end_date === null)
+        throw new Error("The parameter 'end_date' must be defined and cannot be null.");
+    else
+        url_ += "end_date=" + encodeURIComponent("" + end_date) + "&";
+    if (page === null)
+        throw new Error("The parameter 'page' cannot be null.");
+    else if (page !== undefined)
+        url_ += "page=" + encodeURIComponent("" + page) + "&";
+    if (recordPerPage === null)
+        throw new Error("The parameter 'recordPerPage' cannot be null.");
+    else if (recordPerPage !== undefined)
+        url_ += "recordPerPage=" + encodeURIComponent("" + recordPerPage) + "&";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: {
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetPublicCoachSchedules(_response);
+    });
+}
+
+protected processGetPublicCoachSchedules(response: Response): Promise<CoachSchedulesResponse> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = CoachSchedulesResponse.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 400) {
+        return response.text().then((_responseText) => {
+        let result400: any = null;
+        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result400 = ProblemDetails.fromJS(resultData400);
+        return throwException("Bad Request", status, _responseText, _headers, result400);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<CoachSchedulesResponse>(null as any);
+}
 
     /**
      * Get Coach Schedules
