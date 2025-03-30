@@ -129,7 +129,7 @@ const Navbar = () => {
       setTabValue(2);
     } else if (pathname.includes("/pricing")) {
       setTabValue(3);
-    } else if (pathname.includes("/match-opponents")) {
+    } else if (pathname.includes("/find-match") || pathname.includes("/matches/list")) {
       setTabValue(4);
     } else {
       setTabValue(false);
@@ -1222,7 +1222,7 @@ const Navbar = () => {
                 icon={<PersonSearchIcon sx={{ fontSize: "0.9rem" }} />}
                 iconPosition="start"
                 label="Find Opponents"
-                onClick={() => navigate("/match-opponents")}
+                onClick={() => navigate("/find-match")}
               />
               {user && (
                 <Tab

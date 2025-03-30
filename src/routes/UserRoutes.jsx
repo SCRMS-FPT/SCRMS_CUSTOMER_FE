@@ -19,12 +19,14 @@ import Feedback from "@/pages/Feedback";
 import BookCoachSession from "@/pages/BookCoachSession";
 import TransactionHistoryPage from "@/pages/TransactionHistoryPage";
 
-import UserSidebar from "@/components/Userpage/UserSidebar";
+import UserSidebar from "@/components/UserPage/UserSidebar";
 import ChatWidget from "../components/Chat/ChatWidget";
 
 
 import ProfilePage from "../pages/UserView/ProfilePage";
 import ChangePasswordPage from "../pages/UserView/ChangePasswordPage";
+import FindMatchContainer from "@/pages/UserView/FindMatchContainer";
+import MatchesListPage from "@/pages/UserView/MatchesListPage";
 
 const UserRoutes = [
   <Route
@@ -153,10 +155,19 @@ const UserRoutes = [
   />,
   <Route
     key="match-opponents"
-    path="/match-opponents"
+    path="/find-match"
     element={
       <Layout>
-        <MatchFinder />
+        <FindMatchContainer />
+      </Layout>
+    }
+  />,
+  <Route
+    key="match-opponents-list"
+    path="/matches/list"
+    element={
+      <Layout>
+        <MatchesListPage />
       </Layout>
     }
   />,
