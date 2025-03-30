@@ -95,6 +95,49 @@ private getAuthHeaders(): HeadersInit {
         });
     }
 
+    getSuggestionsAdvanced(sportId: string, skillLevel: string, page: number, limit: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/matches/suggestions?";
+        
+        // Thêm tham số sport_id
+        if (!sportId)
+            throw new Error("Parameter 'sportId' must be defined and cannot be null.");
+        else
+            url_ += "sport_id=" + encodeURIComponent(sportId) + "&";
+        
+        // Thêm tham số skill_level
+        if (!skillLevel)
+            throw new Error("Parameter 'skillLevel' must be defined and cannot be null.");
+        else
+            url_ += "skill_level=" + encodeURIComponent(skillLevel) + "&";
+        
+        // Thêm tham số page
+        if (page === undefined || page === null)
+            throw new Error("The parameter 'page' must be defined and cannot be null.");
+        else
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        
+        // Thêm tham số limit
+        if (limit === undefined || limit === null)
+            throw new Error("The parameter 'limit' must be defined and cannot be null.");
+        else
+            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+        
+        // Loại bỏ ký tự '?' hoặc '&' dư thừa ở cuối URL
+        url_ = url_.replace(/[?&]$/, "");
+        
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                // Thêm header nếu cần, ví dụ: 'Content-Type': 'application/json'
+            }
+        };
+    
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetSuggestions(_response);
+        });
+    }
+    
+
     protected processGetSuggestions(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
