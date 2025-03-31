@@ -235,7 +235,7 @@ const CourtOwnerSidebar = ({ children }) => {
         <Button
           type="text"
           className="absolute top-3 right-3 z-10"
-          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            icon={collapsed ? <MenuUnfoldOutlined style={{ fontSize: "20px", marginLeft: 16 }} /> : <MenuFoldOutlined style={{ fontSize: "20px" }} />}
           onClick={() => setCollapsed(!collapsed)}
           style={{
             color: theme.palette.primary.main,
