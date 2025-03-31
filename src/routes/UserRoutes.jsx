@@ -21,8 +21,7 @@ import TransactionHistoryPage from "@/pages/TransactionHistoryPage";
 
 import UserSidebar from "@/components/Userpage/UserSidebar";
 import ChatWidget from "../components/Chat/ChatWidget";
-
-
+import UserCoachBookingDetailView from "../pages/UserView/UserCoachBookingDetailView";
 
 const UserRoutes = [
   <Route
@@ -135,6 +134,16 @@ const UserRoutes = [
     }
   />,
   <Route
+    key="user-feedback-details"
+    path="/user/coachings/:id"
+    element={
+      <UserSidebar>
+        <UserCoachBookingDetailView />
+        <ChatWidget />
+      </UserSidebar>
+    }
+  />,
+  <Route
     key="user-transactions"
     path="/user/transactions"
     element={
@@ -185,11 +194,6 @@ const UserRoutes = [
       </Layout>
     }
   />,
-
-
-
-
-
 ];
 
 export default UserRoutes;
