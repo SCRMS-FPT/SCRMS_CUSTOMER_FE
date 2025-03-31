@@ -1033,22 +1033,22 @@ const CoachDetails = () => {
                                 "Sunday",
                               ].map((day, index) => {
                                 const dayOfWeek = index + 1;
-                                // Filter schedules for this specific date
+
+                                // Calculate the actual date for this day in the displayed week
+                                const displayedDate = dayjs(selectedDate)
+                                  .startOf("week")
+                                  .add(index, "day")
+                                  .format("YYYY-MM-DD");
+
+                                // Filter schedules for this specific date (not just the day of week)
                                 const daySchedules = schedules.filter(
-                                  (schedule) => {
-                                    const scheduleDate = dayjs(schedule.date);
-                                    // Match the day of week (considering Sunday special case)
-                                    return (
-                                      scheduleDate.day() ===
-                                      (dayOfWeek === 7 ? 0 : dayOfWeek)
-                                    );
-                                  }
+                                  (schedule) => schedule.date === displayedDate
                                 );
 
                                 // Calculate if this is today
                                 const isToday =
-                                  dayjs().day() ===
-                                  (dayOfWeek === 7 ? 0 : dayOfWeek);
+                                  dayjs().format("YYYY-MM-DD") ===
+                                  displayedDate;
 
                                 return (
                                   <Grid item xs={12 / 7} key={`slots-${day}`}>
@@ -1080,6 +1080,7 @@ const CoachDetails = () => {
                                         },
                                       }}
                                     >
+                                      {/* Rest of your component remains the same */}
                                       {daySchedules.length === 0 ? (
                                         <Box
                                           sx={{

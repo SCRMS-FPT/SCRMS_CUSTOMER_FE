@@ -22,11 +22,11 @@ import TransactionHistoryPage from "@/pages/TransactionHistoryPage";
 import UserSidebar from "@/components/UserPage/UserSidebar";
 import ChatWidget from "../components/Chat/ChatWidget";
 
-
 import ProfilePage from "../pages/UserView/ProfilePage";
 import ChangePasswordPage from "../pages/UserView/ChangePasswordPage";
 import FindMatchContainer from "@/pages/UserView/FindMatchContainer";
 import MatchesListPage from "@/pages/UserView/MatchesListPage";
+import UserCoachBookingDetailView from "../pages/UserView/UserCoachBookingDetailView";
 
 const UserRoutes = [
   <Route
@@ -134,6 +134,16 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserFeedbackDetailView />
+        <ChatWidget />
+      </UserSidebar>
+    }
+  />,
+  <Route
+    key="user-feedback-details"
+    path="/user/coachings/:id"
+    element={
+      <UserSidebar>
+        <UserCoachBookingDetailView />
         <ChatWidget />
       </UserSidebar>
     }
