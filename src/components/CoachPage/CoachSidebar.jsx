@@ -156,7 +156,7 @@ const CoachSidebar = ({ children }) => {
           </h2>
           <Button
             type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            icon={collapsed ? <MenuUnfoldOutlined style={{ fontSize: "20px", marginLeft: 16 }} /> : <MenuFoldOutlined style={{ fontSize: "20px" }} />}
             onClick={() => setCollapsed(!collapsed)}
           />
         </div>

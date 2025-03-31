@@ -182,20 +182,26 @@ function PendingDetail({
 
 // Detail component cho Confirmed Matches
 function ConfirmedDetail({ matchItem }) {
-    return matchItem && matchItem.matched_user_id ? (
+    return matchItem ? (
         <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
             <CardHeader
                 avatar={
                     <Avatar>
-                        {matchItem.matched_user_id?.charAt(0).toUpperCase() || ""}
+                        {matchItem.matched_user_id
+                            ? matchItem.matched_user_id.charAt(0).toUpperCase()
+                            : "N/A"}
                     </Avatar>
                 }
-                title={`Match với ${matchItem.matched_user_id}`}
-                subheader={new Date(matchItem.match_time).toLocaleString()}
+                title={`Match với ${matchItem.matched_user_id || "N/A"}`}
+                subheader={
+                    matchItem.match_time
+                        ? new Date(matchItem.match_time).toLocaleString()
+                        : "N/A"
+                }
             />
             <CardContent>
                 <Typography variant="body2" color="text.secondary">
-                    Trạng thái: {matchItem.status}
+                    Trạng thái: {matchItem.status || "N/A"}
                 </Typography>
                 <Button variant="contained" color="primary" sx={{ mt: 2 }}>
                     Chat ngay
@@ -203,9 +209,12 @@ function ConfirmedDetail({ matchItem }) {
             </CardContent>
         </Card>
     ) : (
-        <Typography align="center">Chọn một match để xem chi tiết.</Typography>
+        <Typography align="center">
+            Chọn một match để xem chi tiết.
+        </Typography>
     );
 }
+
 
 // Detail component cho Liked Matches
 function LikedDetail({
@@ -343,7 +352,7 @@ export default function MatchesListPage({ likedMatchesFromSwipe = [] }) {
             ];
             setPendingMatches(mockPending);
             setLoadingPending(false);
-        }, 1500);
+        }, 100);
     }, []);
 
     // Giả lập API cho Confirmed Matches
@@ -352,20 +361,20 @@ export default function MatchesListPage({ likedMatchesFromSwipe = [] }) {
             const mockConfirmed = [
                 {
                     initiator_id: "uuid-user-001",
-                    matched_user_id: "uuid-user-002",
+                    matched_user_id: "uuid-user-002", // Trường này phải tồn tại
                     match_time: "2025-05-10T12:30:00Z",
                     status: "confirmed",
                 },
                 {
                     initiator_id: "uuid-user-005",
-                    matched_user_id: "uuid-user-006",
+                    matched_user_id: "uuid-user-006", // Trường này phải tồn tại
                     match_time: "2025-05-11T14:00:00Z",
                     status: "confirmed",
                 },
             ];
             setConfirmedMatches(mockConfirmed);
             setLoadingConfirmed(false);
-        }, 1500);
+        }, 100);
     }, []);
 
     // Giả lập API cho Liked Matches nếu chưa truyền dữ liệu từ bước swipe
@@ -391,11 +400,12 @@ export default function MatchesListPage({ likedMatchesFromSwipe = [] }) {
                 setLikedMatches(mockLiked);
             }
             setLoadingLiked(false);
-        }, 1500);
+        }, 100);
     }, [likedMatchesFromSwipe]);
 
     // Khi người dùng bấm chọn 1 card trong danh sách (left column)
     const handleSelectItem = (item) => {
+        console.log("Selected Item:", item); // Kiểm tra giá trị của item
         setSelectedItem(item);
     };
 
@@ -522,7 +532,10 @@ export default function MatchesListPage({ likedMatchesFromSwipe = [] }) {
                                 },
                                 position: "relative",
                             }}
-                            onClick={() => handleSelectItem(item)} // Cập nhật selectedItem
+                            onClick={() => {
+                                console.log("Selected Item:", item);
+                                handleSelectItem(item);
+                            }}
                         >
                             <Card
                                 sx={{
