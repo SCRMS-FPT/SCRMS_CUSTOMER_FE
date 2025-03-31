@@ -178,7 +178,7 @@ const GeneralRoutes = [
   />,
   <Route
     key="coach-details"
-    path="/coach/:id"
+    path="/coaches/:id"
     element={
       <Layout>
         <CoachDetails />
@@ -251,6 +251,16 @@ const GeneralRoutes = [
   />,
   // 403 Forbidden route
   <Route key="forbidden" path="/forbidden" element={<Forbidden403 />} />,
+  <Route
+    key="settings"
+    path="/settings"
+    element={
+      <Layout>
+        <UserProfileView />
+      </Layout>
+    }
+  />,
+
   // <Route
   //   key="-profile-settings"
   //   path="/profile"
@@ -260,6 +270,7 @@ const GeneralRoutes = [
   //     </Layout>
   //   }
   // />,
+
 ];
 
 export default GeneralRoutes;
