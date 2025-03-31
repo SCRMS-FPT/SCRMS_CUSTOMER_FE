@@ -1831,6 +1831,7 @@ const CourtOwnerOnboarding = () => {
             ".MuiStepConnector-line": {
               borderLeft: "2px dashed rgba(25, 118, 210, 0.3)",
               minHeight: 20,
+              marginLeft: 1
             },
           }}
         >
