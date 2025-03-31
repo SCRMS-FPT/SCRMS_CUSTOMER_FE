@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Client } from "../../API/CourtApi";
+import { Client } from "@/API/CourtApi";
 import axios from "axios";
 
 import {
@@ -151,9 +151,9 @@ const FeaturedVenues = () => {
     selectedSport === "All"
       ? sportCenters
       : sportCenters.filter(
-          (center) =>
-            center.sportNames && center.sportNames.includes(selectedSport)
-        );
+        (center) =>
+          center.sportNames && center.sportNames.includes(selectedSport)
+      );
 
   // Calculate total pages
   const totalItems = filteredVenues.length;
@@ -314,7 +314,8 @@ const FeaturedVenues = () => {
 
         {/* Sports Filter Tabs */}
         <Box sx={{ mb: 4 }}>
-          <Typography
+          <div className="flex align-center justify-between">
+            <Typography
             variant="h6"
             sx={{
               fontWeight: 600,
@@ -324,6 +325,22 @@ const FeaturedVenues = () => {
           >
             Browse by Sport
           </Typography>
+          <Button
+            variant="text"
+            onClick={() => navigate("/courts/sport")}
+            sx={{
+              textTransform: "none",
+              color: "#2563eb",
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+             "&:hover": { textDecoration: "underline" },
+            }}
+          >
+            See more <ArrowForward sx={{ fontSize: "small", ml: 0.5 }} />
+          </Button>
+          </div>
+          
 
           <Paper
             sx={{
@@ -498,20 +515,19 @@ const FeaturedVenues = () => {
                     }}
                   >
                     <Box sx={{ position: "relative" }}>
-                      <CardMedia
+                    <CardMedia
                         component="img"
-                        height="200"
                         image={
                           center.avatar ||
                           "https://placehold.co/600x400?text=Sport+Center"
                         }
                         alt={center.name}
                         sx={{
+                          height: 220,
+                          width: "100%",
+                          objectFit: "cover",
                           transition: "transform 0.6s ease-in-out",
-                          transform:
-                            isHovering === center.id
-                              ? "scale(1.05)"
-                              : "scale(1)",
+                          transform: isHovering === center.id ? "scale(1.05)" : "scale(1)",
                         }}
                       />
 
@@ -567,7 +583,7 @@ const FeaturedVenues = () => {
                       <Box sx={{ position: "absolute", top: 16, right: 16 }}>
                         <Chip
                           icon={<StarRate sx={{ color: "#facc15" }} />}
-                          label={(Math.random() * 2 + 3).toFixed(1)}
+                          label={center.fixedRating || (center.fixedRating = (Math.random() * 2 + 3).toFixed(1))}
                           size="small"
                           sx={{
                             bgcolor: "white",

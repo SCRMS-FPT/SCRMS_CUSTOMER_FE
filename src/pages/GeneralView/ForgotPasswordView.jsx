@@ -9,9 +9,8 @@ const ForgotPasswordView = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const client = new Client(API_IDENTITY_URL); // Initialize API client
+  const client = new Client(API_IDENTITY_URL);
 
-  // Show notifications
   const showNotification = (type, message, description) => {
     notification[type]({
       message,
@@ -19,49 +18,62 @@ const ForgotPasswordView = () => {
       placement: "topRight",
     });
   };
-
-  // Handle Reset Password Request
   const handleResetPassword = async () => {
     if (!email.trim()) {
-      showNotification("warning", "Missing Email", "Please enter your email to proceed.");
+      showNotification(
+        "warning",
+        "Thiếu Email",
+        "Vui lòng nhập email của bạn để tiếp tục."
+      );
       return;
     }
 
     setLoading(true);
     try {
-      await client.resetPassword({ email }); // Call API function
-      showNotification("success", "Reset Link Sent", "Check your email for the password reset link.");
-      setTimeout(() => navigate("/login"), 3000); // Redirect to Login after success
+      await client.resetPassword({ email });
+      showNotification(
+        "success",
+        "Đã gửi liên kết đặt lại mật khẩu",
+        "Hãy kiểm tra email của bạn để nhận liên kết đặt lại mật khẩu."
+      );
+      setTimeout(() => navigate("/login"), 3000);
     } catch (error) {
-      console.error("Reset password error:", error);
-      showNotification("error", "Reset Failed", "Something went wrong. Please try again.");
+      console.error("Lỗi đặt lại mật khẩu:", error);
+      showNotification(
+        "error",
+        "Đặt lại thất bại",
+        "Đã xảy ra lỗi. Vui lòng thử lại."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-6">
+    <div
+      className="flex justify-center items-center min-h-screen bg-gray-100 p-6"
+      style={{ marginTop: "2rem", marginBottom: "2rem" }}
+    >
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
-        <h2 className="text-2xl font-bold text-center text-gray-800">Forgot Password</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-800">
+          Quên Mật Khẩu
+        </h2>
         <p className="text-center text-gray-600 mt-2">
-          Enter your registered email to receive a password reset link.
+          Nhập email đã đăng ký của bạn để nhận liên kết đặt lại mật khẩu.
         </p>
 
-        {/* Email Input */}
         <div className="mt-6">
           <label className="block text-gray-700">Email</label>
           <Input
             type="email"
             size="large"
-            placeholder="Enter your email"
+            placeholder="Nhập email của bạn"
             prefix={<MailOutlined />}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
-        {/* Submit Button */}
         <Button
           type="primary"
           size="large"
@@ -69,13 +81,12 @@ const ForgotPasswordView = () => {
           onClick={handleResetPassword}
           loading={loading}
         >
-          {loading ? "Processing..." : "Send Reset Link"}
+          {loading ? "Đang xử lý..." : "Gửi Liên Kết Đặt Lại"}
         </Button>
 
-        {/* Back to Login */}
         <div className="text-center mt-4">
           <Link to="/login" className="text-blue-600 hover:underline">
-            Back to Login
+            Quay lại Đăng Nhập
           </Link>
         </div>
       </div>
