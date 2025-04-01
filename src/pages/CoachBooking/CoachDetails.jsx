@@ -1010,11 +1010,21 @@ const CoachDetails = () => {
                                 "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
                               ].map((day, index) => {
                                 const dayOfWeek = index + 1;
-                                const daySchedules = schedules.filter((schedule) => {
-                                  const scheduleDate = dayjs(schedule.date);
-                                  return scheduleDate.day() === (dayOfWeek === 7 ? 0 : dayOfWeek);
-                                });
-                                const isToday = dayjs().day() === (dayOfWeek === 7 ? 0 : dayOfWeek);
+                                // Calculate the actual date for this day in the displayed week
+                                const displayedDate = dayjs(selectedDate)
+                                  .startOf("week")
+                                  .add(index, "day")
+                                  .format("YYYY-MM-DD");
+
+                                // Filter schedules for this specific date (not just the day of week)
+                                const daySchedules = schedules.filter(
+                                  (schedule) => schedule.date === displayedDate
+                                );
+
+                                // Calculate if this is today
+                                const isToday =
+                                  dayjs().format("YYYY-MM-DD") ===
+                                  displayedDate;
 
                                 return (
                                   <Grid item xs={12 / 7} key={`slots-${day}`}>
@@ -1033,6 +1043,7 @@ const CoachDetails = () => {
                                         transition: "all 0.3s ease",
                                         "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.08)" },
                                         minWidth: '250px', // Đảm bảo mỗi container slot có chiều rộng tối thiểu
+
                                       }}
                                     >
                                       {daySchedules.length === 0 ? (

@@ -207,9 +207,7 @@ const UserCoachBookingsView = () => {
           <Space>
             <Button
               type="primary"
-              onClick={() =>
-                navigate(`/user/bookings/${record.id}?tab=${activeTab}`)
-              }
+              onClick={() => navigate(`/user/coachings/${record.id}`)} // Navigate to the new route
             >
               View Details
             </Button>
