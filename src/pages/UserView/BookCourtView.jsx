@@ -58,6 +58,7 @@ const { Meta } = Card;
 
 // API client instance
 const apiClient = new CourtClient();
+const paymentClient = new PaymentClient();
 
 // Helper function to format date
 const formatDate = (date) => {
