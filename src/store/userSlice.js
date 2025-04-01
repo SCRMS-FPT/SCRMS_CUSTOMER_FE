@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { Client, LoginUserRequest } from "@/API/IdentityApi";
+import { API_IDENTITY_URL } from "@/API/config";
 
 export const login = createAsyncThunk(
   "user/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const apiClient = new Client("http://localhost:6001");
+      const apiClient = new Client(API_IDENTITY_URL);
       const loginRequest = new LoginUserRequest({
         email: credentials.email,
         password: credentials.password,
