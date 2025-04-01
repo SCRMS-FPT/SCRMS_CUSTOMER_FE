@@ -977,12 +977,12 @@ const CoachDetails = () => {
 
                           {/* Weekly Calendar View */}
                           <Box sx={{ p: 2, overflowX: 'auto' }}> {/* Đã thêm overflowX: 'auto' vào Box cha */}
-                            <Grid container spacing={1.5} sx={{ width: 'max-content' }}>
-                              {/* Day headers - Без змін */}
+                            <Grid container spacing={1.5} sx={{ width: 'max-content', maxWidth: '1800px' }}>
+                              {/* Day headers  */}
                               {[
                                 "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
                               ].map((day, index) => (
-                                <Grid item xs={12 / 7} key={day}>
+                                <Grid item xs={12 / 7} key={day} >
                                   <Box
                                     sx={{
                                       p: 1.5,
@@ -993,6 +993,7 @@ const CoachDetails = () => {
                                       borderRadius: "8px 8px 0 0",
                                       boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
                                       minWidth: '120px', // Đảm bảo mỗi header có chiều rộng tối thiểu
+                                      maxWidth: '300px',
                                     }}
                                   >
                                     <Typography variant="subtitle1" fontWeight="bold" noWrap>
@@ -1043,7 +1044,7 @@ const CoachDetails = () => {
                                         transition: "all 0.3s ease",
                                         "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.08)" },
                                         minWidth: '250px', // Đảm bảo mỗi container slot có chiều rộng tối thiểu
-
+                                        maxWidth: '300px',
                                       }}
                                     >
                                       {daySchedules.length === 0 ? (

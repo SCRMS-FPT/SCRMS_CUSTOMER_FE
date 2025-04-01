@@ -307,7 +307,7 @@ const UserCoachBookingDetailView = () => {
                     ({calculateDuration()})
                   </Text>
                 </Descriptions.Item>
-                <Descriptions.Item label="Sport">
+                <Descriptions.Item label="Sport" span={2}> 
                   {sport ? sport.name : booking.sportId}
                 </Descriptions.Item>
                 <Descriptions.Item label="Total Price" span={2}>
