@@ -941,7 +941,7 @@ export class Client {
     /**
      * @return OK
      */
-    profile(id: string): Promise<void> {
+    profile(id: string): Promise<any> {
         let url_ = this.baseUrl + "/api/users/{id}/profile";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -950,8 +950,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -959,19 +958,21 @@ export class Client {
         });
     }
 
-    protected processProfile(response: Response): Promise<void> {
+    protected processProfile(response: Response): Promise<any> {
         const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        let _headers: any = {}; 
+        if (response.headers && response.headers.forEach) { 
+            response.headers.forEach((v: any, k: any) => _headers[k] = v); 
+        };
+        
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json(); // Parse and return the JSON data
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve(null);
     }
 
     /**

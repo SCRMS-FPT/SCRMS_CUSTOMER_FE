@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import BookingCard from "../../components/bookinfo/booking-card";
 import BookingDetailModal from "../../components/bookinfo/booking-detail-modal";
@@ -8,14 +8,20 @@ import BookingFilter from "../../components/bookinfo/booking-filter";
 import BookingPagination from "../../components/bookinfo/booking-pagination";
 import BookingSkeleton from "../../components/bookinfo/booking-skeleton";
 import ConfirmActionModal from "../../components/bookinfo/confirm-action-modal";
-import { userData } from "../../data/userData";
-// Import Client from CoachApi
+// Remove static userData import
+// import { userData } from "../../data/userData";
+// Import both APIs
 import { Client } from "../../API/CoachApi";
-import { toast } from "react-hot-toast"; // Assuming you use toast for notifications
+import { Client as IdentityClient } from "../../API/IdentityApi";
+import { toast } from "react-hot-toast";
 
 const CoachBookingsPage = () => {
-  // Create API client instance
+  // Create API client instances
   const coachClient = new Client();
+  const identityClient = new IdentityClient();
+
+  // Create a ref to prevent infinite re-renders
+  const isMountedRef = useRef(true);
 
   // State for bookings data
   const [bookings, setBookings] = useState([]);
@@ -24,13 +30,16 @@ const CoachBookingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Add new state for user profiles
+  const [userProfiles, setUserProfiles] = useState({});
+
   // State for filters
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   // State for API pagination
-  const [currentPage, setCurrentPage] = useState(0); // Start from 0 instead of 1
+  const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(8);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -44,6 +53,39 @@ const CoachBookingsPage = () => {
 
   // State for status updates
   const [statusUpdated, setStatusUpdated] = useState(false);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  // Helper function to fetch user profile by ID
+  const fetchUserProfile = async (userId) => {
+    try {
+      // Check if we already have the profile
+      if (userProfiles[userId]) {
+        return userProfiles[userId];
+      }
+
+      // Fetch user profile from API
+      const profile = await identityClient.profile(userId);
+
+      // Only update state if component is still mounted
+      if (isMountedRef.current) {
+        setUserProfiles((prev) => ({
+          ...prev,
+          [userId]: profile,
+        }));
+      }
+
+      return profile;
+    } catch (error) {
+      console.error(`Error fetching profile for user ${userId}:`, error);
+      return null;
+    }
+  };
 
   // Fetch bookings when filters or pagination changes
   useEffect(() => {
@@ -76,6 +118,7 @@ const CoachBookingsPage = () => {
       );
 
       if (response && response.data) {
+        // Set booking data
         setBookings(response.data);
         setTotalItems(response.count || 0);
         setTotalPages(Math.ceil((response.count || 0) / pageSize));
@@ -88,6 +131,19 @@ const CoachBookingsPage = () => {
           message: `Trạng thái: ${getStatusMessage(booking.status)}`,
         }));
         setBookingStatuses(statuses);
+
+        // Fetch user profiles for all bookings
+        const userIds = [
+          ...new Set(response.data.map((booking) => booking.userId)),
+        ];
+
+        // Process each user ID and fetch profile
+        for (const userId of userIds) {
+          if (!userProfiles[userId]) {
+            // Fetch profile in background without awaiting
+            fetchUserProfile(userId);
+          }
+        }
       }
     } catch (err) {
       console.error("Error fetching bookings:", err);
@@ -113,7 +169,7 @@ const CoachBookingsPage = () => {
     }
   };
 
-  // Apply search filter locally
+  // Apply search filter locally - update to use real user profiles
   useEffect(() => {
     if (!searchTerm) {
       setFilteredBookings(bookings);
@@ -121,15 +177,20 @@ const CoachBookingsPage = () => {
     }
 
     const filtered = bookings.filter((booking) => {
-      const user = userData.find((u) => u.id === booking.userId);
+      const user = userProfiles[booking.userId];
       if (!user) return false;
 
-      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-      return fullName.includes(searchTerm.toLowerCase());
+      // Handle different profile data formats
+      const userName =
+        user.firstName && user.lastName
+          ? `${user.firstName} ${user.lastName}`.toLowerCase()
+          : (user.fullName || "").toLowerCase();
+
+      return userName.includes(searchTerm.toLowerCase());
     });
 
     setFilteredBookings(filtered);
-  }, [bookings, searchTerm]);
+  }, [bookings, searchTerm, userProfiles]);
 
   // Handle page change
   const handlePageChange = (page) => {
@@ -156,7 +217,12 @@ const CoachBookingsPage = () => {
 
   // Handle booking click
   const handleBookingClick = (booking) => {
-    setSelectedBooking(booking);
+    // Include user data with the selected booking
+    const enrichedBooking = {
+      ...booking,
+      user: userProfiles[booking.userId] || null,
+    };
+    setSelectedBooking(enrichedBooking);
     setStatusUpdated(false);
     setIsDetailModalOpen(true);
   };
@@ -408,6 +474,7 @@ const CoachBookingsPage = () => {
                   booking={booking}
                   onClick={handleBookingClick}
                   bookingStatuses={bookingStatuses}
+                  userData={userProfiles[booking.userId]} // Pass the user data
                 />
               ))}
             </motion.div>

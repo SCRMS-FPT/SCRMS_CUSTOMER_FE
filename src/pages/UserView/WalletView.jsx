@@ -95,17 +95,20 @@ const WalletView = () => {
 
   // Format transaction type for display
   const formatTransactionType = (type) => {
-    switch (type?.toLowerCase()) {
-      case "deposit":
-        return { label: "Nạp tiền", color: "success", icon: <ArrowUpward /> };
-      case "withdrawal":
-        return { label: "Rút tiền", color: "error", icon: <ArrowDownward /> };
-      case "payment":
-        return { label: "Thanh toán", color: "info", icon: <ShoppingCart /> };
-      case "refund":
-        return { label: "Hoàn tiền", color: "warning", icon: <Receipt /> };
-      default:
-        return { label: type || "Khác", color: "default", icon: <Info /> };
+    const lowerType = type?.toLowerCase() || "";
+
+    if (lowerType === "deposit") {
+      return { label: "Nạp tiền", color: "success", icon: <ArrowUpward /> };
+    } else if (lowerType === "withdrawal") {
+      return { label: "Rút tiền", color: "error", icon: <ArrowDownward /> };
+    } else if (lowerType === "payment") {
+      return { label: "Thanh toán", color: "info", icon: <ShoppingCart /> };
+    } else if (lowerType === "refund") {
+      return { label: "Hoàn tiền", color: "warning", icon: <Receipt /> };
+    } else if (lowerType.includes("revenue")) {
+      return { label: "Doanh thu", color: "success", icon: <ArrowUpward /> };
+    } else {
+      return { label: type || "Khác", color: "default", icon: <Info /> };
     }
   };
 
@@ -305,14 +308,22 @@ const WalletView = () => {
                                 sx={{
                                   fontWeight: "bold",
                                   color:
-                                    transaction.transactionType?.toLowerCase() ===
-                                    "deposit"
+                                    ["deposit", "refund"].includes(
+                                      transaction.transactionType?.toLowerCase()
+                                    ) ||
+                                    transaction.transactionType
+                                      ?.toLowerCase()
+                                      .includes("revenue")
                                       ? "success.main"
                                       : "text.primary",
                                 }}
                               >
-                                {transaction.transactionType?.toLowerCase() ===
-                                "deposit"
+                                {["deposit", "refund"].includes(
+                                  transaction.transactionType?.toLowerCase()
+                                ) ||
+                                transaction.transactionType
+                                  ?.toLowerCase()
+                                  .includes("revenue")
                                   ? "+"
                                   : "-"}
                                 {transaction.amount?.toLocaleString()} VND
