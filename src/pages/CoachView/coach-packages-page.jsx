@@ -1,160 +1,318 @@
-"use client"
+import { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Client as CoachClient } from "../../API/CoachApi";
+import {
+  Typography as MuiTypography, // Rename to avoid conflicts
+  Box,
+  Container,
+  Grid,
+  Paper,
+  Divider,
+} from "@mui/material";
+import {
+  Table,
+  Modal,
+  Input,
+  Space,
+  Tag,
+  Spin,
+  Empty,
+  Select,
+  Card as AntCard,
+  message,
+  Button,
+  Tooltip,
+  Popconfirm,
+  Image,
+  Badge,
+  Pagination,
+  Alert,
+  Typography, // Import Ant Design Typography
+} from "antd";
+import {
+  SearchOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  DollarOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
+import { motion } from "framer-motion";
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import CoachPackagesGrid from "../../components/packages/coach-packages-grid"
-import Pagination from "../../components/packages/pagination"
-import PackageFormModal from "../../components/packages/package-form-modal"
-import ConfirmDeleteModal from "../../components/packages/confirm-delete-modal"
-import { coachPackages as initialPackages } from "../../data/coachPackageData"
-import { useParams } from "react-router-dom"; // Import useParams
-
-
-// Utility functions
-const generateId = () => {
-  return `uuid-package-${Date.now()}-${Math.floor(Math.random() * 1000)}`
-}
+const { Option } = Select;
+const { Search } = Input;
+const { Meta } = AntCard;
+const { confirm } = Modal;
+const { Text, Paragraph, Title } = Typography; // Destructure Ant Design Typography components
 
 const CoachPackagesPage = () => {
-  const { coach_id } = useParams(); // Lấy coach_id từ URL
-
-  // State for packages data
-  const [packages, setPackages] = useState(initialPackages);
+  const { coach_id } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [packages, setPackages] = useState([]);
   const [filteredPackages, setFilteredPackages] = useState([]);
+  const [paginatedPackages, setPaginatedPackages] = useState([]);
+  const [totalPackages, setTotalPackages] = useState(0);
+  const [error, setError] = useState(null);
 
+  // Add a ref to prevent infinite API calls
+  const initialDataLoaded = useRef(false);
+
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("name");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+
+  // Modal states
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [currentPackage, setCurrentPackage] = useState(null);
+  const [formLoading, setFormLoading] = useState(false);
+
+  // Form states
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: 0,
+    sessionCount: 0,
+    status: "ACTIVE",
+  });
+
+  const client = new CoachClient();
+
+  // Initial data fetch - only once after component mounts
   useEffect(() => {
-    if (coach_id) {
-      // Lọc các gói đào tạo theo coach_id
-      const coachPackages = initialPackages.filter((pkg) => pkg.coach_id === coach_id);
-      setPackages(coachPackages);
-      setFilteredPackages(coachPackages);
-    } else {
-      // Hiển thị tất cả các gói đào tạo
-      setPackages(initialPackages);
-      setFilteredPackages(initialPackages);
+    if (!initialDataLoaded.current) {
+      fetchPackages();
+      initialDataLoaded.current = true;
     }
   }, [coach_id]);
 
-  // State for search and filters
-  const [searchTerm, setSearchTerm] = useState("")
-  const [sortBy, setSortBy] = useState("package_name")
-  const [categoryFilter, setCategoryFilter] = useState("")
+  const fetchPackages = async () => {
+    try {
+      setLoading(true);
+      let packagesData = [];
 
-  // State for pagination
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(6)
-  const [paginatedPackages, setPaginatedPackages] = useState([])
+      if (coach_id) {
+        // Fetch packages for a specific coach
+        packagesData = await client.getActivePackages(coach_id);
+      } else {
+        // Fetch all packages for the coach (assuming logged in as coach)
+        packagesData = await client.getCoachPackages();
+      }
 
-  // State for modals
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [currentPackage, setCurrentPackage] = useState(null)
-  const [packageToDelete, setPackageToDelete] = useState(null)
+      setPackages(packagesData);
+      setFilteredPackages(packagesData);
+      setTotalPackages(packagesData.length);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching packages:", err);
+      setError("Failed to load packages. Please try again later.");
+      message.error("Failed to load packages");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Get unique categories for filter - handle case where category might not exist
-  const categories = [...new Set(packages.map((pkg) => pkg.category).filter(Boolean))]
-
-  // Apply filters and sorting
+  // Apply filters
   useEffect(() => {
-    let result = [...packages]
+    let result = [...packages];
 
     // Apply search filter
     if (searchTerm) {
       result = result.filter(
         (pkg) =>
-          pkg.package_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          pkg.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (pkg.coach_name && pkg.coach_name.toLowerCase().includes(searchTerm.toLowerCase())),
-      )
+          pkg.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          pkg.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
 
-    // Apply category filter - only if category exists
-    if (categoryFilter) {
-      result = result.filter((pkg) => pkg.category === categoryFilter)
+    // Apply status filter
+    if (statusFilter) {
+      result = result.filter((pkg) => pkg.status === statusFilter);
     }
 
     // Apply sorting
     result.sort((a, b) => {
       if (sortBy === "price_low") {
-        return a.price - b.price
+        return a.price - b.price;
       } else if (sortBy === "price_high") {
-        return b.price - a.price
+        return b.price - a.price;
       } else if (sortBy === "session_count") {
-        return b.session_count - a.session_count
+        return b.sessionCount - a.sessionCount;
       } else if (sortBy === "newest") {
-        return new Date(b.created_at) - new Date(a.created_at)
+        return new Date(b.createdAt) - new Date(a.createdAt);
       } else {
         // Default sort by name
-        return a.package_name.localeCompare(b.package_name)
+        return a.name?.localeCompare(b.name);
       }
-    })
+    });
 
-    setFilteredPackages(result)
-    setCurrentPage(1) // Reset to first page when filters change
-  }, [packages, searchTerm, sortBy, categoryFilter])
+    setFilteredPackages(result);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [packages, searchTerm, sortBy, statusFilter]);
 
   // Apply pagination
   useEffect(() => {
-    const startIndex = (currentPage - 1) * pageSize
-    const endIndex = startIndex + pageSize
-    setPaginatedPackages(filteredPackages.slice(startIndex, endIndex))
-  }, [filteredPackages, currentPage, pageSize])
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    setPaginatedPackages(filteredPackages.slice(startIndex, endIndex));
+  }, [filteredPackages, currentPage, pageSize]);
 
-  // Calculate total pages
-  const totalPages = Math.ceil(filteredPackages.length / pageSize)
+  // Form handling functions
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      price: 0,
+      sessionCount: 0,
+      status: "ACTIVE",
+    });
+  };
 
-  // Handle page change
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page)
-    }
-  }
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
 
-  // Handle page size change
-  const handlePageSizeChange = (size) => {
-    setPageSize(size)
-    setCurrentPage(1) // Reset to first page when page size changes
-  }
+  const handleNumberChange = (name, value) => {
+    setFormData({
+      ...formData,
+      [name]: value !== "" ? Number(value) : 0,
+    });
+  };
 
-  // CRUD Operations
+  // CRUD operations
   const handleAddPackage = () => {
-    setCurrentPackage(null)
-    setIsFormModalOpen(true)
-  }
+    setCurrentPackage(null);
+    resetForm();
+    setIsFormModalOpen(true);
+  };
 
   const handleEditPackage = (packageData) => {
-    setCurrentPackage(packageData)
-    setIsFormModalOpen(true)
-  }
+    setCurrentPackage(packageData);
+    setFormData({
+      name: packageData.name || "",
+      description: packageData.description || "",
+      price: packageData.price || 0,
+      sessionCount: packageData.sessionCount || 0,
+      status: packageData.status || "ACTIVE",
+    });
+    setIsFormModalOpen(true);
+  };
 
   const handleDeletePackage = (packageId) => {
-    const packageToDelete = packages.find((pkg) => pkg.id === packageId)
-    setPackageToDelete(packageToDelete)
-    setIsDeleteModalOpen(true)
-  }
+    confirm({
+      title: "Are you sure you want to delete this package?",
+      icon: <ExclamationCircleOutlined style={{ color: "red" }} />,
+      content: "This action cannot be undone.",
+      okText: "Yes, Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        try {
+          await client.deletePackage(packageId);
+          message.success("Package deleted successfully");
+          fetchPackages(); // Refresh the list
+        } catch (error) {
+          console.error("Error deleting package:", error);
+          message.error("Failed to delete package");
+        }
+      },
+    });
+  };
 
-  const confirmDelete = () => {
-    if (packageToDelete) {
-      setPackages(packages.filter((pkg) => pkg.id !== packageToDelete.id))
-      setIsDeleteModalOpen(false)
-      setPackageToDelete(null)
+  const handleFormSubmit = async () => {
+    // Validation
+    if (!formData.name.trim()) {
+      message.error("Package name is required");
+      return;
     }
-  }
 
-  const handleFormSubmit = (formData) => {
-    if (currentPackage) {
-      // Update existing package
-      setPackages(packages.map((pkg) => (pkg.id === formData.id ? formData : pkg)))
-    } else {
-      // Add new package with generated ID if not provided
-      const newPackage = {
-        ...formData,
-        id: formData.id || generateId(),
-        created_at: formData.created_at || new Date().toISOString(),
+    if (!formData.description.trim()) {
+      message.error("Description is required");
+      return;
+    }
+
+    if (formData.price <= 0) {
+      message.error("Price must be greater than 0");
+      return;
+    }
+
+    if (formData.sessionCount <= 0) {
+      message.error("Session count must be greater than 0");
+      return;
+    }
+
+    try {
+      setFormLoading(true);
+
+      if (currentPackage) {
+        // Update existing package
+        const updateRequest = {
+          name: formData.name,
+          description: formData.description,
+          price: formData.price,
+          sessionCount: formData.sessionCount,
+          status: formData.status,
+        };
+
+        await client.updatePackage(currentPackage.id, updateRequest);
+        message.success("Package updated successfully");
+      } else {
+        // Create new package
+        const createRequest = {
+          coachId: coach_id, // Use coach_id from URL or from current user
+          name: formData.name,
+          description: formData.description,
+          price: formData.price,
+          sessionCount: formData.sessionCount,
+        };
+
+        await client.createPackage(createRequest);
+        message.success("Package created successfully");
       }
-      setPackages([...packages, newPackage])
+
+      setIsFormModalOpen(false);
+      fetchPackages(); // Refresh the list
+    } catch (error) {
+      console.error("Error saving package:", error);
+      message.error("Failed to save package");
+    } finally {
+      setFormLoading(false);
     }
-  }
+  };
+
+  // Helper function to format price
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
+
+  // Helper function to get status color
+  const getStatusColor = (status) => {
+    switch (status?.toUpperCase()) {
+      case "ACTIVE":
+        return "green";
+      case "INACTIVE":
+        return "red";
+      case "DRAFT":
+        return "orange";
+      default:
+        return "default";
+    }
+  };
 
   // Animation variants
   const containerVariants = {
@@ -165,7 +323,7 @@ const CoachPackagesPage = () => {
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -174,170 +332,397 @@ const CoachPackagesPage = () => {
       opacity: 1,
       transition: { duration: 0.3 },
     },
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 w-full">
-      {/* Hero Background Image Section */}
-      <div className="relative w-full h-[300px] md:h-[400px] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "url('/placeholder.svg?height=800&width=1600')",
-            backgroundPosition: "center 30%",
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 3,
+          overflow: "hidden",
+          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+          mb: 3,
+        }}
+      >
+        <Box
+          sx={{
+            p: 4,
+            backgroundImage: "linear-gradient(to right, #1a9f6c, #0d6e4a)",
+            color: "white",
+            textAlign: "center",
+            position: "relative",
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/80 to-emerald-700/70"></div>
-        </div>
-        <div className="relative h-full flex flex-col justify-center items-center text-center px-4 z-10">
-          <motion.h1
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold text-white mb-4"
           >
-            Gói Đào Tạo Chuyên Nghiệp
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl text-gray-100 max-w-2xl"
-          >
-            Nâng cao kỹ năng và thể lực của bạn với các gói đào tạo được thiết kế riêng
-          </motion.p>
-        </div>
-      </div>
-
-      <div className="w-full px-4 py-8 max-w-[2000px] mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-white rounded-xl shadow-md p-6 mb-8 -mt-16 relative z-20"
-        >
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800 mb-2">Gói Đào Tạo</h1>
-              <p className="text-slate-600">Lựa chọn gói đào tạo phù hợp với mục tiêu của bạn</p>
-            </div>
-            <button
-              onClick={handleAddPackage}
-              className="mt-4 md:mt-0 flex items-center bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 shadow-sm"
+            <MuiTypography variant="h3" component="h1" gutterBottom>
+              Coach Training Packages
+            </MuiTypography>
+            <MuiTypography
+              variant="h6"
+              sx={{ opacity: 0.8, maxWidth: 800, mx: "auto" }}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+              Enhance your skills with our professionally designed training
+              packages
+            </MuiTypography>
+          </motion.div>
+        </Box>
+
+        <Box sx={{ p: 3, bgcolor: "#f9f9f9" }}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={4}>
+              <Search
+                placeholder="Search by name or description"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                allowClear
+                prefix={<SearchOutlined />}
+                size="large"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={3}>
+              <Select
+                style={{ width: "100%" }}
+                placeholder="Filter by Status"
+                value={statusFilter || undefined}
+                onChange={(value) => setStatusFilter(value)}
+                allowClear
+                size="large"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Thêm gói đào tạo
-            </button>
-          </div>
+                <Option value="ACTIVE">Active</Option>
+                <Option value="INACTIVE">Inactive</Option>
+                <Option value="DRAFT">Draft</Option>
+              </Select>
+            </Grid>
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            <motion.div variants={itemVariants} className="col-span-1 md:col-span-1">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm gói đào tạo..."
-                  className="w-full px-4 py-3 pl-10 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            <Grid item xs={12} md={3}>
+              <Select
+                style={{ width: "100%" }}
+                placeholder="Sort by"
+                value={sortBy}
+                onChange={(value) => setSortBy(value)}
+                size="large"
+              >
+                <Option value="name">Name (A-Z)</Option>
+                <Option value="price_low">Price: Low to High</Option>
+                <Option value="price_high">Price: High to Low</Option>
+                <Option value="session_count">Session Count</Option>
+                <Option value="newest">Newest First</Option>
+              </Select>
+            </Grid>
+
+            <Grid item xs={12} md={2}>
+              <Button
+                type="primary"
+                size="large"
+                icon={<PlusOutlined />}
+                onClick={handleAddPackage}
+                style={{ width: "100%", height: "40px" }}
+              >
+                Add Package
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
+
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+        </Box>
+      ) : error ? (
+        <Alert message="Error" description={error} type="error" showIcon />
+      ) : filteredPackages.length === 0 ? (
+        <Empty
+          description="No packages found"
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        />
+      ) : (
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <Grid container spacing={3}>
+            {paginatedPackages.map((pkg) => (
+              <Grid item xs={12} sm={6} md={4} key={pkg.id}>
+                <motion.div variants={itemVariants}>
+                  <AntCard
+                    hoverable
+                    cover={
+                      <div
+                        style={{
+                          height: 180,
+                          overflow: "hidden",
+                          position: "relative",
+                        }}
+                      >
+                        <Image
+                          alt={pkg.name}
+                          src="/placeholder.svg?height=300&width=400"
+                          preview={false}
+                          style={{
+                            objectFit: "cover",
+                            width: "100%",
+                            height: "100%",
+                          }}
+                        />
+                        <Badge
+                          count={pkg.status}
+                          style={{
+                            position: "absolute",
+                            top: 10,
+                            right: 10,
+                            backgroundColor:
+                              getStatusColor(pkg.status) === "green"
+                                ? "#52c41a"
+                                : getStatusColor(pkg.status) === "red"
+                                ? "#f5222d"
+                                : "#faad14",
+                          }}
+                        />
+                      </div>
+                    }
+                    actions={[
+                      <Tooltip title="Edit" key="edit">
+                        <EditOutlined onClick={() => handleEditPackage(pkg)} />
+                      </Tooltip>,
+                      <Tooltip title="Delete" key="delete">
+                        <Popconfirm
+                          title="Are you sure you want to delete this package?"
+                          onConfirm={() => handleDeletePackage(pkg.id)}
+                          okText="Yes"
+                          cancelText="No"
+                          placement="top"
+                        >
+                          <DeleteOutlined />
+                        </Popconfirm>
+                      </Tooltip>,
+                    ]}
+                    bodyStyle={{ padding: "20px" }}
+                  >
+                    <Meta
+                      title={
+                        <Title level={4} style={{ marginBottom: 8 }}>
+                          {pkg.name}
+                        </Title>
+                      }
+                      description={
+                        <Space
+                          direction="vertical"
+                          size="middle"
+                          style={{ width: "100%" }}
+                        >
+                          <Paragraph
+                            ellipsis={{ rows: 2 }}
+                            style={{ height: 40, marginBottom: 16 }}
+                          >
+                            {pkg.description}
+                          </Paragraph>
+
+                          <Space
+                            direction="vertical"
+                            size="small"
+                            style={{ width: "100%" }}
+                          >
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Space>
+                                <DollarOutlined style={{ color: "#1a9f6c" }} />
+                                <Text strong>Price:</Text>
+                              </Space>
+                              <Text strong style={{ color: "#1a9f6c" }}>
+                                {formatPrice(pkg.price)}
+                              </Text>
+                            </Box>
+
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Space>
+                                <CalendarOutlined
+                                  style={{ color: "#1a9f6c" }}
+                                />
+                                <Text strong>Sessions:</Text>
+                              </Space>
+                              <Text>{pkg.sessionCount} sessions</Text>
+                            </Box>
+
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Space>
+                                <ClockCircleOutlined
+                                  style={{ color: "#1a9f6c" }}
+                                />
+                                <Text strong>Created:</Text>
+                              </Space>
+                              <Text>
+                                {new Date(pkg.createdAt).toLocaleDateString()}
+                              </Text>
+                            </Box>
+                          </Space>
+                        </Space>
+                      }
+                    />
+                  </AntCard>
+                </motion.div>
+              </Grid>
+            ))}
+          </Grid>
+
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={filteredPackages.length}
+              onChange={(page) => setCurrentPage(page)}
+              showSizeChanger
+              onShowSizeChange={(current, size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              pageSizeOptions={["6", "9", "12", "24"]}
+              showTotal={(total) => `Total ${total} packages`}
+            />
+          </Box>
+        </motion.div>
+      )}
+
+      {/* Package Form Modal */}
+      <Modal
+        title={currentPackage ? "Edit Package" : "Create New Package"}
+        open={isFormModalOpen}
+        onCancel={() => setIsFormModalOpen(false)}
+        footer={null}
+        width={700}
+      >
+        <Spin spinning={formLoading}>
+          <form>
+            <Box sx={{ mb: 3 }}>
+              <Text strong>Package Name</Text>
+              <Input
+                name="name"
+                value={formData.name}
+                onChange={handleFormChange}
+                placeholder="Enter package name"
+                required
+                style={{ marginTop: 8 }}
+              />
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <Text strong>Description</Text>
+              <Input.TextArea
+                name="description"
+                value={formData.description}
+                onChange={handleFormChange}
+                placeholder="Enter package description"
+                rows={4}
+                required
+                style={{ marginTop: 8 }}
+              />
+            </Box>
+
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Box sx={{ mb: 3 }}>
+                  <Text strong>Price (VND)</Text>
+                  <Input
+                    type="number"
+                    min={0}
+                    name="price"
+                    value={formData.price}
+                    onChange={(e) =>
+                      handleNumberChange("price", e.target.value)
+                    }
+                    placeholder="Enter price"
+                    required
+                    style={{ marginTop: 8 }}
+                    prefix={<DollarOutlined />}
                   />
-                </svg>
-              </div>
-            </motion.div>
+                </Box>
+              </Grid>
 
-            {categories.length > 0 && (
-              <motion.div variants={itemVariants} className="col-span-1 md:col-span-1">
-                <select
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
+              <Grid item xs={12} md={6}>
+                <Box sx={{ mb: 3 }}>
+                  <Text strong>Number of Sessions</Text>
+                  <Input
+                    type="number"
+                    min={1}
+                    name="sessionCount"
+                    value={formData.sessionCount}
+                    onChange={(e) =>
+                      handleNumberChange("sessionCount", e.target.value)
+                    }
+                    placeholder="Enter session count"
+                    required
+                    style={{ marginTop: 8 }}
+                    prefix={<CalendarOutlined />}
+                  />
+                </Box>
+              </Grid>
+            </Grid>
+
+            {currentPackage && (
+              <Box sx={{ mb: 3 }}>
+                <Text strong>Status</Text>
+                <Select
+                  style={{ width: "100%", marginTop: 8 }}
+                  value={formData.status}
+                  onChange={(value) =>
+                    setFormData({ ...formData, status: value })
+                  }
                 >
-                  <option value="">Tất cả danh mục</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </motion.div>
+                  <Option value="ACTIVE">Active</Option>
+                  <Option value="INACTIVE">Inactive</Option>
+                  <Option value="DRAFT">Draft</Option>
+                </Select>
+              </Box>
             )}
 
-            <motion.div variants={itemVariants} className="col-span-1 md:col-span-1">
-              <select
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+            <Divider />
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 2,
+                mt: 3,
+              }}
+            >
+              <Button onClick={() => setIsFormModalOpen(false)}>Cancel</Button>
+              <Button
+                type="primary"
+                onClick={handleFormSubmit}
+                loading={formLoading}
               >
-                <option value="package_name">Sắp xếp theo tên</option>
-                <option value="price_low">Giá: Thấp đến cao</option>
-                <option value="price_high">Giá: Cao đến thấp</option>
-                <option value="session_count">Số buổi tập</option>
-                <option value="newest">Mới nhất</option>
-              </select>
-            </motion.div>
-          </motion.div>
-        </motion.div>
+                {currentPackage ? "Update Package" : "Create Package"}
+              </Button>
+            </Box>
+          </form>
+        </Spin>
+      </Modal>
+    </Container>
+  );
+};
 
-        <div className="mb-4">
-          <div className="text-sm text-slate-600">Hiển thị {filteredPackages.length} kết quả</div>
-        </div>
-
-        <CoachPackagesGrid packages={paginatedPackages} onEdit={handleEditPackage} onDelete={handleDeletePackage} />
-
-        {filteredPackages.length > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            pageSize={pageSize}
-            onPageSizeChange={handlePageSizeChange}
-            totalItems={filteredPackages.length}
-          />
-        )}
-      </div>
-
-      {/* Modals */}
-      <PackageFormModal
-        isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        onSubmit={handleFormSubmit}
-        initialData={currentPackage}
-      />
-
-      <ConfirmDeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={confirmDelete}
-        packageName={packageToDelete?.package_name || ""}
-      />
-    </div>
-  )
-}
-
-export default CoachPackagesPage
-
+export default CoachPackagesPage;

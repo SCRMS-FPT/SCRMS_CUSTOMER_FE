@@ -16,8 +16,6 @@ import {
   InboxOutlined,
   FormOutlined,
   PercentageOutlined,
-
-
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import { HeaderSection } from "../core/header-section";
@@ -74,11 +72,6 @@ const CoachSidebar = ({ children }) => {
       key: "/coach/trainees",
       icon: <TeamOutlined />,
       label: <Link to="/coach/trainees">Trainees</Link>,
-    },
-    {
-      key: "/coach/packages",
-      icon: <FolderOutlined />,
-      label: <Link to="/coach/packages">Training Packages</Link>,
     },
     {
       key: "/coach/analytics",
