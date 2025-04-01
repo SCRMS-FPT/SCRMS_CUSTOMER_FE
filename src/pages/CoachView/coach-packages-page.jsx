@@ -464,26 +464,12 @@ const CoachPackagesPage = () => {
                       >
                         <Image
                           alt={pkg.name}
-                          src="/placeholder.svg?height=300&width=400"
+                          src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"
                           preview={false}
                           style={{
                             objectFit: "cover",
                             width: "100%",
                             height: "100%",
-                          }}
-                        />
-                        <Badge
-                          count={pkg.status}
-                          style={{
-                            position: "absolute",
-                            top: 10,
-                            right: 10,
-                            backgroundColor:
-                              getStatusColor(pkg.status) === "green"
-                                ? "#52c41a"
-                                : getStatusColor(pkg.status) === "red"
-                                ? "#f5222d"
-                                : "#faad14",
                           }}
                         />
                       </div>
@@ -508,9 +494,26 @@ const CoachPackagesPage = () => {
                   >
                     <Meta
                       title={
-                        <Title level={4} style={{ marginBottom: 8 }}>
-                          {pkg.name}
-                        </Title>
+                        <div style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}>
+                          <Title level={4} style={{ marginBottom: 8 }}>
+                            {pkg.name}
+                          </Title>
+                          <Badge
+                            count={pkg.status}
+                            style={{
+                              backgroundColor:
+                                getStatusColor(pkg.status) === "green"
+                                  ? "#52c41a"
+                                  : getStatusColor(pkg.status) === "red"
+                                    ? "#f5222d"
+                                    : "#faad14",
+                            }}
+                          />
+                        </div>
                       }
                       description={
                         <Space
@@ -518,6 +521,7 @@ const CoachPackagesPage = () => {
                           size="middle"
                           style={{ width: "100%" }}
                         >
+
                           <Paragraph
                             ellipsis={{ rows: 2 }}
                             style={{ height: 40, marginBottom: 16 }}
