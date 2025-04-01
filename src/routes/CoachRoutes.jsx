@@ -6,7 +6,6 @@ import CoachDashboardView from "@/pages/CoachView/CoachDashboardView";
 import CoachScheduleManagementView from "@/pages/CoachView/CoachScheduleManagementView";
 import CoachTraineeManagementView from "@/pages/CoachView/CoachTraineeManagementView";
 import CoachTrainingSessionManagementView from "@/pages/CoachView/CoachTrainingSessionManagementView";
-import CoachTrainingPackageManagementView from "@/pages/CoachView/CoachTrainingPackageManagementView";
 import CoachAnalyticsView from "@/pages/CoachView/CoachAnalyticsView";
 import CoachSidebar from "../components/CoachPage/CoachSidebar";
 import CoachProfile from "@/pages/CoachView/coach-profile";
@@ -136,17 +135,6 @@ const CoachRoutes = [
       <ProtectedCoachRoute>
         <CoachSidebar>
           <CoachTraineeManagementView />
-        </CoachSidebar>
-      </ProtectedCoachRoute>
-    }
-  />,
-  <Route
-    key="coach-packages"
-    path="/coach/packages"
-    element={
-      <ProtectedCoachRoute>
-        <CoachSidebar>
-          <CoachTrainingPackageManagementView />
         </CoachSidebar>
       </ProtectedCoachRoute>
     }

@@ -720,6 +720,136 @@ protected processGetCoaches(response: Response): Promise<CoachResponse[]> {
         return Promise.resolve<GetStatsResponse>(null as any);
     }
 
+ /**
+     * Update Coach Package
+     * @return OK
+     */
+ updatePackage(packageId: string, body: UpdatePackageRequest): Promise<UpdatePackageResult> {
+    let url_ = this.baseUrl + "/packages/{packageId}";
+    if (packageId === undefined || packageId === null)
+        throw new Error("The parameter 'packageId' must be defined.");
+    url_ = url_.replace("{packageId}", encodeURIComponent("" + packageId));
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(body);
+
+    let options_: RequestInit = {
+        body: content_,
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processUpdatePackage(_response);
+    });
+}
+
+protected processUpdatePackage(response: Response): Promise<UpdatePackageResult> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = UpdatePackageResult.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status === 403) {
+        return response.text().then((_responseText) => {
+        let result403: any = null;
+        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result403 = ProblemDetails.fromJS(resultData403);
+        return throwException("Forbidden", status, _responseText, _headers, result403);
+        });
+    } else if (status === 404) {
+        return response.text().then((_responseText) => {
+        let result404: any = null;
+        let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result404 = ProblemDetails.fromJS(resultData404);
+        return throwException("Not Found", status, _responseText, _headers, result404);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<UpdatePackageResult>(null as any);
+}
+
+/**
+ * Delete/Deactivate Coach Package
+ * @return OK
+ */
+deletePackage(packageId: string): Promise<DeletePackageResult> {
+    let url_ = this.baseUrl + "/packages/{packageId}";
+    if (packageId === undefined || packageId === null)
+        throw new Error("The parameter 'packageId' must be defined.");
+    url_ = url_.replace("{packageId}", encodeURIComponent("" + packageId));
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "DELETE",
+        headers: {
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processDeletePackage(_response);
+    });
+}
+
+protected processDeletePackage(response: Response): Promise<DeletePackageResult> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = DeletePackageResult.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status === 403) {
+        return response.text().then((_responseText) => {
+        let result403: any = null;
+        let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result403 = ProblemDetails.fromJS(resultData403);
+        return throwException("Forbidden", status, _responseText, _headers, result403);
+        });
+    } else if (status === 404) {
+        return response.text().then((_responseText) => {
+        let result404: any = null;
+        let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result404 = ProblemDetails.fromJS(resultData404);
+        return throwException("Not Found", status, _responseText, _headers, result404);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<DeletePackageResult>(null as any);
+}
+
+
+
     /**
      * @return OK
      */
@@ -867,6 +997,109 @@ protected processGetCoaches(response: Response): Promise<CoachResponse[]> {
         }
         return Promise.resolve<PurchaseDetail>(null as any);
     }
+
+ /**
+     * Get Coach Packages
+     * @return OK
+     */
+ getCoachPackages(): Promise<PackageResponse[]> {
+    let url_ = this.baseUrl + "/coach-packages";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: {
+            ...this.getAuthHeaders(),
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetCoachPackages(_response);
+    });
+}
+
+protected processGetCoachPackages(response: Response): Promise<PackageResponse[]> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200)
+                result200!.push(PackageResponse.fromJS(item));
+        }
+        else {
+            result200 = <any>null;
+        }
+        return result200;
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<PackageResponse[]>(null as any);
+}
+
+/**
+ * Get Active Coach Packages
+ * @return OK
+ */
+getActivePackages(coachId: string): Promise<PackageResponse[]> {
+    let url_ = this.baseUrl + "/coaches/{coachId}/active-packages";
+    if (coachId === undefined || coachId === null)
+        throw new Error("The parameter 'coachId' must be defined.");
+    url_ = url_.replace("{coachId}", encodeURIComponent("" + coachId));
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: {
+            ...this.getAuthHeaders(),
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetActivePackages(_response);
+    });
+}
+
+protected processGetActivePackages(response: Response): Promise<PackageResponse[]> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200)
+                result200!.push(PackageResponse.fromJS(item));
+        }
+        else {
+            result200 = <any>null;
+        }
+        return result200;
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<PackageResponse[]>(null as any);
+}
+
 
     /**
      * @return Created
@@ -2508,6 +2741,265 @@ export interface IPurchaseDetail {
     sessionUsed?: number;
 }
 
+export class PackageResponse implements IPackageResponse {
+    id?: string;
+    coachId?: string;
+    name?: string | undefined;
+    description?: string | undefined;
+    price?: number;
+    sessionCount?: number;
+    status?: string | undefined;
+    createdAt?: Date;
+    updatedAt?: Date;
+
+    constructor(data?: IPackageResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.coachId = _data["coachId"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.price = _data["price"];
+            this.sessionCount = _data["sessionCount"];
+            this.status = _data["status"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): PackageResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PackageResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["coachId"] = this.coachId;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["price"] = this.price;
+        data["sessionCount"] = this.sessionCount;
+        data["status"] = this.status;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IPackageResponse {
+    id?: string;
+    coachId?: string;
+    name?: string | undefined;
+    description?: string | undefined;
+    price?: number;
+    sessionCount?: number;
+    status?: string | undefined;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+export class DeletePackageResult implements IDeletePackageResult {
+    id?: string;
+    status?: string | undefined;
+    message?: string | undefined;
+
+    constructor(data?: IDeletePackageResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.status = _data["status"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): DeletePackageResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeletePackageResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["status"] = this.status;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IDeletePackageResult {
+    id?: string;
+    status?: string | undefined;
+    message?: string | undefined;
+}
+
+export class UpdatePackageRequest implements IUpdatePackageRequest {
+    name?: string | undefined;
+    description?: string | undefined;
+    price?: number;
+    sessionCount?: number;
+    status?: string | undefined;
+
+    constructor(data?: IUpdatePackageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.price = _data["price"];
+            this.sessionCount = _data["sessionCount"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UpdatePackageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePackageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["price"] = this.price;
+        data["sessionCount"] = this.sessionCount;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUpdatePackageRequest {
+    name?: string | undefined;
+    description?: string | undefined;
+    price?: number;
+    sessionCount?: number;
+    status?: string | undefined;
+}
+
+export class UpdatePackageResult implements IUpdatePackageResult {
+    id?: string;
+    name?: string | undefined;
+    description?: string | undefined;
+    price?: number;
+    sessionCount?: number;
+    status?: string | undefined;
+
+    constructor(data?: IUpdatePackageResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.price = _data["price"];
+            this.sessionCount = _data["sessionCount"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UpdatePackageResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePackageResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["price"] = this.price;
+        data["sessionCount"] = this.sessionCount;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUpdatePackageResult {
+    id?: string;
+    name?: string | undefined;
+    description?: string | undefined;
+    price?: number;
+    sessionCount?: number;
+    status?: string | undefined;
+}
+
+export class UpdateScheduleRequest implements IUpdateScheduleRequest {
+    dayOfWeek?: number;
+    startTime?: string;
+    endTime?: string;
+
+    constructor(data?: IUpdateScheduleRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.dayOfWeek = _data["dayOfWeek"];
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
+        }
+    }
+
+    static fromJS(data: any): UpdateScheduleRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateScheduleRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["dayOfWeek"] = this.dayOfWeek;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
+        return data;
+    }
+}
+
+
 export class PurchasePackageRequest implements IPurchasePackageRequest {
     packageId?: string;
 
@@ -3023,50 +3515,6 @@ export interface IUpdateCoachRequest {
     newImages?: string[] | undefined;
     existingImageUrls?: string[] | undefined;
     imagesToDelete?: string[] | undefined;
-}
-
-export class UpdateScheduleRequest implements IUpdateScheduleRequest {
-    dayOfWeek?: number;
-    startTime?: string;
-    endTime?: string;
-
-    constructor(data?: IUpdateScheduleRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.dayOfWeek = _data["dayOfWeek"];
-            this.startTime = _data["startTime"];
-            this.endTime = _data["endTime"];
-        }
-    }
-
-    static fromJS(data: any): UpdateScheduleRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateScheduleRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["dayOfWeek"] = this.dayOfWeek;
-        data["startTime"] = this.startTime;
-        data["endTime"] = this.endTime;
-        return data;
-    }
-}
-
-export interface IUpdateScheduleRequest {
-    dayOfWeek?: number;
-    startTime?: string;
-    endTime?: string;
 }
 
 function formatDate(d: Date) {
