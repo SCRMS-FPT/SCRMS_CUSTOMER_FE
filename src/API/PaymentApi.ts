@@ -266,6 +266,7 @@ export class ProcessPaymentRequest implements IProcessPaymentRequest {
     paymentType?: string | undefined;
     referenceId?: string | undefined;
     coachId?: string | undefined;
+    providerId?: string | undefined;
     bookingId?: string | undefined;
     packageId?: string | undefined;
     status?: string | undefined;
@@ -286,6 +287,7 @@ export class ProcessPaymentRequest implements IProcessPaymentRequest {
             this.paymentType = _data["paymentType"];
             this.referenceId = _data["referenceId"];
             this.coachId = _data["coachId"];
+            this.providerId = _data["providerId"];
             this.bookingId = _data["bookingId"];
             this.packageId = _data["packageId"];
             this.status = _data["status"];
@@ -306,6 +308,7 @@ export class ProcessPaymentRequest implements IProcessPaymentRequest {
         data["paymentType"] = this.paymentType;
         data["referenceId"] = this.referenceId;
         data["coachId"] = this.coachId;
+        data["providerId"] = this.providerId;
         data["bookingId"] = this.bookingId;
         data["packageId"] = this.packageId;
         data["status"] = this.status;
@@ -319,6 +322,7 @@ export interface IProcessPaymentRequest {
     paymentType?: string | undefined;
     referenceId?: string | undefined;
     coachId?: string | undefined;
+    providerId?: string | undefined;
     bookingId?: string | undefined;
     packageId?: string | undefined;
     status?: string | undefined;

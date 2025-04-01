@@ -125,8 +125,8 @@ const TimeSlotCard = styled(Card)(({ theme, selected, available }) => ({
   backgroundColor: !available
     ? alpha("#f5f5f5", 0.6)
     : selected
-      ? alpha(theme.palette.primary.main, 0.1)
-      : "white",
+    ? alpha(theme.palette.primary.main, 0.1)
+    : "white",
   transition: "all 0.2s",
   "&:hover": {
     transform: available ? "translateY(-3px)" : "none",
@@ -414,6 +414,7 @@ const CoachDetails = () => {
               paymentType: "CoachBooking",
               referenceId: bookingResult.id,
               coachId: id,
+              providerId: id,
               bookingId: bookingResult.id,
               status: "COMPLETED",
             });
@@ -450,10 +451,7 @@ const CoachDetails = () => {
                 </div>
               ),
               onOk: () => {
-                // Refresh the schedules to reflect the new booking
-                fetchCoachData();
-                // Clear selection
-                setSelectedSlot(null);
+                navigate(`/user/coachings/${bookingResult.id}`);
               },
             });
           } else {
@@ -592,9 +590,10 @@ const CoachDetails = () => {
         {/* Hero Section */}
         <HeroSection
           sx={{
-            backgroundImage: `url(${coach.avatar ||
+            backgroundImage: `url(${
+              coach.avatar ||
               "https://source.unsplash.com/random/1200x400/?sport"
-              })`,
+            })`,
           }}
         >
           <HeroOverlay />
@@ -750,8 +749,9 @@ const CoachDetails = () => {
                                 width={150}
                                 height={150}
                                 src={img}
-                                alt={`${coach.fullName} - Gallery image ${index + 1
-                                  }`}
+                                alt={`${coach.fullName} - Gallery image ${
+                                  index + 1
+                                }`}
                                 style={{ objectFit: "cover", borderRadius: 8 }}
                               />
                             ))}
@@ -976,13 +976,25 @@ const CoachDetails = () => {
                           </Box>
 
                           {/* Weekly Calendar View */}
-                          <Box sx={{ p: 2, overflowX: 'auto' }}> {/* Đã thêm overflowX: 'auto' vào Box cha */}
-                            <Grid container spacing={1.5} sx={{ width: 'max-content', maxWidth: '1800px' }}>
+                          <Box sx={{ p: 2, overflowX: "auto" }}>
+                            {" "}
+                            {/* Đã thêm overflowX: 'auto' vào Box cha */}
+                            <Grid
+                              container
+                              spacing={1.5}
+                              sx={{ width: "max-content", maxWidth: "1800px" }}
+                            >
                               {/* Day headers  */}
                               {[
-                                "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+                                "Monday",
+                                "Tuesday",
+                                "Wednesday",
+                                "Thursday",
+                                "Friday",
+                                "Saturday",
+                                "Sunday",
                               ].map((day, index) => (
-                                <Grid item xs={12 / 7} key={day} >
+                                <Grid item xs={12 / 7} key={day}>
                                   <Box
                                     sx={{
                                       p: 1.5,
@@ -992,15 +1004,25 @@ const CoachDetails = () => {
                                       color: "primary.contrastText",
                                       borderRadius: "8px 8px 0 0",
                                       boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-                                      minWidth: '120px', // Đảm bảo mỗi header có chiều rộng tối thiểu
-                                      maxWidth: '300px',
+                                      minWidth: "120px", // Đảm bảo mỗi header có chiều rộng tối thiểu
+                                      maxWidth: "300px",
                                     }}
                                   >
-                                    <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                                    <Typography
+                                      variant="subtitle1"
+                                      fontWeight="bold"
+                                      noWrap
+                                    >
                                       {day}
                                     </Typography>
-                                    <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
-                                      {dayjs(selectedDate).day(index + 1).format("MMM D")}
+                                    <Typography
+                                      variant="caption"
+                                      display="block"
+                                      sx={{ mt: 0.5 }}
+                                    >
+                                      {dayjs(selectedDate)
+                                        .day(index + 1)
+                                        .format("MMM D")}
                                     </Typography>
                                   </Box>
                                 </Grid>
@@ -1008,7 +1030,13 @@ const CoachDetails = () => {
 
                               {/* Daily slots */}
                               {[
-                                "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+                                "Monday",
+                                "Tuesday",
+                                "Wednesday",
+                                "Thursday",
+                                "Friday",
+                                "Saturday",
+                                "Sunday",
                               ].map((day, index) => {
                                 const dayOfWeek = index + 1;
                                 // Calculate the actual date for this day in the displayed week
@@ -1035,16 +1063,28 @@ const CoachDetails = () => {
                                         height: 300,
                                         p: 1,
                                         overflowY: "auto",
-                                        border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                                        border: `1px solid ${alpha(
+                                          theme.palette.primary.main,
+                                          0.2
+                                        )}`,
                                         borderTop: "none",
                                         bgcolor: isToday
-                                          ? alpha(theme.palette.success.light, 0.15)
-                                          : alpha(theme.palette.background.paper, 0.8),
+                                          ? alpha(
+                                              theme.palette.success.light,
+                                              0.15
+                                            )
+                                          : alpha(
+                                              theme.palette.background.paper,
+                                              0.8
+                                            ),
                                         borderRadius: "0 0 8px 8px",
                                         transition: "all 0.3s ease",
-                                        "&:hover": { boxShadow: "0 4px 12px rgba(0,0,0,0.08)" },
-                                        minWidth: '250px', // Đảm bảo mỗi container slot có chiều rộng tối thiểu
-                                        maxWidth: '300px',
+                                        "&:hover": {
+                                          boxShadow:
+                                            "0 4px 12px rgba(0,0,0,0.08)",
+                                        },
+                                        minWidth: "250px", // Đảm bảo mỗi container slot có chiều rộng tối thiểu
+                                        maxWidth: "300px",
                                       }}
                                     >
                                       {daySchedules.length === 0 ? (
@@ -1056,19 +1096,32 @@ const CoachDetails = () => {
                                             alignItems: "center",
                                             justifyContent: "center",
                                             color: "text.secondary",
-                                            textAlign: 'center', 
-                                            p: 1, 
+                                            textAlign: "center",
+                                            p: 1,
                                           }}
                                         >
-                                          <EventBusy sx={{ fontSize: 30, mb: 1, opacity: 0.5 }} /> 
-                                          <Typography variant="caption" align="center"> 
+                                          <EventBusy
+                                            sx={{
+                                              fontSize: 30,
+                                              mb: 1,
+                                              opacity: 0.5,
+                                            }}
+                                          />
+                                          <Typography
+                                            variant="caption"
+                                            align="center"
+                                          >
                                             No sessions available
                                           </Typography>
                                         </Box>
                                       ) : (
                                         daySchedules.map((slot, slotIndex) => {
-                                          const isSelected = selectedSlot?.date === slot.date && selectedSlot?.startTime === slot.startTime;
-                                          const isAvailable = slot.status === "available";
+                                          const isSelected =
+                                            selectedSlot?.date === slot.date &&
+                                            selectedSlot?.startTime ===
+                                              slot.startTime;
+                                          const isAvailable =
+                                            slot.status === "available";
 
                                           return (
                                             <Box
@@ -1077,31 +1130,53 @@ const CoachDetails = () => {
                                                 p: 1.5,
                                                 mb: 1.5,
                                                 borderRadius: 2,
-                                                cursor: isAvailable ? "pointer" : "default",
+                                                cursor: isAvailable
+                                                  ? "pointer"
+                                                  : "default",
                                                 bgcolor: isSelected
                                                   ? "primary.main"
                                                   : isAvailable
-                                                    ? alpha(theme.palette.success.light, 0.3)
-                                                    : alpha(theme.palette.grey[300], 0.5),
-                                                color: isSelected ? "white" : "text.primary",
+                                                  ? alpha(
+                                                      theme.palette.success
+                                                        .light,
+                                                      0.3
+                                                    )
+                                                  : alpha(
+                                                      theme.palette.grey[300],
+                                                      0.5
+                                                    ),
+                                                color: isSelected
+                                                  ? "white"
+                                                  : "text.primary",
                                                 border: isSelected
                                                   ? `2px solid ${theme.palette.primary.dark}`
                                                   : "1px solid transparent",
                                                 "&:hover": {
-                                                  transform: isAvailable ? "translateY(-3px)" : "none",
-                                                  boxShadow: isAvailable ? "0 6px 12px rgba(0,0,0,0.1)" : "none",
+                                                  transform: isAvailable
+                                                    ? "translateY(-3px)"
+                                                    : "none",
+                                                  boxShadow: isAvailable
+                                                    ? "0 6px 12px rgba(0,0,0,0.1)"
+                                                    : "none",
                                                   bgcolor: isAvailable
                                                     ? isSelected
                                                       ? "primary.dark"
-                                                      : alpha(theme.palette.success.main, 0.4)
-                                                    : alpha(theme.palette.grey[300], 0.5),
+                                                      : alpha(
+                                                          theme.palette.success
+                                                            .main,
+                                                          0.4
+                                                        )
+                                                    : alpha(
+                                                        theme.palette.grey[300],
+                                                        0.5
+                                                      ),
                                                 },
                                                 transition: "all 0.2s ease",
 
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                justifyContent: 'space-between',
-                                                minHeight: '90px',
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                justifyContent: "space-between",
+                                                minHeight: "90px",
                                               }}
                                               onClick={() => {
                                                 if (isAvailable) {
@@ -1111,10 +1186,11 @@ const CoachDetails = () => {
                                             >
                                               <Box
                                                 sx={{
-                                                  display: 'flex',
-                                                  justifyContent: 'space-between',
-                                                  alignItems: 'center',
-                                                  width: '100%',
+                                                  display: "flex",
+                                                  justifyContent:
+                                                    "space-between",
+                                                  alignItems: "center",
+                                                  width: "100%",
                                                 }}
                                               >
                                                 <Typography
@@ -1124,64 +1200,109 @@ const CoachDetails = () => {
                                                     display: "flex",
                                                     alignItems: "center",
                                                     gap: 0.5,
-                                                    whiteSpace: 'nowrap',
+                                                    whiteSpace: "nowrap",
                                                   }}
                                                 >
-                                                  <ClockCircleOutlined style={{ fontSize: '1rem', flexShrink: 0 }} />
-                                                  {`${formatTime(slot.startTime)}-${formatTime(slot.endTime)}`}
+                                                  <ClockCircleOutlined
+                                                    style={{
+                                                      fontSize: "1rem",
+                                                      flexShrink: 0,
+                                                    }}
+                                                  />
+                                                  {`${formatTime(
+                                                    slot.startTime
+                                                  )}-${formatTime(
+                                                    slot.endTime
+                                                  )}`}
                                                 </Typography>
                                                 {slot.status && (
                                                   <Tag
-                                                    color={isAvailable ? "success" : "default"}
-                                                    style={{ marginLeft: '4px', flexShrink: 0 }}
+                                                    color={
+                                                      isAvailable
+                                                        ? "success"
+                                                        : "default"
+                                                    }
+                                                    style={{
+                                                      marginLeft: "4px",
+                                                      flexShrink: 0,
+                                                    }}
                                                   >
-                                                    {slot.status.length > 10 ? slot.status.substring(0, 10) + '...' : slot.status}
+                                                    {slot.status.length > 10
+                                                      ? slot.status.substring(
+                                                          0,
+                                                          10
+                                                        ) + "..."
+                                                      : slot.status}
                                                   </Tag>
                                                 )}
                                               </Box>
 
-
                                               <Box
                                                 sx={{
-                                                  display: 'flex',
-                                                  justifyContent: 'space-between',
-                                                  alignItems: 'center',
-                                                  width: '100%',
+                                                  display: "flex",
+                                                  justifyContent:
+                                                    "space-between",
+                                                  alignItems: "center",
+                                                  width: "100%",
                                                   mt: 1,
                                                 }}
                                               >
-                                                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                                                  <DollarOutlined style={{ fontSize: '1rem', flexShrink: 0 }} />
+                                                <Box
+                                                  sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: 0.5,
+                                                  }}
+                                                >
+                                                  <DollarOutlined
+                                                    style={{
+                                                      fontSize: "1rem",
+                                                      flexShrink: 0,
+                                                    }}
+                                                  />
                                                   <Typography variant="body2">
-                                                    {formatPrice(coach.ratePerHour)}
+                                                    {formatPrice(
+                                                      coach.ratePerHour
+                                                    )}
                                                   </Typography>
                                                 </Box>
                                                 {isAvailable && (
                                                   <Button
                                                     size="small"
-
-                                                    variant={isSelected ? "outlined" : "text"}
-
-                                                    color={isSelected ? "inherit" : "primary"}
+                                                    variant={
+                                                      isSelected
+                                                        ? "outlined"
+                                                        : "text"
+                                                    }
+                                                    color={
+                                                      isSelected
+                                                        ? "inherit"
+                                                        : "primary"
+                                                    }
                                                     sx={{
-                                                      p: '2px 6px',
-                                                      minWidth: 'auto',
+                                                      p: "2px 6px",
+                                                      minWidth: "auto",
                                                       lineHeight: 1.2,
                                                       flexShrink: 0,
 
-                                                      ...(isSelected && { color: 'white', borderColor: 'rgba(255,255,255,0.5)' })
+                                                      ...(isSelected && {
+                                                        color: "white",
+                                                        borderColor:
+                                                          "rgba(255,255,255,0.5)",
+                                                      }),
                                                     }}
                                                     onClick={(e) => {
                                                       e.stopPropagation();
                                                       setSelectedSlot(slot);
                                                     }}
                                                   >
-                                                    {isSelected ? "Selected" : "Select"}
+                                                    {isSelected
+                                                      ? "Selected"
+                                                      : "Select"}
                                                   </Button>
                                                 )}
                                               </Box>
                                             </Box>
-
                                           );
                                         })
                                       )}

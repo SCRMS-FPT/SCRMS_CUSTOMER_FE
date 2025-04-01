@@ -521,6 +521,7 @@ const CoachPackagesPage = () => {
                           size="middle"
                           style={{ width: "100%" }}
                         >
+
                           <Paragraph
                             ellipsis={{ rows: 2 }}
                             style={{ height: 40, marginBottom: 16 }}
