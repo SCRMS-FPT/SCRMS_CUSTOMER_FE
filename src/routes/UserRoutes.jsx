@@ -210,7 +210,7 @@ const UserRoutes = [
   />,
   <Route
     key="profile"
-    path="profile"
+    path="/sprofile"
     element={
       <Layout>
         <ProfilePage />
