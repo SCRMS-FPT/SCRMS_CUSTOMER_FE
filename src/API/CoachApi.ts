@@ -737,6 +737,7 @@ protected processGetCoaches(response: Response): Promise<CoachResponse[]> {
         body: content_,
         method: "PUT",
         headers: {
+            ...this.getAuthHeaders(),
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
@@ -800,6 +801,7 @@ deletePackage(packageId: string): Promise<DeletePackageResult> {
     let options_: RequestInit = {
         method: "DELETE",
         headers: {
+            ...this.getAuthHeaders(),
             "Accept": "application/json"
         }
     };
