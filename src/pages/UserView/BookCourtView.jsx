@@ -58,6 +58,7 @@ const { Meta } = Card;
 
 // API client instance
 const apiClient = new CourtClient();
+const paymentClient = new PaymentClient();
 
 // Helper function to format date
 const formatDate = (date) => {
@@ -576,35 +577,13 @@ const BookCourtView = () => {
       if (balanceData.balance < paymentAmount) {
         message.error({
           content:
-            "Insufficient funds in your wallet. Please add funds to continue.",
+            "Insufficient wallet balance. Please top up your wallet first.",
           key: "bookingMessage",
-        });
-
-        Modal.confirm({
-          title: "Insufficient Wallet Balance",
-          icon: <InfoCircleOutlined style={{ color: "#ff4d4f" }} />,
-          content: (
-            <div>
-              <p>
-                Your wallet balance (
-                {new Intl.NumberFormat("vi-VN").format(balanceData.balance)}{" "}
-                VND) is not enough for the{" "}
-                {paymentChoice === "deposit" ? "deposit" : "full payment"} (
-                {new Intl.NumberFormat("vi-VN").format(paymentAmount)} VND).
-              </p>
-              <p>Would you like to add funds to your wallet?</p>
-            </div>
-          ),
-          okText: "Go to Wallet",
-          cancelText: "Cancel",
-          onOk() {
-            navigate("/user/wallet");
-          },
         });
         return;
       }
 
-      // 1. Create booking request for Court API
+      // Create booking details array for API
       const bookingDetails = [];
       Object.entries(selectedTimeSlots).forEach(([courtId, slots]) => {
         slots.forEach((slot) => {
@@ -616,124 +595,83 @@ const BookCourtView = () => {
         });
       });
 
-      // Set deposit amount based on user choice
-      const depositAmount =
-        paymentChoice === "deposit"
-          ? priceDetails?.minimumDeposit ||
-            (priceDetails?.totalPrice ? priceDetails.totalPrice * 0.3 : 0)
-          : 0;
-
+      // Create booking request
       const bookingRequest = {
         booking: {
           bookingDate: selectedDate.format("YYYY-MM-DD"),
-          totalPrice: priceDetails?.totalPrice || 0,
           note: bookingNote,
-          depositAmount: depositAmount,
+          depositAmount:
+            paymentChoice === "deposit"
+              ? priceDetails?.minimumDeposit
+              : priceDetails?.totalPrice,
           bookingDetails: bookingDetails,
         },
       };
 
-      // Step 1: Create booking via Court API
+      // Create booking
       const bookingResponse = await apiClient.createBooking(bookingRequest);
 
       if (bookingResponse && bookingResponse.id) {
-        // Create detailed description of the booking
-        let detailedDescription = `Booking at ${
-          sportCenter.name
-        } on ${formatDate(selectedDate)}:\n`;
+        // Get the sport center owner ID for providerId
+        let providerId = null;
 
-        // Add court and slot details
-        Object.entries(selectedTimeSlots).forEach(([courtId, slots]) => {
-          const court = courts.find((c) => c.id === courtId);
-          if (court) {
-            detailedDescription += `\n• ${court.courtName} (${
-              court.sportName || "Sport"
-            }): `;
-            const slotTimes = slots.map((slot) => slot.displayTime).join(", ");
-            detailedDescription += slotTimes;
+        // Try to get ownerId from sportCenter state
+        if (sportCenter && sportCenter.ownerId) {
+          providerId = sportCenter.ownerId;
+        } else {
+          // If sportCenter doesn't have ownerId, fetch detailed info
+          try {
+            // This approach depends on whether your API supports getting detailed center info
+            const detailedSportCenter = await apiClient.getSportCenterById(id);
+            providerId = detailedSportCenter.ownerId;
+          } catch (error) {
+            console.error("Error fetching sport center details:", error);
           }
-        });
-
-        // Add payment choice information
-        detailedDescription += `\n\nPayment Type: ${
-          paymentChoice === "deposit" ? "Deposit Only" : "Full Amount"
-        }`;
-        // Add note if provided
-        if (bookingNote) {
-          detailedDescription += `\n\nNote: ${bookingNote}`;
         }
-        // Step 2: Process payment via Payment API with improved description
-        const paymentAmount =
-          paymentChoice === "deposit"
-            ? priceDetails?.minimumDeposit || priceDetails?.totalPrice * 0.3
-            : priceDetails?.totalPrice;
 
+        if (!providerId) {
+          // Fallback: If we still can't get ownerId, use the sportCenterId
+          providerId = id;
+          console.warn("Using sportCenterId as providerId fallback");
+        }
+
+        // Process payment
         const paymentRequest = new ProcessPaymentRequest({
           amount: paymentAmount,
-          description: detailedDescription,
+          description: `Court booking at ${
+            sportCenter?.name
+          } on ${selectedDate.format("YYYY-MM-DD")}`,
           paymentType: "CourtBooking",
           referenceId: bookingResponse.id,
           bookingId: bookingResponse.id,
-          status: bookingResponse.status,
+          providerId: providerId, // Set the providerId to the sport center owner ID
+          status: "COMPLETED",
         });
 
-        // Call payment API
-        const paymentClient = new PaymentClient(API_PAYMENT_URL);
+        // Call the payment API
         await paymentClient.processBookingPayment(paymentRequest);
 
         // Show success message
         message.success({
-          content: "Booking completed successfully!",
+          content: "Booking successful! Your court is now reserved.",
           key: "bookingMessage",
-          duration: 3,
+          duration: 5,
         });
 
-        // Navigate to booking details or confirmation page
-        setTimeout(() => {
-          navigate("/user/bookings/" + bookingResponse.id, {
-            state: {
-              bookingSuccess: true,
-              bookingId: bookingResponse.id,
-            },
-          });
-        }, 1500);
-      } else {
-        throw new Error("Failed to create booking");
-      }
-    } catch (error) {
-      console.error("Error during booking process:", error);
-
-      // Handle specific error types
-      if (error.status === 400) {
-        message.error({
-          content:
-            "Invalid booking information. Please check your selection and try again.",
-          key: "bookingMessage",
-        });
-      } else if (error.status === 403 || error.status === 401) {
-        message.error({
-          content: "You need to login to complete this booking.",
-          key: "bookingMessage",
-        });
-        // Redirect to login
-        setTimeout(() => navigate("/login"), 1500);
-      } else if (
-        error.status === 402 ||
-        error.message?.includes("insufficient")
-      ) {
-        message.error({
-          content:
-            "Insufficient funds in your wallet. Please add funds to continue.",
-          key: "bookingMessage",
-        });
-        // Redirect to wallet page
-        setTimeout(() => navigate("/user/wallet"), 1500);
+        // Navigate to bookings page or confirmation screen
+        navigate("/user/bookings", { replace: true });
       } else {
         message.error({
-          content: "Failed to complete your booking. Please try again later.",
+          content: "Failed to create booking. Please try again.",
           key: "bookingMessage",
         });
       }
+    } catch (error) {
+      console.error("Error processing booking:", error);
+      message.error({
+        content: "An error occurred while processing your booking.",
+        key: "bookingMessage",
+      });
     }
   };
 
