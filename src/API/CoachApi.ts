@@ -349,6 +349,57 @@ export class Client {
         return Promise.resolve<UserBookingHistoryResultPaginatedResult>(null as any);
     }
 
+ /**
+     * Update My Coach Profile
+     * @param request (optional) 
+     * @return OK
+     */
+ updateMyProfile(formData: FormData): Promise<void> {
+    let url_ = this.baseUrl + "/api/my-profile";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        body: formData, // Use the FormData object directly
+        method: "PUT",
+        headers: {
+            ...this.getAuthHeaders(),
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processUpdateMyProfile(_response);
+    });
+}
+
+protected processUpdateMyProfile(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        return;
+        });
+    } else if (status === 400) {
+        return response.text().then((_responseText) => {
+        let result400: any = null;
+        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result400 = ProblemDetails.fromJS(resultData400);
+        return throwException("Bad Request", status, _responseText, _headers, result400);
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<void>(null as any);
+}
+
 
     /**
      * Update Coach
@@ -412,6 +463,8 @@ export class Client {
         return Promise.resolve<void>(null as any);
     }
 
+
+    
     /**
      * Get authenticated coach's profile
      * @return OK
@@ -737,6 +790,7 @@ protected processGetCoaches(response: Response): Promise<CoachResponse[]> {
         body: content_,
         method: "PUT",
         headers: {
+            ...this.getAuthHeaders(),
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
@@ -800,6 +854,7 @@ deletePackage(packageId: string): Promise<DeletePackageResult> {
     let options_: RequestInit = {
         method: "DELETE",
         headers: {
+            ...this.getAuthHeaders(),
             "Accept": "application/json"
         }
     };
@@ -2173,47 +2228,8 @@ export interface ICreateBookingRequest {
     packageId?: string | undefined;
 }
 
-export class CreateBookingResult implements ICreateBookingResult {
-    id?: string;
-    sessionsRemaining?: number;
-
-    constructor(data?: ICreateBookingResult) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.sessionsRemaining = _data["sessionsRemaining"];
-        }
-    }
-
-    static fromJS(data: any): CreateBookingResult {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateBookingResult();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["sessionsRemaining"] = this.sessionsRemaining;
-        return data;
-    }
-}
-
-export interface ICreateBookingResult {
-    id?: string;
-    sessionsRemaining?: number;
-}
-
 export class CreateCoachPromotionRequest implements ICreateCoachPromotionRequest {
+    packageId?: string | undefined;
     description?: string | undefined;
     discountType?: string | undefined;
     discountValue?: number;
@@ -2231,6 +2247,7 @@ export class CreateCoachPromotionRequest implements ICreateCoachPromotionRequest
 
     init(_data?: any) {
         if (_data) {
+            this.packageId = _data["packageId"];
             this.description = _data["description"];
             this.discountType = _data["discountType"];
             this.discountValue = _data["discountValue"];
@@ -2248,6 +2265,7 @@ export class CreateCoachPromotionRequest implements ICreateCoachPromotionRequest
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["packageId"] = this.packageId;
         data["description"] = this.description;
         data["discountType"] = this.discountType;
         data["discountValue"] = this.discountValue;
@@ -2258,12 +2276,14 @@ export class CreateCoachPromotionRequest implements ICreateCoachPromotionRequest
 }
 
 export interface ICreateCoachPromotionRequest {
+    packageId?: string | undefined;
     description?: string | undefined;
     discountType?: string | undefined;
     discountValue?: number;
     validFrom?: Date;
     validTo?: Date;
 }
+
 
 export class CreateCoachRequest implements ICreateCoachRequest {
     sportId?: string;
@@ -2407,6 +2427,45 @@ export interface ICreateCoachResponse {
     imageUrls?: string[] | undefined;
     createdAt?: Date;
     sportIds?: string[] | undefined;
+}
+export class CreateBookingResult implements ICreateBookingResult {
+    id?: string;
+    sessionsRemaining?: number;
+
+    constructor(data?: ICreateBookingResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.sessionsRemaining = _data["sessionsRemaining"];
+        }
+    }
+
+    static fromJS(data: any): CreateBookingResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateBookingResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["sessionsRemaining"] = this.sessionsRemaining;
+        return data;
+    }
+}
+
+export interface ICreateBookingResult {
+    id?: string;
+    sessionsRemaining?: number;
 }
 
 export class CreateCoachScheduleResult implements ICreateCoachScheduleResult {
@@ -2628,6 +2687,8 @@ export class PromotionRecord implements IPromotionRecord {
     discountValue?: number;
     validFrom?: Date;
     validTo?: Date;
+    packageId?: string | undefined;
+    packageName?: string | undefined;
     createdAt?: Date;
     updatedAt?: Date;
 
@@ -2648,6 +2709,8 @@ export class PromotionRecord implements IPromotionRecord {
             this.discountValue = _data["discountValue"];
             this.validFrom = _data["validFrom"] ? new Date(_data["validFrom"].toString()) : <any>undefined;
             this.validTo = _data["validTo"] ? new Date(_data["validTo"].toString()) : <any>undefined;
+            this.packageId = _data["packageId"];
+            this.packageName = _data["packageName"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
         }
@@ -2668,6 +2731,8 @@ export class PromotionRecord implements IPromotionRecord {
         data["discountValue"] = this.discountValue;
         data["validFrom"] = this.validFrom ? formatDate(this.validFrom) : <any>undefined;
         data["validTo"] = this.validTo ? formatDate(this.validTo) : <any>undefined;
+        data["packageId"] = this.packageId;
+        data["packageName"] = this.packageName;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
         return data;
@@ -2681,9 +2746,12 @@ export interface IPromotionRecord {
     discountValue?: number;
     validFrom?: Date;
     validTo?: Date;
+    packageId?: string | undefined;
+    packageName?: string | undefined;
     createdAt?: Date;
     updatedAt?: Date;
 }
+
 
 export class PurchaseDetail implements IPurchaseDetail {
     id?: string;
@@ -3362,6 +3430,7 @@ export interface IStatPeriod {
 }
 
 export class UpdateCoachPromotionRequest implements IUpdateCoachPromotionRequest {
+    packageId?: string | undefined;
     description?: string | undefined;
     discountType?: string | undefined;
     discountValue?: number;
@@ -3379,6 +3448,7 @@ export class UpdateCoachPromotionRequest implements IUpdateCoachPromotionRequest
 
     init(_data?: any) {
         if (_data) {
+            this.packageId = _data["packageId"];
             this.description = _data["description"];
             this.discountType = _data["discountType"];
             this.discountValue = _data["discountValue"];
@@ -3396,6 +3466,7 @@ export class UpdateCoachPromotionRequest implements IUpdateCoachPromotionRequest
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["packageId"] = this.packageId;
         data["description"] = this.description;
         data["discountType"] = this.discountType;
         data["discountValue"] = this.discountValue;
@@ -3406,6 +3477,7 @@ export class UpdateCoachPromotionRequest implements IUpdateCoachPromotionRequest
 }
 
 export interface IUpdateCoachPromotionRequest {
+    packageId?: string | undefined;
     description?: string | undefined;
     discountType?: string | undefined;
     discountValue?: number;

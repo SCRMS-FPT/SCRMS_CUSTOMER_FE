@@ -154,7 +154,7 @@ export default function CoachProfile() {
           <div className="md:col-span-1 space-y-6">
             <Card className="rounded-xl p-6 shadow-md border-0 bg-white overflow-hidden relative">
               <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-              <div className="relative pt-8">
+              <div className="relative pt-18">
                 <CoachAvatar
                   avatar={isEditing ? editedCoach.avatar : selectedCoach.avatar}
                   firstName={isEditing ? editedUser.firstName : selectedUser.firstName}
