@@ -270,7 +270,7 @@ export default function CoachProfile() {
                 <Box className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-black/40 to-transparent"></Box>
               </Box>
 
-              <Box className="px-6 sm:px-8 pt-0 pb-6 relative">
+              <Box className="px-6 sm:px-8 pt-0 pb-6 relative mt-8">
                 {/* Avatar - positioned to overlap banner */}
                 <Box className="flex flex-col sm:flex-row sm:items-end -mt-20 mb-6 relative">
                   <Badge

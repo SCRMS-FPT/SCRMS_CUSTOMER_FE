@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import BookingStatusBadge from "./booking-status-badge";
 import PropTypes from "prop-types";
+import placeholder_img from "@/assets/default_avatar.jpg"
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -105,7 +106,7 @@ const BookingCard = ({ booking, onClick, bookingStatuses, userData }) => {
     >
       <div className="relative">
         <div className="h-3 bg-gradient-to-r from-emerald-500 to-emerald-600"></div>
-        <div className="absolute top-3 right-0 transform translate-y-1/2 mr-4">
+        <div className="absolute bottom-0 left-0 transform translate-y-1/2 mr-4">
           <BookingStatusBadge status={bookingStatus.status} />
         </div>
       </div>
@@ -113,7 +114,7 @@ const BookingCard = ({ booking, onClick, bookingStatuses, userData }) => {
       <div className="p-6 pt-5">
         <div className="flex items-center mb-4">
           <img
-            src={user.avatar || "/placeholder.svg?height=50&width=50"}
+            src={user.avatar || placeholder_img}
             alt={userName}
             className="w-12 h-12 rounded-full object-cover mr-3 border-2 border-emerald-100"
           />
