@@ -18,19 +18,20 @@ export class Client {
         this.http = http ? http : window as any;
         this.baseUrl = baseUrl ?? API_MATCHING_URL;
     }
-// Helper method to get authorization headers
-private getAuthHeaders(): HeadersInit {
-    // Get token from localStorage (which is synced with Redux store)
-    const token = localStorage.getItem("token");
-    
-    // Return headers with Authorization if token exists
-    return token ? {
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/json"
-    } : {
-        "Accept": "application/json"
-    };
-}
+
+    // Helper method to get authorization headers
+    private getAuthHeaders(): HeadersInit {
+        // Get token from localStorage (which is synced with Redux store)
+        const token = localStorage.getItem("token");
+        
+        // Return headers with Authorization if token exists
+        return token ? {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json"
+        } : {
+            "Accept": "application/json"
+        };
+    }
 
     /**
      * @return OK
@@ -46,6 +47,7 @@ private getAuthHeaders(): HeadersInit {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                ...this.getAuthHeaders()
             }
         };
 
@@ -58,9 +60,7 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -70,104 +70,101 @@ private getAuthHeaders(): HeadersInit {
     }
 
     /**
-     * @return OK
-     */
-/**
      * @param page (optional) 
      * @param limit (optional) 
      * @param filters (optional) 
      * @return OK
      */
-suggestions(page: number | undefined, limit: number | undefined, filters: string | undefined): Promise<void> {
-    let url_ = this.baseUrl + "/api/matches/suggestions?";
-    if (page === null)
-        throw new Error("The parameter 'page' cannot be null.");
-    else if (page !== undefined)
-        url_ += "page=" + encodeURIComponent("" + page) + "&";
-    if (limit === null)
-        throw new Error("The parameter 'limit' cannot be null.");
-    else if (limit !== undefined)
-        url_ += "limit=" + encodeURIComponent("" + limit) + "&";
-    if (filters === null)
-        throw new Error("The parameter 'filters' cannot be null.");
-    else if (filters !== undefined)
-        url_ += "filters=" + encodeURIComponent("" + filters) + "&";
-    url_ = url_.replace(/[?&]$/, "");
+    suggestions(page: number | undefined, limit: number | undefined, filters: string | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/matches/suggestions?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (limit === null)
+            throw new Error("The parameter 'limit' cannot be null.");
+        else if (limit !== undefined)
+            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+        if (filters === null)
+            throw new Error("The parameter 'filters' cannot be null.");
+        else if (filters !== undefined)
+            url_ += "filters=" + encodeURIComponent("" + filters) + "&";
+        url_ = url_.replace(/[?&]$/, "");
 
-    let options_: RequestInit = {
-        method: "GET",
-        headers: {
-        }
-    };
+        let options_: RequestInit = {
+            method: "GET",
+            headers: this.getAuthHeaders()
+        };
 
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-        return this.processSuggestions(_response);
-    });
-}
-
-protected processSuggestions(response: Response): Promise<void> {
-    const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-    if (status === 200) {
-        return response.json();
-    } else if (status !== 200 && status !== 204) {
-        return response.text().then((_responseText) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSuggestions(_response);
         });
     }
-    return Promise.resolve<void>(null as any);
-}
 
-/**
+    protected processSuggestions(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.json();
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
      * @return Created
      */
-createUserSkill(body: CreateUserSkillRequest): Promise<void> {
-    let url_ = this.baseUrl + "/api/matches/skills";
-    url_ = url_.replace(/[?&]$/, "");
+    createUserSkill(body: CreateUserSkillRequest): Promise<void> {
+        let url_ = this.baseUrl + "/api/matches/skills";
+        url_ = url_.replace(/[?&]$/, "");
 
-    const content_ = JSON.stringify(body);
+        const content_ = JSON.stringify(body);
 
-    let options_: RequestInit = {
-        body: content_,
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        }
-    };
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...this.getAuthHeaders()
+            }
+        };
 
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-        return this.processCreateUserSkill(_response);
-    });
-}
-
-protected processCreateUserSkill(response: Response): Promise<void> {
-    const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-    if (status === 201) {
-        return response.text().then((_responseText) => {
-        return;
-        });
-    } else if (status === 400) {
-        return response.text().then((_responseText) => {
-        let result400: any = null;
-        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result400 = ProblemDetails.fromJS(resultData400);
-        return throwException("Bad Request", status, _responseText, _headers, result400);
-        });
-    } else if (status === 401) {
-        return response.text().then((_responseText) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-        });
-    } else if (status !== 200 && status !== 204) {
-        return response.text().then((_responseText) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateUserSkill(_response);
         });
     }
-    return Promise.resolve<void>(null as any);
-}
+
+    protected processCreateUserSkill(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
 
     /**
      * @return OK
@@ -183,6 +180,7 @@ protected processCreateUserSkill(response: Response): Promise<void> {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
+                ...this.getAuthHeaders()
             }
         };
 
@@ -195,9 +193,7 @@ protected processCreateUserSkill(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -215,8 +211,7 @@ protected processCreateUserSkill(response: Response): Promise<void> {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -228,9 +223,7 @@ protected processCreateUserSkill(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -253,6 +246,7 @@ protected processCreateUserSkill(response: Response): Promise<void> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                ...this.getAuthHeaders()
             }
         };
 
@@ -265,9 +259,7 @@ protected processCreateUserSkill(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -285,8 +277,7 @@ protected processCreateUserSkill(response: Response): Promise<void> {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -298,9 +289,7 @@ protected processCreateUserSkill(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -326,8 +315,7 @@ protected processCreateUserSkill(response: Response): Promise<void> {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -339,9 +327,7 @@ protected processCreateUserSkill(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);

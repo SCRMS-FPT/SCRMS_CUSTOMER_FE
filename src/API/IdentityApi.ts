@@ -43,8 +43,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -56,9 +55,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -110,6 +107,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -145,6 +143,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -182,6 +181,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -195,9 +195,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -215,8 +213,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -228,9 +225,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -239,42 +234,87 @@ export class Client {
         return Promise.resolve<void>(null as any);
     }
 
-    /**
-     * @return OK
-     */
-    updateProfile(body: UpdateProfileRequest): Promise<void> {
-        let url_ = this.baseUrl + "/api/identity/update-profile";
-        url_ = url_.replace(/[?&]$/, "");
+/**
+ * @return OK
+ */
+updateProfile(request: UpdateProfileRequest | undefined): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/update-profile";
+    url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
+    // Create FormData to support file uploads
+    const formData = new FormData();
+    
+    if (request) {
+        // Add text fields
+        if (request.firstName !== undefined && request.firstName !== null)
+            formData.append("firstName", request.firstName);
+        if (request.lastName !== undefined && request.lastName !== null)
+            formData.append("lastName", request.lastName);
+        if (request.phone !== undefined && request.phone !== null)
+            formData.append("phone", request.phone);
+        if (request.gender !== undefined && request.gender !== null)
+            formData.append("gender", request.gender);
+        if (request.selfIntroduction !== undefined && request.selfIntroduction !== null)
+            formData.append("selfIntroduction", request.selfIntroduction);
+        if (request.birthDate !== undefined && request.birthDate !== null)
+            formData.append("birthDate", (new Date(request.birthDate)).toISOString());
+        
+        // Add avatar file if present - use "newAvatar" as field name
+        if (request.newAvatarFile !== undefined && request.newAvatarFile !== null)
+            formData.append("newAvatar", request.newAvatarFile);
+        
+        // Add multiple images if present - use "newImages" as field name
+        if (request.newImageFiles && request.newImageFiles.length > 0) {
+            for (let i = 0; i < request.newImageFiles.length; i++) {
+                formData.append("newImages", request.newImageFiles[i]);
             }
-        };
+        }
+        
+        // Add existing image URLs to keep
+        if (request.existingImageUrls && request.existingImageUrls.length > 0) {
+            for (let i = 0; i < request.existingImageUrls.length; i++) {
+                formData.append("existingImageUrls", request.existingImageUrls[i]);
+            }
+        }
+        
+        // Add image URLs to delete
+        if (request.imagesToDelete && request.imagesToDelete.length > 0) {
+            for (let i = 0; i < request.imagesToDelete.length; i++) {
+                formData.append("imagesToDelete", request.imagesToDelete[i]);
+            }
+        }
+    }
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdateProfile(_response);
+    let options_: RequestInit = {
+        body: formData,
+        method: "PUT",
+        headers: {
+            ...this.getAuthHeaders(),
+            // Do NOT set Content-Type with FormData - browser will set it with boundary
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processUpdateProfile(_response);
+    });
+}
+
+protected processUpdateProfile(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {}; 
+    if (response.headers && response.headers.forEach) {
+        response.headers.forEach((v: any, k: any) => _headers[k] = v);
+    }
+    
+    if (status === 200) {
+        return response.json();
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         });
     }
-
-    protected processUpdateProfile(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
+    return Promise.resolve(null);
+}
 
     /**
      * @return OK
@@ -289,6 +329,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -302,9 +343,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -326,6 +365,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -339,9 +379,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -389,8 +427,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -424,6 +461,7 @@ export class Client {
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
             }
         };
 
@@ -436,9 +474,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -474,9 +510,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -498,6 +532,7 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -511,9 +546,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -535,6 +568,7 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -548,9 +582,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -572,6 +604,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -585,9 +618,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -612,6 +643,7 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -625,9 +657,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -648,8 +678,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "DELETE",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -661,9 +690,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -704,8 +731,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -717,9 +743,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -744,6 +768,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -757,9 +782,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -784,6 +807,7 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -797,9 +821,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -820,8 +842,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "DELETE",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -833,9 +854,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -856,8 +875,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "DELETE",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -869,9 +887,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -909,8 +925,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -922,9 +937,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -945,8 +958,7 @@ export class Client {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -958,9 +970,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1022,6 +1032,7 @@ export class Client {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -1035,9 +1046,7 @@ export class Client {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1494,7 +1503,6 @@ export class SubscribeRequest implements ISubscribeRequest {
 export interface ISubscribeRequest {
     packageId?: string;
 }
-
 export class UpdateProfileRequest implements IUpdateProfileRequest {
     firstName?: string | undefined;
     lastName?: string | undefined;
@@ -1502,6 +1510,10 @@ export class UpdateProfileRequest implements IUpdateProfileRequest {
     birthDate?: Date;
     gender?: string | undefined;
     selfIntroduction?: string | undefined;
+    newAvatarFile?: File | undefined;
+    newImageFiles?: File[] | undefined;
+    existingImageUrls?: string[] | undefined;
+    imagesToDelete?: string[] | undefined;
 
     constructor(data?: IUpdateProfileRequest) {
         if (data) {
@@ -1520,6 +1532,22 @@ export class UpdateProfileRequest implements IUpdateProfileRequest {
             this.birthDate = _data["birthDate"] ? new Date(_data["birthDate"].toString()) : <any>undefined;
             this.gender = _data["gender"];
             this.selfIntroduction = _data["selfIntroduction"];
+            this.newAvatarFile = _data["newAvatarFile"];
+            if (Array.isArray(_data["newImageFiles"])) {
+                this.newImageFiles = [] as any;
+                for (let item of _data["newImageFiles"])
+                    this.newImageFiles!.push(item);
+            }
+            if (Array.isArray(_data["existingImageUrls"])) {
+                this.existingImageUrls = [] as any;
+                for (let item of _data["existingImageUrls"])
+                    this.existingImageUrls!.push(item);
+            }
+            if (Array.isArray(_data["imagesToDelete"])) {
+                this.imagesToDelete = [] as any;
+                for (let item of _data["imagesToDelete"])
+                    this.imagesToDelete!.push(item);
+            }
         }
     }
 
@@ -1538,6 +1566,22 @@ export class UpdateProfileRequest implements IUpdateProfileRequest {
         data["birthDate"] = this.birthDate ? this.birthDate.toISOString() : <any>undefined;
         data["gender"] = this.gender;
         data["selfIntroduction"] = this.selfIntroduction;
+        data["newAvatarFile"] = this.newAvatarFile;
+        if (Array.isArray(this.newImageFiles)) {
+            data["newImageFiles"] = [];
+            for (let item of this.newImageFiles)
+                data["newImageFiles"].push(item);
+        }
+        if (Array.isArray(this.existingImageUrls)) {
+            data["existingImageUrls"] = [];
+            for (let item of this.existingImageUrls)
+                data["existingImageUrls"].push(item);
+        }
+        if (Array.isArray(this.imagesToDelete)) {
+            data["imagesToDelete"] = [];
+            for (let item of this.imagesToDelete)
+                data["imagesToDelete"].push(item);
+        }
         return data;
     }
 }
@@ -1549,7 +1593,12 @@ export interface IUpdateProfileRequest {
     birthDate?: Date;
     gender?: string | undefined;
     selfIntroduction?: string | undefined;
+    newAvatarFile?: File | undefined;
+    newImageFiles?: File[] | undefined;
+    existingImageUrls?: string[] | undefined;
+    imagesToDelete?: string[] | undefined;
 }
+
 
 export class UpdatePromotionRequest implements IUpdatePromotionRequest {
     promotionId?: string;
