@@ -950,11 +950,12 @@ protected processDeletePackage(response: Response): Promise<DeletePackageResult>
     /**
      * @param isExpiried (optional) 
      * @param isOutOfUse (optional) 
+     * @param coachId (optional) 
      * @param page (optional) 
      * @param recordPerPage (optional) 
      * @return OK
      */
-    getHistoryPurchase(isExpiried: boolean | undefined, isOutOfUse: boolean | undefined, page: number | undefined, recordPerPage: number | undefined): Promise<PurchaseRecord[]> {
+    getHistoryPurchase(isExpiried: boolean | undefined, isOutOfUse: boolean | undefined, coachId: string | undefined, page: number | undefined, recordPerPage: number | undefined): Promise<PurchaseRecord[]> {
         let url_ = this.baseUrl + "/api/coach-packages/purchases?";
         if (isExpiried === null)
             throw new Error("The parameter 'isExpiried' cannot be null.");
@@ -964,6 +965,10 @@ protected processDeletePackage(response: Response): Promise<DeletePackageResult>
             throw new Error("The parameter 'isOutOfUse' cannot be null.");
         else if (isOutOfUse !== undefined)
             url_ += "IsOutOfUse=" + encodeURIComponent("" + isOutOfUse) + "&";
+        if (coachId === null)
+            throw new Error("The parameter 'coachId' cannot be null.");
+        else if (coachId !== undefined)
+            url_ += "CoachId=" + encodeURIComponent("" + coachId) + "&";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -1011,6 +1016,8 @@ protected processDeletePackage(response: Response): Promise<DeletePackageResult>
         }
         return Promise.resolve<PurchaseRecord[]>(null as any);
     }
+
+
 
     /**
      * @return OK

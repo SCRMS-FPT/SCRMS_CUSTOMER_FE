@@ -59,26 +59,6 @@ const CoachSidebar = ({ children }) => {
       label: <Link to="/coach/dashboard">Dashboard</Link>,
     },
     {
-      key: "/coach/sessions",
-      icon: <ScheduleOutlined />,
-      label: <Link to="/coach/sessions">Training Sessions</Link>,
-    },
-    {
-      key: "/coach/schedule",
-      icon: <CalendarOutlined />,
-      label: <Link to="/coach/schedule">Coaching Schedule</Link>,
-    },
-    {
-      key: "/coach/trainees",
-      icon: <TeamOutlined />,
-      label: <Link to="/coach/trainees">Trainees</Link>,
-    },
-    {
-      key: "/coach/analytics",
-      icon: <BarChartOutlined />,
-      label: <Link to="/coach/analytics">Analytics</Link>,
-    },
-    {
       key: "/coach-profile",
       icon: <ProfileOutlined />,
       label: <Link to="/coach-profile">Coach Profile</Link>,

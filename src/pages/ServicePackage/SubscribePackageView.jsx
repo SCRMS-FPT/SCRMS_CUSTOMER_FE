@@ -39,7 +39,7 @@ import {
   Client as PaymentClient,
   ProcessPaymentRequest,
 } from "@/API/PaymentApi";
-import { Client as IdentityClient } from "@/API/IdentityApi";
+import { Client as IdentityClient, SubscribeRequest } from "@/API/IdentityApi";
 import { updateProfile } from "../../store/userSlice";
 
 const SubscribePackageView = () => {
@@ -125,43 +125,84 @@ const SubscribePackageView = () => {
     setError(null);
 
     try {
-      const client = new PaymentClient();
+      // Step 1: Process payment
+      const paymentClient = new PaymentClient();
       const paymentRequest = new ProcessPaymentRequest({
         amount: packageDetails.price,
         description: `Đăng ký gói ${packageDetails.name}`,
         paymentType: "ServicePackage",
         packageId: packageDetails.id,
         referenceId: packageDetails.id,
+        providerId: packageDetails.providerId || undefined,
       });
 
-      const response = await client.processBookingPayment(paymentRequest);
-      setSuccess(true);
+      const response = await paymentClient.processBookingPayment(
+        paymentRequest
+      );
       setTransactionDetails(response);
 
-      // Update user roles if subscription was successful
-      if (user && packageDetails?.associatedRole) {
-        const updatedUser = { ...user };
+      // Step 2: Call the subscribe API to register the subscription
+      try {
+        const identityClient = new IdentityClient();
+        const subscribeRequest = new SubscribeRequest({
+          packageId: packageDetails.id,
+        });
 
-        if (!Array.isArray(updatedUser.roles)) {
-          updatedUser.roles = [];
+        await identityClient.subscribe(subscribeRequest);
+        console.log("Package subscription registered successfully");
+
+        // Step 3: Refresh token to get updated permissions
+        const tokenResponse = await identityClient.refreshToken();
+
+        if (tokenResponse && tokenResponse.token) {
+          // Update token in localStorage
+          localStorage.setItem("token", tokenResponse.token);
+
+          // If the response also includes updated user info, update that too
+          if (tokenResponse.user) {
+            localStorage.setItem(
+              "userProfile",
+              JSON.stringify(tokenResponse.user)
+            );
+
+            // Step 4: Update Redux store with the latest user data
+            dispatch(updateProfile(tokenResponse.user));
+            console.log("User profile and token refreshed with new role");
+          } else {
+            // If token response doesn't include user data, update the roles manually
+            if (user && packageDetails?.associatedRole) {
+              const updatedUser = { ...user };
+
+              if (!Array.isArray(updatedUser.roles)) {
+                updatedUser.roles = [];
+              }
+
+              if (!updatedUser.roles.includes(packageDetails.associatedRole)) {
+                updatedUser.roles = [
+                  ...updatedUser.roles,
+                  packageDetails.associatedRole,
+                ];
+
+                // Update Redux store
+                dispatch(updateProfile(updatedUser));
+                console.log(
+                  `Role ${packageDetails.associatedRole} added to user profile`
+                );
+              }
+            }
+          }
+        } else {
+          console.warn("Token refresh didn't return expected data");
         }
-
-        if (!updatedUser.roles.includes(packageDetails.associatedRole)) {
-          updatedUser.roles = [
-            ...updatedUser.roles,
-            packageDetails.associatedRole,
-          ];
-
-          // Use the updateProfile action
-          dispatch(updateProfile(updatedUser));
-
-          console.log(
-            `Role ${packageDetails.associatedRole} added to user profile`
-          );
-        }
+      } catch (subscriptionErr) {
+        console.error("Failed to register subscription:", subscriptionErr);
+        setError(
+          "Thanh toán thành công nhưng không thể đăng ký gói. Vui lòng liên hệ hỗ trợ."
+        );
       }
 
-      // Refresh wallet balance after successful purchase
+      // Step 5: Set success state and refresh wallet balance
+      setSuccess(true);
       await fetchWalletBalance();
     } catch (err) {
       console.error("Error processing payment:", err);
