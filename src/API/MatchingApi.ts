@@ -18,19 +18,20 @@ export class Client {
         this.http = http ? http : window as any;
         this.baseUrl = baseUrl ?? API_MATCHING_URL;
     }
-// Helper method to get authorization headers
-private getAuthHeaders(): HeadersInit {
-    // Get token from localStorage (which is synced with Redux store)
-    const token = localStorage.getItem("token");
-    
-    // Return headers with Authorization if token exists
-    return token ? {
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/json"
-    } : {
-        "Accept": "application/json"
-    };
-}
+
+    // Helper method to get authorization headers
+    private getAuthHeaders(): HeadersInit {
+        // Get token from localStorage (which is synced with Redux store)
+        const token = localStorage.getItem("token");
+        
+        // Return headers with Authorization if token exists
+        return token ? {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json"
+        } : {
+            "Accept": "application/json"
+        };
+    }
 
     /**
      * @return OK
@@ -46,6 +47,7 @@ private getAuthHeaders(): HeadersInit {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                ...this.getAuthHeaders()
             }
         };
 
@@ -58,9 +60,7 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -70,80 +70,93 @@ private getAuthHeaders(): HeadersInit {
     }
 
     /**
+     * @param page (optional) 
+     * @param limit (optional) 
+     * @param filters (optional) 
      * @return OK
      */
-    getSuggestions(page: number, limit: number): Promise<void> {
+    suggestions(page: number | undefined, limit: number | undefined, filters: string | undefined): Promise<void> {
         let url_ = this.baseUrl + "/api/matches/suggestions?";
-        if (page === undefined || page === null)
-            throw new Error("The parameter 'page' must be defined and cannot be null.");
-        else
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
             url_ += "page=" + encodeURIComponent("" + page) + "&";
-        if (limit === undefined || limit === null)
-            throw new Error("The parameter 'limit' must be defined and cannot be null.");
-        else
+        if (limit === null)
+            throw new Error("The parameter 'limit' cannot be null.");
+        else if (limit !== undefined)
             url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+        if (filters === null)
+            throw new Error("The parameter 'filters' cannot be null.");
+        else if (filters !== undefined)
+            url_ += "filters=" + encodeURIComponent("" + filters) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetSuggestions(_response);
+            return this.processSuggestions(_response);
         });
     }
 
-    getSuggestionsAdvanced(sportId: string, skillLevel: string, page: number, limit: number): Promise<void> {
-        let url_ = this.baseUrl + "/api/matches/suggestions?";
-        
-        // Thêm tham số sport_id
-        if (!sportId)
-            throw new Error("Parameter 'sportId' must be defined and cannot be null.");
-        else
-            url_ += "sport_id=" + encodeURIComponent(sportId) + "&";
-        
-        // Thêm tham số skill_level
-        if (!skillLevel)
-            throw new Error("Parameter 'skillLevel' must be defined and cannot be null.");
-        else
-            url_ += "skill_level=" + encodeURIComponent(skillLevel) + "&";
-        
-        // Thêm tham số page
-        if (page === undefined || page === null)
-            throw new Error("The parameter 'page' must be defined and cannot be null.");
-        else
-            url_ += "page=" + encodeURIComponent("" + page) + "&";
-        
-        // Thêm tham số limit
-        if (limit === undefined || limit === null)
-            throw new Error("The parameter 'limit' must be defined and cannot be null.");
-        else
-            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
-        
-        // Loại bỏ ký tự '?' hoặc '&' dư thừa ở cuối URL
-        url_ = url_.replace(/[?&]$/, "");
-        
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                // Thêm header nếu cần, ví dụ: 'Content-Type': 'application/json'
-            }
-        };
-    
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetSuggestions(_response);
-        });
-    }
-    
-
-    protected processGetSuggestions(response: Response): Promise<void> {
+    protected processSuggestions(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
+            return response.json();
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @return Created
+     */
+    createUserSkill(body: CreateUserSkillRequest): Promise<void> {
+        let url_ = this.baseUrl + "/api/matches/skills";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...this.getAuthHeaders()
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateUserSkill(_response);
+        });
+    }
+
+    protected processCreateUserSkill(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
             return response.text().then((_responseText) => {
             return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -167,6 +180,7 @@ private getAuthHeaders(): HeadersInit {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
+                ...this.getAuthHeaders()
             }
         };
 
@@ -179,9 +193,7 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -199,8 +211,7 @@ private getAuthHeaders(): HeadersInit {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -212,9 +223,7 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -237,6 +246,7 @@ private getAuthHeaders(): HeadersInit {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                ...this.getAuthHeaders()
             }
         };
 
@@ -249,9 +259,7 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -269,8 +277,7 @@ private getAuthHeaders(): HeadersInit {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -282,9 +289,7 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -310,8 +315,7 @@ private getAuthHeaders(): HeadersInit {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -323,9 +327,7 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -453,6 +455,110 @@ export class UpdateUserSkillRequest implements IUpdateUserSkillRequest {
 export interface IUpdateUserSkillRequest {
     sportId?: string;
     skillLevel?: string | undefined;
+}
+
+export class CreateUserSkillRequest implements ICreateUserSkillRequest {
+    sportId?: string;
+    skillLevel?: string | undefined;
+
+    constructor(data?: ICreateUserSkillRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sportId = _data["sportId"];
+            this.skillLevel = _data["skillLevel"];
+        }
+    }
+
+    static fromJS(data: any): CreateUserSkillRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUserSkillRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sportId"] = this.sportId;
+        data["skillLevel"] = this.skillLevel;
+        return data;
+    }
+}
+
+export interface ICreateUserSkillRequest {
+    sportId?: string;
+    skillLevel?: string | undefined;
+}
+
+export class ProblemDetails implements IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.type = _data["type"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+        }
+    }
+
+    static fromJS(data: any): ProblemDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["type"] = this.type;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        return data;
+    }
+}
+
+export interface IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
 }
 
 export class ApiException extends Error {

@@ -1,207 +1,366 @@
 import React, { useState, useEffect } from "react";
-import { Box, Paper, Stepper, Step, StepLabel, Button } from "@mui/material";
+import {
+  Box,
+  Paper,
+  Tabs,
+  Tab,
+  CircularProgress,
+  Typography,
+  Alert,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
-import StepSelectSportSkill from "@/components/UserFindMatchView/StepSelectSportSkill";
-import StepSwipeMatches from "@/components/UserFindMatchView/StepSwipeMatches";
-import StepComplete from "@/components/UserFindMatchView/StepComplete";
+import { motion, AnimatePresence } from "framer-motion";
+import ProfileCheckStep from "@/components/UserFindMatchView/ProfileCheckStep";
+import ProfileUpdateStep from "@/components/UserFindMatchView/ProfileUpdateStep";
+import SkillSetupStep from "@/components/UserFindMatchView/SkillSetupStep";
+import FindOpponentsTab from "@/components/UserFindMatchView/FindOpponentsTab";
+import PendingMatchesTab from "@/components/UserFindMatchView/PendingMatchesTab";
+import MatchedPlayersTab from "@/components/UserFindMatchView/MatchedPlayersTab";
+import {
+  Client as IdentityClient,
+  UpdateProfileRequest,
+} from "@/API/IdentityApi";
+import { Client as CourtClient } from "@/API/CourtApi";
+import { Client as MatchingClient } from "@/API/MatchingApi";
+import { UserOutlined, TeamOutlined, CheckOutlined } from "@ant-design/icons";
 
-/**
- * Component cha quản lý luồng 3 bước.
- * Sử dụng MUI Stepper hiển thị:
- *  1. Chọn môn & skill
- *  2. Tìm trận (swipe)
- *  3. Hoàn tất & xem danh sách
- */
-
-// Styled component cho background toàn trang
+// Styled components
 const PageContainer = styled(Box)(({ theme }) => ({
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)",
-  padding: theme.spacing(2),
+  minHeight: "calc(100vh - 64px)",
+  background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+  padding: theme.spacing(3),
 }));
 
-// Styled component cho khung nội dung (chiếm 70% chiều rộng)
-// Thêm chiều cao cố định và thiết lập flex để các thành phần bên trong tự điều chỉnh
-const ContentWrapper = styled(Paper)(({ theme }) => ({
-  width: "70%",
-  margin: "auto",
-  marginTop: theme.spacing(4),
-  padding: theme.spacing(4),
+const ContentWrapper = styled(motion.div)(({ theme }) => ({
+  maxWidth: 1000,
+  margin: "0 auto",
+  marginTop: theme.spacing(2),
   borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[3],
-  background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-  [theme.breakpoints.down("md")]: {
-    width: "90%",
+  overflow: "hidden",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+  background: "#fff",
+}));
+
+const StyledTabs = styled(Tabs)(({ theme }) => ({
+  background: theme.palette.primary.main,
+  color: "#fff",
+  "& .MuiTab-root": {
+    color: "rgba(255,255,255,0.7)",
+    fontWeight: 500,
+    fontSize: "0.95rem",
+    textTransform: "none",
+    minHeight: 64,
+    transition: "all 0.3s",
+    "&:hover": {
+      color: "#fff",
+      opacity: 1,
+    },
+    "&.Mui-selected": {
+      color: "#fff",
+    },
   },
-  transition: "all 0.3s ease-in-out",
+  "& .MuiTabs-indicator": {
+    backgroundColor: "#fff",
+    height: 3,
+  },
+}));
+
+const TabPanel = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(3),
+  minHeight: 500,
+}));
+
+const LoadingContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 400,
+  padding: theme.spacing(4),
+  textAlign: "center",
 }));
 
-const steps = ["Chọn Môn Thể Thao & Kỹ Năng", "Tìm Trận (Swipe)", "Hoàn Tất"];
-
 function FindMatchContainer() {
-  const [activeStep, setActiveStep] = useState(0);
+  // State for flow control
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [sports, setSports] = useState([]);
+  const [userSkills, setUserSkills] = useState([]);
+  const [flowState, setFlowState] = useState("initial"); // initial, profile-update, skill-setup, matching
 
-  // Dữ liệu chọn ở bước 1
-  const [selectedSport, setSelectedSport] = useState(null);
-  const [skillLevel, setSkillLevel] = useState(5);
+  // State for tabs
+  const [activeTab, setActiveTab] = useState(0);
 
-  // Danh sách đề xuất (bước 2) - sau khi gọi API
-  const [suggestedMatches, setSuggestedMatches] = useState([]);
+  // API clients
+  const identityClient = new IdentityClient();
+  const courtClient = new CourtClient();
+  const matchingClient = new MatchingClient();
 
-  // Danh sách trận user đã like
-  const [likedMatches, setLikedMatches] = useState([]);
-
-  // Khi chuyển sang bước 2, gọi API lấy danh sách (mock)
+  // Load user profile and sports on component mount
   useEffect(() => {
-    if (activeStep === 1) {
-      // Giả sử gọi API GET /api/matches/suggestions?sport_id=&skill_level=
-      // Tạm mock data theo định dạng yêu cầu:
-      const mockData = [
-        {
-          user_id: "uuid-user-001",
-          full_name: "Nguyễn Văn A",
-          avatar: "https://example.com/avatar1.jpg",
-          skill_level: "intermediate",
-          sport_id: "uuid-sport-001",
-        },
-        {
-          user_id: "uuid-user-002",
-          full_name: "Trần Thị B",
-          avatar: "https://example.com/avatar2.jpg",
-          skill_level: "advanced",
-          sport_id: "uuid-sport-001",
-        },
-      ];
-      setSuggestedMatches(mockData);
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+
+        // 1. Fetch user profile
+        const profile = await identityClient.getProfile();
+        console.log("Profile data:", profile); // Debug log
+
+        // Add null check to avoid the error
+        if (!profile) {
+          throw new Error("Profile data is empty");
+        }
+
+        setUserProfile(profile);
+
+        // 2. Fetch sports list
+        const sportsData = await courtClient.getSports();
+        setSports(sportsData?.sports || []);
+
+        // 3. Fetch user skills if available
+        let skills = [];
+        try {
+          skills = await matchingClient.getUserSkills();
+          setUserSkills(skills || []);
+        } catch (skillsError) {
+          console.log("No skills found or error fetching skills:", skillsError);
+          setUserSkills([]);
+        }
+
+        // 4. Determine the flow state - FIX HERE
+        // Safely access selfIntroduction with optional chaining
+        if (
+          !profile ||
+          profile.selfIntroduction === null ||
+          profile.selfIntroduction === undefined
+        ) {
+          setFlowState("profile-update");
+        } else if (!skills || skills.length === 0) {
+          setFlowState("skill-setup");
+        } else {
+          setFlowState("matching");
+        }
+      } catch (err) {
+        console.error("Error loading initial data:", err);
+        setError(
+          "Failed to load your profile information. Please try again later."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, []);
+
+  // Update the handleProfileUpdate function to support multiple images
+
+  const handleProfileUpdate = async (profileData) => {
+    try {
+      setLoading(true);
+
+      // Create a complete UpdateProfileRequest object with all required fields
+      const updateRequest = new UpdateProfileRequest({
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        gender: profileData.gender,
+        phone: profileData.phone,
+        birthDate: userProfile?.birthDate, // Keep the existing date
+        selfIntroduction: profileData.selfIntroduction,
+
+        // Support for avatar and images
+        newAvatarFile: profileData.avatarFile || undefined,
+        newImageFiles: profileData.imageFiles || undefined,
+        existingImageUrls: profileData.existingImageUrls || undefined,
+        imagesToDelete: profileData.imagesToDelete || undefined,
+      });
+
+      // Call API to update profile
+      await identityClient.updateProfile(updateRequest);
+
+      // Reload user profile
+      const updatedProfile = await identityClient.getProfile();
+      setUserProfile(updatedProfile);
+
+      // Move to skill setup step
+      setFlowState("skill-setup");
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      setError("Không thể cập nhật hồ sơ. Vui lòng thử lại sau.");
+    } finally {
+      setLoading(false);
     }
-  }, [activeStep]);
-
-  const handleNextStep = () => {
-    setActiveStep((prev) => prev + 1);
   };
 
-  const handleBackStep = () => {
-    setActiveStep((prev) => prev - 1);
-  };
+  // Handle skills setup
+  const handleSkillsSetup = async (skillsData) => {
+    try {
+      setLoading(true);
 
-  // Bước 1: Lưu sport + skill
-  // Callback từ StepSelectSportSkill
-  const handleSelectSportSkill = (sport, skill, suggestionData) => {
-    // Lưu thông tin sport, skill (nếu cần)
-    setSelectedSport(sport);
-    setSkillLevel(skill);
-    // Cập nhật danh sách suggestion từ API (nếu có dữ liệu, nếu không thì có thể dùng mock)
-    if (suggestionData && suggestionData.length > 0) {
-      setSuggestedMatches(suggestionData);
-    } else {
-      // Nếu API trả về rỗng, bạn có thể fallback dữ liệu mock hoặc xử lý theo logic của bạn
-      const mockData = [
-        {
-          user_id: "uuid-user-001",
-          full_name: "Nguyễn Văn A",
-          avatar: "https://example.com/avatar1.jpg",
-          skill_level: "intermediate",
-          sport_id: "uuid-sport-001",
-        },
-        {
-          user_id: "uuid-user-002",
-          full_name: "Trần Thị B",
-          avatar: "https://example.com/avatar2.jpg",
-          skill_level: "advanced",
-          sport_id: "uuid-sport-001",
-        },
-      ];
-      setSuggestedMatches(mockData);
+      // Create skills for each sport selected
+      for (const skill of skillsData) {
+        await matchingClient.createUserSkill({
+          sportId: skill.sportId,
+          skillLevel: skill.skillLevel,
+        });
+      }
+
+      // Reload user skills
+      const updatedSkills = await matchingClient.getUserSkills();
+      setUserSkills(updatedSkills || []);
+
+      setFlowState("matching");
+    } catch (err) {
+      console.error("Error setting up skills:", err);
+      setError("Failed to setup your skills. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    // Chuyển sang bước tiếp theo (StepSwipeMatches)
-    setActiveStep(1);
   };
 
-  // Bước 2: Xử lý Like
-  const handleLikeMatch = (matchItem) => {
-    console.log("LIKE match", matchItem);
-    // Loại bỏ matchItem khỏi suggestedMatches
-    setSuggestedMatches((prev) => prev.filter((m) => m.id !== matchItem.id));
-    // Thêm vào likedMatches
-    setLikedMatches((prev) => [...prev, matchItem]);
+  // Handle tab change
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
   };
 
-  // Bước 2: Xử lý Reject
-  const handleRejectMatch = (matchItem) => {
-    console.log("REJECT match", matchItem);
-    setSuggestedMatches((prev) => prev.filter((m) => m.id !== matchItem.id));
-  };
+  // Render the appropriate component based on flow state
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <LoadingContainer>
+          <CircularProgress size={60} sx={{ mb: 3 }} />
+          <Typography variant="h6" color="text.secondary">
+            Loading your profile data...
+          </Typography>
+        </LoadingContainer>
+      );
+    }
 
-  // Render nội dung theo step
-  const renderStepContent = () => {
-    switch (activeStep) {
-      case 0:
+    if (error) {
+      return (
+        <Box sx={{ p: 3 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        </Box>
+      );
+    }
+
+    switch (flowState) {
+      case "initial":
         return (
-          <StepSelectSportSkill
-            selectedSport={selectedSport}
-            skillLevel={skillLevel}
-            onSelectSportSkill={handleSelectSportSkill}
+          <ProfileCheckStep
+            userProfile={userProfile}
+            onProfileComplete={() => {
+              // If profile is complete, check if skills are set up
+              if (userSkills && userSkills.length > 0) {
+                setFlowState("matching");
+              } else {
+                setFlowState("skill-setup");
+              }
+            }}
+            onProfileIncomplete={() => {
+              setFlowState("profile-update");
+            }}
           />
         );
-      case 1:
+
+      case "profile-update":
         return (
-          <StepSwipeMatches
-            suggestedMatches={suggestedMatches}
-            onLike={handleLikeMatch}
-            onReject={handleRejectMatch}
-            onNextStep={handleNextStep}
+          <ProfileUpdateStep
+            userProfile={userProfile}
+            onComplete={handleProfileUpdate}
           />
         );
-      case 2:
-        return <StepComplete likedMatches={likedMatches} />;
+
+      case "skill-setup":
+        return (
+          <SkillSetupStep sports={sports} onComplete={handleSkillsSetup} />
+        );
+
+      case "matching":
+        return (
+          <Box sx={{ width: "100%" }}>
+            <StyledTabs
+              value={activeTab}
+              onChange={handleTabChange}
+              variant="fullWidth"
+              aria-label="Match finding tabs"
+            >
+              <Tab
+                icon={<UserOutlined />}
+                label="Tìm người chơi"
+                iconPosition="start"
+              />
+              <Tab
+                icon={<TeamOutlined />}
+                label="Chờ ghép trận"
+                iconPosition="start"
+              />
+              <Tab
+                icon={<CheckOutlined />}
+                label="Đã ghép"
+                iconPosition="start"
+              />
+            </StyledTabs>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {activeTab === 0 && (
+                  <TabPanel>
+                    <FindOpponentsTab
+                      userSkills={userSkills}
+                      sports={sports}
+                      matchingClient={matchingClient}
+                    />
+                  </TabPanel>
+                )}
+
+                {activeTab === 1 && (
+                  <TabPanel>
+                    <PendingMatchesTab matchingClient={matchingClient} />
+                  </TabPanel>
+                )}
+
+                {activeTab === 2 && (
+                  <TabPanel>
+                    <MatchedPlayersTab matchingClient={matchingClient} />
+                  </TabPanel>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </Box>
+        );
+
       default:
-        return null;
+        return (
+          <LoadingContainer>
+            <Typography variant="h6" color="text.secondary">
+              Something went wrong. Please refresh the page.
+            </Typography>
+          </LoadingContainer>
+        );
     }
   };
 
   return (
     <PageContainer>
-    <ContentWrapper>
-      <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-      <Box sx={{ mt: 4, flexGrow: 1 }}>
-        {activeStep === 0 && (
-          <StepSelectSportSkill onSelectSportSkill={handleSelectSportSkill} 
-                                  selectedSport={selectedSport} 
-                                  skillLevel={skillLevel} />
-        )}
-        {activeStep === 1 && (
-          <StepSwipeMatches
-            suggestedMatches={suggestedMatches}
-            onLike={handleLikeMatch}
-            onReject={handleRejectMatch}
-            onNextStep={handleNextStep}
-          />
-        )}
-        {activeStep === 2 && <StepComplete likedMatches={likedMatches} />}
-      </Box>
-      {/* Nút Quay Lại nếu cần */}
-      <Box sx={{ mt: 2, textAlign: "center" }}>
-        {activeStep > 0 && activeStep < 2 && (
-          <Button variant="outlined" onClick={handleBackStep}>
-            Quay lại
-          </Button>
-        )}
-      </Box>
-    </ContentWrapper>
-  </PageContainer>
+      <ContentWrapper
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        {renderContent()}
+      </ContentWrapper>
+    </PageContainer>
   );
 }
 
 export default FindMatchContainer;
-// Note: Đoạn code này là một ví dụ đơn giản để mô phỏng luồng tìm trận.
