@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
@@ -22,6 +22,10 @@ import {
   Space,
   Modal,
   Select,
+  Skeleton,
+  Switch,
+  Alert,
+  Radio,
 } from "antd";
 import {
   CalendarOutlined,
@@ -40,6 +44,12 @@ import {
   PercentageOutlined,
   InfoCircleOutlined,
   TeamOutlined,
+  ShoppingCartOutlined,
+  GiftOutlined,
+  UnorderedListOutlined,
+  DashboardOutlined,
+  FireOutlined,
+  ThunderboltOutlined,
 } from "@ant-design/icons";
 import {
   Box,
@@ -68,10 +78,11 @@ import {
   Client as PaymentClient,
   ProcessPaymentRequest,
 } from "../../API/PaymentApi";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import weekday from "dayjs/plugin/weekday";
+import toast from "react-hot-toast";
 
 // Extend dayjs with plugins
 dayjs.extend(isBetween);
@@ -80,8 +91,6 @@ dayjs.extend(weekday);
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
 const { Title, Text, Paragraph } = AntTypography;
-
-// Add these styled component definitions after the imports and before the component definitions
 
 // Styled components
 const HeroSection = styled(Box)(({ theme }) => ({
@@ -131,6 +140,51 @@ const TimeSlotCard = styled(Card)(({ theme, selected, available }) => ({
   "&:hover": {
     transform: available ? "translateY(-3px)" : "none",
     boxShadow: available ? "0 4px 12px rgba(0,0,0,0.1)" : "none",
+  },
+}));
+
+const PackageCard = styled(motion.div)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius,
+  overflow: "hidden",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.07)",
+  transition: "all 0.3s ease",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  backgroundColor: "white",
+  position: "relative",
+  "&:hover": {
+    transform: "translateY(-6px)",
+    boxShadow: "0 12px 25px rgba(0,0,0,0.1)",
+  },
+}));
+
+const PackageBadge = styled(Badge)(({ bgColor }) => ({
+  "& .ant-badge-count": {
+    backgroundColor: bgColor || "#1890ff",
+    boxShadow: "none",
+    padding: "0 10px",
+    height: "22px",
+    borderRadius: "11px",
+    fontWeight: "500",
+    fontSize: "12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+}));
+
+const FeatureItem = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  marginBottom: theme.spacing(1.5),
+  "& .icon": {
+    color: theme.palette.success.main,
+    marginRight: theme.spacing(1.5),
+    fontSize: "16px",
+  },
+  "& .text": {
+    fontSize: "0.875rem",
   },
 }));
 
@@ -193,6 +247,16 @@ const CoachDetails = () => {
   const [error, setError] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [bookingInProgress, setBookingInProgress] = useState(false);
+  const [packages, setPackages] = useState([]);
+  const [loadingPackages, setLoadingPackages] = useState(false);
+  const [purchasingPackage, setPurchasingPackage] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [userPurchases, setUserPurchases] = useState([]);
+  const [loadingPurchases, setLoadingPurchases] = useState(false);
+  const [showPurchasedOnly, setShowPurchasedOnly] = useState(false);
+
+  // Add this ref at the component level (with other state variables)
+  const selectedPackageRef = useRef(null);
 
   // API client
   const client = new Client();
@@ -271,6 +335,36 @@ const CoachDetails = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    const fetchCoachPackages = async () => {
+      if (!id) return;
+
+      setLoadingPackages(true);
+      try {
+        // Get coach packages
+        const coachPackages = await client.getActivePackages(id);
+        setPackages(coachPackages || []);
+
+        // Get user's purchases - add coachId to filter by this coach only
+        setLoadingPurchases(true);
+        try {
+          const purchases = await client.getHistoryPurchase(false, false, id);
+          setUserPurchases(purchases || []);
+        } catch (err) {
+          console.error("Failed to fetch user purchases:", err);
+        } finally {
+          setLoadingPurchases(false);
+        }
+      } catch (err) {
+        console.error("Failed to fetch coach packages:", err);
+        toast.error("Failed to load coach packages");
+      } finally {
+        setLoadingPackages(false);
+      }
+    };
+
+    fetchCoachPackages();
+  }, [id]);
   // Handle tab change
   const handleTabChange = (key) => {
     setActiveTab(key);
@@ -289,11 +383,211 @@ const CoachDetails = () => {
     setSelectedSlot(slot);
   };
 
+  // Update the handlePurchasePackage function like this:
+  const handlePurchasePackage = (pkg) => {
+    // Store package ID in a local variable instead of state
+    const packageToSelect = pkg;
+    setSelectedPackage(packageToSelect);
+    // Create modal content separately
+    const modalContent = (
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="subtitle1" gutterBottom>
+          You are about to purchase the following package:
+        </Typography>
+
+        <Box
+          sx={{
+            p: 2,
+            mt: 2,
+            mb: 3,
+            borderRadius: 1,
+            bgcolor: alpha(theme.palette.primary.light, 0.1),
+            border: `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                <Avatar
+                  src={coach.avatar}
+                  alt={coach.fullName}
+                  sx={{ width: 40, height: 40, mr: 2 }}
+                />
+                <Box>
+                  <Typography variant="h6">{coach.fullName}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {packageToSelect.name}
+                  </Typography>
+                </Box>
+              </Box>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Typography variant="body2" color="text.secondary">
+                Number of Sessions:
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{ display: "flex", alignItems: "center", gap: 1 }}
+              >
+                <UnorderedListOutlined
+                  style={{ color: theme.palette.warning.main }}
+                />
+                {packageToSelect.sessionCount} sessions
+              </Typography>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Typography variant="body2" color="text.secondary">
+                Package Price:
+              </Typography>
+              <Typography
+                variant="body1"
+                fontWeight="bold"
+                sx={{ display: "flex", alignItems: "center", gap: 1 }}
+              >
+                <DollarOutlined style={{ color: theme.palette.success.main }} />
+                {formatPrice(packageToSelect.price)}
+              </Typography>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="body2" sx={{ mt: 2 }}>
+                {packageToSelect.description ||
+                  "This package will allow you to attend multiple sessions with your coach at a discounted rate."}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
+
+        <Typography variant="body2" color="text.secondary">
+          The amount will be deducted from your wallet upon confirmation.
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            mt: 1,
+            color: theme.palette.info.main,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <InfoCircleOutlined /> Package sessions remain valid for 30 days from
+          purchase.
+        </Typography>
+      </Box>
+    );
+
+    // Show modal with delay to prevent React state update conflicts
+    setTimeout(() => {
+      Modal.confirm({
+        title: "Purchase Package",
+        icon: (
+          <ShoppingCartOutlined style={{ color: theme.palette.primary.main }} />
+        ),
+        width: 500,
+        content: modalContent,
+        okText: "Confirm Purchase",
+        cancelText: "Cancel",
+        onOk: async () => {
+          setPurchasingPackage(true);
+          try {
+            // Call API to purchase package
+            const request = {
+              packageId: packageToSelect.id,
+            };
+            await client.purchasePackage(request);
+
+            // Process payment
+            const paymentRequest = {
+              amount: packageToSelect.price,
+              description: `Package purchase: ${packageToSelect.name}`,
+              paymentType: "Package",
+              referenceId: packageToSelect.id,
+              coachId: id,
+              providerId: id, // Add the coach ID as providerId
+              packageId: packageToSelect.id,
+              status: "Completed",
+            };
+            await paymentClient.processBookingPayment(paymentRequest);
+
+            // Refresh user's purchases
+            const purchases = await client.getHistoryPurchase(false, false, id);
+            setUserPurchases(purchases || []);
+
+            toast.success("Package purchased successfully!");
+
+            // You might want to navigate to a success page or show a success modal
+            Modal.success({
+              title: "Purchase Successful",
+              content: (
+                <Box>
+                  <Typography variant="body1" sx={{ mb: 2 }}>
+                    You have successfully purchased the {packageToSelect.name}{" "}
+                    package.
+                  </Typography>
+                  <Typography variant="body2">
+                    You can now use this package when booking sessions with{" "}
+                    {coach.fullName}.
+                  </Typography>
+                </Box>
+              ),
+              okText: "Great!",
+            });
+          } catch (err) {
+            console.error("Failed to purchase package:", err);
+            const errorMessage =
+              err.response?.data?.message ||
+              "Failed to purchase package. Please make sure you have sufficient funds in your wallet.";
+            toast.error(errorMessage);
+
+            Modal.error({
+              title: "Purchase Failed",
+              content: errorMessage,
+            });
+          } finally {
+            setPurchasingPackage(false);
+          }
+        },
+      });
+    }, 0);
+  };
+  const hasUserPurchased = (packageId) => {
+    return userPurchases.some(
+      (purchase) =>
+        purchase.coachPackageId === packageId &&
+        purchase.sessionUsed < purchase.sessionCount
+    );
+  };
+
+  const getRemainingSessionsForPackage = (packageId) => {
+    const purchase = userPurchases.find(
+      (p) => p.coachPackageId === packageId && p.sessionUsed < p.sessionCount
+    );
+    return purchase ? purchase.sessionCount - purchase.sessionUsed : 0;
+  };
+
   const handleBookNow = () => {
     if (!selectedSlot) {
-      message.info("Please select a time slot first");
+      toast.error("Please select a time slot first");
       return;
     }
+
+    // Prepare data for the modal
+    const userPackagesForThisCoach = userPurchases.filter(
+      (p) =>
+        p.coachPackageId &&
+        packages.some((pkg) => pkg.id === p.coachPackageId) &&
+        p.sessionUsed < p.sessionCount
+    );
+
+    const hasActivePackages = userPackagesForThisCoach.length > 0;
+
+    // Set the initial value of the ref instead of creating a new one
+    selectedPackageRef.current = hasActivePackages
+      ? userPackagesForThisCoach[0]?.coachPackageId
+      : null;
 
     // Show confirmation modal
     Modal.confirm({
@@ -357,113 +651,359 @@ const CoachDetails = () => {
                 </Typography>
               </Grid>
 
-              <Grid item xs={6}>
-                <Typography variant="body2" color="text.secondary">
-                  Price:
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                >
-                  <DollarOutlined
-                    style={{ color: theme.palette.success.main, fontSize: 16 }}
-                  />
-                  {formatPrice(coach.ratePerHour)}
-                </Typography>
-              </Grid>
+              {hasActivePackages ? (
+                <Grid item xs={12}>
+                  <Box sx={{ mt: 2, width: "100%" }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: "bold", color: "text.primary", mb: 1 }}
+                    >
+                      Choose Payment Method:
+                    </Typography>
+                    <Radio.Group
+                      defaultValue={
+                        userPackagesForThisCoach[0]?.coachPackageId || "wallet"
+                      }
+                      name="payment-method"
+                      onChange={(e) => {
+                        // Update the ref with the selected value
+                        selectedPackageRef.current =
+                          e.target.value !== "wallet" ? e.target.value : null;
+                        console.log(
+                          "Selected package:",
+                          selectedPackageRef.current
+                        );
+                      }}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "8px",
+                      }}
+                    >
+                      {userPackagesForThisCoach.map((purchase) => {
+                        const pkg = packages.find(
+                          (p) => p.id === purchase.coachPackageId
+                        );
+                        const remainingSessions =
+                          purchase.sessionCount - purchase.sessionUsed;
+
+                        return (
+                          <Radio.Button
+                            key={purchase.coachPackageId}
+                            value={purchase.coachPackageId}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              padding: "12px 16px",
+                              height: "auto",
+                              width: "100%",
+                              marginBottom: "8px",
+                              borderRadius: "8px",
+                              borderColor:
+                                selectedPackageRef.current ===
+                                purchase.coachPackageId
+                                  ? theme.palette.success.main
+                                  : theme.palette.divider,
+                              backgroundColor:
+                                selectedPackageRef.current ===
+                                purchase.coachPackageId
+                                  ? alpha(theme.palette.success.light, 0.1)
+                                  : "white",
+                              transition: "all 0.2s ease",
+                              transform:
+                                selectedPackageRef.current ===
+                                purchase.coachPackageId
+                                  ? "scale(1.02)"
+                                  : "scale(1)",
+                            }}
+                          >
+                            <Box>
+                              <Typography
+                                variant="body2"
+                                sx={{ fontWeight: "medium" }}
+                              >
+                                {pkg?.name || "Package"}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "text.secondary",
+                                  display: "block",
+                                }}
+                              >
+                                {remainingSessions} session
+                                {remainingSessions !== 1 ? "s" : ""} remaining
+                              </Typography>
+                            </Box>
+                            <Chip
+                              size="small"
+                              label="Use package"
+                              color={
+                                selectedPackageRef.current ===
+                                purchase.coachPackageId
+                                  ? "success"
+                                  : "default"
+                              }
+                              icon={<CheckCircleOutlined />}
+                            />
+                          </Radio.Button>
+                        );
+                      })}
+                      <Radio.Button
+                        value="wallet"
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "12px 16px",
+                          height: "auto",
+                          width: "100%",
+                          borderRadius: "8px",
+                          borderColor:
+                            selectedPackageRef.current === null
+                              ? theme.palette.primary.main
+                              : theme.palette.divider,
+                          backgroundColor:
+                            selectedPackageRef.current === null
+                              ? alpha(theme.palette.primary.light, 0.1)
+                              : "white",
+                        }}
+                      >
+                        <Box>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: "medium" }}
+                          >
+                            Pay with wallet
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: "text.secondary", display: "block" }}
+                          >
+                            {formatPrice(coach.ratePerHour)}
+                          </Typography>
+                        </Box>
+                        <Chip
+                          size="small"
+                          label="Direct payment"
+                          color={
+                            selectedPackageRef.current === null
+                              ? "primary"
+                              : "default"
+                          }
+                          icon={<DollarOutlined />}
+                        />
+                      </Radio.Button>
+                    </Radio.Group>
+                  </Box>
+                </Grid>
+              ) : (
+                <Grid item xs={6}>
+                  <Typography variant="body2" color="text.secondary">
+                    Price:
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                  >
+                    <DollarOutlined
+                      style={{
+                        color: theme.palette.success.main,
+                        fontSize: 16,
+                      }}
+                    />
+                    {formatPrice(coach.ratePerHour)}
+                  </Typography>
+                </Grid>
+              )}
             </Grid>
           </Box>
 
           <Typography variant="body2" color="text.secondary">
-            The amount will be deducted from your wallet upon confirmation.
+            {hasActivePackages
+              ? "Choose a package above to use for this booking or pay directly from your wallet."
+              : "The amount will be deducted from your wallet upon confirmation."}
           </Typography>
         </Box>
       ),
       okText: "Confirm Booking",
       cancelText: "Cancel",
       onOk: async () => {
+        setBookingInProgress(true);
         try {
-          setBookingInProgress(true);
+          // Get the selected package ID from the ref
+          const selectedPackageId = selectedPackageRef.current;
+          console.log("Using package ID:", selectedPackageId);
 
-          // Parse date and time
-          const bookingDate = selectedSlot.date;
-          const startTime = selectedSlot.startTime;
-          const endTime = selectedSlot.endTime;
+          // Create the start and end time by combining date with times
+          const startDate = new Date(selectedSlot.date);
+          const endDate = new Date(selectedSlot.date);
 
-          // Create booking request with proper time handling
+          // Parse hours and minutes from the time strings
+          const [startHours, startMinutes] = selectedSlot.startTime
+            .split(":")
+            .map(Number);
+          const [endHours, endMinutes] = selectedSlot.endTime
+            .split(":")
+            .map(Number);
+
+          // Set hours and minutes but keep the time in local timezone
+          startDate.setHours(startHours, startMinutes, 0);
+          endDate.setHours(endHours, endMinutes, 0);
+
+          // Fix timezone issue - create ISO strings that preserve the local time
+          // By adding the timezone offset, we ensure the server receives the correct local time
+          const localStartTimeISO = createLocalISOString(startDate);
+          const localEndTimeISO = createLocalISOString(endDate);
+
+          console.log(
+            "Local time booking request:",
+            localStartTimeISO,
+            localEndTimeISO
+          );
+
+          // Create booking request with package ID if selected
           const bookingRequest = {
-            coachId: id,
-            sportId: coach.sportIds[0], // Using first sport id
-            startTime: `${bookingDate}T${startTime}`,
-            endTime: `${bookingDate}T${endTime}`,
+            coachId: coach.id,
+            sportId: coach.sportIds?.[0],
+            startTime: localStartTimeISO,
+            endTime: localEndTimeISO,
+            ...(selectedPackageId && { packageId: selectedPackageId }),
           };
 
-          // Step 1: Create the booking
-          console.log("Creating booking with:", bookingRequest);
+          // Create the booking
           const bookingResult = await client.createBooking(bookingRequest);
 
-          if (bookingResult && bookingResult.id) {
-            console.log("Booking created:", bookingResult);
+          // Process payment only if not using a package
+          if (!selectedPackageId) {
+            // Calculate hours difference for price
+            const hours = (endDate - startDate) / (1000 * 60 * 60);
+            const totalPrice = coach.ratePerHour * hours;
 
-            // Step 2: Process payment
-            const paymentRequest = new ProcessPaymentRequest({
-              amount: coach.ratePerHour,
-              description: `Booking with ${coach.fullName} on ${dayjs(
-                bookingDate
-              ).format("YYYY-MM-DD")} at ${formatTime(startTime)}`,
-              paymentType: "CoachBooking",
+            const paymentRequest = {
+              amount: totalPrice,
+              description: `Booking with ${coach.fullName}`,
+              paymentType: "Booking",
               referenceId: bookingResult.id,
-              coachId: id,
-              providerId: id,
+              coachId: coach.id,
               bookingId: bookingResult.id,
-              status: "COMPLETED",
-            });
+              status: "Completed",
+            };
 
-            console.log("Processing payment:", paymentRequest);
-            const paymentResult = await paymentClient.processBookingPayment(
-              paymentRequest
-            );
-
-            // Show success message
-            message.success(
-              "Booking confirmed and payment processed successfully!"
-            );
-
-            // Show success modal with details
-            Modal.success({
-              title: "Booking Successful!",
-              content: (
-                <div>
-                  <p>
-                    Your session with {coach.fullName} has been confirmed for:
-                  </p>
-                  <p>
-                    <strong>
-                      {dayjs(bookingDate).format("dddd, MMMM D, YYYY")}
-                    </strong>
-                  </p>
-                  <p>
-                    <strong>
-                      {formatTime(startTime)} - {formatTime(endTime)}
-                    </strong>
-                  </p>
-                  <p>You can view your bookings in your profile.</p>
-                </div>
-              ),
-              onOk: () => {
-                navigate(`/user/coachings/${bookingResult.id}`);
-              },
-            });
-          } else {
-            throw new Error("Failed to create booking");
+            await paymentClient.processBookingPayment(paymentRequest);
           }
-        } catch (error) {
-          console.error("Error during booking process:", error);
 
-          // Show appropriate error message
+          // Show success message
+          toast.success("Booking created successfully!");
+
+          // Reset selection
+          setSelectedSlot(null);
+
+          // Success modal with more details
+          Modal.success({
+            title: "Booking Confirmed",
+            content: (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Your session has been successfully booked!
+                </Typography>
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 2,
+                    bgcolor: alpha(theme.palette.success.light, 0.1),
+                    borderRadius: 1,
+                  }}
+                >
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <EventAvailable fontSize="small" color="primary" />
+                        {dayjs(selectedSlot.date).format("dddd, MMMM D, YYYY")}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      >
+                        <ClockCircleOutlined
+                          style={{
+                            color: theme.palette.primary.main,
+                            fontSize: 16,
+                          }}
+                        />
+                        {formatTime(selectedSlot.startTime)} -{" "}
+                        {formatTime(selectedSlot.endTime)}
+                      </Typography>
+                    </Grid>
+
+                    {/* Show sessions remaining if using a package */}
+                    {selectedPackageId &&
+                      bookingResult.sessionsRemaining !== undefined && (
+                        <Grid item xs={12}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                              color: theme.palette.success.main,
+                            }}
+                          >
+                            <CheckCircleOutlined
+                              style={{ color: theme.palette.success.main }}
+                            />
+                            <strong>{bookingResult.sessionsRemaining}</strong>{" "}
+                            sessions remaining in your package
+                          </Typography>
+                        </Grid>
+                      )}
+                  </Grid>
+                </Box>
+                <Typography variant="body2" sx={{ mt: 2 }}>
+                  You can view and manage your bookings in your profile
+                  dashboard.
+                </Typography>
+              </Box>
+            ),
+            okText: "Go to Dashboard",
+            onOk: () => navigate("/dashboard"),
+            cancelText: "Stay Here",
+            okCancel: true,
+          });
+
+          // Refresh user packages after a successful booking with package
+          if (selectedPackageId) {
+            try {
+              const refreshedPurchases = await client.getHistoryPurchase(
+                false,
+                false
+              );
+              setUserPurchases(refreshedPurchases || []);
+            } catch (err) {
+              console.error("Error refreshing package data:", err);
+            }
+          }
+        } catch (err) {
+          console.error("Failed to create booking:", err);
           const errorMessage =
-            error.response?.data?.detail ||
-            "Failed to complete your booking. Please try again later.";
+            err.response?.data?.message ||
+            "Failed to create booking. Please try again.";
+          toast.error(errorMessage);
 
           Modal.error({
             title: "Booking Failed",
@@ -474,6 +1014,20 @@ const CoachDetails = () => {
         }
       },
     });
+  };
+
+  // Helper function to create ISO strings that preserve local time
+  const createLocalISOString = (date) => {
+    // Get timezone offset in minutes
+    const tzOffset = date.getTimezoneOffset();
+
+    // Create a new date adjusted for the timezone offset
+    const adjustedDate = new Date(date.getTime() - tzOffset * 60000);
+
+    // Create ISO string without the 'Z' at the end to indicate it's local time
+    const isoString = adjustedDate.toISOString().slice(0, -1);
+
+    return isoString;
   };
 
   // Check if slot is available on selected date
@@ -1540,7 +2094,6 @@ const CoachDetails = () => {
                   </Box>
                 </TabPane>
 
-                {/* Other TabPanes remain the same */}
                 <TabPane
                   tab={
                     <span>
@@ -1561,6 +2114,355 @@ const CoachDetails = () => {
                   key="4"
                 >
                   {/* Content for reviews tab */}
+                </TabPane>
+
+                <TabPane
+                  tab={
+                    <span>
+                      <ShoppingCartOutlined /> Packages
+                    </span>
+                  }
+                  key="5"
+                >
+                  <Box sx={{ p: 3 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 3,
+                      }}
+                    >
+                      <Box>
+                        <Title level={4}>Coaching Packages</Title>
+                        <Text type="secondary">
+                          Purchase a package to save on multiple sessions
+                        </Text>
+                      </Box>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Text>Show my packages only</Text>
+                        <Switch
+                          size="small"
+                          checked={showPurchasedOnly}
+                          onChange={(checked) => setShowPurchasedOnly(checked)}
+                        />
+                      </Box>
+                    </Box>
+
+                    {loadingPackages ? (
+                      <Grid container spacing={3}>
+                        {[1, 2, 3].map((item) => (
+                          <Grid
+                            item
+                            xs={12}
+                            md={6}
+                            lg={4}
+                            key={`skeleton-${item}`}
+                          >
+                            <Card>
+                              <Skeleton active avatar paragraph={{ rows: 4 }} />
+                            </Card>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    ) : packages.length === 0 ? (
+                      <Empty
+                        description="No packages available for this coach"
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      />
+                    ) : (
+                      <motion.div layout>
+                        <Grid container spacing={3}>
+                          <AnimatePresence>
+                            {packages
+                              .filter(
+                                (pkg) =>
+                                  !showPurchasedOnly || hasUserPurchased(pkg.id)
+                              )
+                              .map((pkg) => {
+                                const purchased = hasUserPurchased(pkg.id);
+                                const remainingSessions =
+                                  getRemainingSessionsForPackage(pkg.id);
+                                const sessionsPerPrice =
+                                  Math.round(
+                                    (pkg.price / pkg.sessionCount) * 100
+                                  ) / 100;
+                                const savingsPercent = Math.round(
+                                  (1 - sessionsPerPrice / coach.ratePerHour) *
+                                    100
+                                );
+
+                                return (
+                                  <Grid item xs={12} md={6} lg={4} key={pkg.id}>
+                                    <PackageCard
+                                      initial={{ opacity: 0, y: 20 }}
+                                      animate={{
+                                        opacity: 1,
+                                        y: 0,
+                                        scale:
+                                          selectedPackage?.id === pkg.id
+                                            ? 1.02
+                                            : 1,
+                                        boxShadow:
+                                          selectedPackage?.id === pkg.id
+                                            ? "0 12px 28px rgba(0,0,0,0.2)"
+                                            : "0 8px 20px rgba(0,0,0,0.07)",
+                                      }}
+                                      exit={{ opacity: 0, scale: 0.9 }}
+                                      transition={{ duration: 0.3 }}
+                                      style={{
+                                        border:
+                                          selectedPackage?.id === pkg.id
+                                            ? `2px solid ${theme.palette.primary.main}`
+                                            : "1px solid rgba(0,0,0,0.06)",
+                                      }}
+                                    >
+                                      {savingsPercent > 0 && (
+                                        <Box
+                                          sx={{
+                                            position: "absolute",
+                                            top: 15,
+                                            right: 15,
+                                            zIndex: 10,
+                                          }}
+                                        >
+                                          <PackageBadge
+                                            count={`Save ${savingsPercent}%`}
+                                            bgColor={theme.palette.error.main}
+                                          />
+                                        </Box>
+                                      )}
+
+                                      <Box
+                                        sx={{
+                                          p: 3,
+                                          borderBottom: `1px solid ${theme.palette.divider}`,
+                                          position: "relative",
+                                        }}
+                                      >
+                                        <Typography
+                                          variant="h5"
+                                          gutterBottom
+                                          fontWeight="bold"
+                                          sx={{
+                                            color: theme.palette.primary.main,
+                                          }}
+                                        >
+                                          {pkg.name}
+                                        </Typography>
+                                        <Typography
+                                          variant="body2"
+                                          color="text.secondary"
+                                          sx={{ minHeight: 60 }}
+                                        >
+                                          {pkg.description ||
+                                            "Get multiple sessions at a discounted rate."}
+                                        </Typography>
+                                      </Box>
+
+                                      <Box
+                                        sx={{
+                                          p: 3,
+                                          flex: 1,
+                                          display: "flex",
+                                          flexDirection: "column",
+                                        }}
+                                      >
+                                        <Box sx={{ mb: 3 }}>
+                                          <Typography
+                                            variant="h4"
+                                            fontWeight="bold"
+                                            color="text.primary"
+                                          >
+                                            {formatPrice(pkg.price)}
+                                          </Typography>
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              mt: 0.5,
+                                            }}
+                                          >
+                                            <Typography
+                                              variant="body2"
+                                              color="text.secondary"
+                                            >
+                                              {formatPrice(sessionsPerPrice)}{" "}
+                                              per session
+                                            </Typography>
+                                            {savingsPercent > 0 && (
+                                              <Chip
+                                                size="small"
+                                                label={`Save ${savingsPercent}%`}
+                                                color="error"
+                                                sx={{ ml: 1, height: 20 }}
+                                              />
+                                            )}
+                                          </Box>
+                                        </Box>
+
+                                        <Box sx={{ mb: 3 }}>
+                                          <FeatureItem>
+                                            <CheckCircleOutlined className="icon" />
+                                            <Typography className="text">
+                                              {pkg.sessionCount} coaching
+                                              sessions
+                                            </Typography>
+                                          </FeatureItem>
+                                          <FeatureItem>
+                                            <CheckCircleOutlined className="icon" />
+                                            <Typography className="text">
+                                              Valid for 30 days
+                                            </Typography>
+                                          </FeatureItem>
+                                          <FeatureItem>
+                                            <CheckCircleOutlined className="icon" />
+                                            <Typography className="text">
+                                              Personalized coaching
+                                            </Typography>
+                                          </FeatureItem>
+                                          <FeatureItem>
+                                            <CheckCircleOutlined className="icon" />
+                                            <Typography className="text">
+                                              Book anytime within validity
+                                            </Typography>
+                                          </FeatureItem>
+                                        </Box>
+
+                                        <Box sx={{ mt: "auto" }}>
+                                          {purchased ? (
+                                            <Box>
+                                              <Alert
+                                                icon={<CheckCircleOutlined />}
+                                                type="success"
+                                                message={
+                                                  <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                      fontWeight: "medium",
+                                                    }}
+                                                  >
+                                                    Package Active
+                                                  </Typography>
+                                                }
+                                                description={
+                                                  <Typography variant="body2">
+                                                    You have {remainingSessions}{" "}
+                                                    session
+                                                    {remainingSessions !== 1
+                                                      ? "s"
+                                                      : ""}{" "}
+                                                    remaining
+                                                  </Typography>
+                                                }
+                                                showIcon
+                                                sx={{ mb: 2 }}
+                                              />
+                                              <Button
+                                                type="primary"
+                                                block
+                                                icon={<CalendarOutlined />}
+                                                onClick={() => {
+                                                  setActiveTab("2");
+                                                  window.scrollTo({
+                                                    top: 500,
+                                                    behavior: "smooth",
+                                                  });
+                                                }}
+                                              >
+                                                Book a Session
+                                              </Button>
+                                            </Box>
+                                          ) : (
+                                            <Button
+                                              type="primary"
+                                              block
+                                              size="large"
+                                              icon={<ShoppingCartOutlined />}
+                                              onClick={(e) => {
+                                                e.preventDefault(); // Prevent event bubbling
+                                                e.stopPropagation(); // Stop propagation
+                                                handlePurchasePackage(pkg);
+                                              }}
+                                              loading={
+                                                purchasingPackage &&
+                                                selectedPackage?.id === pkg.id
+                                              }
+                                              disabled={purchasingPackage}
+                                              style={{
+                                                backgroundColor:
+                                                  selectedPackage?.id === pkg.id
+                                                    ? theme.palette.success.main
+                                                    : theme.palette.primary
+                                                        .main,
+                                                borderColor:
+                                                  selectedPackage?.id === pkg.id
+                                                    ? theme.palette.success.main
+                                                    : theme.palette.primary
+                                                        .main,
+                                              }}
+                                            >
+                                              {selectedPackage?.id === pkg.id
+                                                ? "Selected Package"
+                                                : "Purchase Package"}
+                                            </Button>
+                                          )}
+                                        </Box>
+                                      </Box>
+                                    </PackageCard>
+                                  </Grid>
+                                );
+                              })}
+                          </AnimatePresence>
+                        </Grid>
+                      </motion.div>
+                    )}
+
+                    <Box
+                      sx={{
+                        mt: 4,
+                        p: 3,
+                        bgcolor: alpha(theme.palette.info.light, 0.1),
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 2,
+                        }}
+                      >
+                        <InfoCircleOutlined
+                          style={{
+                            color: theme.palette.info.main,
+                            fontSize: 24,
+                            marginTop: 4,
+                          }}
+                        />
+                        <Box>
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight="medium"
+                            gutterBottom
+                          >
+                            About Coach Packages
+                          </Typography>
+                          <Typography variant="body2">
+                            Purchasing a coaching package gives you access to
+                            multiple sessions at a discounted rate. Packages are
+                            valid for 30 days from purchase date and can be used
+                            to book any available slot with this coach. Once
+                            purchased, you can select the package during the
+                            booking process instead of paying for each session
+                            individually.
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Box>
                 </TabPane>
               </Tabs>
             </Paper>

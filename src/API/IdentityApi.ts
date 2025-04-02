@@ -70,6 +70,36 @@ export class Client {
     /**
      * @return OK
      */
+    refreshToken(): Promise<void> {
+        let url_ = this.baseUrl + "/api/identity/refresh-token";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: this.getAuthHeaders()
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRefreshToken(_response);
+        });
+    }
+
+    protected processRefreshToken(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.json();
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
     login(body: LoginUserRequest): Promise<void> {
         let url_ = this.baseUrl + "/api/identity/login";
         url_ = url_.replace(/[?&]$/, "");
@@ -430,6 +460,7 @@ export class Client {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -1470,6 +1501,7 @@ export class UpdateProfileRequest implements IUpdateProfileRequest {
     phone?: string | undefined;
     birthDate?: Date;
     gender?: string | undefined;
+    selfIntroduction?: string | undefined;
 
     constructor(data?: IUpdateProfileRequest) {
         if (data) {
@@ -1487,6 +1519,7 @@ export class UpdateProfileRequest implements IUpdateProfileRequest {
             this.phone = _data["phone"];
             this.birthDate = _data["birthDate"] ? new Date(_data["birthDate"].toString()) : <any>undefined;
             this.gender = _data["gender"];
+            this.selfIntroduction = _data["selfIntroduction"];
         }
     }
 
@@ -1504,6 +1537,7 @@ export class UpdateProfileRequest implements IUpdateProfileRequest {
         data["phone"] = this.phone;
         data["birthDate"] = this.birthDate ? this.birthDate.toISOString() : <any>undefined;
         data["gender"] = this.gender;
+        data["selfIntroduction"] = this.selfIntroduction;
         return data;
     }
 }
@@ -1514,6 +1548,7 @@ export interface IUpdateProfileRequest {
     phone?: string | undefined;
     birthDate?: Date;
     gender?: string | undefined;
+    selfIntroduction?: string | undefined;
 }
 
 export class UpdatePromotionRequest implements IUpdatePromotionRequest {

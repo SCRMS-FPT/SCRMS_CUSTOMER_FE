@@ -3,10 +3,6 @@ import { Client } from "@/API/CoachApi";
 import PropTypes from "prop-types";
 
 import CoachDashboardView from "@/pages/CoachView/CoachDashboardView";
-import CoachScheduleManagementView from "@/pages/CoachView/CoachScheduleManagementView";
-import CoachTraineeManagementView from "@/pages/CoachView/CoachTraineeManagementView";
-import CoachTrainingSessionManagementView from "@/pages/CoachView/CoachTrainingSessionManagementView";
-import CoachAnalyticsView from "@/pages/CoachView/CoachAnalyticsView";
 import CoachSidebar from "../components/CoachPage/CoachSidebar";
 import CoachProfile from "@/pages/CoachView/coach-profile";
 import CoachSchedules from "@/pages/CoachView/coach-schedules";
@@ -102,50 +98,6 @@ const CoachRoutes = [
       <ProtectedCoachRoute>
         <CoachSidebar>
           <CoachDashboardView />
-        </CoachSidebar>
-      </ProtectedCoachRoute>
-    }
-  />,
-  <Route
-    key="coach-sessions"
-    path="/coach/sessions"
-    element={
-      <ProtectedCoachRoute>
-        <CoachSidebar>
-          <CoachTrainingSessionManagementView />
-        </CoachSidebar>
-      </ProtectedCoachRoute>
-    }
-  />,
-  <Route
-    key="coach-schedule"
-    path="/coach/schedule"
-    element={
-      <ProtectedCoachRoute>
-        <CoachSidebar>
-          <CoachScheduleManagementView />
-        </CoachSidebar>
-      </ProtectedCoachRoute>
-    }
-  />,
-  <Route
-    key="coach-trainees"
-    path="/coach/trainees"
-    element={
-      <ProtectedCoachRoute>
-        <CoachSidebar>
-          <CoachTraineeManagementView />
-        </CoachSidebar>
-      </ProtectedCoachRoute>
-    }
-  />,
-  <Route
-    key="coach-analytics"
-    path="/coach/analytics"
-    element={
-      <ProtectedCoachRoute>
-        <CoachSidebar>
-          <CoachAnalyticsView />
         </CoachSidebar>
       </ProtectedCoachRoute>
     }
