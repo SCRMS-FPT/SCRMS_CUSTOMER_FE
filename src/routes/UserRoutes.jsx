@@ -14,7 +14,6 @@ import UserFeedbackView from "@/pages/UserView/UserFeedbackView";
 import UserFeedbackDetailView from "@/pages/UserView/UserFeedbackDetailView";
 import UserDepositView from "@/pages/UserView/UserDepositView";
 import UserTransactionView from "@/pages/UserView/UserTransactionView";
-import MatchFinder from "@/pages/MatchFinder";
 import Feedback from "@/pages/Feedback";
 import BookCoachSession from "@/pages/BookCoachSession";
 import TransactionHistoryPage from "@/pages/TransactionHistoryPage";
