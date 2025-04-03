@@ -82,7 +82,7 @@ const FindCourtBySportView = () => {
           fontWeight="bold"
           gutterBottom
         >
-          Find Your Sport Court
+          Tìm sân theo môn thể thao bạn lựa chọn
         </Typography>
       </Box>
 

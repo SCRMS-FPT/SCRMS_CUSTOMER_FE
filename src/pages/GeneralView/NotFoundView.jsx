@@ -20,13 +20,13 @@ const NotFoundView = () => {
       >
         <img
           src={image404}
-          alt="404 Not Found"
+          alt="404 Không tìm thấy"
           className="w-full mb-4 rounded"
           style={{ objectFit: "cover", maxHeight: "300px" }}
         />
-        <Title level={2} style={{ color: "#333" }}>404 - Page Not Found</Title>
+        <Title level={2} style={{ color: "#333" }}>404 - Không tìm thấy trang</Title>
         <Paragraph style={{ fontSize: "1.1rem", color: "#555" }}>
-          Oops! The page you are looking for does not exist.
+          Rất tiếc! Trang bạn đang tìm kiếm không tồn tại.
         </Paragraph>
         <Button
           type="primary"
@@ -34,7 +34,7 @@ const NotFoundView = () => {
           onClick={() => navigate("/")}
           style={{ marginTop: "20px", borderRadius: "5px" }}
         >
-          Return Home
+          Quay về trang chủ
         </Button>
       </Card>
     </div>

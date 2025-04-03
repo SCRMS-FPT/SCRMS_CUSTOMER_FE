@@ -292,11 +292,10 @@ const CoachList = () => {
     <Box sx={{ py: 4, px: 3 }}>
       <Box sx={{ mb: 4, display: "flex", flexDirection: "column" }}>
         <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-          Find Your Perfect Coach
+          Tìm huấn luyện viên phù hợp với bạn
         </Typography>
         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          Browse our selection of professional coaches and find the perfect
-          match for your training needs
+          Duyệt qua danh sách các huấn luyện viên chuyên nghiệp và tìm người phù hợp nhất với nhu cầu luyện tập của bạn.
         </Typography>
       </Box>
 
@@ -316,7 +315,7 @@ const CoachList = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <Search
-              placeholder="Search coaches by name"
+              placeholder="Tìm huấn luyện viên theo tên"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onSearch={handleSearch}
@@ -328,7 +327,7 @@ const CoachList = () => {
           <Grid item xs={12} md={3}>
             <FormControl fullWidth>
               <Select
-                placeholder="Filter by Sport"
+                placeholder="Lọc theo môn thể thao"
                 value={selectedSport}
                 onChange={handleSportChange}
                 allowClear
@@ -348,7 +347,7 @@ const CoachList = () => {
 
           <Grid item xs={12} md={3}>
             <Select
-              placeholder="Sort By"
+              placeholder="Lọc theo"
               value={sortOrder}
               onChange={handleSortChange}
               style={{ width: "100%" }}
@@ -356,13 +355,13 @@ const CoachList = () => {
               <Option value="rating">
                 <Space>
                   <StarOutlined />
-                  Highest Rating
+                  Đánh giá cao nhất
                 </Space>
               </Option>
               <Option value="priceAsc">
                 <Space>
                   <SortAscendingOutlined />
-                  Price: Low to High
+                  Giá: Từ thấp đến cao
                 </Space>
               </Option>
               <Option value="priceDesc">
@@ -370,7 +369,7 @@ const CoachList = () => {
                   <SortAscendingOutlined
                     style={{ transform: "rotateX(180deg)" }}
                   />
-                  Price: High to Low
+                  Giá: Từ cao đến thấp
                 </Space>
               </Option>
             </Select>
@@ -382,13 +381,13 @@ const CoachList = () => {
               onClick={resetFilters}
               style={{ width: "100%" }}
             >
-              Reset Filters
+              Cài đặt lại bộ lọc
             </Button>
           </Grid>
 
           <Grid item xs={12}>
             <Typography id="price-range-slider" gutterBottom>
-              Price Range: {formatPrice(priceRange[0])} -{" "}
+              Khoảng giá: {formatPrice(priceRange[0])} -{" "}
               {formatPrice(priceRange[1])}
             </Typography>
             <Slider
@@ -421,7 +420,7 @@ const CoachList = () => {
             {error}
           </Typography>
           <Button variant="contained" onClick={fetchCoaches} sx={{ mt: 2 }}>
-            Try Again
+            Thử lại
           </Button>
         </Box>
       )}
@@ -433,8 +432,7 @@ const CoachList = () => {
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
               <Typography variant="body1">
-                No coaches found matching your criteria. Try adjusting your
-                filters.
+                Không tìm thấy huấn luyện viên phù hợp với tiêu chí của bạn. Hãy thử tìm kiếm theo bộ lọc khác.
               </Typography>
             }
           />
@@ -443,7 +441,7 @@ const CoachList = () => {
             onClick={resetFilters}
             style={{ marginTop: 16 }}
           >
-            Reset Filters
+            Cài đặt lại bộ lọc.
           </Button>
         </Box>
       )}
@@ -555,7 +553,7 @@ const CoachList = () => {
                           size="small"
                           variant="outlined"
                           icon={<TeamOutlined />}
-                          label={`${coach.experienceYears || 1}+ yrs exp.`}
+                          label={`${coach.experienceYears || 1}+ năm kinh nghiệm`}
                         />
                       </Box>
                     </Box>
@@ -566,7 +564,7 @@ const CoachList = () => {
                     sx={{ mb: 2, height: 60, overflow: "hidden" }}
                   >
                     {coach.bio ||
-                      "No bio provided. This coach prefers to let their expertise speak through training."}
+                      "Không có thông tin giới thiệu. Huấn luyện viên này muốn để chuyên môn của mình thể hiện qua việc đào tạo."}
                   </Typography>
 
                   <Box
@@ -581,14 +579,14 @@ const CoachList = () => {
                       icon={<CalendarOutlined />}
                       onClick={() => navigate(`/coaches/${coach.id}`)}
                     >
-                      View Details
+                      Xem chi tiết
                     </Button>
                     <Button
                       type="primary"
                       icon={<BookOnline />}
                       onClick={() => navigate(`/coaches/${coach.id}/book`)}
                     >
-                      Book Now
+                      Đặt ngay
                     </Button>
                   </Box>
                 </StyledCard>

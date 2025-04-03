@@ -99,12 +99,12 @@ const UserProfileNotificationView = () => {
         <Text type="secondary">Received: {selectedNotification.time}</Text>
         <Divider />
         <Space size="middle">
-          <Button type="primary" icon={<EyeOutlined />} onClick={() => message.info("View detailed info not implemented yet.")}>
-            More Info
+          <Button type="primary" icon={<EyeOutlined />} onClick={() => message.info("Chức năng xem thông tin chi tiết sẽ được cập nhật trong tương lai.")}>
+            Thêm thông tin
           </Button>
           {!selectedNotification.read && (
             <Button icon={<CheckOutlined />} onClick={() => handleMarkAsRead(selectedNotification.id)}>
-              Mark as Read
+              Đánh dấu đã đọc
             </Button>
           )}
         </Space>
@@ -120,7 +120,7 @@ const UserProfileNotificationView = () => {
       <div className="mb-6">
         <Space size="large" direction="vertical" className="w-full">
           <Input
-            placeholder="Search notifications..."
+            placeholder="Tìm thông báo..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             size="large"
@@ -132,12 +132,12 @@ const UserProfileNotificationView = () => {
             size="large"
             className="w-full"
           >
-            <Option value="All">All Categories</Option>
-            <Option value="Booking">Booking</Option>
-            <Option value="Promotion">Promotion</Option>
-            <Option value="Reminder">Reminder</Option>
-            <Option value="Account">Account</Option>
-            <Option value="Feedback">Feedback</Option>
+            <Option value="All">Tất cả các danh mục</Option>
+            <Option value="Booking">Đặt lịch</Option>
+            <Option value="Promotion">Ưu đãi</Option>
+            <Option value="Reminder">Lời nhắc</Option>
+            <Option value="Account">Tài khoản</Option>
+            <Option value="Feedback">Phản hồi đánh giá</Option>
           </Select>
         </Space>
       </div>
@@ -150,8 +150,7 @@ const UserProfileNotificationView = () => {
   return (
     <div className="container mx-auto p-6">
       <Card
-        title={<Title level={3}>Notifications</Title>}
-        bordered={false}
+        title={<Title level={3}>Thông báo</Title>}
         className="shadow-lg rounded-lg"
         style={{ background: "linear-gradient(135deg, #ffffff, #f7f7f7)", padding: "24px" }}
       >
@@ -173,11 +172,11 @@ const UserProfileNotificationView = () => {
               />
               <div className="flex flex-col items-end space-y-2">
                 <Button type="link" onClick={() => handleViewNotification(notification)}>
-                  View
+                  Xem
                 </Button>
                 {!notification.read && (
                   <Button type="link" onClick={() => handleMarkAsRead(notification.id)}>
-                    Mark as Read
+                    Đánh dấu đã đọc
                   </Button>
                 )}
               </div>
@@ -194,9 +193,10 @@ const UserProfileNotificationView = () => {
         onCancel={handleModalClose}
         footer={[
           <Button key="close" type="primary" onClick={handleModalClose}>
-            Close
+            Đóng
           </Button>,
         ]}
+        style={{ top: 240 }}
       >
         {renderModalContent()}
       </Modal>

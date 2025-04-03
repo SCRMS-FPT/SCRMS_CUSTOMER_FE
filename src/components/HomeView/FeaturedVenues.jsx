@@ -209,7 +209,7 @@ const FeaturedVenues = () => {
               fontSize: { xs: "2rem", md: "2.5rem" },
             }}
           >
-            Find Your Perfect Venue
+            Tìm kiếm trung tâm thể thao phù hợp với bạn
           </Typography>
           <Typography
             variant="h6"
@@ -221,8 +221,8 @@ const FeaturedVenues = () => {
               mb: 4,
             }}
           >
-            Discover top-rated sports facilities in your area. Filter by sport
-            type and book your next game with ease.
+            Khám phá các cơ sở thể thao được đánh giá cao trong khu vực của bạn. Lọc theo loại hình
+            thể thao và đặt sân chơi tiếp theo của bạn một cách dễ dàng.
           </Typography>
         </Box>
 
@@ -249,7 +249,7 @@ const FeaturedVenues = () => {
           >
             <TextField
               fullWidth
-              placeholder="Search venues..."
+              placeholder="Tìm kiếm trung tâm thể thao"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -274,7 +274,7 @@ const FeaturedVenues = () => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  placeholder="Select a city..."
+                  placeholder="Lựa chọn thành phố"
                   InputProps={{
                     ...params.InputProps,
                     startAdornment: (
@@ -307,7 +307,7 @@ const FeaturedVenues = () => {
               }}
               startIcon={<FilterAlt />}
             >
-              Search
+              Tìm
             </Button>
           </Box>
         </Paper>
@@ -316,31 +316,31 @@ const FeaturedVenues = () => {
         <Box sx={{ mb: 4 }}>
           <div className="flex align-center justify-between">
             <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 600,
-              mb: 2,
-              color: "#334155",
-            }}
-          >
-            Browse by Sport
-          </Typography>
-          <Button
-            variant="text"
-            onClick={() => navigate("/courts/sport")}
-            sx={{
-              textTransform: "none",
-              color: "#2563eb",
-              fontWeight: 600,
-              display: "flex",
-              alignItems: "center",
-             "&:hover": { textDecoration: "underline" },
-            }}
-          >
-            See more <ArrowForward sx={{ fontSize: "small", ml: 0.5 }} />
-          </Button>
+              variant="h6"
+              sx={{
+                fontWeight: 600,
+                mb: 2,
+                color: "#334155",
+              }}
+            >
+              Tìm theo môn thể thao
+            </Typography>
+            <Button
+              variant="text"
+              onClick={() => navigate("/courts/sport")}
+              sx={{
+                textTransform: "none",
+                color: "#2563eb",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              Xem thêm <ArrowForward sx={{ fontSize: "small", ml: 0.5 }} />
+            </Button>
           </div>
-          
+
 
           <Paper
             sx={{
@@ -383,7 +383,7 @@ const FeaturedVenues = () => {
               }}
             >
               <Tab
-                label="All Venues"
+                label="Tất cả các trung tâm"
                 sx={{
                   py: 1.5,
                   px: 3,
@@ -422,11 +422,11 @@ const FeaturedVenues = () => {
         {/* Results count */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="body2" color="text.secondary">
-            Showing{" "}
+            Đang hiện{" "}
             <Typography component="span" fontWeight="600" color="text.primary">
               {filteredVenues.length}
             </Typography>{" "}
-            venues
+            trung tâm
             {selectedSport !== "All" && (
               <>
                 {" "}
@@ -515,7 +515,7 @@ const FeaturedVenues = () => {
                     }}
                   >
                     <Box sx={{ position: "relative" }}>
-                    <CardMedia
+                      <CardMedia
                         component="img"
                         image={
                           center.avatar ||
@@ -688,7 +688,7 @@ const FeaturedVenues = () => {
                             },
                           }}
                         >
-                          View Details
+                          Chi tiết
                         </Button>
                         <Button
                           variant="contained"
@@ -705,7 +705,7 @@ const FeaturedVenues = () => {
                             },
                           }}
                         >
-                          Book Now
+                          Đặt sân
                         </Button>
                       </Box>
                     </CardContent>
@@ -741,18 +741,18 @@ const FeaturedVenues = () => {
               gutterBottom
               sx={{ fontWeight: 700 }}
             >
-              No venues found
+              Không tìm thấy trung tâm thể thao nào phù hợp
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
               {selectedSport !== "All" ? (
-                <>We couldn't find any venues for {selectedSport}.</>
+                <>Chúng tôi không tìm thấy trung tâm nào cho môn {selectedSport}.</>
               ) : searchTerm || selectedCity ? (
-                <>No venues match your search criteria.</>
+                <>Không có trung tâm nào khớp với tiêu chí tìm kiếm của bạn.</>
               ) : (
-                <>No venues available at this time.</>
+                <>Hiện tại không có trung tâm nào khả dụng.</>
               )}
               <br />
-              Try adjusting your filters or check back later.
+              Hãy thử điều chỉnh bộ lọc của bạn hoặc quay lại sau.
             </Typography>
             <Button
               variant="contained"
@@ -774,7 +774,7 @@ const FeaturedVenues = () => {
                 },
               }}
             >
-              Reset Filters
+              Đặt lại bộ lọc
             </Button>
           </Paper>
         )}
@@ -827,7 +827,7 @@ const FeaturedVenues = () => {
                 transition: "all 0.2s ease-in-out",
               }}
             >
-              View All Sport Centers
+              Xem tất cả trung tâm thể thao
             </Button>
           </Box>
         )}

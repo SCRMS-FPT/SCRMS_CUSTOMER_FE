@@ -7,7 +7,7 @@ const VenueSearchSelect = ({ venues, onSelect }) => {
   return (
     <Select
       showSearch
-      placeholder="Search or select a venue"
+      placeholder="Tìm kiếm hoặc lựa chọn một trung tâm thể thao"
       optionFilterProp="children"
       className="w-full md:w-1/2"
       onChange={(venueId) => {

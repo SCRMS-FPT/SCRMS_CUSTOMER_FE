@@ -44,7 +44,7 @@ const SportSelection = ({ selectedSport, setSelectedSport }) => {
   return (
     <Box>
       <Typography variant="h6" fontWeight="bold" color="text.primary" mb={2}>
-        Popular Sports:
+        Môn thể thao được chơi nhiều
       </Typography>
       <Grid container spacing={2}>
         {popularSports.map((sport) => (
@@ -68,7 +68,7 @@ const SportSelection = ({ selectedSport, setSelectedSport }) => {
       </Grid>
 
       <Typography variant="h6" fontWeight="bold" color="text.primary" mt={4} mb={2}>
-        Select Sport:
+        Lựa chọn môn thể thao
       </Typography>
       <Button
         fullWidth

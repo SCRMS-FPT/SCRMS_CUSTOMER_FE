@@ -135,10 +135,10 @@ const SportsCenter = () => {
       {/* Header Section */}
       <Box mb={4}>
         <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
-          Sports Centers
+          Trung tâm thể thao
         </Typography>
         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          Find the perfect sports center for your activities
+          Tìm trung tâm thể thao phù hợp với bạn
         </Typography>
       </Box>
 
@@ -157,7 +157,7 @@ const SportsCenter = () => {
             <TextField
               fullWidth
               variant="outlined"
-              placeholder="Search by name..."
+              placeholder="Tìm bằng tên..."
               value={searchQuery}
               onChange={handleSearchChange}
               InputProps={{
@@ -183,7 +183,7 @@ const SportsCenter = () => {
 
           <Grid item xs={12} md={4}>
             <FormControl fullWidth variant="outlined">
-              <InputLabel id="city-filter-label">Filter by City</InputLabel>
+              <InputLabel id="city-filter-label">Thành phố</InputLabel>
               <Select
                 labelId="city-filter-label"
                 value={cityFilter}
@@ -217,7 +217,7 @@ const SportsCenter = () => {
               onClick={handleClearFilters}
               disabled={!searchQuery && !cityFilter}
             >
-              Clear Filters
+              Xóa bộ lọc
             </Button>
           </Grid>
         </Grid>
@@ -233,7 +233,7 @@ const SportsCenter = () => {
             {loading ? (
               <Skeleton width={100} />
             ) : (
-              `Showing ${sportCenters.length} of ${totalCount} results`
+              `Đang hiện ra ${sportCenters.length} trên ${totalCount} kết quả`
             )}
           </Typography>
 
@@ -269,7 +269,7 @@ const SportsCenter = () => {
             sx={{ mt: 2 }}
             onClick={fetchSportCenters}
           >
-            Try Again
+            Thử lại
           </Button>
         </Box>
       )}
@@ -324,18 +324,17 @@ const SportsCenter = () => {
                 sx={{ fontSize: 60, color: "text.secondary", mb: 2 }}
               />
               <Typography variant="h5" gutterBottom>
-                No sports centers found
+                Không tìm thấy trung tâm thể thao nào
               </Typography>
               <Typography variant="body1" color="text.secondary" paragraph>
-                Try adjusting your search or filters to find what you're looking
-                for.
+                Hãy thử điều chỉnh tìm kiếm hoặc bộ lọc để tìm thấy những gì bạn đang tìm kiếm.
               </Typography>
               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleClearFilters}
               >
-                Clear Filters
+                Xóa bộ lọc
               </Button>
             </Box>
           ) : (
@@ -357,13 +356,16 @@ const SportsCenter = () => {
                   >
                     <CardMedia
                       component="img"
-                      height={200}
+                      sx={{
+                        height: 200,
+                        objectFit: "cover",
+                        width: "100%",
+                      }}
                       image={
                         center.avatar ||
                         "https://via.placeholder.com/300x200?text=Sports+Center"
                       }
                       alt={center.name}
-                      sx={{ objectFit: "cover" }}
                     />
                     <CardContent sx={{ flexGrow: 1 }}>
                       <Typography variant="h5" component="h2" gutterBottom>
@@ -395,7 +397,7 @@ const SportsCenter = () => {
                       {center.sportNames?.length > 0 && (
                         <Box mb={2}>
                           <Typography variant="subtitle2" gutterBottom>
-                            Available Sports:
+                            Các môn thể thao
                           </Typography>
                           <Box>
                             {center.sportNames.map((sport, index) => (
@@ -435,7 +437,7 @@ const SportsCenter = () => {
                         color="primary"
                         endIcon={<ArrowForward />}
                       >
-                        View Details
+                        Xem chi tiết
                       </Button>
                     </CardActions>
                   </Card>

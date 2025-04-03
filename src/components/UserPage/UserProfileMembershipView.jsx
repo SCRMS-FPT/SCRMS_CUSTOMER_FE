@@ -49,36 +49,36 @@ const mockMembershipData = {
 // Add this block after your imports:
 const membershipPlans = [
     {
-      id: 1,
-      name: "Basic Membership",
-      price: "$10/month",
-      validity: "30 days",
-      renewalDate: "2025-03-01",
-      benefits: [
-        "Access to basic features",
-        "Limited support",
-        "Access to community forums",
-      ],
-      description:
-        "This plan gives you access to the essential features and community support. Perfect for newcomers.",
+        id: 1,
+        name: "Basic Membership",
+        price: "$10/month",
+        validity: "30 days",
+        renewalDate: "2025-03-01",
+        benefits: [
+            "Access to basic features",
+            "Limited support",
+            "Access to community forums",
+        ],
+        description:
+            "This plan gives you access to the essential features and community support. Perfect for newcomers.",
     },
     {
-      id: 2,
-      name: "Premium Membership",
-      price: "$30/month",
-      validity: "30 days",
-      renewalDate: "2025-03-01",
-      benefits: [
-        "Access to all features",
-        "Priority support",
-        "Discounts on bookings",
-        "Exclusive content and webinars",
-        "Free monthly consultation",
-      ],
-      description:
-        "The premium plan offers a comprehensive package that includes all features, priority support, and exclusive benefits. Ideal for power users.",
+        id: 2,
+        name: "Premium Membership",
+        price: "$30/month",
+        validity: "30 days",
+        renewalDate: "2025-03-01",
+        benefits: [
+            "Access to all features",
+            "Priority support",
+            "Discounts on bookings",
+            "Exclusive content and webinars",
+            "Free monthly consultation",
+        ],
+        description:
+            "The premium plan offers a comprehensive package that includes all features, priority support, and exclusive benefits. Ideal for power users.",
     },
-  ];
+];
 
 // -------------------------------------------------------------------------
 // MAIN COMPONENT: UserProfileMembershipView
@@ -150,43 +150,43 @@ const UserProfileMembershipView = () => {
 
         return (
             <div className="p-4">
-                <Title level={4}>Membership Details</Title>
+                <Title level={4}>Thông tin gói thành viên</Title>
                 <Paragraph>
-                    You are currently subscribed to the <strong>{membershipData.planName}</strong> plan.
+                    Bạn hiện tại đang đăng kí gói thành viên <strong>{membershipData.planName}</strong> .
                 </Paragraph>
                 <Row gutter={[16, 16]}>
                     <Col xs={24} sm={12}>
-                        <Text strong>Price:</Text> <Text>{membershipData.price}</Text>
+                        <Text strong>Giá tiền:</Text> <Text>{membershipData.price}</Text>
                     </Col>
                     <Col xs={24} sm={12}>
-                        <Text strong>Status:</Text>{" "}
+                        <Text strong>Trạng thái:</Text>{" "}
                         <Text>
                             {membershipData.status === "Active" ? (
                                 <span className="text-green-500">
-                                    <CheckCircleOutlined /> Active
+                                    <CheckCircleOutlined /> Đang kích hoạt
                                 </span>
                             ) : membershipData.status === "Expired" ? (
                                 <span className="text-red-500">
-                                    <ExclamationCircleOutlined /> Expired
+                                    <ExclamationCircleOutlined /> Hết hạn
                                 </span>
                             ) : (
-                                <span className="text-gray-500">Cancelled</span>
+                                <span className="text-gray-500">Đã hủy</span>
                             )}
                         </Text>
                     </Col>
                     <Col xs={24} sm={12}>
-                        <Text strong>Start Date:</Text> <Text>{membershipData.startDate}</Text>
+                        <Text strong>Ngày bắt đầu:</Text> <Text>{membershipData.startDate}</Text>
                     </Col>
                     <Col xs={24} sm={12}>
-                        <Text strong>End Date:</Text> <Text>{membershipData.endDate}</Text>
+                        <Text strong>Ngày kết thúc:</Text> <Text>{membershipData.endDate}</Text>
                     </Col>
                     <Col xs={24} sm={12}>
-                        <Text strong>Remaining Days:</Text> <Text>{membershipData.remainingDays}</Text>
+                        <Text strong>Số ngày còn lại:</Text> <Text>{membershipData.remainingDays}</Text>
                     </Col>
                 </Row>
                 <Divider />
                 <div>
-                    <Title level={5}>Benefits</Title>
+                    <Title level={5}>Lợi ích</Title>
                     <List
                         dataSource={membershipData.benefits}
                         renderItem={(benefit, index) => (
@@ -200,13 +200,13 @@ const UserProfileMembershipView = () => {
                 <Divider />
                 <div className="flex justify-end mt-4">
                     <Button type="primary" onClick={() => setRenewModalVisible(true)}>
-                        Renew Membership
+                        Tái kích hoạt gói thành viên
                     </Button>
                     <Button
                         className="ml-4"
                         onClick={() => message.info("View details functionality not implemented yet.")}
                     >
-                        View Details
+                        Xem thông tin chi tiết
                     </Button>
                 </div>
             </div>
@@ -217,10 +217,10 @@ const UserProfileMembershipView = () => {
     const renderSubscriptionInvitation = () => {
         return (
             <div className="p-8 text-center">
-                <Title level={3} className="mb-4">No Membership Found</Title>
+                <Title level={3} className="mb-4">Không có gói thành viên nào</Title>
                 <Paragraph>
-                    You currently do not have an active membership pack. Subscribe now to unlock exclusive benefits, advanced features, and personalized support.
-                </Paragraph>
+                    Hiện tại bạn không có gói thành viên hoạt động. Hãy đăng ký ngay để mở khóa các lợi ích độc quyền, 
+                    tính năng nâng cao và hỗ trợ cá nhân hóa.                </Paragraph>
                 <Divider />
                 <Row gutter={[24, 24]} justify="center">
                     {membershipPlans.map((plan) => (
@@ -247,12 +247,12 @@ const UserProfileMembershipView = () => {
                                         </Text>
                                     </div>
                                     <Text type="secondary">
-                                        {plan.validity} validity, renew on {plan.renewalDate}
+                                        {plan.validity} khả dụng, đăng kí gói lại vào ngày {plan.renewalDate}
                                     </Text>
                                     <Divider />
                                     <Paragraph>{plan.description}</Paragraph>
                                     <Collapse ghost>
-                                        <Panel header={<span className="font-semibold">Benefits</span>} key="1">
+                                        <Panel header={<span className="font-semibold">Lợi ích</span>} key="1">
                                             <ul className="list-disc pl-6">
                                                 {plan.benefits.map((benefit, index) => (
                                                     <li key={index} className="text-gray-700 flex items-center">
@@ -264,8 +264,8 @@ const UserProfileMembershipView = () => {
                                     </Collapse>
                                 </div>
                                 <div className="mt-4 flex justify-end space-x-4">
-                                    <Button type="primary">Subscribe</Button>
-                                    <Button icon={<InfoCircleOutlined />}>Learn More</Button>
+                                    <Button type="primary">Đăng kí</Button>
+                                    <Button icon={<InfoCircleOutlined />}>Tìm hiểu thêm</Button>
                                 </div>
                             </Card>
                         </Col>
@@ -283,25 +283,25 @@ const UserProfileMembershipView = () => {
             case "renew":
                 return hasMembership ? (
                     <div className="p-4">
-                        <Title level={4}>Renew Membership</Title>
-                        <Paragraph>Fill in the details below to renew your membership pack.</Paragraph>
+                        <Title level={4}>Tái kích hoạt gói thành viên</Title>
+                        <Paragraph>Điền vào thông tin phía dưới để tái kích hoạt gói thành viên.</Paragraph>
                         <Form layout="vertical">
-                            <Form.Item label="New Plan">
+                            <Form.Item label="Gói mới">
                                 <Input
-                                    placeholder="Enter new plan name"
+                                    placeholder="Nhập tên gói mới"
                                     value={renewForm.newPlan}
                                     onChange={(e) => handleRenewFormChange("newPlan", e.target.value)}
                                 />
                             </Form.Item>
-                            <Form.Item label="Duration (months)">
+                            <Form.Item label="Thời hạn (Tháng)">
                                 <Input
                                     type="number"
-                                    placeholder="Enter duration in months"
+                                    placeholder="Nhập thời hạn theo tháng"
                                     value={renewForm.duration}
                                     onChange={(e) => handleRenewFormChange("duration", e.target.value)}
                                 />
                             </Form.Item>
-                            <Form.Item label="Start Date">
+                            <Form.Item label="Ngày bắt đầu">
                                 <Input
                                     type="date"
                                     value={renewForm.startDate}
@@ -310,7 +310,7 @@ const UserProfileMembershipView = () => {
                             </Form.Item>
                             <div className="flex justify-end mt-4">
                                 <Button type="primary" onClick={handleRenewMembership}>
-                                    Submit Renewal
+                                    Tái kích hoạt
                                 </Button>
                             </div>
                         </Form>
@@ -333,7 +333,7 @@ const UserProfileMembershipView = () => {
     return (
         <div className="container mx-auto p-6">
             <Card
-                title={<Title level={3}>Membership Management</Title>}
+                title={<Title level={3}>Quản lý gói thành viên</Title>}
                 bordered={false}
                 className="shadow-xl rounded-lg"
                 style={{ maxWidth: "1200px", margin: "0 auto", padding: "24px" }}
@@ -342,30 +342,30 @@ const UserProfileMembershipView = () => {
                 <div className="flex justify-center border-b pb-4 mb-6">
                     <button
                         className={`w-56 px-4 py-2 mx-2 transition-colors rounded ${activeTab === "details"
-                                ? "border-b-2 border-blue-500 font-bold text-blue-600"
-                                : "text-gray-500 hover:text-blue-500"
+                            ? "border-b-2 border-blue-500 font-bold text-blue-600"
+                            : "text-gray-500 hover:text-blue-500"
                             }`}
                         onClick={() => setActiveTab("details")}
                     >
-                        Membership Details
+                        Thông tin gói thành viên
                     </button>
                     <button
                         className={`w-56 px-4 py-2 mx-2 transition-colors rounded ${activeTab === "renew"
-                                ? "border-b-2 border-blue-500 font-bold text-blue-600"
-                                : "text-gray-500 hover:text-blue-500"
+                            ? "border-b-2 border-blue-500 font-bold text-blue-600"
+                            : "text-gray-500 hover:text-blue-500"
                             }`}
                         onClick={() => setActiveTab("renew")}
                     >
-                        Renew Membership
+                        Tái kích hoạt gói thành viên
                     </button>
                     <button
                         className={`w-56 px-4 py-2 mx-2 transition-colors rounded ${activeTab === "membership"
-                                ? "border-b-2 border-blue-500 font-bold text-blue-600"
-                                : "text-gray-500 hover:text-blue-500"
+                            ? "border-b-2 border-blue-500 font-bold text-blue-600"
+                            : "text-gray-500 hover:text-blue-500"
                             }`}
                         onClick={() => setActiveTab("membership")}
                     >
-                        My Membership Pack
+                        Gói thành viên của tôi
                     </button>
                 </div>
 
@@ -381,7 +381,7 @@ const UserProfileMembershipView = () => {
 
             {/* Renewal Modal (Detailed Form) */}
             <Modal
-                title="Renew Membership"
+                title="Tái kích hoạt gói thành viên"
                 visible={renewModalVisible}
                 onOk={handleRenewMembership}
                 onCancel={() => setRenewModalVisible(false)}
@@ -390,29 +390,29 @@ const UserProfileMembershipView = () => {
                 width={600}
             >
                 <div className="p-4">
-                    <p>Please fill in the details below to renew your membership pack:</p>
+                    <p>Vui lòng nhập thông tin phía dưới đây để tái kích hoạt gói thành viên:</p>
                     <div className="mt-4">
-                        <label className="block mb-2 font-medium">New Plan</label>
+                        <label className="block mb-2 font-medium">Gói mới</label>
                         <input
                             type="text"
                             value={renewForm.newPlan}
                             onChange={(e) => handleRenewFormChange("newPlan", e.target.value)}
                             className="w-full p-3 border border-gray-300 rounded"
-                            placeholder="Enter new plan name"
+                            placeholder="Nhập tên gói mới"
                         />
                     </div>
                     <div className="mt-4">
-                        <label className="block mb-2 font-medium">Duration (months)</label>
+                        <label className="block mb-2 font-medium">Thời hạn (tháng)</label>
                         <input
                             type="number"
                             value={renewForm.duration}
                             onChange={(e) => handleRenewFormChange("duration", e.target.value)}
                             className="w-full p-3 border border-gray-300 rounded"
-                            placeholder="Enter duration in months"
+                            placeholder="Nhập thời hạn theo tháng"
                         />
                     </div>
                     <div className="mt-4">
-                        <label className="block mb-2 font-medium">Start Date</label>
+                        <label className="block mb-2 font-medium">Ngày bắt đầu</label>
                         <input
                             type="date"
                             value={renewForm.startDate}

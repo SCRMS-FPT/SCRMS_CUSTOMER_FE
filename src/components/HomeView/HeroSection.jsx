@@ -97,7 +97,7 @@ const HeroSection = () => {
               mb: 1,
             }}
           >
-            FIND YOUR SPORT
+            TÌM MÔN THỂ THAO DÀNH CHO BẠN
           </Typography>
           <Typography
             variant="h4"
@@ -109,7 +109,7 @@ const HeroSection = () => {
               mb: 6,
             }}
           >
-            SEARCH. BOOK. PLAY. REPEAT.
+            TÌM KIẾM. ĐẶT SÂN. THI ĐẤU.
           </Typography>
 
           <FilterForm />

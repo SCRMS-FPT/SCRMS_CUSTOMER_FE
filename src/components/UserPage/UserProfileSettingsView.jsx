@@ -12,12 +12,12 @@ const UserProfileSettingsView = () => {
 
   const onUpdateProfile = (values) => {
     console.log("Updated Profile:", values);
-    message.success("Profile updated successfully!");
+    message.success("Thông tin cá nhân được cập nhật thành công!");
   };
 
   const onUpdatePreferences = (values) => {
     console.log("Updated Preferences:", values);
-    message.success("Preferences updated successfully!");
+    message.success("Các tùy chọn đã được cập nhật thành công!");
   };
 
   return (
@@ -33,61 +33,61 @@ const UserProfileSettingsView = () => {
         }}>
           <Form.Item label="Profile Picture">
             <Upload listType="picture" maxCount={1} beforeUpload={() => false}>
-              <Button icon={<UploadOutlined />}>Upload Picture</Button>
+              <Button icon={<UploadOutlined />}>Cập nhật ảnh</Button>
             </Upload>
           </Form.Item>
-          <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: "Please enter your full name" }]}>
-            <Input placeholder="Enter your full name" prefix={<UserOutlined style={{ color: "#1890ff" }} />} size="large" />
+          <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: "Vui lòng nhập tên đầy đủ" }]}>
+            <Input placeholder="Nhập tên đầy đủ" prefix={<UserOutlined style={{ color: "#1890ff" }} />} size="large" />
           </Form.Item>
-          <Form.Item label="Email" name="email" rules={[{ required: true, message: "Please enter your email" }, { type: "email", message: "Enter a valid email address" }]}>
-            <Input placeholder="Enter your email" prefix={<MailOutlined style={{ color: "#1890ff" }} />} size="large" />
+          <Form.Item label="Email" name="email" rules={[{ required: true, message: "Vui lòng nhập email của bạn" }, { type: "email", message: "Enter a valid email address" }]}>
+            <Input placeholder="Nhập email của bạn" prefix={<MailOutlined style={{ color: "#1890ff" }} />} size="large" />
           </Form.Item>
-          <Form.Item label="Phone" name="phone" rules={[{ required: true, message: "Please enter your phone number" }]}>
-            <Input placeholder="Enter your phone number" prefix={<PhoneOutlined style={{ color: "#1890ff" }} />} size="large" />
+          <Form.Item label="Phone" name="phone" rules={[{ required: true, message: "Vui lòng nhập số điện thoại của bạn" }]}>
+            <Input placeholder="Nhập số điện thoại" prefix={<PhoneOutlined style={{ color: "#1890ff" }} />} size="large" />
           </Form.Item>
-          <Form.Item label="Address" name="address" rules={[{ required: true, message: "Please enter your address" }]}>
-            <Input placeholder="Enter your address" prefix={<HomeOutlined style={{ color: "#1890ff" }} />} size="large" />
+          <Form.Item label="Address" name="address" rules={[{ required: true, message: "Vui lòng nhập địa chỉ của bạn" }]}>
+            <Input placeholder="Nhập địa chỉ" prefix={<HomeOutlined style={{ color: "#1890ff" }} />} size="large" />
           </Form.Item>
-          <Form.Item label="About Me" name="aboutMe">
-            <Input.TextArea rows={3} placeholder="Tell us about yourself..." />
+          <Form.Item label="Mô tả về tôi" name="aboutMe">
+            <Input.TextArea rows={3} placeholder="Kể cho chúng tôi về bạn..." />
           </Form.Item>
           <div className="text-center">
             <Button type="primary" htmlType="submit" size="large" style={{ width: "50%", borderRadius: "8px" }}>
-              Update Profile
+              Cập nhật thông tin
             </Button>
           </div>
         </Form>
       </Card>
 
       {/* Change Password Section */}
-      <Card title="Account Security" bordered={false} className="shadow-lg rounded-lg" style={{ background: "linear-gradient(135deg, #ffffff, #f0f5ff)", padding: "24px" }}>
+      <Card title="Bảo mật tài khoản" bordered={false} className="shadow-lg rounded-lg" style={{ background: "linear-gradient(135deg, #ffffff, #f0f5ff)", padding: "24px" }}>
         <div className="text-center">
           <Button type="dashed" size="large" onClick={() => setShowPasswordChange(!showPasswordChange)}>
-            {showPasswordChange ? "Cancel Change Password" : "Change Password"}
+            {showPasswordChange ? "Hủy thay đổi mật khẩu" : "Đổi mật khẩu"}
           </Button>
         </div>
         {showPasswordChange && (
           <Form form={form} layout="vertical" onFinish={onUpdateProfile} className="mt-4">
-            <Form.Item label="New Password" name="password" rules={[{ required: true, message: "Please enter your new password" }]}>
-              <Input.Password placeholder="Enter new password" prefix={<LockOutlined style={{ color: "#1890ff" }} />} size="large" />
+            <Form.Item label="Mật khẩu mới" name="password" rules={[{ required: true, message: "Vui lòng nhập mật khẩu mới của bạn" }]}>
+              <Input.Password placeholder="Nhập mật khẩu mới" prefix={<LockOutlined style={{ color: "#1890ff" }} />} size="large" />
             </Form.Item>
-            <Form.Item label="Confirm Password" name="confirmPassword" dependencies={["password"]}
-              rules={[{ required: true, message: "Please confirm your new password" },
+            <Form.Item label="Mật khẩu xác nhận" name="confirmPassword" dependencies={["password"]}
+              rules={[{ required: true, message: "Vui lòng nhập mật khẩu xác nhận" },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue("password") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error("Passwords do not match!"));
+                    return Promise.reject(new Error("Mật khẩu xác nhận không trùng với mật khẩu mới!"));
                   },
                 }),
               ]}
             >
-              <Input.Password placeholder="Confirm new password" prefix={<LockOutlined style={{ color: "#1890ff" }} />} size="large" />
+              <Input.Password placeholder="Nhập mật khẩu xác nhận" prefix={<LockOutlined style={{ color: "#1890ff" }} />} size="large" />
             </Form.Item>
             <div className="text-center">
               <Button type="primary" htmlType="submit" size="large" style={{ width: "50%", borderRadius: "8px" }}>
-                Update Password
+                Cập nhật mật khẩu
               </Button>
             </div>
           </Form>
@@ -95,31 +95,31 @@ const UserProfileSettingsView = () => {
       </Card>
 
       {/* Preferences Section */}
-      <Card title="Preferences" bordered={false} className="shadow-lg rounded-lg" style={{ background: "linear-gradient(135deg, #ffffff, #f0f5ff)", padding: "24px" }}>
+      <Card title="Tùy chỉnh tài khoản" bordered={false} className="shadow-lg rounded-lg" style={{ background: "linear-gradient(135deg, #ffffff, #f0f5ff)", padding: "24px" }}>
         <Form form={form} layout="vertical" onFinish={onUpdatePreferences} initialValues={{ newsletter: true }}>
           <Form.Item name="newsletter" valuePropName="checked">
-            <Checkbox>Subscribe to Newsletter</Checkbox>
+            <Checkbox>Đăng kí Newsletter</Checkbox>
           </Form.Item>
           <div className="text-center">
             <Button type="primary" htmlType="submit" size="large" style={{ width: "50%", borderRadius: "8px" }}>
-              Update Preferences
+              Cập nhật tùy chỉnh
             </Button>
           </div>
         </Form>
       </Card>
 
       {/* Notifications Section */}
-      <Card title="Notifications" bordered={false} className="shadow-lg rounded-lg" style={{ background: "linear-gradient(135deg, #ffffff, #f0f5ff)", padding: "24px" }}>
+      <Card title="Thông báo" bordered={false} className="shadow-lg rounded-lg" style={{ background: "linear-gradient(135deg, #ffffff, #f0f5ff)", padding: "24px" }}>
         <Form form={form} layout="vertical" onFinish={onUpdatePreferences} initialValues={{ emailNotifications: true }}>
           <Form.Item name="emailNotifications" valuePropName="checked">
             <div className="flex justify-between items-center">
-              <span>Email Notifications</span>
+              <span>Thông báo qua email</span>
               <Switch defaultChecked />
             </div>
           </Form.Item>
           <div className="text-center">
             <Button type="primary" htmlType="submit" size="large" style={{ width: "50%", borderRadius: "8px" }}>
-              Update Notifications
+              Cập nhật thông báo
             </Button>
           </div>
         </Form>

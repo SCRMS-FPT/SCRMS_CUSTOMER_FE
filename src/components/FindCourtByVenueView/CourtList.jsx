@@ -40,7 +40,7 @@ const CourtList = ({ courts, loading  }) => {
                 </>
             ) : (
                 <div className="flex justify-center items-center p-6">
-                    <p className="text-gray-500 text-lg">No courts available at this venue.</p>
+                    <p className="text-gray-500 text-lg">Không có sân phù hợp tại trung tâm thể thao này.</p>
                 </div>
             )}
         </div>

@@ -77,15 +77,15 @@ const TopSocialGames = () => {
             },
           }}
         >
-          Social Games Near You
+          Các trận đấu giao lưu gần bạn
         </Typography>
         <Typography
           variant="body1"
           color="text.secondary"
           sx={{ maxWidth: 600, mx: "auto" }}
         >
-          Find and join other players in these upcoming social games. Make new
-          friends and enjoy your favorite sports!
+          Tìm và tham gia cùng những người chơi khác trong các trận đấu giao lưu sắp tới.
+          Kết bạn mới và tận hưởng những môn thể thao yêu thích của bạn!
         </Typography>
       </Box>
 
@@ -99,7 +99,7 @@ const TopSocialGames = () => {
           mb: 4,
         }}
       >
-        {["All", "Badminton", "Pickleball", "Futsal"].map((sport) => (
+        {["Tất cả", "Cầu lông", "Pickleball", "Bóng đá"].map((sport) => (
           <motion.div
             key={sport}
             whileHover={{ scale: 1.05 }}
@@ -214,7 +214,7 @@ const TopSocialGames = () => {
                           color="success.main"
                           fontWeight="bold"
                         >
-                          Looking for players
+                          Tìm kiếm người chơi...
                         </Typography>
                       </Box>
 
@@ -224,7 +224,7 @@ const TopSocialGames = () => {
                         endIcon={<ArrowForward />}
                         sx={{ textTransform: "none" }}
                       >
-                        Join
+                        Tham gia
                       </Button>
                     </Box>
 

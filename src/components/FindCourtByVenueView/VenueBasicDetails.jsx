@@ -20,17 +20,17 @@ const VenueBasicDetails = ({ venue }) => {
         }
     }, [venue]);
 
-    if (!venue) return <p>Please select a venue to see details.</p>;
+    if (!venue) return <p>Vui lòng lựa chọn một trung tâm thể thao để xem thông tin chi tiết</p>;
 
     return (
         <Card className="shadow-md p-4 relative flex flex-col">
             {/* Venue Information */}
             <div>
                 <h2 className="text-xl font-semibold">{venue.name}</h2>
-                <p><strong>Address:</strong> {venue.address.street}, {venue.address.city}</p>
-                <p><strong>Contact:</strong> {venue.contact_info.phone}</p>
-                <p><strong>Sports Available:</strong> {venue.sports_available.join(", ")}</p>
-                <p><strong>Amenities:</strong> {venue.amenities.join(", ")}</p>
+                <p><strong>Địa chỉ:</strong> {venue.address.street}, {venue.address.city}</p>
+                <p><strong>Liên hệ:</strong> {venue.contact_info.phone}</p>
+                <p><strong>Môn thể thao:</strong> {venue.sports_available.join(", ")}</p>
+                <p><strong>Tiện ích:</strong> {venue.amenities.join(", ")}</p>
             </div>
 
             {/* More Details Icon */}

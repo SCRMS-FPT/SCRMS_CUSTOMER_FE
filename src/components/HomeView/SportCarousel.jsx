@@ -14,12 +14,12 @@ import img5 from "@/assets/swimming.jpg";
 import img6 from "@/assets/personal_trainers.jpg";
 
 const sportsData = [
-  { img: img1, name: "Football" },
+  { img: img1, name: "Bóng đá" },
   { img: img2, name: "Tennis" },
-  { img: img3, name: "Adventure Sports" },
+  { img: img3, name: "Thể thao" },
   { img: img4, name: "eSports" },
-  { img: img5, name: "Swimming" },
-  { img: img6, name: "Personal Trainers" },
+  { img: img5, name: "Bơi lội" },
+  { img: img6, name: "Phòng Gym" },
 ];
 
 const SportsCarousel = () => {
