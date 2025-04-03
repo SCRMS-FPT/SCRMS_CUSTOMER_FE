@@ -22,18 +22,18 @@ const UserSidebar = ({ children }) => {
   const location = useLocation();
 
   const menuItems = [
-    { key: "/user/dashboard", icon: <DashboardOutlined />, label: <Link to="/user/dashboard">User Dashboard</Link> },
-    { key: "/user/bookings", icon: <CalendarOutlined />, label: <Link to="/user/bookings">Court Booking</Link> },
-    { key: "/user/matching", icon: <UsergroupAddOutlined />, label: <Link to="/user/matching">Team Matching</Link> },
-    { key: "/user/coachings", icon: <BookOutlined />, label: <Link to="/user/coachings">Coaching</Link> },
-    { key: "/user/feedbacks", icon: <MessageOutlined />, label: <Link to="/user/feedbacks">Feedback</Link> },
-    { key: "/user/transactions", icon: <TransactionOutlined />, label: <Link to="/user/transactions">Transactions</Link> },
+    { key: "/user/dashboard", icon: <DashboardOutlined />, label: <Link to="/user/dashboard">Bảng điều khiển</Link> },
+    { key: "/user/bookings", icon: <CalendarOutlined />, label: <Link to="/user/bookings">Đặt lịch sân</Link> },
+    { key: "/user/matching", icon: <UsergroupAddOutlined />, label: <Link to="/user/matching">Tìm trận</Link> },
+    { key: "/user/coachings", icon: <BookOutlined />, label: <Link to="/user/coachings">Huấn luyện viên</Link> },
+    { key: "/user/feedbacks", icon: <MessageOutlined />, label: <Link to="/user/feedbacks">Phản hồi</Link> },
+    { key: "/user/transactions", icon: <TransactionOutlined />, label: <Link to="/user/transactions">Thanh toán</Link> },
   ];
 
   const bottomMenuItems = [
-    { key: "/home", icon: <HomeOutlined />, label: <Link to="/home">Return to Homepage</Link> },
-    { key: "/settings", icon: <SettingOutlined />, label: <Link to="/settings">View Profile Settings</Link> },
-    { key: "/logout", icon: <LogoutOutlined />, label: <Link to="/logout">Sign Out</Link> },
+    { key: "/home", icon: <HomeOutlined />, label: <Link to="/home">Quay trở lại trang chủ</Link> },
+    { key: "/settings", icon: <SettingOutlined />, label: <Link to="/settings">Xem cài đặt cá nhân</Link> },
+    { key: "/logout", icon: <LogoutOutlined />, label: <Link to="/logout">Đăng xuất</Link> },
   ];
 
   return (
@@ -58,7 +58,7 @@ const UserSidebar = ({ children }) => {
         }}
       >
         <div className="flex justify-between items-center p-4">
-          <h2 className={`text-lg font-bold ${collapsed ? "hidden" : "block"}`}>User Dashboard</h2>
+          <h2 className={`text-lg font-bold ${collapsed ? "hidden" : "block"}`}>Bảng điều khiển</h2>
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined style={{ fontSize: "20px", marginLeft: 16 }} /> : <MenuFoldOutlined style={{ fontSize: "20px" }} />}

@@ -141,7 +141,7 @@ const HeroBanner = () => (
               fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
             }}
           >
-            Find Your Perfect Court
+            Tìm sân đấu phù hợp với bạn
           </Typography>
           <Typography
             variant="h6"
@@ -153,8 +153,8 @@ const HeroBanner = () => (
               fontSize: { xs: "1rem", md: "1.25rem" },
             }}
           >
-            Discover, compare and book sport courts across Vietnam with
-            real-time availability
+            Khám phá và đặt sân thể thao trên khắp Việt Nam với
+            tình trạng sẵn có theo thời gian thực
           </Typography>
         </Box>
       </Zoom>
@@ -197,13 +197,16 @@ const FeaturedSportCenterCard = ({ center, onClick }) => {
       />
       <CardMedia
         component="img"
-        height={200}
         image={
           center.avatar ||
           "https://via.placeholder.com/300x200?text=Sports+Center"
         }
         alt={center.name}
-        sx={{ objectFit: "cover" }}
+        sx={{
+          height: 200,
+          objectFit: "cover",
+          width: "100%",
+        }}
       />
       <CardContent sx={{ flexGrow: 1, pb: 1 }}>
         <Box
@@ -257,7 +260,7 @@ const FeaturedSportCenterCard = ({ center, onClick }) => {
           color="primary"
           endIcon={<ArrowForward />}
         >
-          View Details
+          Xem chi tiết
         </Button>
       </Box>
     </Card>
@@ -629,7 +632,7 @@ const BrowseCourtsView = () => {
                 <TextField
                   fullWidth
                   variant="outlined"
-                  placeholder="Search sport centers by name..."
+                  placeholder="Tìm kiếm theo tên..."
                   value={nameQuery}
                   onChange={handleNameQueryChange}
                   InputProps={{
@@ -657,7 +660,7 @@ const BrowseCourtsView = () => {
               {/* City Filter */}
               <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth variant="outlined">
-                  <InputLabel id="city-filter-label">City</InputLabel>
+                  <InputLabel id="city-filter-label">Thành phố</InputLabel>
                   <Select
                     labelId="city-filter-label"
                     value={cityFilter}
@@ -677,7 +680,7 @@ const BrowseCourtsView = () => {
                       )
                     }
                   >
-                    <MenuItem value="">All Cities</MenuItem>
+                    <MenuItem value="">Tất cả các thành phố</MenuItem>
                     {cities.map((city) => (
                       <MenuItem key={city.id} value={city.name}>
                         {city.name}
@@ -690,7 +693,7 @@ const BrowseCourtsView = () => {
               {/* Date Picker */}
               <Grid item xs={12} sm={6} md={2}>
                 <DatePicker
-                  label="Date"
+                  label="Ngày"
                   value={selectedDate}
                   onChange={handleDateChange}
                   slotProps={{
@@ -720,7 +723,7 @@ const BrowseCourtsView = () => {
                   endIcon={filtersExpanded ? <ArrowDropDown /> : <FilterList />}
                   sx={{ borderRadius: 2, height: "56px" }}
                 >
-                  {filtersExpanded ? "Hide Filters" : "More Filters"}
+                  {filtersExpanded ? "Ẩn bộ lọc" : "Thêm bộ lọc"}
                 </Button>
               </Grid>
             </Grid>
@@ -743,17 +746,17 @@ const BrowseCourtsView = () => {
                         <Tab
                           icon={<SportsTennis fontSize="small" />}
                           iconPosition="start"
-                          label="Sports & Time"
+                          label="Môn thể thaqo & Thời gian"
                         />
                         <Tab
                           icon={<AttachMoney fontSize="small" />}
                           iconPosition="start"
-                          label="Price"
+                          label="Giá thành"
                         />
                         <Tab
                           icon={<Check fontSize="small" />}
                           iconPosition="start"
-                          label="Facilities"
+                          label="Cơ sở vật chất"
                         />
                       </Tabs>
                     </Box>
@@ -765,7 +768,7 @@ const BrowseCourtsView = () => {
                         <Grid item xs={12} md={4}>
                           <FormControl fullWidth variant="outlined">
                             <InputLabel id="sport-filter-label">
-                              Sport
+                              Môn thể thao
                             </InputLabel>
                             <Select
                               labelId="sport-filter-label"
@@ -839,7 +842,7 @@ const BrowseCourtsView = () => {
                                 )
                               }
                             >
-                              <MenuItem value="">All Sports</MenuItem>
+                              <MenuItem value="">Tất cả các môn thể thao</MenuItem>
                               {sports.map((sport) => (
                                 <MenuItem key={sport.id} value={sport.id}>
                                   <ListItemIcon>
@@ -863,7 +866,7 @@ const BrowseCourtsView = () => {
                             sx={{ display: "flex", alignItems: "center" }}
                           >
                             <EventAvailable color="primary" sx={{ mr: 0.5 }} />
-                            Time of Day
+                            Thời gian của ngày
                           </Typography>
                           <Box display="flex" gap={1} flexWrap="wrap">
                             {TIME_PRESETS.map((preset) => (
@@ -886,7 +889,7 @@ const BrowseCourtsView = () => {
                           {/* Custom Time Range */}
                           <Stack direction="row" spacing={2} mt={2}>
                             <TimePicker
-                              label="Start Time"
+                              label="Thời gian bắt đầu"
                               value={startTime}
                               onChange={handleStartTimeChange}
                               slotProps={{
@@ -905,7 +908,7 @@ const BrowseCourtsView = () => {
                               }}
                             />
                             <TimePicker
-                              label="End Time"
+                              label="Thời gian kết thúc"
                               value={endTime}
                               onChange={handleEndTimeChange}
                               slotProps={{
@@ -942,7 +945,7 @@ const BrowseCourtsView = () => {
                               }}
                             >
                               <AttachMoney color="primary" sx={{ mr: 0.5 }} />
-                              Price Range per Hour (VND)
+                              Giá thành theo tiếng (VND)
                             </Typography>
                             <Slider
                               value={priceRange}
@@ -1047,7 +1050,7 @@ const BrowseCourtsView = () => {
                         variant="outlined"
                         sx={{ borderRadius: 2 }}
                       >
-                        Clear All Filters
+                        Xóa tất cả cac bộ lọc
                       </Button>
                     </Box>
                   </Box>
@@ -1082,12 +1085,11 @@ const BrowseCourtsView = () => {
               )}
               {sportFilter && (
                 <Chip
-                  label={`Sport: ${
-                    sportFilter.includes("-")
-                      ? sports.find((s) => s.id === sportFilter)?.name ||
-                        sportFilter
-                      : sportFilter
-                  }`}
+                  label={`Sport: ${sportFilter.includes("-")
+                    ? sports.find((s) => s.id === sportFilter)?.name ||
+                    sportFilter
+                    : sportFilter
+                    }`}
                   size="small"
                   onDelete={() => setSportFilter("")}
                   sx={{ borderRadius: 2 }}
@@ -1147,7 +1149,7 @@ const BrowseCourtsView = () => {
               >
                 <Whatshot color="error" sx={{ mr: 1 }} />
                 <Typography variant="h5" component="h2" fontWeight={600}>
-                  Featured Sport Centers
+                  Các trung tâm thể thao nổi tiếng
                 </Typography>
               </Box>
 
@@ -1181,9 +1183,9 @@ const BrowseCourtsView = () => {
               {loading ? (
                 <Skeleton width={180} />
               ) : totalCount > 0 ? (
-                `All Sport Centers (${totalCount})`
+                `Tất cả các trung tâm thể thao (${totalCount})`
               ) : (
-                "Search Results"
+                "Kết quả tìm kiếm"
               )}
             </Typography>
 
@@ -1364,11 +1366,10 @@ const BrowseCourtsView = () => {
                     sx={{ fontSize: 60, color: "text.secondary", mb: 2 }}
                   />
                   <Typography variant="h5" gutterBottom color="text.secondary">
-                    No sports centers found
+                    Không tìm thấy trung tâm thể thao nào phù hợp
                   </Typography>
                   <Typography variant="body1" color="text.secondary" paragraph>
-                    Try adjusting your search or filters to find what you're
-                    looking for.
+                    Hãy thử điều chỉnh tìm kiếm hoặc bộ lọc để tìm thấy những gì bạn đang tìm kiếm.
                   </Typography>
                   <Button
                     variant="contained"
@@ -1376,7 +1377,7 @@ const BrowseCourtsView = () => {
                     onClick={handleClearFilters}
                     sx={{ mt: 1, borderRadius: 2 }}
                   >
-                    Clear All Filters
+                    Xóa tất cả các bộ lọc
                   </Button>
                 </Paper>
               ) : (
@@ -1409,13 +1410,16 @@ const BrowseCourtsView = () => {
                             <Box sx={{ position: "relative" }}>
                               <CardMedia
                                 component="img"
-                                height={200}
                                 image={
                                   center.avatar ||
                                   "https://via.placeholder.com/300x200?text=Sports+Center"
                                 }
                                 alt={center.name}
-                                sx={{ objectFit: "cover" }}
+                                sx={{
+                                  height: 200,
+                                  objectFit: "cover",
+                                  width: "100%",
+                                }}
                               />
                               {/* Rating Badge */}
                               <Box
@@ -1490,15 +1494,14 @@ const BrowseCourtsView = () => {
                                     ))}
                                   {(center.sportNames?.length ||
                                     uniqueSports.length) > 3 && (
-                                    <Chip
-                                      label={`+${
-                                        (center.sportNames?.length ||
+                                      <Chip
+                                        label={`+${(center.sportNames?.length ||
                                           uniqueSports.length) - 3
-                                      }`}
-                                      size="small"
-                                      sx={{ borderRadius: 2, height: 24 }}
-                                    />
-                                  )}
+                                          }`}
+                                        size="small"
+                                        sx={{ borderRadius: 2, height: 24 }}
+                                      />
+                                    )}
                                 </Box>
                               </Box>
 
@@ -1517,10 +1520,10 @@ const BrowseCourtsView = () => {
                                     {priceRange.min === priceRange.max
                                       ? `${formatPrice(priceRange.min)} VND`
                                       : `${formatPrice(
-                                          priceRange.min
-                                        )} - ${formatPrice(
-                                          priceRange.max
-                                        )} VND`}
+                                        priceRange.min
+                                      )} - ${formatPrice(
+                                        priceRange.max
+                                      )} VND`}
                                   </Typography>
                                 </Box>
                               )}
@@ -1534,7 +1537,7 @@ const BrowseCourtsView = () => {
                                 endIcon={<ArrowForward />}
                                 sx={{ borderRadius: 2 }}
                               >
-                                View Details
+                                Xem chi tiết
                               </Button>
                             </CardActions>
                           </Paper>
@@ -1676,13 +1679,13 @@ const BrowseCourtsView = () => {
                                         >
                                           {priceRange.min === priceRange.max
                                             ? `${formatPrice(
-                                                priceRange.min
-                                              )} VND/hour`
+                                              priceRange.min
+                                            )} VND/hour`
                                             : `${formatPrice(
-                                                priceRange.min
-                                              )} - ${formatPrice(
-                                                priceRange.max
-                                              )} VND/hour`}
+                                              priceRange.min
+                                            )} - ${formatPrice(
+                                              priceRange.max
+                                            )} VND/hour`}
                                         </Typography>
                                       </Box>
                                     )}
@@ -1699,7 +1702,7 @@ const BrowseCourtsView = () => {
                                         fontSize="small"
                                         sx={{ mr: 0.5 }}
                                       />
-                                      Available Sports:
+                                      Các môn thể thao
                                     </Typography>
                                     <Box
                                       display="flex"
@@ -1749,7 +1752,7 @@ const BrowseCourtsView = () => {
                                   endIcon={<ArrowForward />}
                                   sx={{ borderRadius: 2 }}
                                 >
-                                  View Details
+                                  Xem chi tiết
                                 </Button>
                               </Box>
                             </Box>
@@ -1803,17 +1806,15 @@ const BrowseCourtsView = () => {
             <Box display="flex" alignItems="center" mb={1}>
               <Info color="primary" sx={{ mr: 1 }} />
               <Typography variant="subtitle1" fontWeight={600}>
-                Search Tips
+                Mẹo tìm kiếm
               </Typography>
             </Box>
             <Typography variant="body2" color="text.secondary">
-              • Use the date and time filters to find available courts for your
-              preferred schedule
+              • Sử dụng bộ lọc ngày và giờ để tìm sân có sẵn theo lịch trình bạn mong muốn
               <br />
-              • Filter by sport type to find centers that offer specific
-              activities
-              <br />• Check facility requirements (locker rooms, equipment
-              rental) to ensure the center meets your needs
+              • Lọc theo loại môn thể thao để tìm các trung tâm cung cấp hoạt động cụ thể
+              <br />
+              • Kiểm tra yêu cầu cơ sở vật chất (phòng thay đồ, thuê thiết bị) để đảm bảo trung tâm đáp ứng nhu cầu của bạn
             </Typography>
           </Paper>
         </Container>

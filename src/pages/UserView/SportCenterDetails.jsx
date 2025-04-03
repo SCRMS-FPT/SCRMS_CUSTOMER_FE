@@ -190,7 +190,7 @@ const SportCenterDetails = () => {
           component={Link}
           to="/sports-centers"
         >
-          Return to Sport Centers
+          Quay trở lại danh sách
         </Button>
       </Box>
     );
@@ -208,7 +208,7 @@ const SportCenterDetails = () => {
         sx={{ mb: 3 }}
         variant="outlined"
       >
-        Back to Sports Centers
+          Quay trở lại danh sách
       </Button>
 
       {/* Main Info Card - Improved layout */}
@@ -255,7 +255,7 @@ const SportCenterDetails = () => {
                 <Box display="flex" alignItems="center">
                   <Info color="primary" sx={{ mr: 1 }} />
                   <Typography variant="body2" color="text.secondary">
-                    Created on:{" "}
+                    Được tạo ngày:{" "}
                     {new Date(sportCenter.createdAt).toLocaleDateString()}
                   </Typography>
                 </Box>
@@ -268,7 +268,7 @@ const SportCenterDetails = () => {
                 to={`/sports-centers/${sportCenter.id}/all-courts`}
                 sx={{ mt: 2 }}
               >
-                View All Courts
+                Xem tất cả các sân
               </Button>
             </CardContent>
           </Grid>
@@ -290,7 +290,7 @@ const SportCenterDetails = () => {
               }}
             >
               <Description sx={{ mr: 1 }} />
-              About
+              Thông tin mô tả
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
@@ -310,7 +310,7 @@ const SportCenterDetails = () => {
               }}
             >
               <SportsTennis sx={{ mr: 1 }} />
-              Available Courts
+              Các sân đang mở
             </Typography>
             <Divider sx={{ mb: 3 }} />
 
@@ -319,14 +319,14 @@ const SportCenterDetails = () => {
               <Grid container spacing={2} alignItems="center">
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth size="small">
-                    <InputLabel id="sport-select-label">Sport</InputLabel>
+                    <InputLabel id="sport-select-label">Môn thể thao</InputLabel>
                     <Select
                       labelId="sport-select-label"
                       value={selectedSport}
                       label="Sport"
                       onChange={handleSportChange}
                     >
-                      <MenuItem value="">All Sports</MenuItem>
+                      <MenuItem value="">Tất cả các môn thể thao</MenuItem>
                       {sports.map((sport) => (
                         <MenuItem key={sport.id} value={sport.id}>
                           {sport.name}
@@ -344,10 +344,10 @@ const SportCenterDetails = () => {
                     variant="scrollable"
                     scrollButtons="auto"
                   >
-                    <Tab label="All" value="all" />
-                    <Tab label="Indoor" value="indoor" />
-                    <Tab label="Outdoor" value="outdoor" />
-                    <Tab label="Rooftop" value="rooftop" />
+                    <Tab label="Tất cả" value="all" />
+                    <Tab label="Trong nhà" value="indoor" />
+                    <Tab label="Ngoài trời" value="outdoor" />
+                    <Tab label="Có mái che" value="rooftop" />
                   </Tabs>
                 </Grid>
               </Grid>
@@ -361,7 +361,7 @@ const SportCenterDetails = () => {
             ) : courts.length === 0 ? (
               <Box textAlign="center" py={4}>
                 <Typography variant="body1" color="text.secondary">
-                  No courts found matching your criteria.
+                  Không tìm thấy sân phù hợp tiêu chí của bạn.
                 </Typography>
               </Box>
             ) : (
@@ -424,16 +424,16 @@ const SportCenterDetails = () => {
                               sx={{ color: "text.secondary", mr: 1 }}
                             />
                             <Typography variant="body2" color="text.secondary">
-                              Slot Duration:{" "}
+                              Thời gian:{" "}
                               {court.slotDuration?.substring(0, 5) || "1:00"}{" "}
-                              hour
+                              tiếng
                             </Typography>
                           </Box>
 
                           {court.facilities && court.facilities.length > 0 && (
                             <Box mt={2}>
                               <Typography variant="subtitle2" gutterBottom>
-                                Facilities:
+                                Cơ sở vật chất:
                               </Typography>
                               <List dense disablePadding>
                                 {court.facilities
@@ -458,7 +458,7 @@ const SportCenterDetails = () => {
                                     variant="body2"
                                     color="text.secondary"
                                   >
-                                    +{court.facilities.length - 3} more
+                                    +{court.facilities.length - 3} thêm
                                   </Typography>
                                 )}
                               </List>
@@ -482,7 +482,7 @@ const SportCenterDetails = () => {
                             }}
                             color="primary"
                           >
-                            Book Court
+                            Đặt sân
                           </Button>
                         </Box>
                       </Card>
@@ -509,7 +509,7 @@ const SportCenterDetails = () => {
           {sportCenter.imageUrls && sportCenter.imageUrls.length > 0 && (
             <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                Photo Gallery
+                Ảnh sân
               </Typography>
               <Divider sx={{ mb: 3 }} />
               <ImageList cols={2} gap={16} sx={{ mb: 2 }}>
@@ -538,7 +538,7 @@ const SportCenterDetails = () => {
           {/* Map Location - Using OpenStreetMap Embed instead of Google Maps */}
           <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-              Location
+              Địa chỉ
             </Typography>
             <Divider sx={{ mb: 2 }} />
 
@@ -562,14 +562,14 @@ const SportCenterDetails = () => {
 
             <Box mt={2}>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                Address:
+                Địa chỉ:
               </Typography>
               <Typography variant="body2" sx={{ mb: 1 }}>
                 {fullAddress}
               </Typography>
 
               <Typography variant="body2" sx={{ fontWeight: 500, mt: 1 }}>
-                Coordinates:
+                Tọa độ:
               </Typography>
               <Typography variant="body2">
                 {sportCenter.latitude.toFixed(4)},{" "}
@@ -584,7 +584,7 @@ const SportCenterDetails = () => {
                 href={`https://www.openstreetmap.org/?mlat=${sportCenter.latitude}&mlon=${sportCenter.longitude}#map=16/${sportCenter.latitude}/${sportCenter.longitude}`}
                 target="_blank"
               >
-                Open in Maps
+                Xem trên Maps
               </Button>
             </Box>
           </Paper>
@@ -592,13 +592,13 @@ const SportCenterDetails = () => {
           {/* Additional Info */}
           <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-              Additional Information
+              Thông tin thêm
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Stack spacing={2}>
               <Box>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  Sport Center ID:
+                  ID của trung tâm thể thao:
                 </Typography>
                 <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
                   {sportCenter.id}
@@ -607,7 +607,7 @@ const SportCenterDetails = () => {
 
               <Box>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  Created On:
+                  Tạo ra vào ngày:
                 </Typography>
                 <Typography variant="body2">
                   {new Date(sportCenter.createdAt).toLocaleString()}
@@ -616,7 +616,7 @@ const SportCenterDetails = () => {
 
               <Box>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  Last Updated:
+                  Lần cập nhật cuối:
                 </Typography>
                 <Typography variant="body2">
                   {new Date(sportCenter.lastModified).toLocaleString()}
@@ -631,7 +631,7 @@ const SportCenterDetails = () => {
                   component={Link}
                   to={`/sports-centers/${sportCenter.id}/all-courts`}
                 >
-                  View All Courts
+                  Xem tất cả các sân
                 </Button>
               </Box>
             </Stack>

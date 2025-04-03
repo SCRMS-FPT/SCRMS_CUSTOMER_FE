@@ -36,20 +36,20 @@ const NewChatModal = ({ visible, onClose }) => {
   };
 
   return (
-    <Modal title="New Chat" visible={visible} onCancel={onClose} footer={null}>
+    <Modal title="Tạo Cuộc Trò Chuyện Mới" visible={visible} onCancel={onClose} footer={null}>
       <div className="space-y-4">
         <Input
-          placeholder="Enter participant ID or username"
+          placeholder="Nhập ID hoặc tên người tham gia"
           value={participantId}
           onChange={(e) => setParticipantId(e.target.value)}
         />
         <Input
-          placeholder="Enter chat name (optional)"
+          placeholder="Nhập tên cuộc trò chuyện (không bắt buộc)"
           value={chatName}
           onChange={(e) => setChatName(e.target.value)}
         />
         <Button type="primary" loading={loading} onClick={handleCreateChat}>
-          Start Chat
+          Bắt Đầu Trò Chuyện
         </Button>
       </div>
     </Modal>

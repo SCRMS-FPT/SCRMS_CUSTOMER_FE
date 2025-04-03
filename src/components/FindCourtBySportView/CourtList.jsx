@@ -15,7 +15,7 @@ const CourtList = ({ courts, animationClass }) => {
         ) : (
           <Grid item xs={12}>
             <Typography variant="body1" align="center" color="text.secondary">
-              No courts available.
+              Không có sân phù hợp.
             </Typography>
           </Grid>
         )}

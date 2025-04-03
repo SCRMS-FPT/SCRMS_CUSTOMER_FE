@@ -112,7 +112,7 @@ const GeneralRoutes = [
       </Layout>
     }
   />,
-  <Route
+  <Route //chưa có dịch sang tiếng việt
     key="court-details"
     path="/court/:id"
     element={
@@ -139,7 +139,7 @@ const GeneralRoutes = [
       </Layout>
     }
   />,
-  <Route
+  <Route //chưa dịch
     key="courts-venue"
     path="/courts/venue"
     element={
@@ -148,7 +148,7 @@ const GeneralRoutes = [
       </Layout>
     }
   />,
-  <Route
+  <Route //chưa dịch
     key="courts-venue"
     path="/venue/:venueId"
     element={

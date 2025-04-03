@@ -55,24 +55,24 @@ const SupportView = () => {
 
   const faqs = [
     {
-      question: "How do I reset my password?",
+      question: "Làm thế nào để đặt lại mật khẩu của tôi?",
       answer:
-        "You can reset your password by clicking on 'Forgot Password' at the login screen and following the instructions.",
+        "Bạn có thể đặt lại mật khẩu bằng cách nhấp vào 'Quên mật khẩu' tại màn hình đăng nhập và làm theo hướng dẫn.",
     },
     {
-      question: "How can I contact customer service?",
+      question: "Làm thế nào để liên hệ với dịch vụ khách hàng?",
       answer:
-        "You can contact our support team via email at support@courtsite.com or call us at (123) 456-7890.",
+        "Bạn có thể liên hệ với đội ngũ hỗ trợ của chúng tôi qua email tại support@courtsite.com hoặc gọi cho chúng tôi theo số (123) 456-7890.",
     },
     {
-      question: "How do I change my account details?",
+      question: "Làm thế nào để thay đổi thông tin tài khoản của tôi?",
       answer:
-        "Go to your account settings, where you can update your email, phone number, and other details.",
+        "Hãy vào cài đặt tài khoản của bạn, nơi bạn có thể cập nhật email, số điện thoại và các thông tin khác.",
     },
     {
-      question: "Do you offer refunds?",
+      question: "Bạn có cung cấp hoàn tiền không?",
       answer:
-        "Refunds are available under specific conditions. Please check our refund policy for more details.",
+        "Chúng tôi có chính sách hoàn tiền trong một số điều kiện cụ thể. Vui lòng kiểm tra chính sách hoàn tiền của chúng tôi để biết thêm chi tiết.",
     },
   ];
 
@@ -91,13 +91,13 @@ const SupportView = () => {
 
       setSubmissionMessage({
         type: "success",
-        text: "Your message has been sent! We'll get back to you soon.",
+        text: "Tin nhắn của bạn đã được gửi! Chúng tôi sẽ liên hệ lại với bạn sớm.",
       });
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
       setSubmissionMessage({
         type: "error",
-        text: "Failed to send message. Please try again.",
+        text: "Gửi tin nhắn thất bại. Vui lòng thử lại.",
       });
     } finally {
       setIsSubmitting(false);
@@ -113,7 +113,6 @@ const SupportView = () => {
       }}
     >
       <Container maxWidth="lg">
-        {/* Header Section */}
         <Box textAlign="center" mb={6}>
           <Typography
             variant="h3"
@@ -123,18 +122,17 @@ const SupportView = () => {
             color="primary"
             sx={{ mb: 1 }}
           >
-            Support Center
+            Trung Tâm Hỗ Trợ
           </Typography>
           <Typography
             variant="h6"
             color="text.secondary"
             sx={{ maxWidth: "700px", mx: "auto" }}
           >
-            We're here to help! Contact us or find answers to your questions.
+            Chúng tôi luôn sẵn sàng hỗ trợ bạn! Liên hệ với chúng tôi hoặc tìm câu trả lời cho các câu hỏi của bạn.
           </Typography>
         </Box>
 
-        {/* Featured Support Cards */}
         <Grid container spacing={3} mb={6}>
           <Grid item xs={12} md={4}>
             <Card
@@ -161,10 +159,10 @@ const SupportView = () => {
                   <PhoneIcon fontSize="large" />
                 </Avatar>
                 <Typography variant="h6" gutterBottom fontWeight="bold">
-                  Call Us
+                  Gọi Điện
                 </Typography>
                 <Typography variant="body1" color="text.secondary" paragraph>
-                  Our support team is available Mon-Fri, 9am to 5pm
+                  Đội ngũ hỗ trợ của chúng tôi làm việc từ Thứ 2 - Thứ 6, 9h sáng đến 5h chiều
                 </Typography>
                 <Button
                   variant="outlined"
@@ -204,10 +202,10 @@ const SupportView = () => {
                   <EmailIcon fontSize="large" />
                 </Avatar>
                 <Typography variant="h6" gutterBottom fontWeight="bold">
-                  Email Support
+                  Hỗ Trợ Qua Email
                 </Typography>
                 <Typography variant="body1" color="text.secondary" paragraph>
-                  Send us an email and we'll respond within 24 hours
+                  Gửi email cho chúng tôi và bạn sẽ nhận được phản hồi trong vòng 24 giờ
                 </Typography>
                 <Button
                   variant="outlined"
@@ -247,10 +245,10 @@ const SupportView = () => {
                   <ChatIcon fontSize="large" />
                 </Avatar>
                 <Typography variant="h6" gutterBottom fontWeight="bold">
-                  Live Chat
+                  Trò Chuyện Trực Tiếp
                 </Typography>
                 <Typography variant="body1" color="text.secondary" paragraph>
-                  Live chat support will be available soon!
+                  Hỗ trợ trò chuyện trực tiếp sẽ sớm được ra mắt!
                 </Typography>
                 <Button
                   variant="outlined"
@@ -260,7 +258,7 @@ const SupportView = () => {
                   size="large"
                   fullWidth
                 >
-                  Coming Soon
+                  Sắp Ra Mắt
                 </Button>
               </CardContent>
             </Card>
@@ -268,9 +266,9 @@ const SupportView = () => {
         </Grid>
 
         <Grid container spacing={4}>
-          {/* Left Column */}
+          {/* Cột Bên Trái */}
           <Grid item xs={12} md={6}>
-            {/* FAQs Section */}
+            {/* Phần Câu Hỏi Thường Gặp */}
             <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
               <Box display="flex" alignItems="center" mb={3}>
                 <QuestionAnswerIcon
@@ -279,7 +277,7 @@ const SupportView = () => {
                   sx={{ mr: 1.5 }}
                 />
                 <Typography variant="h5" component="h2" fontWeight="bold">
-                  Frequently Asked Questions
+                  Câu Hỏi Thường Gặp
                 </Typography>
               </Box>
 
@@ -314,7 +312,7 @@ const SupportView = () => {
               ))}
             </Paper>
 
-            {/* Help Articles */}
+            {/* Bài Viết Hỗ Trợ */}
             <Paper
               elevation={3}
               sx={{ p: 3, mb: { xs: 4, md: 0 }, borderRadius: 2 }}
@@ -326,7 +324,7 @@ const SupportView = () => {
                   sx={{ mr: 1.5 }}
                 />
                 <Typography variant="h5" component="h2" fontWeight="bold">
-                  Help Articles
+                  Bài Viết Hỗ Trợ
                 </Typography>
               </Box>
               <Divider sx={{ mb: 2 }} />
@@ -341,7 +339,7 @@ const SupportView = () => {
                     <ArticleIcon color="primary" />
                   </ListItemIcon>
                   <ListItemText
-                    primary="How to book a court?"
+                    primary="Làm thế nào để đặt sân?"
                     primaryTypographyProps={{ fontWeight: "medium" }}
                   />
                 </ListItem>
@@ -355,7 +353,7 @@ const SupportView = () => {
                     <ArticleIcon color="primary" />
                   </ListItemIcon>
                   <ListItemText
-                    primary="Troubleshooting login issues"
+                    primary="Khắc phục sự cố đăng nhập"
                     primaryTypographyProps={{ fontWeight: "medium" }}
                   />
                 </ListItem>
@@ -369,7 +367,7 @@ const SupportView = () => {
                     <ArticleIcon color="primary" />
                   </ListItemIcon>
                   <ListItemText
-                    primary="Understanding membership benefits"
+                    primary="Hiểu về lợi ích thành viên"
                     primaryTypographyProps={{ fontWeight: "medium" }}
                   />
                 </ListItem>
@@ -377,9 +375,9 @@ const SupportView = () => {
             </Paper>
           </Grid>
 
-          {/* Right Column */}
+          {/* Cột Bên Phải */}
           <Grid item xs={12} md={6}>
-            {/* Contact Form */}
+            {/* Form Liên Hệ */}
             <Paper elevation={3} sx={{ p: { xs: 3, md: 4 }, borderRadius: 2 }}>
               <Box display="flex" alignItems="center" mb={3}>
                 <ContactSupportIcon
@@ -388,7 +386,7 @@ const SupportView = () => {
                   sx={{ mr: 1.5 }}
                 />
                 <Typography variant="h5" component="h2" fontWeight="bold">
-                  Send Us a Message
+                  Gửi Tin Nhắn Cho Chúng Tôi
                 </Typography>
               </Box>
 
@@ -405,7 +403,7 @@ const SupportView = () => {
               <form onSubmit={handleSubmit}>
                 <TextField
                   fullWidth
-                  label="Your Name"
+                  label="Tên Của Bạn"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
@@ -416,7 +414,7 @@ const SupportView = () => {
                 />
                 <TextField
                   fullWidth
-                  label="Email Address"
+                  label="Địa Chỉ Email"
                   name="email"
                   type="email"
                   value={formData.email}
@@ -428,7 +426,7 @@ const SupportView = () => {
                 />
                 <TextField
                   fullWidth
-                  label="Your Message"
+                  label="Tin Nhắn Của Bạn"
                   name="message"
                   value={formData.message}
                   onChange={handleInputChange}
@@ -455,22 +453,22 @@ const SupportView = () => {
                     )
                   }
                 >
-                  {isSubmitting ? "Sending..." : "Send Message"}
+                  {isSubmitting ? "Đang Gửi..." : "Gửi Tin Nhắn"}
                 </Button>
               </form>
 
-              {/* Company Location */}
+              {/* Địa Chỉ Công Ty */}
               <Box mt={4}>
                 <Divider sx={{ my: 3 }} />
                 <Typography variant="h6" fontWeight="bold" gutterBottom>
-                  Visit Our Office
+                  Văn Phòng Chúng Tôi
                 </Typography>
                 <Box display="flex" alignItems="center" mt={2}>
                   <LocationIcon color="primary" sx={{ mr: 2 }} />
                   <Typography>123 Sports Street, NY, USA</Typography>
                 </Box>
 
-                {/* Map Placeholder - you could add Google Maps here */}
+                {/* Placeholder Bản Đồ - bạn có thể thêm Google Maps tại đây */}
                 <Paper
                   variant="outlined"
                   sx={{
@@ -484,7 +482,7 @@ const SupportView = () => {
                   }}
                 >
                   <Typography color="text.secondary">
-                    Map integration coming soon
+                    Tích hợp bản đồ sẽ sớm ra mắt
                   </Typography>
                 </Paper>
               </Box>
@@ -492,10 +490,10 @@ const SupportView = () => {
           </Grid>
         </Grid>
 
-        {/* Social Media */}
+        {/* Mạng Xã Hội */}
         <Box mt={6} textAlign="center">
           <Typography variant="h6" gutterBottom>
-            Connect With Us
+            Kết Nối Với Chúng Tôi
           </Typography>
           <Stack direction="row" spacing={2} justifyContent="center" mt={2}>
             <IconButton

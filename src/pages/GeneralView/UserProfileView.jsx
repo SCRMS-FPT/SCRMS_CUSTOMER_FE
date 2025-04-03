@@ -33,7 +33,7 @@ const UserProfileView = () => {
           }`}
           onClick={() => setActiveTab("settings")}
         >
-          <FaCog className="mr-2" /> Settings
+          <FaCog className="mr-2" /> Cài đặt 
         </button>
         <button
           className={`w-40 px-4 py-2 mr-4 flex items-center justify-center transition-colors rounded ${
@@ -43,7 +43,7 @@ const UserProfileView = () => {
           }`}
           onClick={() => setActiveTab("notifications")}
         >
-          <FaBell className="mr-2" /> Notifications
+          <FaBell className="mr-2" /> Thông báo
         </button>
         <button
           className={`w-40 px-4 py-2 flex items-center justify-center transition-colors rounded ${
@@ -53,7 +53,7 @@ const UserProfileView = () => {
           }`}
           onClick={() => setActiveTab("membership")}
         >
-          <FaIdCard className="mr-2" /> Membership
+          <FaIdCard className="mr-2" /> Gói thành viên
         </button>
       </div>
 

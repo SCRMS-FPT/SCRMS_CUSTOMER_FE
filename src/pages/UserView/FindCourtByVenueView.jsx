@@ -30,7 +30,7 @@ const FindCourtByVenueView = () => {
         <div className="container mx-auto p-6">
             <header className="mt-8 mb-16">
                 <h1 className="text-4xl font-bold text-center text-indigo-600">
-                    Find Courts by Venue
+                    Tìm sân của bạn theo trung tâm thể thao
                 </h1>
             </header>
 

@@ -46,16 +46,16 @@ const SignUpView = () => {
 
   const showUnavailableNotification = () => {
     notification.info({
-      message: "Feature Unavailable",
+      message: "Tính năng chưa khả dụng",
       description:
-        "This login method is currently unavailable. Please use email and password.",
+        "Phương thức đăng nhập này hiện chưa khả dụng. Vui lòng sử dụng email và mật khẩu.",
       placement: "topRight",
     });
   };
 
   const handleSignUp = async (values) => {
     if (values.password !== values.confirmPassword) {
-      setErrorMessage("Passwords do not match");
+      setErrorMessage("Mật khẩu không khớp");
       return;
     }
 
@@ -80,8 +80,8 @@ const SignUpView = () => {
       await client.register(registerRequest);
 
       notification.success({
-        message: "Registration Successful",
-        description: "Your account has been created. Please log in.",
+        message: "Đăng ký thành công",
+        description: "Tài khoản của bạn đã được tạo. Vui lòng đăng nhập.",
         placement: "topRight",
       });
 
@@ -89,7 +89,7 @@ const SignUpView = () => {
     } catch (error) {
       console.error("Registration error:", error);
 
-      let errorMsg = "An error occurred during registration. Please try again.";
+      let errorMsg = "Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.";
 
       if (error instanceof ApiException) {
         try {
@@ -99,10 +99,10 @@ const SignUpView = () => {
           // Handle specific error messages
           if (errorMsg.includes("already taken")) {
             errorMsg =
-              "This email is already registered. Please use a different email or login.";
+              "Email này đã được đăng ký. Vui lòng sử dụng email khác hoặc đăng nhập.";
           } else if (errorMsg.includes("password")) {
             errorMsg =
-              "Please provide a valid password (at least 8 characters with letters and numbers).";
+              "Vui lòng cung cấp mật khẩu hợp lệ (ít nhất 8 ký tự bao gồm chữ và số).";
           }
         } catch (e) {
           errorMsg = e.message || errorMsg;
@@ -111,7 +111,7 @@ const SignUpView = () => {
 
       setErrorMessage(errorMsg);
       notification.error({
-        message: "Registration Failed",
+        message: "Đăng ký thất bại",
         description: errorMsg,
         placement: "topRight",
       });
@@ -148,17 +148,17 @@ const SignUpView = () => {
           </Avatar>
 
           <Title level={3} style={{ margin: "0 0 8px 0" }}>
-            courtsite
+            Courtsite
           </Title>
 
           <Title level={4} style={{ margin: "0 0 16px 0" }}>
-            Sign Up
+            Đăng ký
           </Title>
 
           <Text type="secondary" style={{ marginBottom: 24 }}>
-            Already have an account?{" "}
+            Đã có tài khoản?{" "}
             <Link to="/login" style={{ color: blue[600], fontWeight: 500 }}>
-              Log In
+              Đăng nhập
             </Link>
           </Text>
 
@@ -183,23 +183,23 @@ const SignUpView = () => {
               <Col span={12}>
                 <Form.Item
                   name="firstName"
-                  label="First Name"
+                  label="Họ"
                   rules={[
-                    { required: true, message: "Please enter your first name" },
+                    { required: true, message: "Vui lòng nhập họ của bạn" },
                   ]}
                 >
-                  <Input prefix={<UserOutlined />} placeholder="First Name" />
+                  <Input prefix={<UserOutlined />} placeholder="Họ" />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
                   name="lastName"
-                  label="Last Name"
+                  label="Tên"
                   rules={[
-                    { required: true, message: "Please enter your last name" },
+                    { required: true, message: "Vui lòng nhập tên của bạn" },
                   ]}
                 >
-                  <Input prefix={<UserOutlined />} placeholder="Last Name" />
+                  <Input prefix={<UserOutlined />} placeholder="Tên" />
                 </Form.Item>
               </Col>
             </Row>
@@ -208,8 +208,8 @@ const SignUpView = () => {
               name="email"
               label="Email"
               rules={[
-                { required: true, message: "Please enter your email" },
-                { type: "email", message: "Please enter a valid email" },
+                { required: true, message: "Vui lòng nhập email của bạn" },
+                { type: "email", message: "Vui lòng nhập email hợp lệ" },
               ]}
             >
               <Input prefix={<MailOutlined />} placeholder="Email" />
@@ -217,15 +217,15 @@ const SignUpView = () => {
 
             <Form.Item
               name="password"
-              label="Password"
+              label="Mật khẩu"
               rules={[
-                { required: true, message: "Please enter your password" },
-                { min: 8, message: "Password must be at least 8 characters" },
+                { required: true, message: "Vui lòng nhập mật khẩu" },
+                { min: 8, message: "Mật khẩu phải có ít nhất 8 ký tự" },
               ]}
             >
               <Input.Password
                 prefix={<LockOutlinedIcon fontSize="small" />}
-                placeholder="Password"
+                placeholder="Mật khẩu"
                 visibilityToggle={{
                   visible: showPassword,
                   onVisibleChange: setShowPassword,
@@ -235,23 +235,23 @@ const SignUpView = () => {
 
             <Form.Item
               name="confirmPassword"
-              label="Confirm Password"
+              label="Xác nhận mật khẩu"
               dependencies={["password"]}
               rules={[
-                { required: true, message: "Please confirm your password" },
+                { required: true, message: "Vui lòng xác nhận mật khẩu" },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue("password") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error("Passwords do not match"));
+                    return Promise.reject(new Error("Mật khẩu không khớp"));
                   },
                 }),
               ]}
             >
               <Input.Password
                 prefix={<LockOutlinedIcon fontSize="small" />}
-                placeholder="Confirm Password"
+                placeholder="Xác nhận mật khẩu"
                 visibilityToggle={{
                   visible: showConfirmPassword,
                   onVisibleChange: setShowConfirmPassword,
@@ -261,46 +261,46 @@ const SignUpView = () => {
 
             <Form.Item
               name="phone"
-              label="Phone Number"
+              label="Số điện thoại"
               rules={[
-                { required: true, message: "Please enter your phone number" },
+                { required: true, message: "Vui lòng nhập số điện thoại" },
               ]}
             >
-              <Input prefix={<PhoneOutlined />} placeholder="Phone Number" />
+              <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại" />
             </Form.Item>
 
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
                   name="birthDate"
-                  label="Birth Date"
+                  label="Ngày sinh"
                   rules={[
                     {
                       required: true,
-                      message: "Please select your birth date",
+                      message: "Vui lòng chọn ngày sinh",
                     },
                   ]}
                 >
                   <DatePicker
                     style={{ width: "100%" }}
                     format="YYYY-MM-DD"
-                    placeholder="Birth Date"
+                    placeholder="Ngày sinh"
                   />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
                   name="gender"
-                  label="Gender"
+                  label="Giới tính"
                   rules={[
-                    { required: true, message: "Please select your gender" },
+                    { required: true, message: "Vui lòng chọn giới tính" },
                   ]}
                 >
-                  <Select placeholder="Select gender">
-                    <Option value="Male">Male</Option>
-                    <Option value="Female">Female</Option>
-                    <Option value="Other">Other</Option>
-                    <Option value="Undisclosed">Prefer not to say</Option>
+                  <Select placeholder="Chọn giới tính">
+                    <Option value="Male">Nam</Option>
+                    <Option value="Female">Nữ</Option>
+                    <Option value="Other">Khác</Option>
+                    <Option value="Undisclosed">Không tiết lộ</Option>
                   </Select>
                 </Form.Item>
               </Col>
@@ -319,12 +319,12 @@ const SignUpView = () => {
                   marginTop: 16,
                 }}
               >
-                {isLoading ? "Signing Up..." : "Sign Up"}
+                {isLoading ? "Đang đăng ký..." : "Đăng ký"}
               </Button>
             </Form.Item>
           </Form>
 
-          <Divider plain>or</Divider>
+          <Divider plain>hoặc</Divider>
 
           <Space direction="vertical" style={{ width: "100%" }}>
             <Button
@@ -334,7 +334,7 @@ const SignUpView = () => {
               onClick={showUnavailableNotification}
               style={{ height: 46 }}
             >
-              Continue with Facebook
+              Tiếp tục với Facebook
             </Button>
             <Button
               icon={<GoogleOutlined />}
@@ -343,7 +343,7 @@ const SignUpView = () => {
               onClick={showUnavailableNotification}
               style={{ height: 46 }}
             >
-              Continue with Google
+              Tiếp tục với Google
             </Button>
           </Space>
         </Paper>

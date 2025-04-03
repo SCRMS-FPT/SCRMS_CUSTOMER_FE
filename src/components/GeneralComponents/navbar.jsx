@@ -121,7 +121,7 @@ const Navbar = () => {
       setTabValue(0);
     } else if (
       pathname.includes("/browse-courts") ||
-      pathname.includes("/court/") || 
+      pathname.includes("/court/") ||
       pathname.includes("/courts/sport")
     ) {
       setTabValue(1);
@@ -131,7 +131,10 @@ const Navbar = () => {
       setTabValue(3);
     } else if (pathname.includes("/find-match") || pathname.includes("/matches/list")) {
       setTabValue(4);
-    } else {
+    } else if (pathname.includes("/support")) {
+      setTabValue(5);
+    } 
+    else {
       setTabValue(false);
     }
   }, [location]);
@@ -327,7 +330,7 @@ const Navbar = () => {
               }}
             >
               {/* Apps menu button */}
-              <Tooltip title="More options" arrow>
+              <Tooltip title="Các lựa chọn khác" arrow>
                 <IconButton
                   onClick={handleAppsMenuOpen}
                   sx={{
@@ -378,7 +381,7 @@ const Navbar = () => {
                   variant="subtitle2"
                   sx={{ px: 2, py: 1, color: "text.secondary" }}
                 >
-                  Quick Access
+                  Truy cập nhanh
                 </Typography>
                 <Box
                   sx={{
@@ -408,7 +411,7 @@ const Navbar = () => {
                   >
                     <HelpIcon sx={{ color: "#2563eb", mb: 0.5 }} />
                     <Typography variant="body2" align="center">
-                      Support
+                      Hỗ trợ
                     </Typography>
                   </Paper>
 
@@ -434,7 +437,7 @@ const Navbar = () => {
                       sx={{ color: "#2563eb", mb: 0.5 }}
                     />
                     <Typography variant="body2" align="center">
-                      Wallet
+                      Ví
                     </Typography>
                   </Paper>
 
@@ -458,7 +461,7 @@ const Navbar = () => {
                   >
                     <CalendarMonthIcon sx={{ color: "#2563eb", mb: 0.5 }} />
                     <Typography variant="body2" align="center">
-                      My Bookings
+                      Lịch đặt của tôi
                     </Typography>
                   </Paper>
 
@@ -482,7 +485,7 @@ const Navbar = () => {
                   >
                     <DashboardIcon sx={{ color: "#2563eb", mb: 0.5 }} />
                     <Typography variant="body2" align="center">
-                      Dashboard
+                      Bảng điều khiển
                     </Typography>
                   </Paper>
 
@@ -506,7 +509,7 @@ const Navbar = () => {
                   >
                     <SportsIcon sx={{ color: "#2563eb", mb: 0.5 }} />
                     <Typography variant="body2" align="center">
-                      Coaching
+                      Huấn luyện viên
                     </Typography>
                   </Paper>
 
@@ -530,7 +533,7 @@ const Navbar = () => {
                   >
                     <PersonSearchIcon sx={{ color: "#2563eb", mb: 0.5 }} />
                     <Typography variant="body2" align="center">
-                      Matching
+                      Tìm trận
                     </Typography>
                   </Paper>
                 </Box>
@@ -543,7 +546,7 @@ const Navbar = () => {
                       variant="subtitle2"
                       sx={{ px: 2, py: 1, color: "text.secondary" }}
                     >
-                      Professional Services
+                      Dịch vụ chuyên nghiệp
                     </Typography>
                     <Box sx={{ display: "flex", gap: 1, px: 1, pb: 1 }}>
                       {isCoach && (
@@ -568,7 +571,7 @@ const Navbar = () => {
                         >
                           <SportsIcon sx={{ color: "#2563eb", mb: 0.5 }} />
                           <Typography variant="body2" align="center">
-                            Coach Portal
+                            Bảng điều khiển huấn luyện viên
                           </Typography>
                         </Paper>
                       )}
@@ -597,7 +600,7 @@ const Navbar = () => {
                             sx={{ color: "#2563eb", mb: 0.5 }}
                           />
                           <Typography variant="body2" align="center">
-                            Court Owner Portal
+                            Bảng điều khiển chủ sân
                           </Typography>
                         </Paper>
                       )}
@@ -608,7 +611,7 @@ const Navbar = () => {
 
               {/* Role-based dashboard buttons */}
               {isCoach && (
-                <Tooltip title="Coach Dashboard" arrow>
+                <Tooltip title="Bảng điều khiển huấn luyện viên" arrow>
                   <Button
                     color="primary"
                     variant="outlined"
@@ -629,13 +632,13 @@ const Navbar = () => {
                       },
                     }}
                   >
-                    Coach
+                    Huấn luyện viên
                   </Button>
                 </Tooltip>
               )}
 
               {isCourtOwner && (
-                <Tooltip title="Court Owner Dashboard" arrow>
+                <Tooltip title="Bảng điều khiển chủ sân" arrow>
                   <Button
                     color="primary"
                     variant="outlined"
@@ -656,14 +659,14 @@ const Navbar = () => {
                       },
                     }}
                   >
-                    Court Owner
+                    Chủ sân
                   </Button>
                 </Tooltip>
               )}
 
               {/* Wallet Button - Show if user is logged in */}
               {user && (
-                <Tooltip title="Your wallet" arrow>
+                <Tooltip title="Ví của bạn" arrow>
                   <IconButton
                     onClick={navigateToWallet}
                     sx={{
@@ -684,7 +687,7 @@ const Navbar = () => {
               {/* User profile or auth buttons */}
               {user ? (
                 <>
-                  <Tooltip title="Notifications" arrow>
+                  <Tooltip title="Thông báo" arrow>
                     <IconButton
                       color="inherit"
                       onClick={handleNotificationOpen}
@@ -752,7 +755,7 @@ const Navbar = () => {
                       sx={{ p: 2, borderBottom: "1px solid rgba(0,0,0,0.06)" }}
                     >
                       <Typography variant="subtitle1" fontWeight={600}>
-                        Notifications
+                        Thông báo
                       </Typography>
                     </Box>
                     {notifications.map((notification) => (
@@ -815,7 +818,7 @@ const Navbar = () => {
                           fontSize: "0.85rem",
                         }}
                       >
-                        View all notifications
+                        Xem tất cả thông báo
                       </Button>
                     </Box>
                   </Menu>
@@ -977,7 +980,7 @@ const Navbar = () => {
                           sx={{ color: "#2563eb" }}
                         />
                       </ListItemIcon>
-                      <Typography variant="body1">View Profile</Typography>
+                      <Typography variant="body1">Xem hồ sơ</Typography>
                     </MenuItem>
 
                     {/* Dashboard Link */}
@@ -999,7 +1002,7 @@ const Navbar = () => {
                           sx={{ color: "#2563eb" }}
                         />
                       </ListItemIcon>
-                      <Typography variant="body1">My Dashboard</Typography>
+                      <Typography variant="body1">Bảng điều khiển của tôi</Typography>
                     </MenuItem>
 
                     {/* Wallet Menu Item */}
@@ -1043,7 +1046,7 @@ const Navbar = () => {
                             sx={{ color: "#2563eb" }}
                           />
                         </ListItemIcon>
-                        <Typography variant="body1">Coach Dashboard</Typography>
+                        <Typography variant="body1">Bảng điều khiển huấn luyện viên</Typography>
                       </MenuItem>
                     )}
                     {isCourtOwner && (
@@ -1068,7 +1071,7 @@ const Navbar = () => {
                           />
                         </ListItemIcon>
                         <Typography variant="body1">
-                          Court Owner Dashboard
+                          Bảng điều khiển chủ sân
                         </Typography>
                       </MenuItem>
                     )}
@@ -1092,7 +1095,7 @@ const Navbar = () => {
                         />
                       </ListItemIcon>
                       <Typography variant="body1" sx={{ color: "#ef4444" }}>
-                        Log Out
+                        Đăng xuất
                       </Typography>
                     </MenuItem>
                   </Menu>
@@ -1116,7 +1119,7 @@ const Navbar = () => {
                       },
                     }}
                   >
-                    Sign Up
+                    Đăng kí
                   </Button>
                   <Button
                     variant="contained"
@@ -1138,7 +1141,7 @@ const Navbar = () => {
                       },
                     }}
                   >
-                    Log In
+                    Đăng nhập
                   </Button>
                 </>
               )}
@@ -1197,45 +1200,45 @@ const Navbar = () => {
               <Tab
                 icon={<HomeIcon sx={{ fontSize: "0.9rem" }} />}
                 iconPosition="start"
-                label="Home"
+                label="Trang chủ"
                 onClick={() => navigate("/")}
               />
               <Tab
                 icon={<SportsTennisIcon sx={{ fontSize: "0.9rem" }} />}
                 iconPosition="start"
-                label="Courts"
+                label="Sân đấu"
                 onClick={() => navigate("/browse-courts")}
               />
               <Tab
                 icon={<SportsIcon sx={{ fontSize: "0.9rem" }} />}
                 iconPosition="start"
-                label="Coaches"
+                label="Huấn luyện viên"
                 onClick={() => navigate("/coaches")}
               />
               <Tab
                 icon={<PriceCheckIcon sx={{ fontSize: "0.9rem" }} />}
                 iconPosition="start"
-                label="Pricing"
+                label="Các gói dịch vụ"
                 onClick={() => navigate("/pricing")}
               />
               <Tab
                 icon={<PersonSearchIcon sx={{ fontSize: "0.9rem" }} />}
                 iconPosition="start"
-                label="Find Opponents"
+                label="Tìm đối thủ"
                 onClick={() => navigate("/find-match")}
               />
               {user && (
                 <Tab
                   icon={<ShoppingCartIcon sx={{ fontSize: "0.9rem" }} />}
                   iconPosition="start"
-                  label="My Bookings"
+                  label="Lịch đặt của tôi"
                   onClick={() => navigate("/user/bookings")}
                 />
               )}
               <Tab
                 icon={<HelpIcon sx={{ fontSize: "0.9rem" }} />}
                 iconPosition="start"
-                label="Support"
+                label="Hỗ trợ"
                 onClick={() => navigate("/support")}
               />
             </Tabs>
@@ -1536,7 +1539,7 @@ const Navbar = () => {
                   variant="subtitle2"
                   sx={{ px: 3, py: 1, color: "text.secondary" }}
                 >
-                  My Account
+                  Tài khoản của tôi
                 </Typography>
 
                 <ListItem
@@ -1718,7 +1721,7 @@ const Navbar = () => {
                       variant="subtitle2"
                       sx={{ px: 3, py: 1, color: "text.secondary" }}
                     >
-                      Professional Services
+                      Dịch vụ chuyên nghiệp
                     </Typography>
 
                     {isCoach && (

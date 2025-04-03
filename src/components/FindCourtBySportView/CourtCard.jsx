@@ -60,13 +60,13 @@ const CourtCard = ({ court }) => {
             {court.name}
           </Typography>
           <Typography variant="body2" color="text.secondary" mt={1}>
-            Location: {court.venue?.name}
+            Địa chỉ: {court.venue?.name}
           </Typography>
           <Typography variant="body2" color="text.secondary" mt={1}>
-            Sport: {court.sport_type}
+            Môn thể thao: {court.sport_type}
           </Typography>
           <Typography variant="body2" color="text.secondary" mt={1}>
-            Availability:{" "}
+            Mở cửa:{" "}
             {court.weekly_availability?.monday?.[0]?.start || "N/A"} -{" "}
             {court.weekly_availability?.monday?.[0]?.end || "N/A"}
           </Typography>

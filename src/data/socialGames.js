@@ -1,7 +1,7 @@
 const socialGames = [
   {
     id: 1,
-    sport: "Badminton",
+    sport: "Cầu lông",
     name: "Weekend Badminton Club",
     location: "NYC Sports Complex",
     date: "2024-06-10",
@@ -23,7 +23,7 @@ const socialGames = [
   },
   {
     id: 3,
-    sport: "Futsal",
+    sport: "Bóng đá",
     name: "Futsal Open Match",
     location: "Miami Indoor Stadium",
     date: "2024-06-15",

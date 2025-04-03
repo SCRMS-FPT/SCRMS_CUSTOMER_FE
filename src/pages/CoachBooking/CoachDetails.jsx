@@ -134,8 +134,8 @@ const TimeSlotCard = styled(Card)(({ theme, selected, available }) => ({
   backgroundColor: !available
     ? alpha("#f5f5f5", 0.6)
     : selected
-    ? alpha(theme.palette.primary.main, 0.1)
-    : "white",
+      ? alpha(theme.palette.primary.main, 0.1)
+      : "white",
   transition: "all 0.2s",
   "&:hover": {
     transform: available ? "translateY(-3px)" : "none",
@@ -392,7 +392,7 @@ const CoachDetails = () => {
     const modalContent = (
       <Box sx={{ mt: 2 }}>
         <Typography variant="subtitle1" gutterBottom>
-          You are about to purchase the following package:
+          Bạn chuẩn bị thanh toán gói sau:
         </Typography>
 
         <Box
@@ -424,7 +424,7 @@ const CoachDetails = () => {
 
             <Grid item xs={6}>
               <Typography variant="body2" color="text.secondary">
-                Number of Sessions:
+                Số buổi:
               </Typography>
               <Typography
                 variant="body1"
@@ -433,13 +433,13 @@ const CoachDetails = () => {
                 <UnorderedListOutlined
                   style={{ color: theme.palette.warning.main }}
                 />
-                {packageToSelect.sessionCount} sessions
+                {packageToSelect.sessionCount} buổi
               </Typography>
             </Grid>
 
             <Grid item xs={6}>
               <Typography variant="body2" color="text.secondary">
-                Package Price:
+                Giá gói:
               </Typography>
               <Typography
                 variant="body1"
@@ -461,7 +461,7 @@ const CoachDetails = () => {
         </Box>
 
         <Typography variant="body2" color="text.secondary">
-          The amount will be deducted from your wallet upon confirmation.
+          Số tiền sẽ được trừ từ ví của bạn sau khi xác nhận.
         </Typography>
         <Typography
           variant="body2"
@@ -473,8 +473,7 @@ const CoachDetails = () => {
             gap: 1,
           }}
         >
-          <InfoCircleOutlined /> Package sessions remain valid for 30 days from
-          purchase.
+          <InfoCircleOutlined /> Các buổi trong gói sẽ có hiệu lực trong 30 ngày kể từ ngày mua.
         </Typography>
       </Box>
     );
@@ -482,13 +481,13 @@ const CoachDetails = () => {
     // Show modal with delay to prevent React state update conflicts
     setTimeout(() => {
       Modal.confirm({
-        title: "Purchase Package",
+        title: "Mua gói",
         icon: (
           <ShoppingCartOutlined style={{ color: theme.palette.primary.main }} />
         ),
         width: 500,
         content: modalContent,
-        okText: "Confirm Purchase",
+        okText: "Xác nhận mua",
         cancelText: "Cancel",
         onOk: async () => {
           setPurchasingPackage(true);
@@ -502,7 +501,7 @@ const CoachDetails = () => {
             // Process payment
             const paymentRequest = {
               amount: packageToSelect.price,
-              description: `Package purchase: ${packageToSelect.name}`,
+              description: `Gói chọn lựa: ${packageToSelect.name}`,
               paymentType: "Package",
               referenceId: packageToSelect.id,
               coachId: id,
@@ -516,19 +515,19 @@ const CoachDetails = () => {
             const purchases = await client.getHistoryPurchase(false, false, id);
             setUserPurchases(purchases || []);
 
-            toast.success("Package purchased successfully!");
+            toast.success("Gói đã được thanh toán thành công!");
 
             // You might want to navigate to a success page or show a success modal
             Modal.success({
-              title: "Purchase Successful",
+              title: "Thanh toán thành công",
               content: (
                 <Box>
                   <Typography variant="body1" sx={{ mb: 2 }}>
-                    You have successfully purchased the {packageToSelect.name}{" "}
-                    package.
+                    Bạn đã thanh toán thành công gói {packageToSelect.name}{" "}
+                    .
                   </Typography>
                   <Typography variant="body2">
-                    You can now use this package when booking sessions with{" "}
+                    Bạn có thể sử dụng gói này khi luyện tập cùng huấn luyện viên{" "}
                     {coach.fullName}.
                   </Typography>
                 </Box>
@@ -543,7 +542,7 @@ const CoachDetails = () => {
             toast.error(errorMessage);
 
             Modal.error({
-              title: "Purchase Failed",
+              title: "Thanh toán lỗi",
               content: errorMessage,
             });
           } finally {
@@ -570,7 +569,7 @@ const CoachDetails = () => {
 
   const handleBookNow = () => {
     if (!selectedSlot) {
-      toast.error("Please select a time slot first");
+      toast.error("Vui lòng lựa chọn một khoảng thời gian phù hợp");
       return;
     }
 
@@ -591,13 +590,13 @@ const CoachDetails = () => {
 
     // Show confirmation modal
     Modal.confirm({
-      title: "Booking Confirmation",
+      title: "Xác nhận đặt lịch",
       icon: <BookOutlined style={{ color: theme.palette.primary.main }} />,
       width: 500,
       content: (
         <Box sx={{ mt: 2 }}>
           <Typography variant="subtitle1" gutterBottom>
-            You are about to book a session with:
+            Bạn chuẩn bị đặt lịch một buổi tập với:
           </Typography>
 
           <Box
@@ -618,13 +617,13 @@ const CoachDetails = () => {
                     alt={coach.fullName}
                     sx={{ width: 40, height: 40, mr: 2 }}
                   />
-                  <Typography variant="h6">{coach.fullName}</Typography>
+                  <Typography variant="h6" className="">{coach.fullName}</Typography>
                 </Box>
               </Grid>
 
               <Grid item xs={6}>
                 <Typography variant="body2" color="text.secondary">
-                  Date:
+                  Ngày:
                 </Typography>
                 <Typography
                   variant="body1"
@@ -637,7 +636,7 @@ const CoachDetails = () => {
 
               <Grid item xs={6}>
                 <Typography variant="body2" color="text.secondary">
-                  Time:
+                  Thời gian:
                 </Typography>
                 <Typography
                   variant="body1"
@@ -658,7 +657,7 @@ const CoachDetails = () => {
                       variant="body2"
                       sx={{ fontWeight: "bold", color: "text.primary", mb: 1 }}
                     >
-                      Choose Payment Method:
+                      Chọn phương thức thanh toán:
                     </Typography>
                     <Radio.Group
                       defaultValue={
@@ -703,18 +702,18 @@ const CoachDetails = () => {
                               borderRadius: "8px",
                               borderColor:
                                 selectedPackageRef.current ===
-                                purchase.coachPackageId
+                                  purchase.coachPackageId
                                   ? theme.palette.success.main
                                   : theme.palette.divider,
                               backgroundColor:
                                 selectedPackageRef.current ===
-                                purchase.coachPackageId
+                                  purchase.coachPackageId
                                   ? alpha(theme.palette.success.light, 0.1)
                                   : "white",
                               transition: "all 0.2s ease",
                               transform:
                                 selectedPackageRef.current ===
-                                purchase.coachPackageId
+                                  purchase.coachPackageId
                                   ? "scale(1.02)"
                                   : "scale(1)",
                             }}
@@ -733,8 +732,8 @@ const CoachDetails = () => {
                                   display: "block",
                                 }}
                               >
-                                {remainingSessions} session
-                                {remainingSessions !== 1 ? "s" : ""} remaining
+                                {remainingSessions} buổi tất cả
+                                {remainingSessions !== 1 ? "s" : ""} buổi còn lại
                               </Typography>
                             </Box>
                             <Chip
@@ -742,7 +741,7 @@ const CoachDetails = () => {
                               label="Use package"
                               color={
                                 selectedPackageRef.current ===
-                                purchase.coachPackageId
+                                  purchase.coachPackageId
                                   ? "success"
                                   : "default"
                               }
@@ -776,7 +775,7 @@ const CoachDetails = () => {
                             variant="body2"
                             sx={{ fontWeight: "medium" }}
                           >
-                            Pay with wallet
+                            Trả bằng ví
                           </Typography>
                           <Typography
                             variant="caption"
@@ -802,7 +801,7 @@ const CoachDetails = () => {
               ) : (
                 <Grid item xs={6}>
                   <Typography variant="body2" color="text.secondary">
-                    Price:
+                    Giá tiền:
                   </Typography>
                   <Typography
                     variant="body1"
@@ -823,12 +822,12 @@ const CoachDetails = () => {
 
           <Typography variant="body2" color="text.secondary">
             {hasActivePackages
-              ? "Choose a package above to use for this booking or pay directly from your wallet."
-              : "The amount will be deducted from your wallet upon confirmation."}
+              ? "Chọn một gói ở trên để sử dụng cho lần đặt lịch này hoặc thanh toán trực tiếp từ ví của bạn."
+              : "Số tiền sẽ được trừ từ ví của bạn sau khi xác nhận."}
           </Typography>
         </Box>
       ),
-      okText: "Confirm Booking",
+      okText: "Xác nhận đặt lịch",
       cancelText: "Cancel",
       onOk: async () => {
         setBookingInProgress(true);
@@ -896,18 +895,18 @@ const CoachDetails = () => {
           }
 
           // Show success message
-          toast.success("Booking created successfully!");
+          toast.success("Lịch đã được đặt thành công!");
 
           // Reset selection
           setSelectedSlot(null);
 
           // Success modal with more details
           Modal.success({
-            title: "Booking Confirmed",
+            title: "Lịch đã được xác nhận",
             content: (
               <Box sx={{ mt: 2 }}>
                 <Typography variant="subtitle1" gutterBottom>
-                  Your session has been successfully booked!
+                  Buổi tập của bạn đã được đặt lịch thành công!
                 </Typography>
                 <Box
                   sx={{
@@ -968,15 +967,14 @@ const CoachDetails = () => {
                               style={{ color: theme.palette.success.main }}
                             />
                             <strong>{bookingResult.sessionsRemaining}</strong>{" "}
-                            sessions remaining in your package
+                            buổi còn lại trong gói của bạn.
                           </Typography>
                         </Grid>
                       )}
                   </Grid>
                 </Box>
                 <Typography variant="body2" sx={{ mt: 2 }}>
-                  You can view and manage your bookings in your profile
-                  dashboard.
+                  Bạn có thể xem và quản lý lịch đặt của bạn trong bảng điều khiển cá nhân.
                 </Typography>
               </Box>
             ),
@@ -1090,7 +1088,7 @@ const CoachDetails = () => {
         >
           <Spin size="large" />
           <Typography variant="h6" sx={{ mt: 3 }}>
-            Loading coach information...
+            Đang tải thông tin huấn luyện viên...
           </Typography>
           <LinearProgress sx={{ width: "50%", mt: 2 }} />
         </Box>
@@ -1120,7 +1118,7 @@ const CoachDetails = () => {
             onClick={() => navigate("/coaches")}
             style={{ marginTop: 16 }}
           >
-            Back to Coaches
+            Quay trở lại danh sách
           </Button>
         </Box>
       </Container>
@@ -1137,17 +1135,16 @@ const CoachDetails = () => {
         {/* Back button */}
         <Box sx={{ mb: 2 }}>
           <Button icon={<LeftOutlined />} onClick={() => navigate("/coaches")}>
-            Back to Coaches
+            Quay trở lại danh sách
           </Button>
         </Box>
 
         {/* Hero Section */}
         <HeroSection
           sx={{
-            backgroundImage: `url(${
-              coach.avatar ||
+            backgroundImage: `url(${coach.avatar ||
               "https://source.unsplash.com/random/1200x400/?sport"
-            })`,
+              })`,
           }}
         >
           <HeroOverlay />
@@ -1195,7 +1192,7 @@ const CoachDetails = () => {
                       disabled
                     />
                     <Text style={{ color: "white", marginLeft: 8 }}>
-                      ({coach.reviewCount || reviews.length} reviews)
+                      ({coach.reviewCount || reviews.length} đánh giá)
                     </Text>
                   </Box>
                   <Stack
@@ -1225,7 +1222,7 @@ const CoachDetails = () => {
                     {coach.experienceYears && (
                       <Chip
                         icon={<TeamOutlined />}
-                        label={`${coach.experienceYears} years experience`}
+                        label={`${coach.experienceYears} năm kinh nghiệm`}
                         sx={{
                           bgcolor: alpha(theme.palette.info.main, 0.9),
                           color: "white",
@@ -1245,7 +1242,7 @@ const CoachDetails = () => {
                     window.scrollTo({ top: 500, behavior: "smooth" });
                   }}
                 >
-                  Check Availability
+                  Kiểm tra lịch trống
                 </Button>
               </Grid>
             </Grid>
@@ -1278,15 +1275,15 @@ const CoachDetails = () => {
                 <TabPane
                   tab={
                     <span>
-                      <UserOutlined /> About
+                      <UserOutlined /> Thông tin cơ bản
                     </span>
                   }
                   key="1"
                 >
                   <Box sx={{ p: 3 }}>
-                    <Title level={4}>Biography</Title>
+                    <Title level={4}>Tiểu sử</Title>
                     <Paragraph style={{ fontSize: 16, lineHeight: 1.6 }}>
-                      {coach.bio || "No biography information provided."}
+                      {coach.bio || "Không có thông tin mô tả được cung cấp, huấn luyện này muốn để chuyên môn của mình thể hiện qua việc đào tạo."}
                     </Paragraph>
 
                     <Divider />
@@ -1294,7 +1291,7 @@ const CoachDetails = () => {
                     {/* Coach's Gallery */}
                     {coach.imageUrls && coach.imageUrls.length > 0 && (
                       <Box sx={{ my: 3 }}>
-                        <Title level={4}>Gallery</Title>
+                        <Title level={4}>Ảnh</Title>
                         <Image.PreviewGroup>
                           <Space size={[16, 16]} wrap>
                             {coach.imageUrls.map((img, index) => (
@@ -1303,9 +1300,8 @@ const CoachDetails = () => {
                                 width={150}
                                 height={150}
                                 src={img}
-                                alt={`${coach.fullName} - Gallery image ${
-                                  index + 1
-                                }`}
+                                alt={`${coach.fullName} - Ảnh số ${index + 1
+                                  }`}
                                 style={{ objectFit: "cover", borderRadius: 8 }}
                               />
                             ))}
@@ -1316,24 +1312,24 @@ const CoachDetails = () => {
 
                     {/* Certifications & Experience */}
                     <Box sx={{ my: 3 }}>
-                      <Title level={4}>Qualifications & Experience</Title>
+                      <Title level={4}>Chứng chỉ và kinh nghiệm</Title>
                       <List
                         itemLayout="horizontal"
                         dataSource={
                           coach.certifications || [
                             {
-                              title: "Professional Coaching Certificate",
-                              description: "National Sports Academy",
+                              title: "Chứng chỉ Huấn luyện Chuyên nghiệp",
+                              description: "Học viện Thể thao Quốc gia",
                               year: 2020,
                             },
                             {
-                              title: "Advanced Training Methodology",
-                              description: "International Sports Federation",
+                              title: "Phương pháp Huấn luyện Nâng cao",
+                              description: "Liên đoàn Thể thao Quốc tế",
                               year: 2018,
                             },
                             {
-                              title: "Sports Medicine Foundation",
-                              description: "Sports Science Institute",
+                              title: "Nền tảng Y học Thể thao",
+                              description: "Viện Khoa học Thể thao",
                               year: 2019,
                             },
                           ]
@@ -1359,7 +1355,7 @@ const CoachDetails = () => {
 
                     {/* Contact Information */}
                     <Box sx={{ my: 3 }}>
-                      <Title level={4}>Contact Information</Title>
+                      <Title level={4}>Thông tin liên hệ</Title>
                       <Grid container spacing={2}>
                         {coach.email && (
                           <Grid item xs={12} sm={6}>
@@ -1417,7 +1413,7 @@ const CoachDetails = () => {
                 <TabPane
                   tab={
                     <span>
-                      <CalendarOutlined /> Schedule
+                      <CalendarOutlined /> Đặt lịch
                     </span>
                   }
                   key="2"
@@ -1448,14 +1444,13 @@ const CoachDetails = () => {
                           >
                             <Box>
                               <Typography variant="h5" fontWeight="500">
-                                Available Time Slots
+                                Khung giờ trống có sẵn
                               </Typography>
                               <Typography
                                 variant="body2"
                                 color="text.secondary"
                               >
-                                Click on an available time slot to book your
-                                session
+                                Lựa chọn một khung giờ trống để đặt lịch buổi tập của bạn.
                               </Typography>
                             </Box>
                             <Button
@@ -1463,7 +1458,7 @@ const CoachDetails = () => {
                               icon={<CalendarOutlined />}
                               onClick={() => setSelectedDate(dayjs())}
                             >
-                              Today
+                              Hôm nay
                             </Button>
                           </Box>
 
@@ -1488,7 +1483,7 @@ const CoachDetails = () => {
                                 setSelectedDate(newDate);
                               }}
                             >
-                              Previous Week
+                              Tuần trước
                             </Button>
                             <Typography
                               variant="h6"
@@ -1525,7 +1520,7 @@ const CoachDetails = () => {
                                 setSelectedDate(newDate);
                               }}
                             >
-                              Next Week
+                              Tuần sau
                             </Button>
                           </Box>
 
@@ -1540,13 +1535,13 @@ const CoachDetails = () => {
                             >
                               {/* Day headers  */}
                               {[
-                                "Monday",
-                                "Tuesday",
-                                "Wednesday",
-                                "Thursday",
-                                "Friday",
-                                "Saturday",
-                                "Sunday",
+                                "Thứ 2",
+                                "Thứ 3",
+                                "Thứ 4",
+                                "Thứ 5",
+                                "Thứ 6",
+                                "Thứ 7",
+                                "Chủ nhật",
                               ].map((day, index) => (
                                 <Grid item xs={12 / 7} key={day}>
                                   <Box
@@ -1624,13 +1619,13 @@ const CoachDetails = () => {
                                         borderTop: "none",
                                         bgcolor: isToday
                                           ? alpha(
-                                              theme.palette.success.light,
-                                              0.15
-                                            )
+                                            theme.palette.success.light,
+                                            0.15
+                                          )
                                           : alpha(
-                                              theme.palette.background.paper,
-                                              0.8
-                                            ),
+                                            theme.palette.background.paper,
+                                            0.8
+                                          ),
                                         borderRadius: "0 0 8px 8px",
                                         transition: "all 0.3s ease",
                                         "&:hover": {
@@ -1665,7 +1660,7 @@ const CoachDetails = () => {
                                             variant="caption"
                                             align="center"
                                           >
-                                            No sessions available
+                                            Không có lịch trống phù hợp
                                           </Typography>
                                         </Box>
                                       ) : (
@@ -1673,7 +1668,7 @@ const CoachDetails = () => {
                                           const isSelected =
                                             selectedSlot?.date === slot.date &&
                                             selectedSlot?.startTime ===
-                                              slot.startTime;
+                                            slot.startTime;
                                           const isAvailable =
                                             slot.status === "available";
 
@@ -1690,12 +1685,12 @@ const CoachDetails = () => {
                                                 bgcolor: isSelected
                                                   ? "primary.main"
                                                   : isAvailable
-                                                  ? alpha(
+                                                    ? alpha(
                                                       theme.palette.success
                                                         .light,
                                                       0.3
                                                     )
-                                                  : alpha(
+                                                    : alpha(
                                                       theme.palette.grey[300],
                                                       0.5
                                                     ),
@@ -1716,14 +1711,14 @@ const CoachDetails = () => {
                                                     ? isSelected
                                                       ? "primary.dark"
                                                       : alpha(
-                                                          theme.palette.success
-                                                            .main,
-                                                          0.4
-                                                        )
+                                                        theme.palette.success
+                                                          .main,
+                                                        0.4
+                                                      )
                                                     : alpha(
-                                                        theme.palette.grey[300],
-                                                        0.5
-                                                      ),
+                                                      theme.palette.grey[300],
+                                                      0.5
+                                                    ),
                                                 },
                                                 transition: "all 0.2s ease",
 
@@ -1783,9 +1778,9 @@ const CoachDetails = () => {
                                                   >
                                                     {slot.status.length > 10
                                                       ? slot.status.substring(
-                                                          0,
-                                                          10
-                                                        ) + "..."
+                                                        0,
+                                                        10
+                                                      ) + "..."
                                                       : slot.status}
                                                   </Tag>
                                                 )}
@@ -1851,8 +1846,8 @@ const CoachDetails = () => {
                                                     }}
                                                   >
                                                     {isSelected
-                                                      ? "Selected"
-                                                      : "Select"}
+                                                      ? "Đã chọn"
+                                                      : "Chọn"}
                                                   </Button>
                                                 )}
                                               </Box>
@@ -1888,7 +1883,7 @@ const CoachDetails = () => {
                             }}
                           >
                             <Typography variant="h5" fontWeight="500">
-                              Booking Summary
+                              Thông tin đặt lịch
                             </Typography>
                           </Box>
 
@@ -1914,7 +1909,7 @@ const CoachDetails = () => {
                                           color="text.secondary"
                                           gutterBottom
                                         >
-                                          Date
+                                          Ngày
                                         </Typography>
                                         <Typography
                                           variant="h6"
@@ -1936,7 +1931,7 @@ const CoachDetails = () => {
                                           color="text.secondary"
                                           gutterBottom
                                         >
-                                          Time
+                                          Thời gian
                                         </Typography>
                                         <Typography
                                           variant="h6"
@@ -1961,7 +1956,7 @@ const CoachDetails = () => {
                                           color="text.secondary"
                                           gutterBottom
                                         >
-                                          Price
+                                          Giá tiền
                                         </Typography>
                                         <Typography
                                           variant="h6"
@@ -1985,7 +1980,7 @@ const CoachDetails = () => {
                                           color="text.secondary"
                                           gutterBottom
                                         >
-                                          Coach
+                                          Huấn luyện viên
                                         </Typography>
                                         <Typography
                                           variant="h6"
@@ -2036,8 +2031,8 @@ const CoachDetails = () => {
                                         }}
                                       >
                                         {bookingInProgress
-                                          ? "Processing..."
-                                          : "Book Session Now"}
+                                          ? "Đang xử lý..."
+                                          : "Đặt lịch ngay"}
                                       </Box>
                                     </Button>
                                     <Typography
@@ -2045,8 +2040,7 @@ const CoachDetails = () => {
                                       align="center"
                                       sx={{ mt: 1, color: "text.secondary" }}
                                     >
-                                      Your schedule will be confirmed after
-                                      booking
+                                      Lịch của bạn sẽ được xác nhận sau khi đặt thành công
                                     </Typography>
                                   </Box>
                                 </Grid>
@@ -2074,8 +2068,7 @@ const CoachDetails = () => {
                                 color="text.secondary"
                                 align="center"
                               >
-                                Please select an available time slot from the
-                                calendar
+                                Vui lòng chọn lựa một khung giờ trống trên lịch
                               </Typography>
                               <Typography
                                 variant="body2"
@@ -2083,8 +2076,7 @@ const CoachDetails = () => {
                                 align="center"
                                 sx={{ mt: 1 }}
                               >
-                                The booking summary will appear here once you
-                                select a slot
+                                Thông tin đặt lịch sẽ hiển thị tại đây sau khi bạn lựa chọn một khung giờ trống
                               </Typography>
                             </Box>
                           )}
@@ -2097,7 +2089,7 @@ const CoachDetails = () => {
                 <TabPane
                   tab={
                     <span>
-                      <PercentageOutlined /> Promotions
+                      <PercentageOutlined /> Ưu đãi
                     </span>
                   }
                   key="3"
@@ -2108,7 +2100,7 @@ const CoachDetails = () => {
                 <TabPane
                   tab={
                     <span>
-                      <StarOutlined /> Reviews
+                      <StarOutlined /> Đánh giá
                     </span>
                   }
                   key="4"
@@ -2119,7 +2111,7 @@ const CoachDetails = () => {
                 <TabPane
                   tab={
                     <span>
-                      <ShoppingCartOutlined /> Packages
+                      <ShoppingCartOutlined /> Các gói
                     </span>
                   }
                   key="5"
@@ -2134,15 +2126,15 @@ const CoachDetails = () => {
                       }}
                     >
                       <Box>
-                        <Title level={4}>Coaching Packages</Title>
+                        <Title level={4}>Gói huấn luyện</Title>
                         <Text type="secondary">
-                          Purchase a package to save on multiple sessions
+                          Mua gói để tiết kiệm nhiều buổi tập hơn
                         </Text>
                       </Box>
                       <Box
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
-                        <Text>Show my packages only</Text>
+                        <Text>Hiện gói của tôi</Text>
                         <Switch
                           size="small"
                           checked={showPurchasedOnly}
@@ -2169,7 +2161,7 @@ const CoachDetails = () => {
                       </Grid>
                     ) : packages.length === 0 ? (
                       <Empty
-                        description="No packages available for this coach"
+                        description="Không có gói nào khả dụng dành cho huấn luyện viên này"
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
                       />
                     ) : (
@@ -2191,7 +2183,7 @@ const CoachDetails = () => {
                                   ) / 100;
                                 const savingsPercent = Math.round(
                                   (1 - sessionsPerPrice / coach.ratePerHour) *
-                                    100
+                                  100
                                 );
 
                                 return (
@@ -2290,12 +2282,12 @@ const CoachDetails = () => {
                                               color="text.secondary"
                                             >
                                               {formatPrice(sessionsPerPrice)}{" "}
-                                              per session
+                                              một buổi
                                             </Typography>
                                             {savingsPercent > 0 && (
                                               <Chip
                                                 size="small"
-                                                label={`Save ${savingsPercent}%`}
+                                                label={`Tiết kiệm ${savingsPercent}%`}
                                                 color="error"
                                                 sx={{ ml: 1, height: 20 }}
                                               />
@@ -2307,26 +2299,25 @@ const CoachDetails = () => {
                                           <FeatureItem>
                                             <CheckCircleOutlined className="icon" />
                                             <Typography className="text">
-                                              {pkg.sessionCount} coaching
-                                              sessions
+                                              {pkg.sessionCount} buổi tập
                                             </Typography>
                                           </FeatureItem>
                                           <FeatureItem>
                                             <CheckCircleOutlined className="icon" />
                                             <Typography className="text">
-                                              Valid for 30 days
+                                              Hiệu lực trong 30 ngày
                                             </Typography>
                                           </FeatureItem>
                                           <FeatureItem>
                                             <CheckCircleOutlined className="icon" />
                                             <Typography className="text">
-                                              Personalized coaching
+                                              Chương trình tập cá nhân hóa
                                             </Typography>
                                           </FeatureItem>
                                           <FeatureItem>
                                             <CheckCircleOutlined className="icon" />
                                             <Typography className="text">
-                                              Book anytime within validity
+                                              Đặt bất kì lúc nào khả dụng
                                             </Typography>
                                           </FeatureItem>
                                         </Box>
@@ -2344,17 +2335,17 @@ const CoachDetails = () => {
                                                       fontWeight: "medium",
                                                     }}
                                                   >
-                                                    Package Active
+                                                    Gói hoạt động
                                                   </Typography>
                                                 }
                                                 description={
                                                   <Typography variant="body2">
-                                                    You have {remainingSessions}{" "}
-                                                    session
+                                                    Bạn còn {remainingSessions}{" "}
+                                                    buổi tập
                                                     {remainingSessions !== 1
                                                       ? "s"
                                                       : ""}{" "}
-                                                    remaining
+
                                                   </Typography>
                                                 }
                                                 showIcon
@@ -2372,7 +2363,7 @@ const CoachDetails = () => {
                                                   });
                                                 }}
                                               >
-                                                Book a Session
+                                                Đặt lịch tập
                                               </Button>
                                             </Box>
                                           ) : (
@@ -2396,17 +2387,17 @@ const CoachDetails = () => {
                                                   selectedPackage?.id === pkg.id
                                                     ? theme.palette.success.main
                                                     : theme.palette.primary
-                                                        .main,
+                                                      .main,
                                                 borderColor:
                                                   selectedPackage?.id === pkg.id
                                                     ? theme.palette.success.main
                                                     : theme.palette.primary
-                                                        .main,
+                                                      .main,
                                               }}
                                             >
                                               {selectedPackage?.id === pkg.id
-                                                ? "Selected Package"
-                                                : "Purchase Package"}
+                                                ? "Gói đã chọn lựa"
+                                                : "Mua gói"}
                                             </Button>
                                           )}
                                         </Box>
@@ -2448,16 +2439,13 @@ const CoachDetails = () => {
                             fontWeight="medium"
                             gutterBottom
                           >
-                            About Coach Packages
+                            Về gói huấn luyện viên
                           </Typography>
                           <Typography variant="body2">
-                            Purchasing a coaching package gives you access to
-                            multiple sessions at a discounted rate. Packages are
-                            valid for 30 days from purchase date and can be used
-                            to book any available slot with this coach. Once
-                            purchased, you can select the package during the
-                            booking process instead of paying for each session
-                            individually.
+                            Mua một gói huấn luyện giúp bạn có quyền truy cập vào nhiều buổi tập với mức giá ưu đãi.
+                            Các gói có hiệu lực trong 30 ngày kể từ ngày mua và có thể được sử dụng để đặt bất kỳ
+                            khung giờ trống nào với huấn luyện viên này. Sau khi mua, bạn có thể chọn gói trong quá
+                            trình đặt lịch thay vì thanh toán cho từng buổi riêng lẻ.
                           </Typography>
                         </Box>
                       </Box>
