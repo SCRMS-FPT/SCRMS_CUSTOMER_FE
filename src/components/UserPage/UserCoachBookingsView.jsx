@@ -102,15 +102,15 @@ const UserCoachBookingsView = () => {
   const getStatusTag = (status) => {
     switch (status) {
       case "PENDING":
-        return <Tag color="orange">Pending</Tag>;
+        return <Tag color="orange">Đang chờ</Tag>;
       case "CONFIRMED":
-        return <Tag color="blue">Confirmed</Tag>;
+        return <Tag color="blue">Đã xác nhận</Tag>;
       case "COMPLETED":
-        return <Tag color="green">Completed</Tag>;
+        return <Tag color="green">Hoàn thành</Tag>;
       case "CANCELLED":
-        return <Tag color="red">Cancelled</Tag>;
+        return <Tag color="red">Đã hủy</Tag>;
       case "NO_SHOW":
-        return <Tag color="gray">No-show</Tag>;
+        return <Tag color="gray">Không đến</Tag>;
       default:
         return <Tag color="default">{status}</Tag>;
     }
@@ -131,15 +131,15 @@ const UserCoachBookingsView = () => {
 
     // Show success message
     Modal.success({
-      title: "Feedback Submitted",
+      title: "Đánh giá đã được gửi đi!",
       content:
-        "Thank you for your feedback! Your coach will appreciate your input.",
+        "Cảm ơn bạn vì phản hồi! Huấn luyện viên của bạn sẽ trân trọng ý kiến của bạn.",
     });
   };
 
   const columns = [
     {
-      title: "Coach & Session",
+      title: "Huấn luyện viên & Buổi tập",
       dataIndex: "coachName",
       key: "coachInfo",
       render: (_, record) => (
@@ -148,12 +148,12 @@ const UserCoachBookingsView = () => {
             <UserOutlined />
             <Text strong>{record.coachName}</Text>
           </Space>
-          <Text type="secondary">{record.packageName || "Single Session"}</Text>
+          <Text type="secondary">{record.packageName || "Buổi tập đơn"}</Text>
         </Space>
       ),
     },
     {
-      title: "Date & Time",
+      title: "Ngày & Giờ",
       dataIndex: "bookingDate",
       key: "dateTime",
       render: (_, record) => (
@@ -177,27 +177,27 @@ const UserCoachBookingsView = () => {
       },
     },
     {
-      title: "Price",
+      title: "Giá tiền",
       dataIndex: "totalPrice",
       key: "price",
       render: (price) => `$${price.toFixed(2)}`,
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       render: (status) => getStatusTag(status),
       filters: [
-        { text: "Pending", value: "PENDING" },
-        { text: "Confirmed", value: "CONFIRMED" },
-        { text: "Completed", value: "COMPLETED" },
-        { text: "Cancelled", value: "CANCELLED" },
-        { text: "No-show", value: "NO_SHOW" },
+        { text: "Đang chờ", value: "PENDING" },
+        { text: "Đã xác nhận", value: "CONFIRMED" },
+        { text: "Hoàn thành", value: "COMPLETED" },
+        { text: "Đã hủy", value: "CANCELLED" },
+        { text: "Không đến", value: "NO_SHOW" },
       ],
       onFilter: (value, record) => record.status === value,
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => {
         const isPast = dayjs(record.bookingDate).isBefore(dayjs(), "day");
@@ -209,7 +209,7 @@ const UserCoachBookingsView = () => {
               type="primary"
               onClick={() => navigate(`/user/coachings/${record.id}`)} // Navigate to the new route
             >
-              View Details
+              Xem chi tiết
             </Button>
 
             {isCompleted && (
@@ -219,12 +219,12 @@ const UserCoachBookingsView = () => {
                   setFeedbackModalVisible(true);
                 }}
               >
-                Leave Feedback
+                Để lại đánh giá
               </Button>
             )}
 
             {!isPast && record.status === "CONFIRMED" && (
-              <Button danger>Cancel</Button>
+              <Button danger>Hủy</Button>
             )}
           </Space>
         );
@@ -252,32 +252,32 @@ const UserCoachBookingsView = () => {
   return (
     <div>
       <Space direction="vertical" style={{ width: "100%", marginBottom: 16 }}>
-        <Title level={4}>Your Booking History</Title>
+        <Title level={4}>Lịch sử đặt lịch huấn luyện của bạn</Title>
 
         {/* Filters */}
         <Space wrap style={{ marginBottom: 16 }}>
           <RangePicker
             onChange={handleDateRangeChange}
             value={dateRange}
-            placeholder={["Start Date", "End Date"]}
+            placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
           />
 
           <Select
-            placeholder="Filter by Status"
+            placeholder="Lọc theo trạng thái"
             style={{ width: 150 }}
             onChange={handleFilterChange}
             value={statusFilter}
             allowClear
           >
-            <Option value="PENDING">Pending</Option>
-            <Option value="CONFIRMED">Confirmed</Option>
-            <Option value="COMPLETED">Completed</Option>
-            <Option value="CANCELLED">Cancelled</Option>
-            <Option value="NO_SHOW">No-show</Option>
+            <Option value="PENDING">Đang chờ</Option>
+            <Option value="CONFIRMED">Đã xác nhận</Option>
+            <Option value="COMPLETED">Hoàn thành</Option>
+            <Option value="CANCELLED">Đã hủy</Option>
+            <Option value="NO_SHOW">Không đến</Option>
           </Select>
 
           <Button onClick={handleResetFilters} icon={<FilterOutlined />}>
-            Reset Filters
+            Làm mới bộ lọc
           </Button>
         </Space>
       </Space>
@@ -311,7 +311,7 @@ const UserCoachBookingsView = () => {
       >
         <div style={{ marginBottom: 16 }}>
           <p>
-            How would you rate your session with {selectedBooking?.coachName}?
+          Bạn sẽ đánh giá buổi tập của mình với huấn luyện viên {selectedBooking?.coachName} như thế nào?
           </p>
           <Rate
             value={rating}
@@ -321,11 +321,11 @@ const UserCoachBookingsView = () => {
         </div>
 
         <div>
-          <p>Share your experience (optional):</p>
+          <p>Chia sẻ trải nghiệm của bạn (tùy chọn):</p>
           <TextArea
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
-            placeholder="Tell us about your experience with the coach..."
+            placeholder="Hãy chia sẻ với chúng tôi về trải nghiệm của bạn với huấn luyện viên..."
             rows={4}
           />
         </div>

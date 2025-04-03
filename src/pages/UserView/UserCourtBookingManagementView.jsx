@@ -39,12 +39,12 @@ const statusColors = {
 
 // Map API booking status codes to user-friendly names
 const statusMap = {
-  0: "Pending",
-  1: "Confirmed",
-  2: "Completed",
-  3: "Cancelled",
-  4: "NoShow",
-  5: "Expired",
+  0: "Đang chờ",
+  1: "Xác nhận",
+  2: "Hoàn thành",
+  3: "Hủy bỏ",
+  4: "Không xuất hiện",
+  5: "Hết hạn",
 };
 
 const UserCourtBookingManagementView = () => {
@@ -142,10 +142,10 @@ const UserCourtBookingManagementView = () => {
   // Handler for cancelling a booking
   const handleCancelBooking = (bookingId) => {
     Modal.confirm({
-      title: "Cancel Booking",
+      title: "Hủy đặt lịch",
       content:
-        "Are you sure you want to cancel this booking? This action cannot be undone.",
-      okText: "Yes, Cancel Booking",
+        "Bạn có chắc chắn muốn hủy đặt chỗ này không? Hành động này không thể hoàn tác.",
+      okText: "Có, xác nhận hủy.",
       okButtonProps: { danger: true },
       cancelText: "No",
       onOk: async () => {
@@ -156,7 +156,7 @@ const UserCourtBookingManagementView = () => {
             requestedAt: new Date(),
           });
 
-          message.success("Booking has been cancelled successfully");
+          message.success("Đặt lịch đã được hủy thành công.");
           fetchBookings(); // Refresh the list
         } catch (error) {
           console.error("Error cancelling booking:", error);
@@ -169,39 +169,39 @@ const UserCourtBookingManagementView = () => {
   // Table columns definition
   const columns = [
     {
-      title: "Date",
+      title: "Ngày",
       dataIndex: "date",
       key: "date",
       sorter: (a, b) => a.date.localeCompare(b.date),
       width: 110,
     },
     {
-      title: "Time",
+      title: "Thời gian",
       dataIndex: "time",
       key: "time",
       width: 100,
     },
     {
-      title: "Court",
+      title: "Sân",
       dataIndex: "court",
       key: "court",
       ellipsis: true,
     },
     {
-      title: "Sports Center",
+      title: "Trung tâm thể thao",
       dataIndex: "sportsCenter",
       key: "sportsCenter",
       ellipsis: true,
     },
     {
-      title: "Price",
+      title: "Giá tiền",
       dataIndex: "totalPrice",
       key: "totalPrice",
       render: (price) => `${price?.toLocaleString()} VND`,
       width: 120,
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       render: (status) => (
@@ -210,7 +210,7 @@ const UserCourtBookingManagementView = () => {
       width: 100,
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space>
@@ -219,16 +219,16 @@ const UserCourtBookingManagementView = () => {
             size="small"
             onClick={() => navigate(`/user/bookings/${record.id}`)}
           >
-            View Details
+            Xem chi tiết
           </Button>
-          {(record.status === "Pending" || record.status === "Confirmed") && (
+          {(record.status === "Đang chờ" || record.status === "Xác nhận") && (
             <Button
               type="primary"
               danger
               size="small"
               onClick={() => handleCancelBooking(record.id)}
             >
-              Cancel
+              Hủy
             </Button>
           )}
         </Space>
@@ -246,21 +246,21 @@ const UserCourtBookingManagementView = () => {
           icon={<ReloadOutlined />}
           onClick={() => fetchBookings()}
         >
-          Refresh
+          Làm mới
         </Button>
       }
     >
       <div className="mb-4">
-        <p>View and manage all your court bookings.</p>
+        <p>Xem và quản lý lịch đặt của bạn.</p>
       </div>
 
       {/* Search & Filter Section */}
       <Form layout="vertical" className="mb-4">
         <Row gutter={16}>
           <Col xs={24} md={8}>
-            <Form.Item label="Search by Court Name">
+            <Form.Item label="Tìm kiếm theo tên sân">
               <Input
-                placeholder="Enter court name"
+                placeholder="Nhập tên sân"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 prefix={<SearchOutlined />}
@@ -269,7 +269,7 @@ const UserCourtBookingManagementView = () => {
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
-            <Form.Item label="Date Range">
+            <Form.Item label="Khoảng ngày">
               <RangePicker
                 style={{ width: "100%" }}
                 value={dateRange}
@@ -279,9 +279,9 @@ const UserCourtBookingManagementView = () => {
             </Form.Item>
           </Col>
           <Col xs={24} md={8}>
-            <Form.Item label="Status">
+            <Form.Item label="Trạng Thái">
               <Select
-                placeholder="Select status"
+                placeholder="Lựa chọn trạng thái"
                 value={statusFilter}
                 onChange={(value) => setStatusFilter(value)}
                 allowClear
@@ -299,13 +299,13 @@ const UserCourtBookingManagementView = () => {
         <Row>
           <Col span={24} style={{ textAlign: "right" }}>
             <Space>
-              <Button onClick={handleClearFilters}>Clear Filters</Button>
+              <Button onClick={handleClearFilters}>Xóa bộ lọc</Button>
               <Button
                 type="primary"
                 icon={<FilterOutlined />}
                 onClick={handleSearch}
               >
-                Apply Filters
+                Áp dụng bộ lọc
               </Button>
             </Space>
           </Col>
@@ -326,7 +326,7 @@ const UserCourtBookingManagementView = () => {
               setPageSize(pageSize);
             },
             showSizeChanger: true,
-            showTotal: (total) => `Total ${total} bookings`,
+            showTotal: (total) => `Tổng ${total} lịch đặt`,
           }}
           rowKey="id"
           scroll={{ x: "max-content" }}

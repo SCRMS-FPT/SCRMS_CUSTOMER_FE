@@ -59,7 +59,7 @@ const UserPurchasedPackagesView = () => {
 
   const columns = [
     {
-      title: "Package",
+      title: "Gói",
       dataIndex: "packageName",
       key: "packageName",
       render: (_, record) => (
@@ -70,7 +70,7 @@ const UserPurchasedPackagesView = () => {
       ),
     },
     {
-      title: "Coach",
+      title: "Huấn luyện viên",
       dataIndex: "coachName",
       key: "coachName",
       render: (_, record) => (
@@ -80,7 +80,7 @@ const UserPurchasedPackagesView = () => {
       ),
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       key: "status",
       render: (_, record) => {
         const sessionsLeft = record.sessionCount - record.sessionUsed;
@@ -94,14 +94,14 @@ const UserPurchasedPackagesView = () => {
           <Space direction="vertical" style={{ width: "100%" }}>
             <Space>
               <Text strong>
-                {sessionsLeft} / {record.sessionCount} sessions left
+                {sessionsLeft} / {record.sessionCount} buổi
               </Text>
               {isExpired && <Tag color="red">Expired</Tag>}
               {!isExpired && sessionsLeft === 0 && (
-                <Tag color="orange">Used Up</Tag>
+                <Tag color="orange">Đã sử dụng hết</Tag>
               )}
               {!isExpired && sessionsLeft > 0 && (
-                <Tag color="green">Active</Tag>
+                <Tag color="green">Hoạt động</Tag>
               )}
             </Space>
             <Progress
@@ -112,25 +112,25 @@ const UserPurchasedPackagesView = () => {
             />
             <Text type="secondary">
               {isExpired
-                ? `Expired on ${dayjs(record.expiryDate).format("MMM D, YYYY")}`
+                ? `Hết hạn vào ngày ${dayjs(record.expiryDate).format("MMM D, YYYY")}`
                 : record.expiryDate
-                ? `Valid until ${dayjs(record.expiryDate).format(
+                  ? `Khả dụng đến ngày ${dayjs(record.expiryDate).format(
                     "MMM D, YYYY"
                   )}`
-                : "No expiry date"}
+                  : "Không giới hạn ngày"}
             </Text>
           </Space>
         );
       },
     },
     {
-      title: "Purchase Date",
+      title: "Ngày mua",
       dataIndex: "purchaseDate",
       key: "purchaseDate",
       render: (date) => dayjs(date).format("MMM D, YYYY"),
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => {
         const sessionsLeft = record.sessionCount - record.sessionUsed;
@@ -143,7 +143,7 @@ const UserPurchasedPackagesView = () => {
               icon={<FileProtectOutlined />}
               onClick={() => fetchPackageDetail(record.id)}
             >
-              View Details
+              Xem chi tiêt
             </Button>
             {!isExpired && sessionsLeft > 0 && (
               <Button
@@ -151,7 +151,7 @@ const UserPurchasedPackagesView = () => {
                 icon={<ShoppingOutlined />}
                 onClick={() => (window.location.href = "/coaches")}
               >
-                Book Session
+                Đặt lịch tập
               </Button>
             )}
           </Space>
@@ -167,10 +167,9 @@ const UserPurchasedPackagesView = () => {
   return (
     <div>
       <Space direction="vertical" style={{ width: "100%", marginBottom: 16 }}>
-        <Title level={4}>Your Purchased Packages</Title>
+        <Title level={4}>Những gói bạn đã mua</Title>
         <Text type="secondary">
-          View and manage your purchased coaching packages. Use remaining
-          sessions to book appointments with coaches.
+          Xem và quản lý các gói huấn luyện viên bạn đã mua. Sử dụng các buổi tập còn lại để đặt lịch hẹn với huấn luyện viên.
         </Text>
       </Space>
 
@@ -183,20 +182,20 @@ const UserPurchasedPackagesView = () => {
           rowKey="id"
           expandable={{
             expandedRowRender: (record) => (
-              <Card size="small" title="Package Information">
+              <Card size="small" title="Thông tin gói">
                 <p>
-                  <strong>Package ID:</strong> {record.id}
+                  <strong>ID gói:</strong> {record.id}
                 </p>
                 <p>
-                  <strong>Coach Package ID:</strong> {record.coachPackageId}
+                  <strong>ID gói huấn luyện viên:</strong> {record.coachPackageId}
                 </p>
                 <p>
-                  <strong>Sessions:</strong> {record.sessionUsed} used of{" "}
-                  {record.sessionCount} total
+                  <strong>Số buổi:</strong> {record.sessionUsed} đã sử dụng trên tổng số {" "}
+                  {record.sessionCount} buổi
                 </p>
                 <p>
-                  <strong>Remaining:</strong>{" "}
-                  {record.sessionCount - record.sessionUsed} sessions
+                  <strong>Còn lại:</strong>{" "}
+                  {record.sessionCount - record.sessionUsed} buổi
                 </p>
               </Card>
             ),
@@ -210,10 +209,9 @@ const UserPurchasedPackagesView = () => {
             style={{ width: "100%", padding: "40px 0" }}
           >
             <ShoppingOutlined style={{ fontSize: 48, color: "#bfbfbf" }} />
-            <Title level={4}>No Packages Purchased Yet</Title>
+            <Title level={4}>Chưa mua gói huấn luyện nào</Title>
             <Text type="secondary">
-              You haven't purchased any coaching packages yet. Browse our
-              coaches to find the perfect coach for you.
+              Bạn chưa mua gói huấn luyện viên nào. Hãy duyệt qua các huấn luyện viên của chúng tôi để tìm huấn luyện viên phù hợp với bạn.
             </Text>
             <Button
               type="primary"
@@ -221,7 +219,7 @@ const UserPurchasedPackagesView = () => {
               onClick={() => (window.location.href = "/coaches")}
               style={{ marginTop: 16 }}
             >
-              Browse Coaches
+              Tìm kiếm huấn luyện viên
             </Button>
           </Space>
         </Card>

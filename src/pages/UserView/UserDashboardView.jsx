@@ -51,98 +51,98 @@ const feedbackData = [
 //Tables columns
 const bookingColumns = (navigate) => [
   {
-    title: "Date",
+    title: "Ngày",
     dataIndex: "date",
     key: "date",
     sorter: (a, b) => new Date(a.date) - new Date(b.date)
   },
   {
-    title: "Time",
+    title: "Thời gian",
     dataIndex: "time",
     key: "time",
     sorter: (a, b) => a.time.localeCompare(b.time)
   },
   {
-    title: "Court",
+    title: "Sân",
     dataIndex: "court",
     key: "court"
   },
   {
-    title: "Sport",
+    title: "Môn thể thao",
     dataIndex: "sport",
     key: "sport",
     filters: [
       { text: "Tennis", value: "Tennis" },
-      { text: "Badminton", value: "Badminton" },
-      { text: "Basketball", value: "Basketball" },
+      { text: "Cầu lông", value: "Badminton" },
+      { text: "Bóng rổ", value: "Basketball" },
     ],
     onFilter: (value, record) => record.sport === value
   },
   {
-    title: "Status",
+    title: "Trạng thái",
     dataIndex: "status",
     key: "status",
     filters: [
-      { text: "Confirmed", value: "Confirmed" },
-      { text: "Pending", value: "Pending" },
+      { text: "Xác nhận", value: "Confirmed" },
+      { text: "Đang xử lý", value: "Pending" },
     ],
     onFilter: (value, record) => record.status === value,
     render: (status) => <Tag color={status === "Confirmed" ? "green" : "orange"}>{status}</Tag>
   },
   {
-    title: "Actions",
+    title: "Hành động",
     key: "actions",
     render: (_, record) => (
-      <Button type="link" onClick={() => navigate(`/user/bookings/${record.key}`)}>View Details</Button>
+      <Button type="link" onClick={() => navigate(`/user/bookings/${record.key}`)}>Xem chi tiết</Button>
     )
   },
 ];
 
 const coachingColumns = (navigate) => [
   {
-    title: "Date",
+    title: "Ngày",
     dataIndex: "date",
     key: "date",
     sorter: (a, b) => new Date(a.date) - new Date(b.date)
   },
   {
-    title: "Time",
+    title: "Thời gian",
     dataIndex: "time",
     key: "time",
     sorter: (a, b) => a.time.localeCompare(b.time)
   },
   {
-    title: "Coach",
+    title: "Huấn luyện viên",
     dataIndex: "coach",
     key: "coach"
   },
   {
-    title: "Sport",
+    title: "Môn thể thao",
     dataIndex: "sport",
     key: "sport",
     filters: [
       { text: "Tennis", value: "Tennis" },
-      { text: "Badminton", value: "Badminton" },
-      { text: "Basketball", value: "Basketball" },
+      { text: "Cầu lông", value: "Badminton" },
+      { text: "Bóng rổ", value: "Basketball" },
     ],
     onFilter: (value, record) => record.sport === value
   },
   {
-    title: "Status",
+    title: "Trạng thái",
     dataIndex: "status",
     key: "status",
     filters: [
-      { text: "Confirmed", value: "Confirmed" },
-      { text: "Pending", value: "Pending" },
+      { text: "Xác nhận", value: "Confirmed" },
+      { text: "Đang xử lý", value: "Pending" },
     ],
     onFilter: (value, record) => record.status === value,
     render: (status) => <Tag color={status === "Confirmed" ? "green" : "orange"}>{status}</Tag>
   },
   {
-    title: "Actions",
+    title: "Hành động",
     key: "actions",
     render: (_, record) => (
-      <Button type="link" onClick={() => navigate(`/user/coachings/schedule/${record.key}`)}>View Details</Button>
+      <Button type="link" onClick={() => navigate(`/user/coachings/schedule/${record.key}`)}>Xem chi tiết</Button>
     )
   },
 ];
@@ -198,44 +198,44 @@ const matchingColumns = (navigate) => [
 
 const paymentColumns = [
   {
-    title: "Amount",
+    title: "Khối lượng",
     dataIndex: "amount",
     key: "amount",
     sorter: (a, b) => parseFloat(a.amount.replace("$", "")) - parseFloat(b.amount.replace("$", ""))
   },
   {
-    title: "Date",
+    title: "Ngày",
     dataIndex: "date",
     key: "date",
     sorter: (a, b) => new Date(a.date) - new Date(b.date)
   },
   {
-    title: "Status",
+    title: "Trạng thái",
     dataIndex: "status",
     key: "status",
     filters: [
-      { text: "Unpaid", value: "Unpaid" },
-      { text: "Pending", value: "Pending" },
+      { text: "Chưa thanh toán", value: "Unpaid" },
+      { text: "Đang xử lý", value: "Pending" },
     ],
     onFilter: (value, record) => record.status === value,
     render: (status) => <Tag color={status === "Unpaid" ? "red" : "orange"}>{status}</Tag>
   },
   {
-    title: "Actions",
+    title: "Hành động",
     key: "actions",
     render: (_, record) => (
-      <Button type="link" onClick={() => navigate(`/payments/${record.key}`)}>View Details</Button>
+      <Button type="link" onClick={() => navigate(`/payments/${record.key}`)}>Xem chi tiết</Button>
     )
   },
 ];
 
 const feedbackColumns = (navigate) => [
-  { title: "User", dataIndex: "user", key: "user", sorter: (a, b) => a.user.localeCompare(b.user) },
-  { title: "Date", dataIndex: "date", key: "date", sorter: (a, b) => new Date(a.date) - new Date(b.date) },
-  { title: "Rating", dataIndex: "rating", key: "rating", sorter: (a, b) => a.rating - b.rating },
-  { title: "Comment", dataIndex: "comment", key: "comment", ellipsis: true },
-  { title: "Status", dataIndex: "status", key: "status", filters: [{ text: "Reviewed", value: "Reviewed" }, { text: "Pending", value: "Pending" }], onFilter: (value, record) => record.status.includes(value), render: (status) => <Tag color={status === "Reviewed" ? "green" : "orange"}>{status}</Tag> },
-  { title: "Action", key: "action", render: (_, record) => <Button type="link" onClick={() => navigate(`/user/feedbacks/${record.key}`)}>View Details</Button> },
+  { title: "Người dùng", dataIndex: "user", key: "user", sorter: (a, b) => a.user.localeCompare(b.user) },
+  { title: "Ngày", dataIndex: "date", key: "date", sorter: (a, b) => new Date(a.date) - new Date(b.date) },
+  { title: "Đánh giá sao", dataIndex: "rating", key: "rating", sorter: (a, b) => a.rating - b.rating },
+  { title: "Bình luận", dataIndex: "comment", key: "comment", ellipsis: true },
+  { title: "Trạng thái", dataIndex: "status", key: "status", filters: [{ text: "Reviewed", value: "Reviewed" }, { text: "Pending", value: "Pending" }], onFilter: (value, record) => record.status.includes(value), render: (status) => <Tag color={status === "Reviewed" ? "green" : "orange"}>{status}</Tag> },
+  { title: "Hành động", key: "action", render: (_, record) => <Button type="link" onClick={() => navigate(`/user/feedbacks/${record.key}`)}>Xem chi tiết</Button> },
 ];
 
 const UserDashboardView = () => {
@@ -288,29 +288,29 @@ const UserDashboardView = () => {
             <Row gutter={16}>
               <Col span={6}>
                 <Card>
-                  <Statistic title="Upcoming Bookings" value={upcomingBookings.length} prefix={<CalendarOutlined />} />
+                  <Statistic title="Lịch đặt sắp tới" value={upcomingBookings.length} prefix={<CalendarOutlined />} />
                 </Card>
               </Col>
               <Col span={6}>
                 <Card>
-                  <Statistic title="Coaching Sessions" value={coachingSessions.length} prefix={<TrophyOutlined />} />
+                  <Statistic title="Số buổi tập với huấn luyện viên" value={coachingSessions.length} prefix={<TrophyOutlined />} />
                 </Card>
               </Col>
               <Col span={6}>
                 <Card>
-                  <Statistic title="Pending Matches" value={pendingMatches.length} prefix={<TeamOutlined />} />
+                  <Statistic title="Số trận đang chờ" value={pendingMatches.length} prefix={<TeamOutlined />} />
                 </Card>
               </Col>
               <Col span={6}>
                 <Card>
-                  <Statistic title="Unpaid Transactions" value={paymentStatus.length} prefix={<WalletOutlined />} />
+                  <Statistic title="Giao dịch chưa hoàn thành" value={paymentStatus.length} prefix={<WalletOutlined />} />
                 </Card>
               </Col>
             </Row>
             <div className="flex gap-4 mt-4">
-              <Button type="primary">Browse Courts</Button>
-              <Button>Book a Court</Button>
-              <Button>Find a Coach</Button>
+              <Button type="primary">Tìm sân</Button>
+              <Button>Đặt lịch sân</Button>
+              <Button>Đặt lịch huấn luyện viên</Button>
             </div>
           </motion.div>
         );
@@ -319,9 +319,9 @@ const UserDashboardView = () => {
           <>
             {/* Title & Search Bar - Flex Container */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Upcoming Bookings</h2>
+              <h2 className="text-lg font-semibold">Lịch đặt sân sắp tới</h2>
               <Input
-                placeholder="Search by Court Name"
+                placeholder="Tìm theo tên sân"
                 value={bookingSearchText}
                 onChange={(e) => setBookingSearchText(e.target.value)}
                 style={{ width: 200 }}
@@ -338,7 +338,7 @@ const UserDashboardView = () => {
             {/* View All Bookings Button */}
             <div className="flex justify-end mt-4">
               <Button type="link" onClick={() => navigate("/user/bookings")}>
-                View All Bookings
+                Xem tất cả lịch đặt
               </Button>
             </div>
           </>
@@ -348,9 +348,9 @@ const UserDashboardView = () => {
           <>
             {/* Title & Search Bar - Flex Container */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Upcoming Coaching Sessions</h2>
+              <h2 className="text-lg font-semibold">Lịch đặt huấn luyện viên sắp tới</h2>
               <Input
-                placeholder="Search by Coach Name"
+                placeholder="Tìm theo tên huấn luyện viên"
                 value={coachingSearchText}
                 onChange={(e) => setCoachingSearchText(e.target.value)}
                 style={{ width: 200 }}
@@ -367,7 +367,7 @@ const UserDashboardView = () => {
             {/* View All Coaching Sessions Button */}
             <div className="flex justify-end mt-4">
               <Button type="link" onClick={() => navigate("/user/coachings")}>
-                View All Coaching Sessions
+                Xem tất cả các buổi tập với huấn luyện viên
               </Button>
             </div>
           </>
@@ -377,9 +377,9 @@ const UserDashboardView = () => {
           <>
             {/* Title & Search Bar - Flex Container */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Upcoming Matches</h2>
+              <h2 className="text-lg font-semibold">Các trận đấu sắp tới</h2>
               <Input
-                placeholder="Search by Opponent Name"
+                placeholder="Tìm theo tên đối thủ"
                 value={matchingSearchText}
                 onChange={(e) => setMatchingSearchText(e.target.value)}
                 style={{ width: 200 }}
@@ -396,7 +396,7 @@ const UserDashboardView = () => {
             {/* View All Matches Button */}
             <div className="flex justify-end mt-4">
               <Button type="link" onClick={() => navigate("/user/matching")}>
-                View All Matches
+                Xem tất cả các trận đấu
               </Button>
             </div>
           </>
@@ -406,9 +406,9 @@ const UserDashboardView = () => {
           <>
             {/* Title & Search Bar - Flex Container */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Unpaid Transactions</h2>
+              <h2 className="text-lg font-semibold">Giao dịch chưa hoàn thành</h2>
               <Input
-                placeholder="Search by Amount or Date (YYYY-MM-DD)"
+                placeholder="Tìm theo khối lượng hoặc ngày"
                 value={paymentSearchText}
                 onChange={(e) => setPaymentSearchText(e.target.value)}
                 style={{ width: 290 }}
@@ -425,7 +425,7 @@ const UserDashboardView = () => {
             {/* View All Transactions Button */}
             <div className="flex justify-end mt-4">
               <Button type="link" onClick={() => navigate("/user/transactions")}>
-                View All Transactions
+                Xem tất cả các giao dịch
               </Button>
             </div>
           </>
@@ -443,9 +443,9 @@ const UserDashboardView = () => {
           <>
             {/* Title & Search Bar - Flex Container */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Recent Feedback</h2>
+              <h2 className="text-lg font-semibold">Phản hồi gần đây</h2>
               <Input
-                placeholder="Search by User or Comment"
+                placeholder="Tìm theo tên hoặc bình luận"
                 value={feedbackSearchText}
                 onChange={(e) => setFeedbackSearchText(e.target.value)}
                 style={{ width: 290 }}
@@ -473,13 +473,13 @@ const UserDashboardView = () => {
   };
 
   const tabItems = [
-    { key: "overview", label: <span><HomeOutlined className="mr-2" /> Overview</span> },
-    { key: "bookings", label: <span><CalendarOutlined className="mr-2" /> Bookings</span> },
-    { key: "matches", label: <span><TeamOutlined className="mr-2" /> Matches</span> },
-    { key: "coaching", label: <span><TrophyOutlined className="mr-2" /> Coaching</span> },
-    { key: "payments", label: <span><WalletOutlined className="mr-2" /> Payments</span> },
-    { key: "feedbacks", label: <span><CommentOutlined className="mr-2" /> Feedback</span> },
-    { key: "notifications", label: <span><BellOutlined className="mr-2" /> Notifications</span> },
+    { key: "overview", label: <span><HomeOutlined className="mr-2" /> Tổng quan</span> },
+    { key: "bookings", label: <span><CalendarOutlined className="mr-2" /> Lịch đặt sân</span> },
+    { key: "matches", label: <span><TeamOutlined className="mr-2" /> Trận đấu</span> },
+    { key: "coaching", label: <span><TrophyOutlined className="mr-2" /> Huấn luyện viên</span> },
+    { key: "payments", label: <span><WalletOutlined className="mr-2" /> Thanh toán</span> },
+    { key: "feedbacks", label: <span><CommentOutlined className="mr-2" /> Phản hồi</span> },
+    { key: "notifications", label: <span><BellOutlined className="mr-2" /> Thông báo</span> },
   ];
 
   return (

@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Table, Tag, Button, message, Modal, Rate, Input } from "antd";
-import { useNavigate, useSearchParams  } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const { Search } = Input;
 
 const registeredMatchesData = [
-    { key: "1", date: "2025-03-14", time: "17:00", location: "Court A", sport: "Basketball", status: "Upcoming", opponent: "Team Thunder" },
-    { key: "2", date: "2025-03-10", time: "15:00", location: "Court C", sport: "Soccer", status: "Completed", opponent: "Team Eagles" },
-    { key: "3", date: "2025-03-20", time: "19:00", location: "Court B", sport: "Tennis", status: "Cancelled", opponent: "Team Storm" },
-  ];
+  { key: "1", date: "2025-03-14", time: "17:00", location: "Court A", sport: "Basketball", status: "Upcoming", opponent: "Team Thunder" },
+  { key: "2", date: "2025-03-10", time: "15:00", location: "Court C", sport: "Soccer", status: "Completed", opponent: "Team Eagles" },
+  { key: "3", date: "2025-03-20", time: "19:00", location: "Court B", sport: "Tennis", status: "Cancelled", opponent: "Team Storm" },
+];
 
 const statusFilters = [
-  { text: "Upcoming", value: "Upcoming" },
-  { text: "Completed", value: "Completed" },
-  { text: "Cancelled", value: "Cancelled" },
-  { text: "Rescheduled", value: "Rescheduled" },
-  { text: "Pending Confirmation", value: "Pending Confirmation" },
+  { text: "Sắp diễn ra", value: "Upcoming" },
+  { text: "Đã hoàn thành", value: "Completed" },
+  { text: "Đã hủy", value: "Cancelled" },
+  { text: "Đã lên lịch lại", value: "Rescheduled" },
+  { text: "Chờ xác nhận", value: "Pending Confirmation" },
 ];
 
 const getStatusColor = (status) => {
@@ -32,7 +32,7 @@ const getStatusColor = (status) => {
 const UserRegisteredMatchesView = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-const activeTab = searchParams.get("tab") || "1";
+  const activeTab = searchParams.get("tab") || "1";
   const [matches, setMatches] = useState([]);
   const [filteredMatches, setFilteredMatches] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,7 +50,7 @@ const activeTab = searchParams.get("tab") || "1";
   }, []);
 
   const handleCancelMatch = (key) => {
-    message.warning("Match cancellation requested.");
+    message.warning("Yêu cầu hủy trận đấu đã được gửi.");
     setMatches(matches.map(m => (m.key === key ? { ...m, status: "Cancelled" } : m)));
     setFilteredMatches(filteredMatches.map(m => (m.key === key ? { ...m, status: "Cancelled" } : m)));
   };
@@ -62,11 +62,11 @@ const activeTab = searchParams.get("tab") || "1";
 
   const handleSubmitFeedback = () => {
     if (!rating || !feedback.trim()) {
-      message.error("Please provide a rating and feedback.");
+      message.error("Vui lòng cung cấp đánh giá và phản hồi.");
       return;
     }
 
-    message.success("Feedback submitted successfully!");
+    message.success("Phản hồi đã được gửi thành công!");
     setIsModalOpen(false);
     setRating(0);
     setFeedback("");
@@ -87,27 +87,27 @@ const activeTab = searchParams.get("tab") || "1";
   };
 
   const columns = [
-    { title: "Date", dataIndex: "date", key: "date", sorter: (a, b) => new Date(a.date) - new Date(b.date) },
-    { title: "Time", dataIndex: "time", key: "time", sorter: (a, b) => a.time.localeCompare(b.time) },
-    { title: "Location", dataIndex: "location", key: "location" },
-    { title: "Opponent", dataIndex: "opponent", key: "opponent" },
-    { title: "Sport", dataIndex: "sport", key: "sport" },
-    { 
-      title: "Status", 
-      dataIndex: "status", 
-      key: "status", 
+    { title: "Ngày", dataIndex: "date", key: "date", sorter: (a, b) => new Date(a.date) - new Date(b.date) },
+    { title: "Thời gian", dataIndex: "time", key: "time", sorter: (a, b) => a.time.localeCompare(b.time) },
+    { title: "Địa điểm", dataIndex: "location", key: "location" },
+    { title: "Đối thủ", dataIndex: "opponent", key: "opponent" },
+    { title: "Môn thể thao", dataIndex: "sport", key: "sport" },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
       filters: statusFilters,
       onFilter: (value, record) => record.status.includes(value),
-      render: status => <Tag color={getStatusColor(status)}>{status}</Tag> 
+      render: status => <Tag color={getStatusColor(status)}>{status}</Tag>
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <>
-          <Button onClick={() => handleViewDetails(record.key)} className="mr-2">View Details</Button>
-          {record.status === "Upcoming" && <Button danger onClick={() => handleCancelMatch(record.key)}>Cancel Match</Button>}
-          {record.status === "Completed" && <Button type="primary" onClick={() => handleOpenFeedbackModal(record)}>Write Review</Button>}
+          <Button onClick={() => handleViewDetails(record.key)} className="mr-2">Xem chi tiết</Button>
+          {record.status === "Upcoming" && <Button danger onClick={() => handleCancelMatch(record.key)}>Hủy trận đấu</Button>}
+          {record.status === "Completed" && <Button type="primary" onClick={() => handleOpenFeedbackModal(record)}>Viết đánh giá</Button>}
         </>
       ),
     },
@@ -124,19 +124,19 @@ const activeTab = searchParams.get("tab") || "1";
       <Table dataSource={filteredMatches} columns={columns} />
 
       <Modal
-        title={`Feedback for ${selectedMatch?.opponent}`}
+        title={`Đánh giá cho ${selectedMatch?.opponent}`}
         open={isModalOpen}
         onOk={handleSubmitFeedback}
         onCancel={() => setIsModalOpen(false)}
-        okText="Submit"
-        cancelText="Cancel"
+        okText="Gửi"
+        cancelText="hủy"
       >
-        <p>Rate the match:</p>
+        <p>Đánh giá trận đấu:</p>
         <Rate allowHalf value={rating} onChange={setRating} />
-        <p style={{ marginTop: 10 }}>Leave your feedback:</p>
+        <p style={{ marginTop: 10 }}>Để lại đánh giá:</p>
         <Input.TextArea
           rows={4}
-          placeholder="Describe your experience..."
+          placeholder="Chia sẻ trải nghiệm của bạn..."
           value={feedback}
           onChange={(e) => setFeedback(e.target.value)}
         />

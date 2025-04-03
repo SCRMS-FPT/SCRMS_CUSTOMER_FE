@@ -58,7 +58,7 @@ const ChatWidget = () => {
                   <ChatHeader chatSessionId={activeChatId} miniHeader />
                 </div>
               ) : (
-                <div className="font-semibold text-white">Chats</div>
+                <div className="font-semibold text-white">Trò chuyện</div>
               )}
               <Button
                 type="text"
@@ -93,7 +93,7 @@ const ChatWidget = () => {
                     {activeChatId ? (
                       <ChatWindow chatSessionId={activeChatId} isMini />
                     ) : (
-                      <div className="p-4">No active chat selected</div>
+                      <div className="p-4">Không có đoạn chat nào đang được thực hiện</div>
                     )}
                   </motion.div>
                 )}
