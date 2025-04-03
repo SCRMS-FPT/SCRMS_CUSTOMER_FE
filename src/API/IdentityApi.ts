@@ -247,40 +247,40 @@ updateProfile(request: UpdateProfileRequest | undefined): Promise<void> {
     if (request) {
         // Add text fields
         if (request.firstName !== undefined && request.firstName !== null)
-            formData.append("firstName", request.firstName);
+            formData.append("FirstName", request.firstName);
         if (request.lastName !== undefined && request.lastName !== null)
-            formData.append("lastName", request.lastName);
+            formData.append("LastName", request.lastName);
         if (request.phone !== undefined && request.phone !== null)
-            formData.append("phone", request.phone);
+            formData.append("Phone", request.phone);
         if (request.gender !== undefined && request.gender !== null)
-            formData.append("gender", request.gender);
+            formData.append("Gender", request.gender);
         if (request.selfIntroduction !== undefined && request.selfIntroduction !== null)
-            formData.append("selfIntroduction", request.selfIntroduction);
+            formData.append("SelfIntroduction", request.selfIntroduction);
         if (request.birthDate !== undefined && request.birthDate !== null)
-            formData.append("birthDate", (new Date(request.birthDate)).toISOString());
+            formData.append("BirthDate", (new Date(request.birthDate)).toISOString());
         
         // Add avatar file if present - use "newAvatar" as field name
         if (request.newAvatarFile !== undefined && request.newAvatarFile !== null)
-            formData.append("newAvatar", request.newAvatarFile);
+            formData.append("NewAvatarFile", request.newAvatarFile);
         
         // Add multiple images if present - use "newImages" as field name
         if (request.newImageFiles && request.newImageFiles.length > 0) {
             for (let i = 0; i < request.newImageFiles.length; i++) {
-                formData.append("newImages", request.newImageFiles[i]);
+                formData.append("NewImageFiles", request.newImageFiles[i]);
             }
         }
         
         // Add existing image URLs to keep
         if (request.existingImageUrls && request.existingImageUrls.length > 0) {
             for (let i = 0; i < request.existingImageUrls.length; i++) {
-                formData.append("existingImageUrls", request.existingImageUrls[i]);
+                formData.append("ExistingImageUrls", request.existingImageUrls[i]);
             }
         }
         
         // Add image URLs to delete
         if (request.imagesToDelete && request.imagesToDelete.length > 0) {
             for (let i = 0; i < request.imagesToDelete.length; i++) {
-                formData.append("imagesToDelete", request.imagesToDelete[i]);
+                formData.append("ImagesToDelete", request.imagesToDelete[i]);
             }
         }
     }

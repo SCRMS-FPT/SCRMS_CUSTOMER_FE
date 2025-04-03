@@ -26,6 +26,7 @@ import ChangePasswordPage from "../pages/UserView/ChangePasswordPage";
 import FindMatchContainer from "@/pages/UserView/FindMatchContainer";
 import MatchesListPage from "@/pages/UserView/MatchesListPage";
 import UserCoachBookingDetailView from "../pages/UserView/UserCoachBookingDetailView";
+import MessengerPage from "../pages/ChatView/MessengerPage";
 
 const UserRoutes = [
   <Route
@@ -209,7 +210,7 @@ const UserRoutes = [
   />,
   <Route
     key="profile"
-    path="/sprofile"
+    path="/profile"
     element={
       <Layout>
         <ProfilePage />
@@ -224,6 +225,12 @@ const UserRoutes = [
         <ChangePasswordPage />
       </Layout>
     }
+  />,
+  <Route key="messenger" path="/messenger" element={<MessengerPage />} />,
+  <Route
+    key="messenger-conversation"
+    path="/messenger/:chatId"
+    element={<MessengerPage />}
   />,
 ];
 
