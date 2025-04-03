@@ -114,7 +114,7 @@ const CoachPackagesPage = () => {
     } catch (err) {
       console.error("Error fetching packages:", err);
       setError("Failed to load packages. Please try again later.");
-      message.error("Failed to load packages");
+      message.error("Không thể tải các gói.");
     } finally {
       setLoading(false);
     }
@@ -212,7 +212,7 @@ const CoachPackagesPage = () => {
 
   const handleDeletePackage = (packageId) => {
     confirm({
-      title: "Are you sure you want to delete this package?",
+      title: "Bạn có chắn chắn rằng muốn xóa gói này không?",
       icon: <ExclamationCircleOutlined style={{ color: "red" }} />,
       content: "This action cannot be undone.",
       okText: "Yes, Delete",
@@ -225,7 +225,7 @@ const CoachPackagesPage = () => {
           fetchPackages(); // Refresh the list
         } catch (error) {
           console.error("Error deleting package:", error);
-          message.error("Failed to delete package");
+          message.error("Không thể xóa gói.");
         }
       },
     });
@@ -234,22 +234,22 @@ const CoachPackagesPage = () => {
   const handleFormSubmit = async () => {
     // Validation
     if (!formData.name.trim()) {
-      message.error("Package name is required");
+      message.error("Tên gói là bắt buộc");
       return;
     }
 
     if (!formData.description.trim()) {
-      message.error("Description is required");
+      message.error("Mô tả là bắt buộc");
       return;
     }
 
     if (formData.price <= 0) {
-      message.error("Price must be greater than 0");
+      message.error("Giá phải lớn hơn 0");
       return;
     }
 
     if (formData.sessionCount <= 0) {
-      message.error("Session count must be greater than 0");
+      message.error("Số buổi tập phải lớn hơn 0");
       return;
     }
 
@@ -267,7 +267,7 @@ const CoachPackagesPage = () => {
         };
 
         await client.updatePackage(currentPackage.id, updateRequest);
-        message.success("Package updated successfully");
+        message.success("Gói được cập nhật thành công!");
       } else {
         // Create new package
         const createRequest = {
@@ -279,14 +279,14 @@ const CoachPackagesPage = () => {
         };
 
         await client.createPackage(createRequest);
-        message.success("Package created successfully");
+        message.success("Gói được tạo thành công!");
       }
 
       setIsFormModalOpen(false);
       fetchPackages(); // Refresh the list
     } catch (error) {
       console.error("Error saving package:", error);
-      message.error("Failed to save package");
+      message.error("Lưu gói thất bại!");
     } finally {
       setFormLoading(false);
     }
@@ -360,14 +360,13 @@ const CoachPackagesPage = () => {
             transition={{ duration: 0.6 }}
           >
             <MuiTypography variant="h3" component="h1" gutterBottom>
-              Coach Training Packages
+              Các gói huấn luyện viên
             </MuiTypography>
             <MuiTypography
               variant="h6"
               sx={{ opacity: 0.8, maxWidth: 800, mx: "auto" }}
             >
-              Enhance your skills with our professionally designed training
-              packages
+              Nâng cao kỹ năng của bạn với các gói đào tạo được thiết kế chuyên nghiệp.
             </MuiTypography>
           </motion.div>
         </Box>
@@ -376,7 +375,7 @@ const CoachPackagesPage = () => {
           <Grid container spacing={3}>
             <Grid item xs={12} md={4}>
               <Search
-                placeholder="Search by name or description"
+                placeholder="tìm theo tên hoặc mô tả"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 allowClear
@@ -388,31 +387,31 @@ const CoachPackagesPage = () => {
             <Grid item xs={12} md={3}>
               <Select
                 style={{ width: "100%" }}
-                placeholder="Filter by Status"
+                placeholder="Lọc theo trạng thái"
                 value={statusFilter || undefined}
                 onChange={(value) => setStatusFilter(value)}
                 allowClear
                 size="large"
               >
-                <Option value="ACTIVE">Active</Option>
-                <Option value="INACTIVE">Inactive</Option>
-                <Option value="DRAFT">Draft</Option>
+                <Option value="ACTIVE">Hoạt động</Option>
+                <Option value="INACTIVE">Không hoạt động</Option>
+                <Option value="DRAFT">Bản nháp</Option>
               </Select>
             </Grid>
 
             <Grid item xs={12} md={3}>
               <Select
                 style={{ width: "100%" }}
-                placeholder="Sort by"
+                placeholder="Sắp xếp theo"
                 value={sortBy}
                 onChange={(value) => setSortBy(value)}
                 size="large"
               >
-                <Option value="name">Name (A-Z)</Option>
-                <Option value="price_low">Price: Low to High</Option>
-                <Option value="price_high">Price: High to Low</Option>
-                <Option value="session_count">Session Count</Option>
-                <Option value="newest">Newest First</Option>
+                <Option value="name">Tên (A-Z)</Option>
+                <Option value="price_low">Giá: Thấp đến Cao</Option>
+                <Option value="price_high">Giá: Cao đến Thấp</Option>
+                <Option value="session_count">Số buổi tập</Option>
+                <Option value="newest">Mới nhất trước</Option>
               </Select>
             </Grid>
 
@@ -424,7 +423,7 @@ const CoachPackagesPage = () => {
                 onClick={handleAddPackage}
                 style={{ width: "100%", height: "40px" }}
               >
-                Add Package
+                Thêm gói
               </Button>
             </Grid>
           </Grid>
@@ -439,7 +438,7 @@ const CoachPackagesPage = () => {
         <Alert message="Error" description={error} type="error" showIcon />
       ) : filteredPackages.length === 0 ? (
         <Empty
-          description="No packages found"
+          description="Không tìm thấy gói nào"
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         />
       ) : (
@@ -475,15 +474,15 @@ const CoachPackagesPage = () => {
                       </div>
                     }
                     actions={[
-                      <Tooltip title="Edit" key="edit">
+                      <Tooltip title="Chỉnh sửa" key="edit">
                         <EditOutlined onClick={() => handleEditPackage(pkg)} />
                       </Tooltip>,
-                      <Tooltip title="Delete" key="delete">
+                      <Tooltip title="Xóa" key="delete">
                         <Popconfirm
-                          title="Are you sure you want to delete this package?"
+                          title="Bạn có chắc chắn muốn xóa gói này?"
                           onConfirm={() => handleDeletePackage(pkg.id)}
-                          okText="Yes"
-                          cancelText="No"
+                          okText="Có"
+                          cancelText="Không"
                           placement="top"
                         >
                           <DeleteOutlined />
@@ -561,9 +560,9 @@ const CoachPackagesPage = () => {
                                 <CalendarOutlined
                                   style={{ color: "#1a9f6c" }}
                                 />
-                                <Text strong>Sessions:</Text>
+                                <Text strong>Buổi tập:</Text>
                               </Space>
-                              <Text>{pkg.sessionCount} sessions</Text>
+                              <Text>{pkg.sessionCount} buổi</Text>
                             </Box>
 
                             <Box
@@ -577,7 +576,7 @@ const CoachPackagesPage = () => {
                                 <ClockCircleOutlined
                                   style={{ color: "#1a9f6c" }}
                                 />
-                                <Text strong>Created:</Text>
+                                <Text strong>Tạo ngày:</Text>
                               </Space>
                               <Text>
                                 {new Date(pkg.createdAt).toLocaleDateString()}
@@ -613,7 +612,7 @@ const CoachPackagesPage = () => {
 
       {/* Package Form Modal */}
       <Modal
-        title={currentPackage ? "Edit Package" : "Create New Package"}
+        title={currentPackage ? "Cập nhật gói" : "Tạo gói mới"}
         open={isFormModalOpen}
         onCancel={() => setIsFormModalOpen(false)}
         footer={null}
@@ -622,24 +621,24 @@ const CoachPackagesPage = () => {
         <Spin spinning={formLoading}>
           <form>
             <Box sx={{ mb: 3 }}>
-              <Text strong>Package Name</Text>
+              <Text strong>Tên gói</Text>
               <Input
                 name="name"
                 value={formData.name}
                 onChange={handleFormChange}
-                placeholder="Enter package name"
+                placeholder="Nhập tên gói"
                 required
                 style={{ marginTop: 8 }}
               />
             </Box>
 
             <Box sx={{ mb: 3 }}>
-              <Text strong>Description</Text>
+              <Text strong>Mô tả</Text>
               <Input.TextArea
                 name="description"
                 value={formData.description}
                 onChange={handleFormChange}
-                placeholder="Enter package description"
+                placeholder="Nhập mô tả gói"
                 rows={4}
                 required
                 style={{ marginTop: 8 }}
@@ -649,7 +648,7 @@ const CoachPackagesPage = () => {
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <Box sx={{ mb: 3 }}>
-                  <Text strong>Price (VND)</Text>
+                  <Text strong>Giá tiền (VND)</Text>
                   <Input
                     type="number"
                     min={0}
@@ -658,7 +657,7 @@ const CoachPackagesPage = () => {
                     onChange={(e) =>
                       handleNumberChange("price", e.target.value)
                     }
-                    placeholder="Enter price"
+                    placeholder="Nhập giá tiền"
                     required
                     style={{ marginTop: 8 }}
                     prefix={<DollarOutlined />}
@@ -668,7 +667,7 @@ const CoachPackagesPage = () => {
 
               <Grid item xs={12} md={6}>
                 <Box sx={{ mb: 3 }}>
-                  <Text strong>Number of Sessions</Text>
+                  <Text strong>Số buổi</Text>
                   <Input
                     type="number"
                     min={1}
@@ -677,7 +676,7 @@ const CoachPackagesPage = () => {
                     onChange={(e) =>
                       handleNumberChange("sessionCount", e.target.value)
                     }
-                    placeholder="Enter session count"
+                    placeholder="Nhập số buổi"
                     required
                     style={{ marginTop: 8 }}
                     prefix={<CalendarOutlined />}
@@ -696,9 +695,9 @@ const CoachPackagesPage = () => {
                     setFormData({ ...formData, status: value })
                   }
                 >
-                  <Option value="ACTIVE">Active</Option>
-                  <Option value="INACTIVE">Inactive</Option>
-                  <Option value="DRAFT">Draft</Option>
+                  <Option value="ACTIVE">Hoạt động</Option>
+                  <Option value="INACTIVE">Không hoạt động</Option>
+                  <Option value="DRAFT">Bản nháp</Option>
                 </Select>
               </Box>
             )}
@@ -719,7 +718,7 @@ const CoachPackagesPage = () => {
                 onClick={handleFormSubmit}
                 loading={formLoading}
               >
-                {currentPackage ? "Update Package" : "Create Package"}
+                {currentPackage ? "Cập nhật gói" : "Tạo gói"}
               </Button>
             </Box>
           </form>
