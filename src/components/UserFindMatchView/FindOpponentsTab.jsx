@@ -20,9 +20,12 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
   Alert,
   Collapse,
+  ImageList,
+  ImageListItem,
+  Divider,
+  Skeleton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,19 +38,34 @@ import {
   TrophyOutlined,
   HeartFilled,
   InfoCircleOutlined,
+  ManOutlined,
+  WomanOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  CalendarOutlined,
+  RightOutlined,
+  LeftOutlined,
 } from "@ant-design/icons";
 import { Empty } from "antd";
+import PropTypes from "prop-types";
+import { Client as IdentityClient } from "@/API/IdentityApi";
+import { Client as CourtClient } from "@/API/CourtApi";
 
-// Styled components
+// Updated SwipeContainer with better positioning
 const SwipeContainer = styled(Box)(({ theme }) => ({
   position: "relative",
   width: "100%",
-  height: 450,
-  overflow: "hidden",
+  height: 550,
   margin: "0 auto",
   maxWidth: 600,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  overflow: "hidden", // Change to hidden to prevent positioning issues
+  perspective: "1000px",
 }));
 
+// Updated SwipeCard styling to better accommodate the carousel
 const SwipeCard = styled(Card)(({ theme }) => ({
   position: "absolute",
   width: "100%",
@@ -57,13 +75,37 @@ const SwipeCard = styled(Card)(({ theme }) => ({
   backgroundImage: "linear-gradient(to bottom, #ffffff, #f8f9fa)",
   overflow: "hidden",
   padding: 0,
+  top: 0,
+  left: 0,
+  zIndex: 1,
+  transition: "transform 0.3s, box-shadow 0.3s",
+  "&:hover": {
+    boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
+    transform: "translateY(-5px)",
+  },
 }));
 
 const CardTop = styled(Box)(({ theme }) => ({
-  background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
-  height: 160,
+  height: 220,
   width: "100%",
   position: "relative",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  "&::after": {
+    // Add gradient overlay
+    content: '""',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background:
+      "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%)",
+    zIndex: 1,
+  },
 }));
 
 const ProfileAvatar = styled(Avatar)(({ theme }) => ({
@@ -75,14 +117,22 @@ const ProfileAvatar = styled(Avatar)(({ theme }) => ({
   left: "50%",
   transform: "translateX(-50%)",
   boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+  zIndex: 2,
+  transition: "transform 0.3s",
+  "&:hover": {
+    transform: "translateX(-50%) scale(1.05)",
+  },
 }));
 
+// Updated CardDetails to start immediately below the carousel
 const CardDetails = styled(CardContent)(({ theme }) => ({
-  marginTop: 70,
   textAlign: "center",
   padding: theme.spacing(2, 3, 3, 3),
+  overflow: "auto",
+  maxHeight: "calc(100% - 280px)", // Adjusted for new carousel height
 }));
 
+// Enhanced action buttons with better visual feedback
 const ActionButton = styled(IconButton)(({ theme, color }) => ({
   backgroundColor:
     color === "like" ? theme.palette.success.light : theme.palette.error.light,
@@ -91,11 +141,16 @@ const ActionButton = styled(IconButton)(({ theme, color }) => ({
   width: 64,
   height: 64,
   transition: "all 0.2s",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
   "&:hover": {
     backgroundColor:
       color === "like" ? theme.palette.success.main : theme.palette.error.main,
     color: "#fff",
     transform: "scale(1.1)",
+    boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+  },
+  "&:active": {
+    transform: "scale(0.95)",
   },
 }));
 
@@ -106,27 +161,226 @@ const FilterPaper = styled(Paper)(({ theme }) => ({
   boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
 }));
 
-import PropTypes from "prop-types";
+const ProfileDetail = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  margin: theme.spacing(0.5, 0),
+  color: theme.palette.text.secondary,
+  "& svg": {
+    marginRight: theme.spacing(1),
+    fontSize: 16,
+  },
+}));
+
+const ArrowButton = styled(IconButton)(({ theme, direction }) => ({
+  position: "absolute",
+  top: "50%",
+  transform: "translateY(-50%)",
+  backgroundColor: "rgba(255, 255, 255, 0.7)",
+  color: theme.palette.grey[800],
+  ...(direction === "left" ? { left: 10 } : { right: 10 }),
+  zIndex: 2,
+  "&:hover": {
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+  },
+}));
+
+// Enhanced chip for skills with better visual appeal
+const SkillChip = styled(Chip)(({ theme }) => ({
+  margin: theme.spacing(0.5),
+  transition: "all 0.2s",
+  "&:hover": {
+    transform: "translateY(-2px)",
+    boxShadow: "0 3px 5px rgba(0,0,0,0.1)",
+  },
+}));
+
+// Enhanced ProfileImageCarousel component
+const ProfileImageCarousel = ({ images, name }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const handleNext = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const handlePrevious = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  if (!images || images.length === 0) {
+    return (
+      <CardTop
+        sx={{
+          background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: 280, // Increased height for better visibility
+        }}
+      >
+        <UserOutlined
+          style={{
+            fontSize: 80,
+            color: "rgba(255,255,255,0.4)",
+            zIndex: 2,
+          }}
+        />
+        {name && (
+          <Typography
+            variant="h6"
+            sx={{
+              color: "white",
+              position: "absolute",
+              bottom: 20,
+              left: 20,
+              zIndex: 5,
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+              fontWeight: "bold",
+            }}
+          >
+            {name}
+          </Typography>
+        )}
+      </CardTop>
+    );
+  }
+
+  return (
+    <CardTop
+      sx={{
+        backgroundImage: `url(${images[currentImageIndex]})`,
+        position: "relative",
+        height: 280, // Increased height for better visibility
+      }}
+    >
+      {/* Image counter indicator */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          borderRadius: 4,
+          px: 1.5,
+          py: 0.5,
+          zIndex: 10,
+        }}
+      >
+        <Typography variant="body2" sx={{ color: "white" }}>
+          {currentImageIndex + 1}/{images.length}
+        </Typography>
+      </Box>
+
+      {/* Name overlay on the image */}
+      <Typography
+        variant="h6"
+        sx={{
+          color: "white",
+          position: "absolute",
+          bottom: 20,
+          left: 20,
+          zIndex: 5,
+          textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+          fontWeight: "bold",
+        }}
+      >
+        {name}
+      </Typography>
+
+      {images.length > 1 && (
+        <>
+          <ArrowButton direction="left" onClick={handlePrevious}>
+            <LeftOutlined />
+          </ArrowButton>
+          <ArrowButton direction="right" onClick={handleNext}>
+            <RightOutlined />
+          </ArrowButton>
+        </>
+      )}
+    </CardTop>
+  );
+};
+
+// Swipe indicator components with animations
+const SwipeIndicator = styled(Box)(({ direction, opacity = 0 }) => ({
+  position: "absolute",
+  top: 0,
+  bottom: 0,
+  width: "30%",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  opacity: opacity,
+  zIndex: 10,
+  transition: "opacity 0.2s ease",
+  pointerEvents: "none", // This ensures the indicator doesn't interfere with card interaction
+  ...(direction === "right"
+    ? {
+        right: 0,
+        backgroundColor: "rgba(59, 177, 90, 0.2)",
+        borderLeft: "2px dashed rgba(59, 177, 90, 0.6)",
+      }
+    : {
+        left: 0,
+        backgroundColor: "rgba(225, 70, 70, 0.2)",
+        borderRight: "2px dashed rgba(225, 70, 70, 0.6)",
+      }),
+}));
+
+const IndicatorIcon = styled(Box)(({ direction }) => ({
+  width: 60,
+  height: 60,
+  borderRadius: "50%",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: 10,
+  backgroundColor: direction === "right" ? "#3BB15A" : "#E14646",
+  color: "#fff",
+  fontSize: 26,
+  boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+}));
 
 function FindOpponentsTab({ userSkills, sports, matchingClient }) {
   const [loading, setLoading] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [previewProfile, setPreviewProfile] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState("success");
+  const [sportDetails, setSportDetails] = useState({});
+  const [dragDirection, setDragDirection] = useState(null);
+  const [dragAmount, setDragAmount] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  const cardRefs = useRef([]);
+  const identityClient = new IdentityClient();
+  const courtClient = new CourtClient();
 
   // Initial load of suggestions
   useEffect(() => {
-    // Only load suggestions once we have user skills or when user specifically
-    // wants no filters (we're checking userSkills is defined not just non-empty)
     if (userSkills !== undefined) {
       loadSuggestions();
     }
   }, [userSkills]);
+
+  // Cache sport details
+  useEffect(() => {
+    const loadSportDetails = async () => {
+      const sportMap = {};
+      for (const sport of sports) {
+        sportMap[sport.id] = sport;
+      }
+      setSportDetails(sportMap);
+    };
+
+    if (sports && sports.length > 0) {
+      loadSportDetails();
+    }
+  }, [sports]);
 
   // Load suggestions based on filters
   const loadSuggestions = async () => {
@@ -136,15 +390,82 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
       let filterStr = undefined;
 
       if (selectedFilters.length > 0) {
-        // Only apply filters if user has explicitly selected them
         filterStr = JSON.stringify(selectedFilters);
       }
 
       console.log("Applying filter:", filterStr);
 
-      // Pass filterStr which will be undefined if no filters
-      const response = await matchingClient.suggestions(1, 10, filterStr);
-      setSuggestions(response || []);
+      // Get user suggestions
+      const suggestionResponse = await matchingClient.suggestions(
+        1,
+        10,
+        filterStr
+      );
+
+      if (!suggestionResponse || suggestionResponse.length === 0) {
+        setSuggestions([]);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch detailed information for each user
+      const enhancedSuggestions = await Promise.all(
+        suggestionResponse.map(async (suggestion) => {
+          try {
+            // Fetch user profile details
+            const userProfile = await identityClient.profile(suggestion.id);
+
+            // Fetch sport details and merge them
+            const enhancedSports = await Promise.all(
+              suggestion.sports.map(async (sport) => {
+                let sportInfo = sportDetails[sport.sportId];
+
+                // If sport not in our cache, fetch it
+                if (!sportInfo) {
+                  try {
+                    sportInfo = await courtClient.getSportById(sport.sportId);
+                  } catch (err) {
+                    console.error("Error fetching sport:", err);
+                    sportInfo = { name: "Unknown Sport" };
+                  }
+                }
+
+                return {
+                  ...sport,
+                  sportName: sportInfo?.name || "Unknown Sport",
+                  sportIcon: sportInfo?.icon,
+                };
+              })
+            );
+
+            // Combine all data
+            return {
+              id: suggestion.id,
+              fullName: `${userProfile.firstName || ""} ${
+                userProfile.lastName || ""
+              }`.trim(),
+              firstName: userProfile.firstName,
+              lastName: userProfile.lastName,
+              email: userProfile.email,
+              phone: userProfile.phone,
+              gender: userProfile.gender,
+              birthDate: userProfile.birthDate,
+              selfIntroduction: userProfile.selfIntroduction,
+              avatarUrl: userProfile.avatarUrl,
+              imageUrls: userProfile.imageUrls || [],
+              sports: enhancedSports,
+            };
+          } catch (err) {
+            console.error("Error enhancing suggestion:", err);
+            return null;
+          }
+        })
+      );
+
+      // Filter out any failed fetches
+      const validSuggestions = enhancedSuggestions.filter((s) => s !== null);
+      setSuggestions(validSuggestions);
+      console.log("Loaded suggestions:", validSuggestions);
     } catch (error) {
       console.error("Error loading suggestions:", error);
       setAlertType("error");
@@ -230,21 +551,45 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
     setFilterOpen(false);
   };
 
-  // Handle manual button swipe
-  const handleButtonSwipe = (direction, index) => {
-    if (cardRefs.current[index]) {
-      cardRefs.current[index].swipe(direction);
-    }
-  };
-
   // Show profile preview
   const handleShowProfile = (player) => {
+    setLoadingDetails(true);
+
+    // We could fetch additional details here if needed
     setPreviewProfile(player);
+
+    setTimeout(() => {
+      setLoadingDetails(false);
+    }, 500);
   };
 
   // Close profile preview
   const handleClosePreview = () => {
     setPreviewProfile(null);
+  };
+
+  // Format date function
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Age calculator
+  const calculateAge = (birthDate) => {
+    if (!birthDate) return null;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
   };
 
   return (
@@ -400,80 +745,255 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
         />
       ) : (
         <>
-          <SwipeContainer>
-            {suggestions.map((player, index) => (
-              <TinderCard
-                key={player.id}
-                ref={(el) => (cardRefs.current[index] = el)}
-                onSwipe={(dir) => handleSwipe(dir, player, index)}
-                preventSwipe={["up", "down"]}
-              >
-                <SwipeCard>
-                  <CardTop />
-                  <ProfileAvatar src={player.avatarUrl}>
-                    <UserOutlined style={{ fontSize: 60 }} />
-                  </ProfileAvatar>
-
-                  <CardDetails>
-                    <Typography variant="h5" fontWeight="bold" gutterBottom>
-                      {player.fullName}
-                    </Typography>
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        gap: 1,
-                        mb: 2,
+          <Box
+            sx={{
+              position: "relative",
+              height: 550,
+              maxWidth: 600,
+              mx: "auto",
+              overflow: "visible",
+            }}
+          >
+            {suggestions.length > 0 &&
+              suggestions.map(
+                (player, index) =>
+                  index === activeIndex && (
+                    <motion.div
+                      key={player.id}
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 0 }}
+                      onDrag={(_, info) => {
+                        const x = info.offset.x;
+                        setDragAmount(Math.abs(x) / 100);
+                        setDragDirection(x > 0 ? "right" : "left");
+                      }}
+                      onDragEnd={(_, info) => {
+                        const x = info.offset.x;
+                        if (Math.abs(x) > 100) {
+                          // Swipe threshold met
+                          if (x > 0) {
+                            handleSwipe("right", player, activeIndex);
+                          } else {
+                            handleSwipe("left", player, activeIndex);
+                          }
+                          setActiveIndex((prev) =>
+                            Math.min(prev + 1, suggestions.length - 1)
+                          );
+                        }
+                        setDragDirection(null);
+                        setDragAmount(0);
+                      }}
+                      style={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "100%",
+                        zIndex: 10,
+                        rotate: dragDirection
+                          ? dragDirection === "right"
+                            ? dragAmount * 15
+                            : -dragAmount * 15
+                          : 0,
+                        x: dragDirection
+                          ? dragDirection === "right"
+                            ? dragAmount * 50
+                            : -dragAmount * 50
+                          : 0,
                       }}
                     >
-                      {player.sports?.map((sport) => (
-                        <Chip
-                          key={sport.sportId}
-                          icon={<TrophyOutlined />}
-                          label={`${sport.sportName}: ${sport.skillLevel}`}
-                          color="primary"
-                          size="small"
+                      <Card
+                        sx={{
+                          borderRadius: 4,
+                          overflow: "hidden",
+                          height: "100%",
+                          position: "relative",
+                          boxShadow: dragDirection
+                            ? dragDirection === "right"
+                              ? `0 10px 20px rgba(59, 177, 90, ${
+                                  dragAmount * 0.5
+                                })`
+                              : `0 10px 20px rgba(225, 70, 70, ${
+                                  dragAmount * 0.5
+                                })`
+                            : "0 8px 32px rgba(0,0,0,0.15)",
+                        }}
+                      >
+                        {/* Left reject indicator */}
+                        <SwipeIndicator
+                          direction="left"
+                          opacity={dragDirection === "left" ? dragAmount : 0}
+                        >
+                          <IndicatorIcon direction="left">
+                            <CloseOutlined />
+                          </IndicatorIcon>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{
+                              color: "#E14646",
+                              fontWeight: "bold",
+                              textShadow: "0 0 10px rgba(255,255,255,0.8)",
+                            }}
+                          >
+                            Bỏ qua
+                          </Typography>
+                        </SwipeIndicator>
+
+                        {/* Right match indicator */}
+                        <SwipeIndicator
+                          direction="right"
+                          opacity={dragDirection === "right" ? dragAmount : 0}
+                        >
+                          <IndicatorIcon direction="right">
+                            <HeartFilled />
+                          </IndicatorIcon>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{
+                              color: "#3BB15A",
+                              fontWeight: "bold",
+                              textShadow: "0 0 10px rgba(255,255,255,0.8)",
+                            }}
+                          >
+                            Ghép trận
+                          </Typography>
+                        </SwipeIndicator>
+
+                        <ProfileImageCarousel
+                          images={[
+                            player.avatarUrl,
+                            ...(player.imageUrls || []),
+                          ].filter(Boolean)}
+                          name={player.fullName}
                         />
-                      ))}
-                    </Box>
 
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mb: 3 }}
-                    >
-                      {player.selfIntroduction?.substring(0, 120)}
-                      {player.selfIntroduction?.length > 120 ? "..." : ""}
-                    </Typography>
+                        <CardContent sx={{ textAlign: "center", pt: 3 }}>
+                          {/* Card content from CardDetails */}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              mb: 1,
+                            }}
+                          >
+                            <Typography
+                              variant="h5"
+                              fontWeight="bold"
+                              sx={{ mr: 1 }}
+                            >
+                              {player.fullName}
+                            </Typography>
+                            {player.gender &&
+                              (player.gender === "Male" ? (
+                                <ManOutlined style={{ color: "#1890ff" }} />
+                              ) : player.gender === "Female" ? (
+                                <WomanOutlined style={{ color: "#eb2f96" }} />
+                              ) : null)}
+                          </Box>
 
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() => handleShowProfile(player)}
-                      startIcon={<InfoCircleOutlined />}
-                    >
-                      Xem thông tin
-                    </Button>
-                  </CardDetails>
-                </SwipeCard>
-              </TinderCard>
-            ))}
-          </SwipeContainer>
+                          {player.birthDate && (
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ mb: 1 }}
+                            >
+                              {calculateAge(player.birthDate)} tuổi
+                            </Typography>
+                          )}
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              justifyContent: "center",
+                              gap: 1,
+                              mb: 2,
+                            }}
+                          >
+                            {player.sports?.map((sport) => (
+                              <SkillChip
+                                key={sport.sportId}
+                                icon={<TrophyOutlined />}
+                                label={`${sport.sportName}: ${sport.skillLevel}`}
+                                color="primary"
+                                size="small"
+                              />
+                            ))}
+                          </Box>
+
+                          {player.selfIntroduction && (
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ mb: 3 }}
+                            >
+                              {player.selfIntroduction?.substring(0, 120)}
+                              {player.selfIntroduction?.length > 120
+                                ? "..."
+                                : ""}
+                            </Typography>
+                          )}
+
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleShowProfile(player);
+                            }}
+                            startIcon={<InfoCircleOutlined />}
+                            sx={{
+                              borderRadius: "20px",
+                              transition: "all 0.2s",
+                              "&:hover": {
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                              },
+                            }}
+                          >
+                            Xem chi tiết
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  )
+              )}
+          </Box>
 
           <Box
-            sx={{ display: "flex", justifyContent: "center", gap: 3, mt: 4 }}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 3,
+              mt: 4,
+              mb: 2,
+            }}
           >
             <ActionButton
               color="reject"
-              onClick={() => handleButtonSwipe("left", 0)}
+              onClick={() => {
+                if (suggestions.length > activeIndex) {
+                  // Manually trigger swipe left
+                  handleSwipe("left", suggestions[activeIndex], activeIndex);
+                  setActiveIndex((prev) =>
+                    Math.min(prev + 1, suggestions.length - 1)
+                  );
+                }
+              }}
             >
               <CloseOutlined style={{ fontSize: 24 }} />
             </ActionButton>
 
             <ActionButton
               color="like"
-              onClick={() => handleButtonSwipe("right", 0)}
+              onClick={() => {
+                if (suggestions.length > activeIndex) {
+                  // Manually trigger swipe right
+                  handleSwipe("right", suggestions[activeIndex], activeIndex);
+                  setActiveIndex((prev) =>
+                    Math.min(prev + 1, suggestions.length - 1)
+                  );
+                }
+              }}
             >
               <HeartOutlined style={{ fontSize: 24 }} />
             </ActionButton>
@@ -485,70 +1005,234 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
       <Dialog
         open={!!previewProfile}
         onClose={handleClosePreview}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+          },
+        }}
       >
-        {previewProfile && (
-          <>
-            <DialogTitle>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <Avatar
-                  src={previewProfile.avatarUrl}
-                  sx={{ width: 50, height: 50 }}
+        {loadingDetails ? (
+          <DialogContent>
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <CircularProgress />
+            </Box>
+          </DialogContent>
+        ) : (
+          previewProfile && (
+            <>
+              <DialogTitle sx={{ pb: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Avatar
+                    src={previewProfile.avatarUrl}
+                    sx={{
+                      width: 60,
+                      height: 60,
+                      border: "2px solid #f0f0f0",
+                      boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                    }}
+                  >
+                    <UserOutlined />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h6">
+                      {previewProfile.fullName}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {previewProfile.gender === "Male"
+                        ? "Nam"
+                        : previewProfile.gender === "Female"
+                        ? "Nữ"
+                        : "Khác"}
+                      {previewProfile.birthDate &&
+                        ` • ${calculateAge(previewProfile.birthDate)} tuổi`}
+                    </Typography>
+                  </Box>
+                </Box>
+              </DialogTitle>
+
+              <DialogContent dividers>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      gutterBottom
+                      sx={{
+                        pb: 1,
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      Thông tin cá nhân
+                    </Typography>
+
+                    <Box sx={{ mb: 2 }}>
+                      {previewProfile.email && (
+                        <ProfileDetail>
+                          <MailOutlined /> {previewProfile.email}
+                        </ProfileDetail>
+                      )}
+
+                      {previewProfile.phone && (
+                        <ProfileDetail>
+                          <PhoneOutlined /> {previewProfile.phone}
+                        </ProfileDetail>
+                      )}
+
+                      {previewProfile.birthDate && (
+                        <ProfileDetail>
+                          <CalendarOutlined />{" "}
+                          {formatDate(previewProfile.birthDate)}
+                        </ProfileDetail>
+                      )}
+                    </Box>
+
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      gutterBottom
+                      sx={{
+                        mt: 3,
+                        pb: 1,
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      Giới thiệu
+                    </Typography>
+                    <Typography variant="body2" paragraph>
+                      {previewProfile.selfIntroduction ||
+                        "Người chơi chưa thêm thông tin giới thiệu"}
+                    </Typography>
+
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      gutterBottom
+                      sx={{
+                        mt: 3,
+                        pb: 1,
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      Kỹ năng thể thao
+                    </Typography>
+                    <Box
+                      sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}
+                    >
+                      {previewProfile.sports?.map((sport) => (
+                        <SkillChip
+                          key={sport.sportId}
+                          icon={<TrophyOutlined />}
+                          label={`${sport.sportName}: ${sport.skillLevel}`}
+                          color="primary"
+                        />
+                      ))}
+                      {(!previewProfile.sports ||
+                        previewProfile.sports.length === 0) && (
+                        <Typography variant="body2">
+                          Không có thông tin kỹ năng
+                        </Typography>
+                      )}
+                    </Box>
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      gutterBottom
+                      sx={{
+                        pb: 1,
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      Hình ảnh
+                    </Typography>
+
+                    {previewProfile.avatarUrl ||
+                    (previewProfile.imageUrls &&
+                      previewProfile.imageUrls.length > 0) ? (
+                      <ImageList cols={2} gap={8}>
+                        {previewProfile.avatarUrl && (
+                          <ImageListItem>
+                            <img
+                              src={previewProfile.avatarUrl}
+                              alt="Avatar"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: "8px",
+                              }}
+                            />
+                          </ImageListItem>
+                        )}
+
+                        {previewProfile.imageUrls?.map((imageUrl, index) => (
+                          <ImageListItem key={index}>
+                            <img
+                              src={imageUrl}
+                              alt={`Profile image ${index + 1}`}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: "8px",
+                              }}
+                            />
+                          </ImageListItem>
+                        ))}
+                      </ImageList>
+                    ) : (
+                      <Typography variant="body2">
+                        Người chơi chưa thêm hình ảnh
+                      </Typography>
+                    )}
+                  </Grid>
+                </Grid>
+              </DialogContent>
+
+              <DialogActions sx={{ p: 3 }}>
+                <Button
+                  variant="outlined"
+                  onClick={handleClosePreview}
+                  sx={{
+                    borderRadius: "20px",
+                  }}
                 >
-                  <UserOutlined />
-                </Avatar>
-                <Typography variant="h6">{previewProfile.fullName}</Typography>
-              </Box>
-            </DialogTitle>
+                  Đóng
+                </Button>
 
-            <DialogContent>
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                Giới thiệu
-              </Typography>
-              <Typography variant="body2" paragraph>
-                {previewProfile.selfIntroduction ||
-                  "Không có thông tin giới thiệu"}
-              </Typography>
-
-              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                Kỹ năng
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
-                {previewProfile.sports?.map((sport) => (
-                  <Chip
-                    key={sport.sportId}
-                    icon={<TrophyOutlined />}
-                    label={`${sport.sportName}: ${sport.skillLevel}`}
-                    color="primary"
-                  />
-                ))}
-                {(!previewProfile.sports ||
-                  previewProfile.sports.length === 0) && (
-                  <Typography variant="body2">
-                    Không có thông tin kỹ năng
-                  </Typography>
-                )}
-              </Box>
-            </DialogContent>
-
-            <DialogActions>
-              <Button onClick={handleClosePreview}>Đóng</Button>
-              <Button
-                variant="contained"
-                startIcon={<HeartFilled />}
-                onClick={() => {
-                  handleClosePreview();
-                  handleButtonSwipe(
-                    "right",
-                    suggestions.findIndex((p) => p.id === previewProfile.id)
-                  );
-                }}
-              >
-                Ghép trận
-              </Button>
-            </DialogActions>
-          </>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<HeartFilled />}
+                  onClick={() => {
+                    handleClosePreview();
+                    handleSwipe(
+                      "right",
+                      suggestions.find((p) => p.id === previewProfile.id),
+                      activeIndex
+                    );
+                    setActiveIndex((prev) =>
+                      Math.min(prev + 1, suggestions.length - 1)
+                    );
+                  }}
+                  sx={{
+                    borderRadius: "20px",
+                    boxShadow: "0 4px 8px rgba(0,128,0,0.2)",
+                    "&:hover": {
+                      boxShadow: "0 6px 12px rgba(0,128,0,0.3)",
+                    },
+                  }}
+                >
+                  Ghép trận ngay
+                </Button>
+              </DialogActions>
+            </>
+          )
         )}
       </Dialog>
     </Box>

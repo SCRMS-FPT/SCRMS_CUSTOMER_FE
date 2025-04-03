@@ -653,6 +653,7 @@ protected processGetOwnedSportCenters(response: Response): Promise<GetOwnedSport
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -752,6 +753,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -867,6 +869,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "DELETE",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -937,6 +940,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -1304,6 +1308,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -1554,6 +1559,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -1602,6 +1608,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "DELETE",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -1773,6 +1780,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -1815,6 +1823,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -2012,6 +2021,7 @@ protected processUpdateSportCenter(response: Response): Promise<SportCenterDetai
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };

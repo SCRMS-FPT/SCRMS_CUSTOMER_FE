@@ -38,6 +38,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
+    "emoji-picker-react": "^4.12.2",
     "formik": "^2.4.6",
     "framer-motion": "^12.5.0",
     "geolib": "^3.3.4",
