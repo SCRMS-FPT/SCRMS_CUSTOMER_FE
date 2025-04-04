@@ -19,13 +19,13 @@ const UserCoachManagementView = () => {
   const tabItems = [
     {
       key: "1",
-      label: "Purchased Packages",
+      label: "Các gói huấn luyện viên đã mua",
       children: <UserPurchasedPackagesView />,
     },
-    { key: "2", label: "Booking History", children: <UserCoachBookingsView /> },
+    { key: "2", label: "Lịch sử đặt", children: <UserCoachBookingsView /> },
     {
       key: "3",
-      label: "Schedule Calendar",
+      label: "Lịch",
       children: <UserCoachCalendarView />,
     },
   ];
@@ -39,7 +39,7 @@ const UserCoachManagementView = () => {
   }, [activeTab, navigate]);
 
   return (
-    <Card title="Coach Management">
+    <Card title="Quản lý huấn luyện viên">
       <Tabs activeKey={activeTab} onChange={handleTabChange} items={tabItems} />
     </Card>
   );

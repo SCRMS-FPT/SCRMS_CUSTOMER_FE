@@ -17,9 +17,9 @@ const UserTeamMatchingManagementView = () => {
   };
 
   const tabItems = [
-    { key: "1", label: "Registered Matches", children: <UserRegisteredMatchesView /> },
-    { key: "2", label: "Match Requests", children: <UserMatchRequestsView /> },
-    { key: "3", label: "Match Schedule", children: <UserMatchScheduleView /> },
+    { key: "1", label: "Các trận đã đăng kí", children: <UserRegisteredMatchesView /> },
+    { key: "2", label: "Yêu cầu tìm trận", children: <UserMatchRequestsView /> },
+    { key: "3", label: "Lịch trận đấu", children: <UserMatchScheduleView /> },
   ];
 
   useEffect(() => {
