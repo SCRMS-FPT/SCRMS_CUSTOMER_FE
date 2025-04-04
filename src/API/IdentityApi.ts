@@ -1079,7 +1079,7 @@ protected processUpdateProfile(response: Response): Promise<void> {
         };
         
         if (status === 200) {
-            return response.json(); 
+            return Promise.resolve(); 
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
                 return throwException("An unexpected server error occurred.", status, _responseText, _headers);

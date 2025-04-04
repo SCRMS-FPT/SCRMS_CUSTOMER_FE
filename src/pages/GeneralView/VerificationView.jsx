@@ -19,20 +19,10 @@ const VerificationView = () => {
           setMessage("Thiếu mã xác thực");
           return;
         }
-        const response = await client.verify(token);
+        await client.verify(token);
 
-        if (response.ok) {
-          setVerificationState("success");
-          setMessage(
-            data.message || "Tài khoản của bạn đã được xác thực thành công!"
-          );
-        } else {
-          setVerificationState("error");
-          setMessage(
-            data.message ||
-              "Xác thực thất bại. Mã xác thực có thể không hợp lệ hoặc đã hết hạn."
-          );
-        }
+        setVerificationState("success");
+        setMessage("Tài khoản của bạn đã được xác thực thành công!");
       } catch (error) {
         setVerificationState("error");
         setMessage(
