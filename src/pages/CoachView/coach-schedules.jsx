@@ -108,8 +108,8 @@ const CoachSchedules = () => {
 
       const request = {
         dayOfWeek: selectedDate.day(),
-        startTime: values.timeRange[0].format("HH:mm"),
-        endTime: values.timeRange[1].format("HH:mm"),
+        startTime: values.timeRange[0].format("HH:mm:ss"),
+        endTime: values.timeRange[1].format("HH:mm:ss"),
       };
 
       await coachClient.createCoachSchedule(request);
