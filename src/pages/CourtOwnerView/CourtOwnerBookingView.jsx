@@ -134,6 +134,7 @@ const CourtOwnerBookingView = () => {
 
       // Call API to get bookings
       const response = await client.getBookings(
+        "CourtOwner", // view_as
         undefined, // user_id - not filtering by user
         courtId, // court_id
         sportsCenterId, // sports_center_id

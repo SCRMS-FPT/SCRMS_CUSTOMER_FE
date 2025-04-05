@@ -148,8 +148,9 @@ export class Client {
         return Promise.resolve<CreateBookingResponse>(null as any);
     }
 
-    /**
+   /**
      * Get Bookings
+     * @param view_as (optional) 
      * @param user_id (optional) 
      * @param court_id (optional) 
      * @param sports_center_id (optional) 
@@ -160,77 +161,84 @@ export class Client {
      * @param limit (optional) 
      * @return OK
      */
-    getBookings(user_id: string | undefined, court_id: string | undefined, sports_center_id: string | undefined, status: BookingStatus | undefined, start_date: Date | undefined, end_date: Date | undefined, page: number | undefined, limit: number | undefined): Promise<GetBookingsResult> {
-        let url_ = this.baseUrl + "/api/bookings?";
-        if (user_id === null)
-            throw new Error("The parameter 'user_id' cannot be null.");
-        else if (user_id !== undefined)
-            url_ += "user_id=" + encodeURIComponent("" + user_id) + "&";
-        if (court_id === null)
-            throw new Error("The parameter 'court_id' cannot be null.");
-        else if (court_id !== undefined)
-            url_ += "court_id=" + encodeURIComponent("" + court_id) + "&";
-        if (sports_center_id === null)
-            throw new Error("The parameter 'sports_center_id' cannot be null.");
-        else if (sports_center_id !== undefined)
-            url_ += "sports_center_id=" + encodeURIComponent("" + sports_center_id) + "&";
-        if (status === null)
-            throw new Error("The parameter 'status' cannot be null.");
-        else if (status !== undefined)
-            url_ += "status=" + encodeURIComponent("" + status) + "&";
-        if (start_date === null)
-            throw new Error("The parameter 'start_date' cannot be null.");
-        else if (start_date !== undefined)
-            url_ += "start_date=" + encodeURIComponent(start_date ? "" + start_date.toISOString() : "") + "&";
-        if (end_date === null)
-            throw new Error("The parameter 'end_date' cannot be null.");
-        else if (end_date !== undefined)
-            url_ += "end_date=" + encodeURIComponent(end_date ? "" + end_date.toISOString() : "") + "&";
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
-            url_ += "page=" + encodeURIComponent("" + page) + "&";
-        if (limit === null)
-            throw new Error("The parameter 'limit' cannot be null.");
-        else if (limit !== undefined)
-            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+   getBookings(view_as: string | undefined, user_id: string | undefined, court_id: string | undefined, sports_center_id: string | undefined, status: BookingStatus | undefined, start_date: Date | undefined, end_date: Date | undefined, page: number | undefined, limit: number | undefined): Promise<GetBookingsResult> {
+    let url_ = this.baseUrl + "/api/bookings?";
+    if (view_as === null)
+        throw new Error("The parameter 'view_as' cannot be null.");
+    else if (view_as !== undefined)
+        url_ += "view_as=" + encodeURIComponent("" + view_as) + "&";
+    if (user_id === null)
+        throw new Error("The parameter 'user_id' cannot be null.");
+    else if (user_id !== undefined)
+        url_ += "user_id=" + encodeURIComponent("" + user_id) + "&";
+    if (court_id === null)
+        throw new Error("The parameter 'court_id' cannot be null.");
+    else if (court_id !== undefined)
+        url_ += "court_id=" + encodeURIComponent("" + court_id) + "&";
+    if (sports_center_id === null)
+        throw new Error("The parameter 'sports_center_id' cannot be null.");
+    else if (sports_center_id !== undefined)
+        url_ += "sports_center_id=" + encodeURIComponent("" + sports_center_id) + "&";
+    if (status === null)
+        throw new Error("The parameter 'status' cannot be null.");
+    else if (status !== undefined)
+        url_ += "status=" + encodeURIComponent("" + status) + "&";
+    if (start_date === null)
+        throw new Error("The parameter 'start_date' cannot be null.");
+    else if (start_date !== undefined)
+        url_ += "start_date=" + encodeURIComponent(start_date ? "" + start_date.toISOString() : "") + "&";
+    if (end_date === null)
+        throw new Error("The parameter 'end_date' cannot be null.");
+    else if (end_date !== undefined)
+        url_ += "end_date=" + encodeURIComponent(end_date ? "" + end_date.toISOString() : "") + "&";
+    if (page === null)
+        throw new Error("The parameter 'page' cannot be null.");
+    else if (page !== undefined)
+        url_ += "page=" + encodeURIComponent("" + page) + "&";
+    if (limit === null)
+        throw new Error("The parameter 'limit' cannot be null.");
+    else if (limit !== undefined)
+        url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+    url_ = url_.replace(/[?&]$/, "");
 
-        let options_: RequestInit = {
-            method: "GET",
-            headers: this.getAuthHeaders(), // Add auth headers
-               
-        };
+    let options_: RequestInit = {
+        method: "GET",
+        headers: {
+            ...this.getAuthHeaders(), // Add auth headers
+            "Accept": "application/json"
+        }
+    };
 
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetBookings(_response);
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetBookings(_response);
+    });
+}
+
+protected processGetBookings(response: Response): Promise<GetBookingsResult> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = GetBookingsResult.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         });
     }
+    return Promise.resolve<GetBookingsResult>(null as any);
+}
 
-    protected processGetBookings(response: Response): Promise<GetBookingsResult> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = GetBookingsResult.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status === 401) {
-            return response.text().then((_responseText) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<GetBookingsResult>(null as any);
-    }
 
      /**
      * Update Booking Status
@@ -653,6 +661,7 @@ protected processGetOwnedSportCenters(response: Response): Promise<GetOwnedSport
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -752,6 +761,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -867,6 +877,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "DELETE",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -937,6 +948,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -1304,6 +1316,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -1554,6 +1567,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -1602,6 +1616,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "DELETE",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -1773,6 +1788,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -1815,6 +1831,7 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };
@@ -2012,6 +2029,7 @@ protected processUpdateSportCenter(response: Response): Promise<SportCenterDetai
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                ...this.getAuthHeaders(),
                 "Accept": "application/json"
             }
         };

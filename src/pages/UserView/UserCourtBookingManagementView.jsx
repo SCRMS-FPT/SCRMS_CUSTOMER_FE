@@ -77,6 +77,7 @@ const UserCourtBookingManagementView = () => {
 
       // Call the API with filters
       const response = await courtClient.getBookings(
+        "User",
         undefined,
         courtId,
         sportsCenterId,
