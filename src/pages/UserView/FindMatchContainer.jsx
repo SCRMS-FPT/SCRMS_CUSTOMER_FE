@@ -116,6 +116,7 @@ function FindMatchContainer() {
 
         // 2. Fetch sports list
         const sportsData = await courtClient.getSports();
+        console.log("Sports data:", sportsData); // Debug log
         setSports(sportsData?.sports || []);
 
         // 3. Fetch user skills if available

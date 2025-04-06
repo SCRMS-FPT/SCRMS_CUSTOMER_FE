@@ -79,9 +79,8 @@ const UserCoachCalendarView = () => {
     } else if (minutes === 0) {
       return `${hours} hr${hours > 1 ? "s" : ""}`;
     } else {
-      return `${hours} hr${hours > 1 ? "s" : ""} ${minutes} min${
-        minutes > 1 ? "s" : ""
-      }`;
+      return `${hours} hr${hours > 1 ? "s" : ""} ${minutes} min${minutes > 1 ? "s" : ""
+        }`;
     }
   };
 
@@ -175,22 +174,22 @@ const UserCoachCalendarView = () => {
                 booking.status?.toUpperCase() === "COMPLETED"
                   ? "#b7eb8f"
                   : booking.status?.toUpperCase() === "CONFIRMED"
-                  ? "#91caff"
-                  : booking.status?.toUpperCase() === "PENDING"
-                  ? "#ffe58f"
-                  : booking.status?.toUpperCase() === "CANCELLED"
-                  ? "#ffccc7"
-                  : "#d9d9d9",
+                    ? "#91caff"
+                    : booking.status?.toUpperCase() === "PENDING"
+                      ? "#ffe58f"
+                      : booking.status?.toUpperCase() === "CANCELLED"
+                        ? "#ffccc7"
+                        : "#d9d9d9",
               backgroundColor:
                 booking.status?.toUpperCase() === "COMPLETED"
                   ? "#f6ffed"
                   : booking.status?.toUpperCase() === "CONFIRMED"
-                  ? "#e6f7ff"
-                  : booking.status?.toUpperCase() === "PENDING"
-                  ? "#fffbe6"
-                  : booking.status?.toUpperCase() === "CANCELLED"
-                  ? "#fff2f0"
-                  : "#fafafa",
+                    ? "#e6f7ff"
+                    : booking.status?.toUpperCase() === "PENDING"
+                      ? "#fffbe6"
+                      : booking.status?.toUpperCase() === "CANCELLED"
+                        ? "#fff2f0"
+                        : "#fafafa",
               cursor: "pointer",
             }}
             onClick={() => {
@@ -247,7 +246,7 @@ const UserCoachCalendarView = () => {
             }}
           >
             <Text type="secondary">
-              +{bookingsForDay.length - 2} more sessions
+              +{bookingsForDay.length - 2} buổi nữa
             </Text>
           </div>
         )}
@@ -281,28 +280,28 @@ const UserCoachCalendarView = () => {
   return (
     <div>
       <Space direction="vertical" style={{ width: "100%", marginBottom: 16 }}>
-        <Title level={4}>Your Booking Calendar</Title>
+        <Title level={4}>Lịch huấn luyện của bạn</Title>
 
         <Space>
           <Select
-            placeholder="Filter by Status"
+            placeholder="Lọc theo trạng thái"
             style={{ width: 150 }}
             onChange={handleFilterChange}
             value={statusFilter}
             allowClear
           >
-            <Option value="PENDING">Pending</Option>
-            <Option value="CONFIRMED">Confirmed</Option>
-            <Option value="COMPLETED">Completed</Option>
-            <Option value="CANCELLED">Cancelled</Option>
-            <Option value="NO_SHOW">No-show</Option>
+            <Option value="PENDING">Đang chờ</Option>
+            <Option value="CONFIRMED">Đã xác nhận</Option>
+            <Option value="COMPLETED">Hoàn thành</Option>
+            <Option value="CANCELLED">Đã hủy</Option>
+            <Option value="NO_SHOW">Không đến</Option>
           </Select>
 
           <Button
             onClick={() => setStatusFilter(null)}
             disabled={!statusFilter}
           >
-            Clear Filter
+            Xóa bộ lọc
           </Button>
         </Space>
       </Space>
@@ -312,8 +311,8 @@ const UserCoachCalendarView = () => {
         <>
           {filteredBookings.length === 0 && (
             <Alert
-              message="No bookings found"
-              description="You don't have any bookings in the selected date range or matching your filter."
+              message="Không tìm thấy lịch đặt nào"
+              description="Bạn không có bất kỳ đặt chỗ nào trong khoảng thời gian đã chọn hoặc không khớp với bộ lọc của bạn."
               type="info"
               showIcon
               style={{ marginBottom: 16 }}
@@ -327,7 +326,7 @@ const UserCoachCalendarView = () => {
           {filteredBookings.length > 0 && totalCount > 100 && (
             <div style={{ textAlign: "center", marginTop: 16 }}>
               <Alert
-                message={`Showing ${filteredBookings.length} of ${totalCount} bookings. Use filters to narrow down results.`}
+                message={`Đang hiện ${filteredBookings.length} of ${totalCount} lịch đặt. Sử dụng bộ lọc để tìm kiếm kết quả.`}
                 type="info"
                 showIcon
               />
@@ -342,7 +341,7 @@ const UserCoachCalendarView = () => {
               style={{ fontSize: "18px", marginRight: "8px", color: "#1890ff" }}
             />
             <span>
-              Bookings on{" "}
+              Lịch đặt vào ngày{" "}
               {selectedDate ? dayjs(selectedDate).format("MMMM D, YYYY") : ""}
             </span>
           </div>
@@ -362,7 +361,7 @@ const UserCoachCalendarView = () => {
                   type="primary"
                   onClick={() => handleViewDetails(booking.id)}
                 >
-                  View Details
+                  Xem chi tiết
                 </Button>,
               ]}
               style={{
@@ -370,12 +369,12 @@ const UserCoachCalendarView = () => {
                   booking.status?.toUpperCase() === "COMPLETED"
                     ? "#f6ffed"
                     : booking.status?.toUpperCase() === "CONFIRMED"
-                    ? "#e6f7ff"
-                    : booking.status?.toUpperCase() === "PENDING"
-                    ? "#fffbe6"
-                    : booking.status?.toUpperCase() === "CANCELLED"
-                    ? "#fff2f0"
-                    : "#fafafa",
+                      ? "#e6f7ff"
+                      : booking.status?.toUpperCase() === "PENDING"
+                        ? "#fffbe6"
+                        : booking.status?.toUpperCase() === "CANCELLED"
+                          ? "#fff2f0"
+                          : "#fafafa",
                 borderRadius: "8px",
                 marginBottom: "8px",
                 padding: "12px",
@@ -418,12 +417,12 @@ const UserCoachCalendarView = () => {
                             booking.status?.toUpperCase() === "COMPLETED"
                               ? "#52c41a"
                               : booking.status?.toUpperCase() === "CONFIRMED"
-                              ? "#1890ff"
-                              : booking.status?.toUpperCase() === "PENDING"
-                              ? "#faad14"
-                              : booking.status?.toUpperCase() === "CANCELLED"
-                              ? "#f5222d"
-                              : "#d9d9d9",
+                                ? "#1890ff"
+                                : booking.status?.toUpperCase() === "PENDING"
+                                  ? "#faad14"
+                                  : booking.status?.toUpperCase() === "CANCELLED"
+                                    ? "#f5222d"
+                                    : "#d9d9d9",
                         }}
                       />
                     </Space>
@@ -473,7 +472,7 @@ const UserCoachCalendarView = () => {
                           style={{ marginRight: "8px", color: "#722ed1" }}
                         />
                         <Text>
-                          Package: <Text strong>{booking.packageName}</Text>
+                          Gói: <Text strong>{booking.packageName}</Text>
                         </Text>
                       </div>
                     )}
@@ -486,7 +485,7 @@ const UserCoachCalendarView = () => {
                         fontSize: "12px",
                       }}
                     >
-                      <Text type="secondary">Booking ID: {booking.id}</Text>
+                      <Text type="secondary">ID lịch đặt: {booking.id}</Text>
                     </div>
                   </Space>
                 }

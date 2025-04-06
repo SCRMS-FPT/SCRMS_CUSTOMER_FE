@@ -20,7 +20,7 @@ import {
   Avatar,
   Fade,
   Zoom,
-  Divider,
+  Divider, LinearProgress
 } from "@mui/material";
 import {
   Spin,
@@ -62,33 +62,33 @@ const defaultSchedules = [
     startTime: "07:00",
     endTime: "17:00",
     priceSlot: 150000,
-    name: "Weekday Regular Hours",
+    name: "Giờ làm việc bình thường trong tuần",
   },
   {
     days: [1, 2, 3, 4, 5], // Monday to Friday
     startTime: "17:00",
     endTime: "22:00",
     priceSlot: 200000,
-    name: "Weekday Evening Hours",
+    name: "Giờ làm việc trong tuần buổi tối",
   },
   {
     days: [6, 7], // Saturday and Sunday (7 is Sunday)
     startTime: "08:00",
     endTime: "22:00",
     priceSlot: 250000,
-    name: "Weekend Hours",
+    name: "Cuối tuần",
   },
 ];
 
 // Day options for schedule selection
 const dayOptions = [
-  { label: "Monday", value: 1 },
-  { label: "Tuesday", value: 2 },
-  { label: "Wednesday", value: 3 },
-  { label: "Thursday", value: 4 },
-  { label: "Friday", value: 5 },
-  { label: "Saturday", value: 6 },
-  { label: "Sunday", value: 7 },
+  { label: "Thứ 2", value: 1 },
+  { label: "Thứ 3", value: 2 },
+  { label: "Thứ 4", value: 3 },
+  { label: "Thứ 5", value: 4 },
+  { label: "Thứ 6", value: 5 },
+  { label: "Thứ 7", value: 6 },
+  { label: "Chủ nhật", value: 7 },
 ];
 
 const CourtOwnerOnboarding = () => {
@@ -151,8 +151,8 @@ const CourtOwnerOnboarding = () => {
       } catch (error) {
         console.error("Error fetching sports:", error);
         notification.error({
-          message: "Error",
-          description: "Failed to load sports. Please try again later.",
+          message: "Lỗi",
+          description: "Không thể hiển thị các môn thể thao. Vui lòng thử lại sau.",
         });
       }
     };
@@ -190,8 +190,8 @@ const CourtOwnerOnboarding = () => {
     } catch (error) {
       console.error("Error handling avatar upload:", error);
       notification.error({
-        message: "Upload Failed",
-        description: "Failed to process avatar image.",
+        message: "Tải lên thất bại",
+        description: "Không thể xử lý ảnh đại diện.",
       });
     }
   };
@@ -223,7 +223,7 @@ const CourtOwnerOnboarding = () => {
       // Check max files limit
       if (galleryFiles.length >= 5) {
         notification.warning({
-          message: "Upload Limit",
+          message: "Vượt giới hạn tải lên",
           description: "You can only upload up to 5 images",
         });
         return;
@@ -251,8 +251,8 @@ const CourtOwnerOnboarding = () => {
     } catch (error) {
       console.error("Error handling gallery upload:", error);
       notification.error({
-        message: "Upload Failed",
-        description: "Failed to process gallery image.",
+        message: "Tải lên thất bại",
+        description: "Không thể xử lý ảnh tải lên.",
       });
     }
   };
@@ -263,9 +263,9 @@ const CourtOwnerOnboarding = () => {
       // Validate form
       if (!sportCenter.name || !sportCenter.phoneNumber || !avatarFile) {
         notification.error({
-          message: "Validation Error",
+          message: "Sai định dạng thông tin",
           description:
-            "Please fill all required fields and upload a center logo.",
+            "Vui lòng điền đầy đủ các trường bắt buộc và tải lên logo của trung tâm thể thao.",
         });
         setLoading(false);
         return;
@@ -291,16 +291,16 @@ const CourtOwnerOnboarding = () => {
       if (response.id) {
         setSportCenterId(response.id);
         notification.success({
-          message: "Success",
-          description: "Sport center created successfully!",
+          message: "Thành công",
+          description: "Trung tâm thể thao đã được tạo thành công!",
         });
         handleNext();
       }
     } catch (error) {
       console.error("Error creating sport center:", error);
       notification.error({
-        message: "Error",
-        description: "Failed to create sport center. Please try again.",
+        message: "Lỗi",
+        description: "Không thể tạo trung tâm thể thao. Vui lòng thử lại.",
       });
     } finally {
       setLoading(false);
@@ -362,7 +362,7 @@ const CourtOwnerOnboarding = () => {
     if (!newFacility.name) {
       notification.warning({
         message: "Validation Error",
-        description: "Facility name is required",
+        description: "Tên cơ sở vật chất là yêu cầu bắt buộc",
       });
       return;
     }
@@ -397,10 +397,9 @@ const CourtOwnerOnboarding = () => {
 
   const steps = [
     {
-      label: "Welcome to Court Owner Portal",
-      description: `Hello ${
-        user?.name || "Court Owner"
-      }! Let's get started by setting up your first sports center.`,
+      label: "Chào mừng bạn đến với Cổng thông tin Chủ Sở Hữu Sân",
+      description: `Xin chào ${user?.name || "bạn"
+        }! Hãy bắt đầu bằng cách thiết lập trung tâm thể thao đầu tiên của bạn.`,
       content: (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -472,7 +471,7 @@ const CourtOwnerOnboarding = () => {
                     mb: 3,
                   }}
                 >
-                  Welcome to the Court Management System!
+                  Chào mừng bạn đến với hệ thống quản lý đặt sân!
                 </Typography>
               </Fade>
 
@@ -487,9 +486,9 @@ const CourtOwnerOnboarding = () => {
                   mx: "auto",
                 }}
               >
-                We're excited to have you join our platform! This setup wizard
-                will guide you through creating your sports center, courts, and
-                getting everything ready for your customers.
+                Chúng tôi rất vui khi bạn gia nhập nền tảng của chúng tôi! Trình
+                hướng dẫn thiết lập này sẽ giúp bạn thiết lập trung tâm thể thao, sân
+                thi đấu và chuẩn bị mọi thứ sẵn sàng cho khách hàng của bạn.
               </Typography>
 
               <Box
@@ -507,7 +506,7 @@ const CourtOwnerOnboarding = () => {
                   gutterBottom
                   sx={{ fontWeight: 500 }}
                 >
-                  Your Onboarding Steps:
+                  Các bước bắt đầu của bạn:
                 </Typography>
 
                 <Timeline mode="left" style={{ marginTop: 20 }}>
@@ -520,10 +519,10 @@ const CourtOwnerOnboarding = () => {
                     color="blue"
                   >
                     <Typography variant="body1" fontWeight={500}>
-                      Create your sports center
+                      Tạo trung tâm thể thao của bạn
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Set up your venue's details, location and images
+                      Thiết lập thông tin, vị trí và hình ảnh cho trung tâm thể thao của bạn
                     </Typography>
                   </Timeline.Item>
 
@@ -536,10 +535,10 @@ const CourtOwnerOnboarding = () => {
                     color="blue"
                   >
                     <Typography variant="body1" fontWeight={500}>
-                      Add courts to your center
+                      Thêm sân vào trung tâm thể thao của bạn
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Configure your courts' specifications and facilities
+                      Thiết lập các thông tin và tiện ích cho sân của bạn
                     </Typography>
                   </Timeline.Item>
 
@@ -552,10 +551,10 @@ const CourtOwnerOnboarding = () => {
                     color="blue"
                   >
                     <Typography variant="body1" fontWeight={500}>
-                      Set court schedules
+                      Thiết lập lịch sân
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Define operating hours and time slots for bookings
+                      Tùy chọn giờ hoạt động và khung giờ cho việc đặt sân
                     </Typography>
                   </Timeline.Item>
 
@@ -568,10 +567,10 @@ const CourtOwnerOnboarding = () => {
                     color="blue"
                   >
                     <Typography variant="body1" fontWeight={500}>
-                      Create promotions (optional)
+                      Tạo các gói ưu đãi (tùy chọn)
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Attract customers with special discounts and offers
+                      Thu hút khách hàng với các ưu đãi và giảm giá đặc biệt
                     </Typography>
                   </Timeline.Item>
                 </Timeline>
@@ -601,7 +600,7 @@ const CourtOwnerOnboarding = () => {
                       },
                     }}
                   >
-                    Let's Get Started
+                    Cùng bắt đầu tại đây
                   </Button>
                 </motion.div>
               </Box>
@@ -611,8 +610,8 @@ const CourtOwnerOnboarding = () => {
       ),
     },
     {
-      label: "Create your Sports Center",
-      description: "Enter details about your sports center",
+      label: "Tạo Trung Tâm Thể Thao Của Bạn",
+      description: "Nhập thông tin về trung tâm thể thao của bạn",
       content: (
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -630,20 +629,25 @@ const CourtOwnerOnboarding = () => {
             <Box sx={{ p: 3, bgcolor: "primary.main", color: "white" }}>
               <Typography variant="h5" fontWeight={600}>
                 <SportsCenterOutlined sx={{ mr: 1, verticalAlign: "middle" }} />
-                Sports Center Information
+                Thông tin Trung Tâm Thể Thao
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9, mt: 0.5 }}>
-                Let's set up your first venue
+                Hãy cùng thiết lập trung tâm thể thao đầu tiên của bạn
               </Typography>
             </Box>
 
             <CardContent sx={{ p: 4 }}>
               <Box sx={{ mb: 3 }}>
-                <Progress
+                {/* <Progress
                   percent={33}
                   steps={3}
                   strokeColor="#1976d2"
                   size="small"
+                /> */}
+                <LinearProgress
+                  variant="determinate"
+                  value={33} // Giá trị tiến độ (0 - 100)
+                  sx={{ height: 8, backgroundColor: '#e0e0e0', borderRadius: '5px' }} // Tùy chỉnh kiểu dáng
                 />
               </Box>
 
@@ -656,7 +660,7 @@ const CourtOwnerOnboarding = () => {
                   >
                     <TextField
                       fullWidth
-                      label="Center Name"
+                      label="Tên trung tâm thể thao"
                       variant="outlined"
                       value={sportCenter.name}
                       onChange={(e) =>
@@ -677,7 +681,7 @@ const CourtOwnerOnboarding = () => {
                   >
                     <TextField
                       fullWidth
-                      label="Phone Number"
+                      label="Số điện thoại"
                       variant="outlined"
                       value={sportCenter.phoneNumber}
                       onChange={(e) =>
@@ -701,7 +705,7 @@ const CourtOwnerOnboarding = () => {
                   >
                     <TextField
                       fullWidth
-                      label="Address"
+                      label="Địa chỉ"
                       variant="outlined"
                       value={sportCenter.addressLine}
                       onChange={(e) =>
@@ -727,7 +731,7 @@ const CourtOwnerOnboarding = () => {
                       >
                         <TextField
                           fullWidth
-                          label="City"
+                          label="Tỉnh/Thành phố"
                           variant="outlined"
                           value={sportCenter.city}
                           onChange={(e) =>
@@ -752,7 +756,7 @@ const CourtOwnerOnboarding = () => {
                       >
                         <TextField
                           fullWidth
-                          label="District"
+                          label="Quận/Huyện"
                           variant="outlined"
                           value={sportCenter.district}
                           onChange={(e) =>
@@ -777,7 +781,7 @@ const CourtOwnerOnboarding = () => {
                       >
                         <TextField
                           fullWidth
-                          label="Commune"
+                          label="Xã/Phường"
                           variant="outlined"
                           value={sportCenter.commune}
                           onChange={(e) =>
@@ -805,7 +809,7 @@ const CourtOwnerOnboarding = () => {
                   >
                     <TextField
                       fullWidth
-                      label="Description"
+                      label="Mô tả"
                       variant="outlined"
                       value={sportCenter.description}
                       onChange={(e) =>
@@ -817,7 +821,7 @@ const CourtOwnerOnboarding = () => {
                       multiline
                       rows={4}
                       margin="normal"
-                      placeholder="Describe your sports center, its facilities and what makes it special..."
+                      placeholder="Mô tả trung tâm thể thao của bạn, các tiện ích và điều gì làm cho nó đặc biệt..."
                       InputProps={{
                         sx: { borderRadius: 2 },
                       }}
@@ -849,7 +853,7 @@ const CourtOwnerOnboarding = () => {
                         }}
                       >
                         <PhotoCamera sx={{ mr: 1, color: "primary.main" }} />
-                        Upload Center Images (Max 5)
+                        Tải lên ảnh trung tâm thể thao (Tối đa 5 ảnh)
                       </Typography>
 
                       <Upload
@@ -882,7 +886,7 @@ const CourtOwnerOnboarding = () => {
                         {galleryFiles.length >= 5 ? null : (
                           <div>
                             <AddCircleOutlined />
-                            <div style={{ marginTop: 8 }}>Upload</div>
+                            <div style={{ marginTop: 8 }}>Tải lên</div>
                           </div>
                         )}
                       </Upload>
@@ -914,12 +918,12 @@ const CourtOwnerOnboarding = () => {
                         }}
                       >
                         <Badge
-                          count="Required"
+                          count="Yêu cầu"
                           color="#1976d2"
-                          offset={[10, 0]}
+                          offset={[28, 0]}
                         >
                           <PhotoCamera sx={{ mr: 1, color: "primary.main" }} />
-                          Upload Center Logo
+                          Tải lên Logo của trung tâm thể thao
                         </Badge>
                       </Typography>
 
@@ -928,13 +932,13 @@ const CourtOwnerOnboarding = () => {
                         fileList={
                           avatarFile
                             ? [
-                                {
-                                  uid: "-1",
-                                  name: avatarFile.name,
-                                  status: "done",
-                                  url: URL.createObjectURL(avatarFile),
-                                },
-                              ]
+                              {
+                                uid: "-1",
+                                name: avatarFile.name,
+                                status: "done",
+                                url: URL.createObjectURL(avatarFile), // Tạo URL tạm thời cho ảnh
+                              },
+                            ]
                             : []
                         }
                         customRequest={customAvatarUpload}
@@ -947,6 +951,14 @@ const CourtOwnerOnboarding = () => {
                           });
                         }}
                         maxCount={1}
+                        previewFile={(file) => {
+                          // Hàm previewFile giúp hiển thị ảnh tạm thời
+                          return new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve(reader.result);
+                            reader.readAsDataURL(file);
+                          });
+                        }}
                       >
                         {avatarFile ? null : (
                           <div>
@@ -974,7 +986,7 @@ const CourtOwnerOnboarding = () => {
                 startIcon={<ArrowBackIos fontSize="small" />}
                 sx={{ borderRadius: 2 }}
               >
-                Back
+                Quay lại
               </Button>
 
               <motion.div
@@ -1002,7 +1014,7 @@ const CourtOwnerOnboarding = () => {
                     px: 3,
                   }}
                 >
-                  {loading ? "Creating..." : "Create & Continue"}
+                  {loading ? "Đang tạo..." : "Tạo & Tiếp tục"}
                 </Button>
               </motion.div>
             </Box>
@@ -1011,8 +1023,8 @@ const CourtOwnerOnboarding = () => {
       ),
     },
     {
-      label: "Add your first Court",
-      description: "Set up your first court in the sports center",
+      label: "Tạo sân đầu tiên của bạn",
+      description: "Thiết lập sân đầu tiên trong trung tâm thể thao",
       content: (
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -1039,11 +1051,16 @@ const CourtOwnerOnboarding = () => {
 
             <CardContent sx={{ p: 4 }}>
               <Box sx={{ mb: 3 }}>
-                <Progress
+                {/* <Progress
                   percent={67}
                   steps={3}
                   strokeColor="#1976d2"
                   size="small"
+                /> */}
+                <LinearProgress
+                  variant="determinate"
+                  value={67} // Giá trị tiến độ (0 - 100)
+                  sx={{ height: 8, backgroundColor: '#e0e0e0', borderRadius: '5px' }} // Tùy chỉnh kiểu dáng
                 />
               </Box>
 
@@ -1057,7 +1074,7 @@ const CourtOwnerOnboarding = () => {
                   >
                     <TextField
                       fullWidth
-                      label="Court Name"
+                      label="Tên sân"
                       variant="outlined"
                       value={court.courtName}
                       onChange={(e) =>
@@ -1082,11 +1099,11 @@ const CourtOwnerOnboarding = () => {
                       required
                       sx={{ borderRadius: 2 }}
                     >
-                      <InputLabel id="sport-label">Sport</InputLabel>
+                      <InputLabel id="sport-label">Môn thể thao</InputLabel>
                       <Select
                         labelId="sport-label"
                         value={court.sportId}
-                        label="Sport"
+                        label="Môn thể thao"
                         onChange={(e) =>
                           setCourt({ ...court, sportId: e.target.value })
                         }
@@ -1099,7 +1116,7 @@ const CourtOwnerOnboarding = () => {
                             </MenuItem>
                           ))
                         ) : (
-                          <MenuItem disabled>Loading sports...</MenuItem>
+                          <MenuItem disabled>Đang tải thông tin các môn thể thao...</MenuItem>
                         )}
                       </Select>
                     </FormControl>
@@ -1111,7 +1128,7 @@ const CourtOwnerOnboarding = () => {
                     transition={{ delay: 0.3, duration: 0.4 }}
                   >
                     <FormControl fullWidth margin="normal" required>
-                      <InputLabel id="court-type-label">Court Type</InputLabel>
+                      <InputLabel id="court-type-label">Loại sân</InputLabel>
                       <Select
                         labelId="court-type-label"
                         value={court.courtType}
@@ -1121,9 +1138,9 @@ const CourtOwnerOnboarding = () => {
                         }
                         sx={{ borderRadius: 2 }}
                       >
-                        <MenuItem value={1}>Indoor</MenuItem>
-                        <MenuItem value={2}>Outdoor</MenuItem>
-                        <MenuItem value={3}>Mixed</MenuItem>
+                        <MenuItem value={1}>Trong nhà</MenuItem>
+                        <MenuItem value={2}>Ngoài trời</MenuItem>
+                        <MenuItem value={3}>Hỗn hợp</MenuItem>
                       </Select>
                     </FormControl>
                   </motion.div>
@@ -1135,7 +1152,7 @@ const CourtOwnerOnboarding = () => {
                   >
                     <TextField
                       fullWidth
-                      label="Slot Duration (hh:mm:ss)"
+                      label="Thời lượng 1 Slot (hh:mm:ss)"
                       variant="outlined"
                       value={court.slotDuration}
                       onChange={(e) =>
@@ -1160,7 +1177,7 @@ const CourtOwnerOnboarding = () => {
                   >
                     <TextField
                       fullWidth
-                      label="Description"
+                      label="Mô tả"
                       variant="outlined"
                       value={court.description}
                       onChange={(e) =>
@@ -1169,7 +1186,7 @@ const CourtOwnerOnboarding = () => {
                       multiline
                       rows={4}
                       margin="normal"
-                      placeholder="Describe your court, its features and any special amenities..."
+                      placeholder="Mô tả sân của bạn, các đặc điểm và tiện ích đặc biệt..."
                       InputProps={{
                         sx: { borderRadius: 2 },
                       }}
@@ -1191,7 +1208,7 @@ const CourtOwnerOnboarding = () => {
                       fontWeight={500}
                       gutterBottom
                     >
-                      Booking Settings
+                      Cài đặt đặt sân
                     </Typography>
 
                     <Grid container spacing={2}>
@@ -1203,7 +1220,7 @@ const CourtOwnerOnboarding = () => {
                         >
                           <TextField
                             fullWidth
-                            label="Min Deposit (%)"
+                            label="Đặt cọc tối thiểu (%)"
                             variant="outlined"
                             type="number"
                             value={court.minDepositPercentage}
@@ -1230,7 +1247,7 @@ const CourtOwnerOnboarding = () => {
                         >
                           <TextField
                             fullWidth
-                            label="Refund Percentage"
+                            label="Phần trăm hoàn tiền (%)"
                             variant="outlined"
                             type="number"
                             value={court.refundPercentage}
@@ -1258,7 +1275,7 @@ const CourtOwnerOnboarding = () => {
                     >
                       <TextField
                         fullWidth
-                        label="Cancellation Window (hours)"
+                        label="Giới hạn hủy đặt sân (giờ)"
                         variant="outlined"
                         type="number"
                         value={court.cancellationWindowHours}
@@ -1270,7 +1287,7 @@ const CourtOwnerOnboarding = () => {
                         }
                         required
                         margin="normal"
-                        helperText="How many hours before the booking can a customer cancel"
+                        helperText="Khách hàng có thể hủy đặt sân trước bao nhiêu giờ so với thời gian đặt"
                         InputProps={{
                           sx: { borderRadius: 2 },
                         }}
@@ -1296,7 +1313,7 @@ const CourtOwnerOnboarding = () => {
                     gutterBottom
                     sx={{ color: "primary.main" }}
                   >
-                    Court Schedules
+                    Lịch đặt sân
                   </Typography>
 
                   <Typography
@@ -1304,8 +1321,7 @@ const CourtOwnerOnboarding = () => {
                     color="text.secondary"
                     sx={{ mb: 2 }}
                   >
-                    Define when your court is available and set pricing for
-                    different times.
+                    Xác định thời gian sân của bạn có sẵn và thiết lập giá cho các khung giờ khác nhau.
                   </Typography>
 
                   <Collapse defaultActiveKey={["0"]} sx={{ mb: 2 }}>
@@ -1338,7 +1354,7 @@ const CourtOwnerOnboarding = () => {
                             }}
                             sx={{ minWidth: "auto" }}
                           >
-                            Remove
+                            Xóa
                           </Button>
                         }
                       >
@@ -1369,8 +1385,8 @@ const CourtOwnerOnboarding = () => {
                                       day.value
                                     )
                                       ? schedule.days.filter(
-                                          (d) => d !== day.value
-                                        )
+                                        (d) => d !== day.value
+                                      )
                                       : [...schedule.days, day.value];
                                     updateSchedule(index, "days", newDays);
                                   }}
@@ -1384,7 +1400,7 @@ const CourtOwnerOnboarding = () => {
                           <Grid item xs={12} sm={4}>
                             <TextField
                               fullWidth
-                              label="Start Time (HH:MM)"
+                              label="Thời gian bắt đầu (HH:MM)"
                               variant="outlined"
                               value={schedule.startTime}
                               onChange={(e) =>
@@ -1401,7 +1417,7 @@ const CourtOwnerOnboarding = () => {
                           <Grid item xs={12} sm={4}>
                             <TextField
                               fullWidth
-                              label="End Time (HH:MM)"
+                              label="Thời giân kết thúc (HH:MM)"
                               variant="outlined"
                               value={schedule.endTime}
                               onChange={(e) =>
@@ -1414,7 +1430,7 @@ const CourtOwnerOnboarding = () => {
                           <Grid item xs={12} sm={4}>
                             <TextField
                               fullWidth
-                              label="Price per hour (₫)"
+                              label="Giá tiền theo giờ (₫)"
                               variant="outlined"
                               type="number"
                               value={schedule.priceSlot}
@@ -1440,7 +1456,7 @@ const CourtOwnerOnboarding = () => {
                     onClick={addSchedule}
                     sx={{ mt: 1, borderRadius: 2 }}
                   >
-                    Add Schedule
+                    Thêm lịch
                   </Button>
                 </Paper>
               </Box>
@@ -1459,7 +1475,7 @@ const CourtOwnerOnboarding = () => {
                 startIcon={<ArrowBackIos fontSize="small" />}
                 sx={{ borderRadius: 2 }}
               >
-                Back
+                Quay lại
               </Button>
 
               <motion.div
@@ -1482,7 +1498,7 @@ const CourtOwnerOnboarding = () => {
                     px: 3,
                   }}
                 >
-                  {loading ? "Creating..." : "Create & Continue"}
+                  {loading ? "Đang tạo..." : "Tạo & Tiếp tục"}
                 </Button>
               </motion.div>
             </Box>
@@ -1491,8 +1507,8 @@ const CourtOwnerOnboarding = () => {
       ),
     },
     {
-      label: "Congratulations!",
-      description: "You're all set up and ready to go!",
+      label: "Xin chúc mừng!",
+      description: "Tất cả thông tin đã được thiết lập, bạn đã sẵn sàng để bắt đầu!",
       content: (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -1517,11 +1533,16 @@ const CourtOwnerOnboarding = () => {
 
             <CardContent sx={{ p: 4, textAlign: "center" }}>
               <Box sx={{ mb: 3 }}>
-                <Progress
+                {/* <Progress
                   percent={100}
                   steps={3}
                   strokeColor="#52c41a"
                   size="small"
+                /> */}
+                <LinearProgress
+                  variant="determinate"
+                  value={100} // Giá trị tiến độ (0 - 100)
+                  sx={{ height: 8, backgroundColor: '#e0e0e0', borderRadius: '5px' }} // Tùy chỉnh kiểu dáng
                 />
               </Box>
 
@@ -1558,7 +1579,7 @@ const CourtOwnerOnboarding = () => {
                     color: "success.dark",
                   }}
                 >
-                  Setup Complete!
+                  Thiết lập thành công!
                 </Typography>
               </Fade>
 
@@ -1570,7 +1591,7 @@ const CourtOwnerOnboarding = () => {
                   fontWeight: "normal",
                 }}
               >
-                Your sports center and court have been created successfully.
+                Trung tâm thể thao và sân của bạn đã được thiết lập thành công. Bạn có thể bắt đầu quản lý lịch đặt sân và khách hàng ngay bây giờ.
               </Typography>
 
               <motion.div
@@ -1591,7 +1612,7 @@ const CourtOwnerOnboarding = () => {
                     boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
                   }}
                 >
-                  Go to Dashboard
+                  Quay về bảng điều khiển
                 </Button>
               </motion.div>
             </CardContent>
@@ -1608,7 +1629,7 @@ const CourtOwnerOnboarding = () => {
                 py: 1,
               }}
             >
-              What's Next?
+              Cần làm gì tiếp theo?
             </Typography>
 
             <Paper
@@ -1656,12 +1677,11 @@ const CourtOwnerOnboarding = () => {
                         </Avatar>
 
                         <Typography variant="h6" gutterBottom fontWeight="bold">
-                          Set Up Court Schedules
+                          Thiết lập lịch đặt sân
                         </Typography>
 
                         <Typography variant="body1" color="text.secondary">
-                          Define when your courts are available and set pricing
-                          for different time slots.
+                          Thiết lập thời gian sân của bạn có sẵn và thiết lập giá cho các khung giờ khác nhau.
                         </Typography>
 
                         <Button
@@ -1669,7 +1689,7 @@ const CourtOwnerOnboarding = () => {
                           sx={{ mt: 2, borderRadius: 2 }}
                           onClick={() => navigate("/court-owner/schedule")}
                         >
-                          Set Schedules
+                          Tạo lịch đặt sân
                         </Button>
                       </Box>
                     </Paper>
@@ -1711,12 +1731,11 @@ const CourtOwnerOnboarding = () => {
                         </Avatar>
 
                         <Typography variant="h6" gutterBottom fontWeight="bold">
-                          Create Promotions
+                          Thiết lập gói khuyến mãi
                         </Typography>
 
                         <Typography variant="body1" color="text.secondary">
-                          Attract customers with special offers and discounts
-                          for your courts.
+                          Thu hút khách hàng với các ưu đãi và giảm giá đặc biệt cho sân của bạn.
                         </Typography>
 
                         <Button
@@ -1724,7 +1743,7 @@ const CourtOwnerOnboarding = () => {
                           sx={{ mt: 2, borderRadius: 2 }}
                           onClick={() => navigate("/court-owner/promotions")}
                         >
-                          Add Promotions
+                          Tạo gói khuyến mãi
                         </Button>
                       </Box>
                     </Paper>
@@ -1766,12 +1785,11 @@ const CourtOwnerOnboarding = () => {
                         </Avatar>
 
                         <Typography variant="h6" gutterBottom fontWeight="bold">
-                          Add More Courts
+                          Tạo thêm sân
                         </Typography>
 
                         <Typography variant="body1" color="text.secondary">
-                          Expand your offerings by adding different types of
-                          courts to your sports center.
+                          Mở rộng dịch vụ của bạn bằng cách thêm các loại sân khác nhau vào trung tâm thể thao của bạn.
                         </Typography>
 
                         <Button
@@ -1779,7 +1797,7 @@ const CourtOwnerOnboarding = () => {
                           sx={{ mt: 2, borderRadius: 2 }}
                           onClick={() => navigate("/court-owner/courts/create")}
                         >
-                          Add Courts
+                          Tạo sân
                         </Button>
                       </Box>
                     </Paper>
@@ -1821,7 +1839,7 @@ const CourtOwnerOnboarding = () => {
             display: "inline-block",
           }}
         >
-          Court Owner Setup
+          Thiết lập chủ sở hữu sân
         </Typography>
 
         <Stepper

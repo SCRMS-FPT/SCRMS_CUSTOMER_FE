@@ -67,7 +67,7 @@ const CourtOwnerVenueDetailView = () => {
       } catch (err) {
         console.error("Error fetching venue data:", err);
         setError("Failed to load venue data. Please try again.");
-        message.error("Failed to load venue data");
+        message.error("Không thể tải thông tin trung tâm thể thao. Vui lòng thử lại sau!");
       } finally {
         setLoading(false);
       }
@@ -95,7 +95,7 @@ const CourtOwnerVenueDetailView = () => {
           onClick={() => navigate("/court-owner/venues")}
           className="mt-4"
         >
-          Back to Venues
+          Quay trở lại danh sách trung tâm thể thao
         </Button>
       </div>
     );
@@ -135,10 +135,10 @@ const CourtOwnerVenueDetailView = () => {
               onClick={() => navigate("/court-owner/venues")}
               className="mr-2"
             >
-              Back to Venues
+              Quay trở lại
             </Button>
             <Title level={4} style={{ margin: 0 }}>
-              Sport Center Details
+              Thông tin trung tâm thể thao
             </Title>
           </div>
           <Space>
@@ -147,14 +147,14 @@ const CourtOwnerVenueDetailView = () => {
               icon={<EditOutlined />}
               onClick={() => navigate(`/court-owner/venues/update/${venueId}`)}
             >
-              Edit Sport Center
+              Cập nhật thông tin
             </Button>
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => navigate(`/court-owner/venues/create`)}
             >
-              Add New Sport Center
+              Tạo mới
             </Button>
           </Space>
         </div>
@@ -191,17 +191,17 @@ const CourtOwnerVenueDetailView = () => {
                 >
                   <Text>
                     <EnvironmentOutlined style={{ marginRight: 8 }} />
-                    {venue.address}
+                    {venue.address ? venue.address : "Địa chỉ không khả dụng"}
                   </Text>
                   <Text>
                     <PhoneOutlined style={{ marginRight: 8 }} />
-                    {venue.phoneNumber}
+                    {venue.phoneNumber ? venue.phoneNumber : "Số điện thoại không khả dụng"}
                   </Text>
 
                   <div style={{ marginTop: 12 }}>
                     <Text strong style={{ marginRight: 8 }}>
                       <TagOutlined style={{ marginRight: 4 }} />
-                      Sports:
+                      Môn thể thao:
                     </Text>
                     <Space size={[0, 8]} wrap>
                       {sportsList.length > 0 ? (
@@ -211,7 +211,7 @@ const CourtOwnerVenueDetailView = () => {
                           </Tag>
                         ))
                       ) : (
-                        <Text type="secondary">No sports available</Text>
+                        <Text type="secondary">Không có môn thể thao nào khả dụng</Text>
                       )}
                     </Space>
                   </div>
@@ -229,7 +229,7 @@ const CourtOwnerVenueDetailView = () => {
                           </Tag>
                         ))
                       ) : (
-                        <Text type="secondary">No amenities available</Text>
+                        <Text type="secondary">Chưa có tiện ích nào khả dụng</Text>
                       )}
                     </Space>
                   </div>
@@ -240,14 +240,14 @@ const CourtOwnerVenueDetailView = () => {
         </Col>
 
         <Col span={24}>
-          <Card title="Description" bordered={false}>
-            <Text>{venue.description || "No description available."}</Text>
+          <Card title="Thông tin mô tả" bordered={false}>
+            <Text>{venue.description || "Chưa có thông tin mô tả."}</Text>
           </Card>
         </Col>
 
         {venue.imageUrl && venue.imageUrl.length > 0 && (
           <Col span={24}>
-            <Card title="Gallery" bordered={false}>
+            <Card title="Ảnh" bordered={false}>
               <div
                 style={{
                   display: "flex",
@@ -260,7 +260,7 @@ const CourtOwnerVenueDetailView = () => {
                   <Image
                     key={index}
                     src={img}
-                    alt={`Gallery image ${index + 1}`}
+                    alt={`Ảnh số ${index + 1}`}
                     style={{
                       height: "150px",
                       objectFit: "cover",
@@ -313,13 +313,13 @@ const CourtOwnerVenueDetailView = () => {
       <Row className="mb-4">
         <Col span={24}>
           <div className="flex justify-between items-center">
-            <Title level={4}>Courts ({courts.length})</Title>
+            <Title level={4}>Sân thể thao ({courts.length})</Title>
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => navigate(`/court-owner/courts/create/${venueId}`)}
             >
-              Add New Court
+              Thêm sân mới
             </Button>
           </div>
         </Col>

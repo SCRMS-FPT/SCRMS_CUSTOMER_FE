@@ -45,32 +45,32 @@ const defaultSchedules = [
     startTime: "07:00",
     endTime: "17:00",
     priceSlot: 150000,
-    name: "Weekday Regular Hours",
+    name: "Giờ làm việc ngày thường ban ngày",
   },
   {
     days: [1, 2, 3, 4, 5], // Monday to Friday
     startTime: "17:00",
     endTime: "22:00",
     priceSlot: 200000,
-    name: "Weekday Evening Hours",
+    name: "Giờ làm việc ngày thường buổi tối",
   },
   {
     days: [6, 7], // Saturday and Sunday (7 is Sunday)
     startTime: "08:00",
     endTime: "22:00",
     priceSlot: 250000,
-    name: "Weekend Hours",
+    name: "Giờ làm việc cuối tuần",
   },
 ];
 
 const dayOptions = [
-  { label: "Monday", value: 1 },
-  { label: "Tuesday", value: 2 },
-  { label: "Wednesday", value: 3 },
-  { label: "Thursday", value: 4 },
-  { label: "Friday", value: 5 },
-  { label: "Saturday", value: 6 },
-  { label: "Sunday", value: 7 },
+  { label: "Thứ Hai", value: 1 },
+  { label: "Thứ Ba", value: 2 },
+  { label: "Thứ Tư", value: 3 },
+  { label: "Thứ Năm", value: 4 },
+  { label: "Thứ Sáu", value: 5 },
+  { label: "Thứ Bảy", value: 6 },
+  { label: "Chủ Nhật", value: 7 },
 ];
 
 const client = new Client();
@@ -126,7 +126,7 @@ const CourtOwnerCourtCreateView = () => {
                 startTime: schedule.startTime?.substring(0, 5) || "07:00",
                 endTime: schedule.endTime?.substring(0, 5) || "22:00",
                 priceSlot: schedule.priceSlot || 0,
-                name: `Schedule ${index + 1}`,
+                name: `Lịch số ${index + 1}`,
               }))
             );
           }
@@ -161,7 +161,7 @@ const CourtOwnerCourtCreateView = () => {
         }
       } catch (error) {
         console.error("Error fetching initial data:", error);
-        message.error("Failed to load data. Please try again.");
+        message.error("Gặp lỗi trong quá trình lấy thông tin. Vui lòng thử lại.");
       } finally {
         setLoading(false);
       }
@@ -176,7 +176,7 @@ const CourtOwnerCourtCreateView = () => {
       startTime: "08:00",
       endTime: "17:00",
       priceSlot: 150000,
-      name: `Schedule ${schedules.length + 1}`,
+      name: `Lịch số ${schedules.length + 1}`,
     };
     setSchedules([...schedules, newSchedule]);
   };
@@ -223,7 +223,7 @@ const CourtOwnerCourtCreateView = () => {
       if (values.seating_capacity) {
         facilities.push({
           name: "seating_capacity",
-          description: `${values.seating_capacity} seats`,
+          description: `${values.seating_capacity} chỗ ngồi`,
         });
       }
 
@@ -260,8 +260,8 @@ const CourtOwnerCourtCreateView = () => {
 
       message.success(
         isEditMode
-          ? "Court updated successfully!"
-          : "Court created successfully!"
+          ? "Thông tin sân được cập nhật thành công!"
+          : "Sân mới được tạo thành công!"
       );
 
       // Navigate back to the venue details page or courts list
@@ -273,8 +273,7 @@ const CourtOwnerCourtCreateView = () => {
     } catch (error) {
       console.error("Error creating court:", error);
       message.error(
-        `Failed to ${isEditMode ? "update" : "create"} court: ${
-          error.message || "Unknown error"
+        `Gặp lỗi trong quá trình ${isEditMode ? "cập nhật" : "tạo mới"} sân: ${error.message || "Lỗi không xác định"
         }`
       );
     } finally {
@@ -313,7 +312,7 @@ const CourtOwnerCourtCreateView = () => {
             }}
           >
             <Title level={4}>
-              {isEditMode ? "Edit Court" : "Create New Court"}
+              {isEditMode ? "Cập nhật sân" : "Tạo mới sân"}
             </Title>
             <Button
               type="primary"
@@ -324,7 +323,7 @@ const CourtOwnerCourtCreateView = () => {
                   : navigate("/court-owner/courts")
               }
             >
-              Go Back
+              Quay trở lại
             </Button>
           </div>
         }
@@ -334,33 +333,33 @@ const CourtOwnerCourtCreateView = () => {
           items={[
             {
               key: "1",
-              label: "General Info",
+              label: "Thông tin cơ bản",
               children: (
                 <>
                   <Row gutter={16}>
                     <Col span={12}>
                       <Form.Item
                         name="name"
-                        label="Court Name"
+                        label="Tên sân"
                         rules={[
                           {
                             required: true,
-                            message: "Please enter court name",
+                            message: "Vui lòng nhập tên sân",
                           },
                         ]}
                       >
-                        <Input placeholder="Enter court name" />
+                        <Input placeholder="Nhập tên sân" />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
                         name="sport_type"
-                        label="Sport Type"
+                        label="Môn thể thao"
                         rules={[
-                          { required: true, message: "Please select a sport" },
+                          { required: true, message: "Vui lòng chọn môn thể thao" },
                         ]}
                       >
-                        <Select placeholder="Select a sport">
+                        <Select placeholder="Lựa chọn một môn thể thao">
                           {sports.map((sport) => (
                             <Option key={sport.id} value={sport.id}>
                               {sport.name}
@@ -372,7 +371,7 @@ const CourtOwnerCourtCreateView = () => {
                   </Row>
 
                   {venueId ? (
-                    <Form.Item label="Venue">
+                    <Form.Item label="Trung tâm thể thao">
                       <Input value={currentVenue?.name} disabled />
                       <Form.Item name="sportCenterId" hidden>
                         <Input />
@@ -381,12 +380,12 @@ const CourtOwnerCourtCreateView = () => {
                   ) : (
                     <Form.Item
                       name="venue_id"
-                      label="Venue"
+                      label="Trung tâm thể thao"
                       rules={[
-                        { required: true, message: "Please select a venue" },
+                        { required: true, message: "Vui lòng chọn một trung tâm thể thao" },
                       ]}
                     >
-                      <Select placeholder="Select a venue">
+                      <Select placeholder="Chọn trung tâm thể thao">
                         {venues.map((venue) => (
                           <Option key={venue.id} value={venue.id}>
                             {venue.name}
@@ -396,10 +395,10 @@ const CourtOwnerCourtCreateView = () => {
                     </Form.Item>
                   )}
 
-                  <Form.Item name="description" label="Description">
+                  <Form.Item name="description" label="Thông tin mô tả">
                     <Input.TextArea
                       rows={4}
-                      placeholder="Enter court description"
+                      placeholder="Nhập thông tin mô tả sân"
                     />
                   </Form.Item>
 
@@ -407,35 +406,35 @@ const CourtOwnerCourtCreateView = () => {
                     <Col span={8}>
                       <Form.Item
                         name="courtType"
-                        label="Court Type"
+                        label="Loại sân"
                         rules={[
                           {
                             required: true,
-                            message: "Please select court type",
+                            message: "Vui lòng chọn một loại sân",
                           },
                         ]}
                       >
-                        <Select placeholder="Select court type">
-                          <Option value={1}>Indoor</Option>
-                          <Option value={2}>Outdoor</Option>
-                          <Option value={3}>Mixed</Option>
+                        <Select placeholder="Chọn loại sân">
+                          <Option value={1}>Trong nhà</Option>
+                          <Option value={2}>Ngoài trời</Option>
+                          <Option value={3}>Hỗn hợp</Option>
                         </Select>
                       </Form.Item>
                     </Col>
                     <Col span={8}>
                       <Form.Item
                         name="minDepositPercentage"
-                        label="Minimum Deposit (%)"
+                        label="Mức đặt cọc tối thiểu (%)"
                         rules={[
                           {
                             required: true,
-                            message: "Please enter minimum deposit",
+                            message: "Vui lòng nhập mức đặt cọc tối thiểu của sân",
                           },
                           {
                             type: "number",
                             min: 0,
                             max: 100,
-                            message: "Percentage must be between 0 and 100",
+                            message: "Giá trị phần trăm phải nằm trong khoảng từ 0 đến 100",
                           },
                         ]}
                       >
@@ -443,25 +442,25 @@ const CourtOwnerCourtCreateView = () => {
                           type="number"
                           min={0}
                           max={100}
-                          placeholder="Enter minimum deposit percentage"
+                          placeholder="Nhập giá trị phần trăm đặt cọc tối thiểu"
                         />
                       </Form.Item>
                     </Col>
                     <Col span={8}>
                       <Form.Item
                         name="cancellationWindowHours"
-                        label="Cancellation Window (hours)"
+                        label="Khung thời gian hủy đặt sân (giờ)"
                         rules={[
                           {
                             required: true,
-                            message: "Please enter cancellation window",
+                            message: "Vui lòng nhập khung thời gian hủy đặt sân",
                           },
                         ]}
                       >
                         <Input
                           type="number"
                           min={1}
-                          placeholder="Hours before booking"
+                          placeholder="Số giờ trước lịch đặt sân"
                         />
                       </Form.Item>
                     </Col>
@@ -471,42 +470,42 @@ const CourtOwnerCourtCreateView = () => {
             },
             {
               key: "2",
-              label: "Features & Amenities",
+              label: "Tính năng & Tiện ích",
               children: (
                 <>
-                  <Title level={5}>Court Features</Title>
+                  <Title level={5}>Các tính năng của sân</Title>
                   <Row gutter={16}>
                     <Col span={12}>
                       <Form.Item
                         name={["features", "surface_type"]}
-                        label="Surface Type"
+                        label="Bề mặt sân"
                       >
-                        <Select placeholder="Select a surface type">
-                          <Option value="Grass">Grass</Option>
-                          <Option value="Clay">Clay</Option>
-                          <Option value="Hardcourt">Hardcourt</Option>
-                          <Option value="Astroturf">Astroturf</Option>
-                          <Option value="Concrete">Concrete</Option>
-                          <Option value="Wood">Wood</Option>
-                          <Option value="Synthetic">Synthetic</Option>
-                          <Option value="N/A">Not Applicable (N/A)</Option>
+                        <Select placeholder="Chọn một loại bề mặt sân">
+                          <Option value="Grass">Cỏ</Option>
+                          <Option value="Clay">Đất nện</Option>
+                          <Option value="Hardcourt">Sân cứng</Option>
+                          <Option value="Astroturf">Cỏ nhân tạo</Option>
+                          <Option value="Concrete">Bê tông</Option>
+                          <Option value="Wood">Gỗ</Option>
+                          <Option value="Synthetic">Tổng hợp</Option>
+                          <Option value="N/A">Không áp dụng (N/A)</Option>
                         </Select>
                       </Form.Item>
                     </Col>
                     <Col span={12}>
                       <Form.Item
                         name="seating_capacity"
-                        label="Seating Capacity"
+                        label="Sức chứa"
                       >
                         <Input
                           type="number"
                           min={0}
-                          placeholder="Enter seating capacity"
+                          placeholder="Nhập sức chứa của sân"
                         />
                       </Form.Item>
                     </Col>
                   </Row>
-                  <Form.Item label="Additional Features">
+                  <Form.Item label="Các tính năng khác">
                     <Checkbox.Group>
                       <Row gutter={[16, 8]}>
                         <Col span={12}>
@@ -515,7 +514,7 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Indoor</Checkbox>
+                            <Checkbox>Trong nhà</Checkbox>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -524,7 +523,7 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Lighting Available</Checkbox>
+                            <Checkbox>Hệ thống chiếu sáng</Checkbox>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -533,7 +532,7 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Has Parking</Checkbox>
+                            <Checkbox>Bãi đỗ xe</Checkbox>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -542,7 +541,7 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Has Showers</Checkbox>
+                            <Checkbox>Khu tắm rửa</Checkbox>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -551,7 +550,7 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Floodlights</Checkbox>
+                            <Checkbox>Đèn pha chiếu sáng</Checkbox>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -560,7 +559,7 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Scoreboard</Checkbox>
+                            <Checkbox>Bảng điểm</Checkbox>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -569,7 +568,7 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Audience Stands</Checkbox>
+                            <Checkbox>Khán đài</Checkbox>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -578,7 +577,7 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Climate Control (AC/Heating)</Checkbox>
+                            <Checkbox>Hệ thống điều hòa không khí (máy lạnh/sưởi)</Checkbox>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -587,7 +586,7 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Water Fountains</Checkbox>
+                            <Checkbox>Vòi uống nước</Checkbox>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -596,7 +595,7 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Wheelchair Accessible</Checkbox>
+                            <Checkbox>Hỗ trợ cho người dùng xe lăn</Checkbox>
                           </Form.Item>
                         </Col>
                       </Row>
@@ -607,13 +606,12 @@ const CourtOwnerCourtCreateView = () => {
             },
             {
               key: "3",
-              label: "Pricing & Schedules",
+              label: "Giá thuê & Lịch đặt sân",
               children: (
                 <>
-                  <Title level={5}>Court Schedules</Title>
+                  <Title level={5}>Lịch đặt sân</Title>
                   <Text type="secondary" className="mb-4 block">
-                    Set up operating hours and pricing for different days and
-                    times
+                    Thiết lập giờ hoạt động và giá thuê cho các ngày và khung giờ khác nhau
                   </Text>
 
                   <Collapse defaultActiveKey={["0"]} className="mb-4">
@@ -638,7 +636,7 @@ const CourtOwnerCourtCreateView = () => {
                             }}
                             size="small"
                           >
-                            Remove
+                            Xóa
                           </Button>
                         }
                       >
@@ -659,8 +657,8 @@ const CourtOwnerCourtCreateView = () => {
                                       day.value
                                     )
                                       ? schedule.days.filter(
-                                          (d) => d !== day.value
-                                        )
+                                        (d) => d !== day.value
+                                      )
                                       : [...schedule.days, day.value];
                                     updateSchedule(index, "days", newDays);
                                   }}
@@ -671,7 +669,7 @@ const CourtOwnerCourtCreateView = () => {
                             </div>
                           </Col>
                           <Col span={8}>
-                            <div className="mb-2">Start Time</div>
+                            <div className="mb-2">Thời gian bắt đầu</div>
                             <TimePicker
                               value={dayjs(schedule.startTime, "HH:mm")}
                               format="HH:mm"
@@ -682,7 +680,7 @@ const CourtOwnerCourtCreateView = () => {
                             />
                           </Col>
                           <Col span={8}>
-                            <div className="mb-2">End Time</div>
+                            <div className="mb-2">Thời gian kết thúc</div>
                             <TimePicker
                               value={dayjs(schedule.endTime, "HH:mm")}
                               format="HH:mm"
@@ -693,7 +691,7 @@ const CourtOwnerCourtCreateView = () => {
                             />
                           </Col>
                           <Col span={8}>
-                            <div className="mb-2">Price (per hour)</div>
+                            <div className="mb-2">Giá thuê (mỗi giờ)</div>
                             <Input
                               type="number"
                               min={0}
@@ -719,7 +717,7 @@ const CourtOwnerCourtCreateView = () => {
                     className="w-full mb-4"
                     icon={<PlusCircleOutlined />}
                   >
-                    Add Schedule
+                    Thêm lịch
                   </Button>
 
                   <Alert
@@ -727,18 +725,11 @@ const CourtOwnerCourtCreateView = () => {
                     message="Schedule Tips"
                     description={
                       <ul>
-                        <li>
-                          Set different prices for peak and off-peak hours
-                        </li>
-                        <li>
-                          Weekend prices are typically higher than weekday
-                          prices
-                        </li>
-                        <li>
-                          You can create multiple schedules for the same day
-                          with different times and prices
-                        </li>
+                        <li>Thiết lập mức giá khác nhau cho giờ cao điểm và giờ thấp điểm</li>
+                        <li>Giá vào cuối tuần thường cao hơn so với các ngày trong tuần</li>
+                        <li>Bạn có thể tạo nhiều khung giờ trong cùng một ngày với thời gian và mức giá khác nhau</li>
                       </ul>
+
                     }
                   />
                 </>
@@ -746,35 +737,36 @@ const CourtOwnerCourtCreateView = () => {
             },
             {
               key: "4",
-              label: "Rules & Policies",
+              label: "Luật lệ & Quy định",
               children: (
                 <Row gutter={24}>
                   <Col xs={24} md={12}>
                     <Title level={5}>
-                      <SnippetsOutlined /> Court Rules
+                      <SnippetsOutlined /> Luật lệ sân
                     </Title>
                     <Form.Item
                       name="rules"
-                      label="Enter Rules (comma-separated)"
+                      label="Nhập Quy Định (cách nhau bằng dấu phẩy)"
                     >
                       <Input.TextArea
                         rows={3}
-                        placeholder="E.g., No metal cleats, Use designated entry points"
+                        placeholder="Ví dụ: Không mang giày đinh kim loại, Sử dụng các lối vào được chỉ định"
                       />
                     </Form.Item>
+
                   </Col>
 
                   <Col xs={24} md={12}>
                     <Title level={5}>
-                      <ClockCircleOutlined /> Booking Rules
+                      <ClockCircleOutlined /> Quy định đặt sân
                     </Title>
                     <Form.Item
                       name="refundPercentage"
-                      label="Refund Percentage on Cancellation"
+                      label="Phần trăm hoàn tiền khi hủy đặt sân"
                       rules={[
                         {
                           required: true,
-                          message: "Please enter refund percentage",
+                          message: "Vui lòng nhập phần trăm hoàn tiền",
                         },
                       ]}
                     >
@@ -782,7 +774,7 @@ const CourtOwnerCourtCreateView = () => {
                         type="number"
                         min={0}
                         max={100}
-                        placeholder="Enter refund percentage"
+                        placeholder="Nhập phần trăm hoàn tiền"
                         addonAfter="%"
                       />
                     </Form.Item>
@@ -792,10 +784,10 @@ const CourtOwnerCourtCreateView = () => {
             },
             {
               key: "5",
-              label: "Images",
+              label: "Hình ảnh",
               children: (
                 <>
-                  <Form.Item label="Court Images">
+                  <Form.Item label="Hình ảnh sân">
                     <Upload
                       listType="picture-card"
                       fileList={imageList}
@@ -813,7 +805,7 @@ const CourtOwnerCourtCreateView = () => {
       </Card>
       <Form.Item style={{ marginTop: 16, marginLeft: 0 }}>
         <Button type="primary" htmlType="submit" loading={submitting}>
-          {isEditMode ? "Update Court" : "Create Court"}
+          {isEditMode ? "Cập nhật sân" : "Tạo mới sân"}
         </Button>
       </Form.Item>
     </Form>

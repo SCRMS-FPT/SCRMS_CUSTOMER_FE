@@ -187,7 +187,7 @@ const CourtOwnerCourtUpdateView = () => {
         }
       } catch (error) {
         console.error("Error fetching court data:", error);
-        message.error("Failed to load court data. Please try again.");
+        message.error("Gặp lỗi trong quá trình tải dữ liệu sân đấu. Vui lòng thử lại sau.");
       } finally {
         setLoading(false);
       }
@@ -244,7 +244,7 @@ const CourtOwnerCourtUpdateView = () => {
       const response = await courtClient.updateCourt(courtId, updateRequest);
 
       if (response && response.isSuccess) {
-        message.success("Court updated successfully!");
+        message.success("Thông tin sân được cập nhật thành công!");
         navigate("/court-owner/courts");
       } else {
         message.error("Failed to update court. Please try again.");
@@ -252,7 +252,7 @@ const CourtOwnerCourtUpdateView = () => {
     } catch (error) {
       console.error("Error updating court:", error);
       message.error(
-        "Error updating court: " + (error.message || "Unknown error")
+        "Gặp lỗi trong quá trình cập nhật thông tin sân: " + (error.message || "Lỗi không xác định")
       );
     } finally {
       setSubmitLoading(false);
@@ -309,13 +309,13 @@ const CourtOwnerCourtUpdateView = () => {
       !newSchedule.endTime ||
       !newSchedule.priceSlot
     ) {
-      message.error("Please fill all schedule fields");
+      message.error("Vui lòng điền vào lịch đặt sân đấu đầy đủ");
       return;
     }
 
     // Check for time validity
     if (newSchedule.startTime >= newSchedule.endTime) {
-      message.error("End time must be after start time");
+      message.error("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc");
       return;
     }
 
@@ -333,7 +333,7 @@ const CourtOwnerCourtUpdateView = () => {
         .createCourtSchedule(createScheduleRequest)
         .then((response) => {
           if (response && response.id) {
-            message.success("Schedule added successfully!");
+            message.success("Lịch đặt sân được tạo thành công!");
 
             // Refresh schedules
             courtClient
@@ -358,13 +358,13 @@ const CourtOwnerCourtUpdateView = () => {
         .catch((error) => {
           console.error("Error adding schedule:", error);
           message.error(
-            "Failed to add schedule: " + (error.message || "Unknown error")
+            "Gặp lỗi trong quá trình thêm lịch đặt sân: " + (error.message || "Lỗi không xác định")
           );
         });
     } catch (error) {
       console.error("Error adding schedule:", error);
       message.error(
-        "Failed to add schedule: " + (error.message || "Unknown error")
+        "Gặp lỗi trong quá trình thêm lịch đặt sân: " + (error.message || "Lỗi không xác định")
       );
     }
   };
@@ -386,7 +386,7 @@ const CourtOwnerCourtUpdateView = () => {
       const response = await courtClient.updateCourtSchedule(updateRequest);
 
       if (response && response.isSuccess) {
-        message.success("Schedule updated successfully!");
+        message.success("Thông tin lịch đặt sân được cập nhật thành công!");
 
         // Refresh schedules
         const schedulesResponse = await courtClient.getCourtSchedulesByCourtId(
@@ -396,12 +396,12 @@ const CourtOwnerCourtUpdateView = () => {
           setSchedules(schedulesResponse);
         }
       } else {
-        message.error("Failed to update schedule. Please try again.");
+        message.error("Gặp lỗi trong quá trình cập nhật thông tin lịch đặt sân. Vui lòng thử lại sau.");
       }
     } catch (error) {
       console.error("Error updating schedule:", error);
       message.error(
-        "Error updating schedule: " + (error.message || "Unknown error")
+        "Gặp lỗi trong quá trình cập nhật lịch đặt sân: " + (error.message || "Lỗi không xác định")
       );
     }
   };
@@ -417,12 +417,12 @@ const CourtOwnerCourtUpdateView = () => {
           prev.filter((schedule) => schedule.id !== scheduleId)
         );
       } else {
-        message.error("Failed to delete schedule. Please try again.");
+        message.error("Gặp lỗi trong quá trình xóa lịch đặt sân. Vui lòng thử lại sau.");
       }
     } catch (error) {
       console.error("Error deleting schedule:", error);
       message.error(
-        "Error deleting schedule: " + (error.message || "Unknown error")
+        "Gặp lỗi trong quá trình xóa lịch đặt sân: " + (error.message || "Lỗi không xác định")
       );
     }
   };
@@ -449,7 +449,7 @@ const CourtOwnerCourtUpdateView = () => {
       }
     } catch (error) {
       console.error("Error fetching promotions:", error);
-      message.error("Failed to load promotions. Please try again.");
+      message.error("Gặp lỗi trong quá trình tải thông tin khuyến mãi: " + (error.message || "Lỗi không xác định"));
     } finally {
       setPromotionLoading(false);
     }
@@ -492,7 +492,7 @@ const CourtOwnerCourtUpdateView = () => {
     try {
       // Validate input
       if (!newPromotion.description || !newPromotion.discountValue) {
-        message.error("Please fill all required fields");
+        message.error("Vui lòng nhập đầy đủ thông tin yêu cầu");
         return;
       }
 
@@ -515,7 +515,7 @@ const CourtOwnerCourtUpdateView = () => {
           promotionRequest
         );
         if (response) {
-          message.success("Promotion updated successfully!");
+          message.success("Thông tin khuyến mãi được cập nhật thành công!");
         }
       } else {
         // Create new promotion
@@ -524,7 +524,7 @@ const CourtOwnerCourtUpdateView = () => {
           promotionRequest
         );
         if (response) {
-          message.success("Promotion created successfully!");
+          message.success("Khuyến mãi được tạo thành công!");
         }
       }
 
@@ -534,7 +534,7 @@ const CourtOwnerCourtUpdateView = () => {
     } catch (error) {
       console.error("Error saving promotion:", error);
       message.error(
-        "Failed to save promotion: " + (error.message || "Unknown error")
+        "Gặp lỗi trong quá trình lưu thông tin khuyến mãi: " + (error.message || "Lỗi không xác định")
       );
     } finally {
       setPromotionLoading(false);
@@ -545,14 +545,14 @@ const CourtOwnerCourtUpdateView = () => {
     try {
       setPromotionLoading(true);
       await courtClient.deleteCourtPromotion(promotionId);
-      message.success("Promotion deleted successfully!");
+      message.success("Thông tin khuyến mãi đã được xóa thành công!");
 
       // Refresh promotions list
       await fetchPromotions();
     } catch (error) {
       console.error("Error deleting promotion:", error);
       message.error(
-        "Failed to delete promotion: " + (error.message || "Unknown error")
+        "Gặp lỗi trong quá trình xóa thông tin khuyến mãi: " + (error.message || "Lỗi không xác định")
       );
     } finally {
       setPromotionLoading(false);
@@ -574,78 +574,78 @@ const CourtOwnerCourtUpdateView = () => {
   const getStatusTag = (status) => {
     switch (status) {
       case 0:
-        return <Tag color="green">Available</Tag>;
+        return <Tag color="green">Lịch trống</Tag>;
       case 1:
-        return <Tag color="blue">Booked</Tag>;
+        return <Tag color="blue">Đã được đặt</Tag>;
       case 2:
-        return <Tag color="orange">Maintenance</Tag>;
+        return <Tag color="orange">Đang bảo trì</Tag>;
       default:
-        return <Tag color="default">Unknown</Tag>;
+        return <Tag color="default">Không xác định</Tag>;
     }
   };
 
   // Table columns for schedules
   const scheduleColumns = [
     {
-      title: "Days",
+      title: "Ngày",
       dataIndex: "dayOfWeek",
       key: "dayOfWeek",
       render: (days) => (
         <span>
           {days && Array.isArray(days)
             ? days.map((day) => (
-                <Tag color="blue" key={day}>
-                  {daysOfWeek
-                    .find((d) => d.value === day)
-                    ?.label.substring(0, 3) || day}
-                </Tag>
-              ))
+              <Tag color="blue" key={day}>
+                {daysOfWeek
+                  .find((d) => d.value === day)
+                  ?.label.substring(0, 3) || day}
+              </Tag>
+            ))
             : "N/A"}
         </span>
       ),
     },
     {
-      title: "Start Time",
+      title: "Thời gian bắt đầu",
       dataIndex: "startTime",
       key: "startTime",
     },
     {
-      title: "End Time",
+      title: "Thời gian kết thúc",
       dataIndex: "endTime",
       key: "endTime",
     },
     {
-      title: "Price",
+      title: "Giá sân",
       dataIndex: "priceSlot",
       key: "priceSlot",
       render: (price) => `${price.toLocaleString()} VND`,
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       render: (status) => getStatusTag(status),
     },
     {
-      title: "Availability",
+      title: "Tình trạng sân",
       dataIndex: "status",
       key: "availability",
       render: (status, record) => (
         <Switch
           checked={status === 0}
           onChange={() => handleToggleScheduleStatus(record.id, status)}
-          checkedChildren="Available"
-          unCheckedChildren="Maintenance"
+          checkedChildren="Lịch trống"
+          unCheckedChildren="Đang bảo trì"
           disabled={status === 1} // Disable toggle if booked
         />
       ),
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Popconfirm
-          title="Are you sure you want to delete this schedule?"
+          title="Bạn có chắc chắn muốn xóa lịch đặt này không?"
           onConfirm={() => handleDeleteSchedule(record.id)}
           okText="Yes"
           cancelText="No"
@@ -658,7 +658,7 @@ const CourtOwnerCourtUpdateView = () => {
             startIcon={<DeleteOutline />}
             disabled={record.status === 1} // Cannot delete if booked
           >
-            Delete
+            Xóa
           </Button>
         </Popconfirm>
       ),
@@ -668,12 +668,12 @@ const CourtOwnerCourtUpdateView = () => {
   // Table columns for promotions
   const promotionColumns = [
     {
-      title: "Description",
+      title: "Thông tin khuyến mãi",
       dataIndex: "description",
       key: "description",
     },
     {
-      title: "Discount Type",
+      title: "Loại giảm giá",
       dataIndex: "discountType",
       key: "discountType",
       render: (type) => (
@@ -685,7 +685,7 @@ const CourtOwnerCourtUpdateView = () => {
       ),
     },
     {
-      title: "Value",
+      title: "Mức giảm giá",
       dataIndex: "discountValue",
       key: "discountValue",
       render: (value, record) => (
@@ -697,19 +697,19 @@ const CourtOwnerCourtUpdateView = () => {
       ),
     },
     {
-      title: "Valid From",
+      title: "Có hiệu lực từ",
       dataIndex: "validFrom",
       key: "validFrom",
       render: (date) => dayjs(date).format("DD/MM/YYYY"),
     },
     {
-      title: "Valid To",
+      title: "Có hiệu lực đến",
       dataIndex: "validTo",
       key: "validTo",
       render: (date) => dayjs(date).format("DD/MM/YYYY"),
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       key: "status",
       render: (_, record) => {
         const now = dayjs();
@@ -717,14 +717,14 @@ const CourtOwnerCourtUpdateView = () => {
           now.isAfter(dayjs(record.validFrom)) &&
           now.isBefore(dayjs(record.validTo));
         return isActive ? (
-          <Tag color="green">Active</Tag>
+          <Tag color="green">Còn hiệu lực</Tag>
         ) : (
-          <Tag color="red">Inactive</Tag>
+          <Tag color="red">Hết hiệu lực</Tag>
         );
       },
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space size="small">
@@ -735,10 +735,10 @@ const CourtOwnerCourtUpdateView = () => {
             startIcon={<Edit />}
             onClick={() => openPromotionModal(record)}
           >
-            Edit
+            Cập nhật thông tin
           </Button>
           <Popconfirm
-            title="Are you sure you want to delete this promotion?"
+            title="Bạn có chắc chắn muốn xóa khuyến mãi này không?"
             onConfirm={() => handleDeletePromotion(record.id)}
             okText="Yes"
             cancelText="No"
@@ -749,7 +749,7 @@ const CourtOwnerCourtUpdateView = () => {
               color="error"
               startIcon={<DeleteOutline />}
             >
-              Delete
+              Xóa
             </Button>
           </Popconfirm>
         </Space>
@@ -771,7 +771,7 @@ const CourtOwnerCourtUpdateView = () => {
       >
         <CircularProgress size={60} thickness={4} />
         <Typography variant="h6" color="text.secondary">
-          Loading court details...
+          Đang tải thông tin sân...
         </Typography>
       </Box>
     );
@@ -810,7 +810,7 @@ const CourtOwnerCourtUpdateView = () => {
               WebkitTextFillColor: "transparent",
             }}
           >
-            Update Court: {court.courtName}
+            Cập nhật thông tin sân: {court.courtName}
           </Typography>
 
           <Button
@@ -818,7 +818,7 @@ const CourtOwnerCourtUpdateView = () => {
             onClick={() => navigate("/court-owner/courts")}
             startIcon={<ArrowBackIos />}
           >
-            Back to Courts
+            Quay trở lại danh sách sân
           </Button>
         </Box>
 
@@ -844,18 +844,18 @@ const CourtOwnerCourtUpdateView = () => {
         >
           <Tab
             icon={<SportsSoccer />}
-            label="Court Details"
+            label="Thông tin sân"
             iconPosition="start"
           />
           <Tab
             icon={<EventAvailable />}
-            label="Schedules"
+            label="Lịch đặt sân"
             iconPosition="start"
             sx={{ "& .MuiBadge-badge": { top: 8, right: -15 } }}
           />
           <Tab
             icon={<CardGiftcard />}
-            label="Promotions"
+            label="Khuyến mãi"
             iconPosition="start"
             sx={{ "& .MuiBadge-badge": { top: 8, right: -15 } }}
           />
@@ -896,7 +896,7 @@ const CourtOwnerCourtUpdateView = () => {
                         sx={{ mr: 1, color: theme.palette.primary.main }}
                       />
                       <Typography variant="h6" fontWeight={600} color="primary">
-                        Basic Information
+                        Thông tin cơ bản
                       </Typography>
                     </Box>
                     <Divider sx={{ my: 2 }} />
@@ -905,7 +905,7 @@ const CourtOwnerCourtUpdateView = () => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label="Court Name"
+                      label="Tên sân"
                       name="courtName"
                       value={court.courtName}
                       onChange={handleInputChange}
@@ -926,7 +926,7 @@ const CourtOwnerCourtUpdateView = () => {
 
                   <Grid item xs={12} md={6}>
                     <FormControl fullWidth error={!!errors.sportId} required>
-                      <InputLabel>Sport</InputLabel>
+                      <InputLabel>Môn thể thao</InputLabel>
                       <Select
                         name="sportId"
                         value={court.sportId}
@@ -984,7 +984,7 @@ const CourtOwnerCourtUpdateView = () => {
                         sx={{ mr: 1, color: theme.palette.primary.main }}
                       />
                       <Typography variant="h6" fontWeight={600} color="primary">
-                        Court Type and Settings
+                        Loại sân và cài đặt
                       </Typography>
                     </Box>
                     <Divider sx={{ my: 2 }} />
@@ -992,16 +992,16 @@ const CourtOwnerCourtUpdateView = () => {
 
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth>
-                      <InputLabel>Court Type</InputLabel>
+                      <InputLabel>Loại sân</InputLabel>
                       <Select
                         name="courtType"
                         value={court.courtType}
                         onChange={handleInputChange}
-                        label="Court Type"
+                        label="Loại sân"
                         sx={{ borderRadius: 2 }}
                       >
-                        <MenuItem value={1}>Indoor</MenuItem>
-                        <MenuItem value={2}>Outdoor</MenuItem>
+                        <MenuItem value={1}>Trong nhà</MenuItem>
+                        <MenuItem value={2}>Ngoài trời</MenuItem>
                         <MenuItem value={3}>Mixed</MenuItem>
                       </Select>
                     </FormControl>
@@ -1009,17 +1009,17 @@ const CourtOwnerCourtUpdateView = () => {
 
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth>
-                      <InputLabel>Status</InputLabel>
+                      <InputLabel>Trạng thái</InputLabel>
                       <Select
                         name="status"
                         value={court.status}
                         onChange={handleInputChange}
-                        label="Status"
+                        label="Trạng thái"
                         sx={{ borderRadius: 2 }}
                       >
-                        <MenuItem value={1}>Active</MenuItem>
-                        <MenuItem value={0}>Inactive</MenuItem>
-                        <MenuItem value={2}>Maintenance</MenuItem>
+                        <MenuItem value={1}>Hoạt động</MenuItem>
+                        <MenuItem value={0}>Không hoạt động</MenuItem>
+                        <MenuItem value={2}>Đabg bảo trì</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -1027,7 +1027,7 @@ const CourtOwnerCourtUpdateView = () => {
                   <Grid item xs={12} md={4}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <TimeField
-                        label="Slot Duration"
+                        label="Thời lượng slot (HH:mm:ss)"
                         value={dayjs(`2022-01-01T${court.slotDuration}`)}
                         onChange={(newValue) => {
                           setCourt((prev) => ({
@@ -1065,7 +1065,7 @@ const CourtOwnerCourtUpdateView = () => {
                         sx={{ mr: 1, color: theme.palette.primary.main }}
                       />
                       <Typography variant="h6" fontWeight={600} color="primary">
-                        Booking and Cancellation Policy
+                        Chính sách đặt sân và hủy đặt sân
                       </Typography>
                     </Box>
                     <Divider sx={{ my: 2 }} />
@@ -1074,7 +1074,7 @@ const CourtOwnerCourtUpdateView = () => {
                   <Grid item xs={12} md={4}>
                     <TextField
                       fullWidth
-                      label="Minimum Deposit (%)"
+                      label="Mức đặt cọc tối thiểu (%)"
                       name="minDepositPercentage"
                       type="number"
                       value={court.minDepositPercentage}
@@ -1094,15 +1094,14 @@ const CourtOwnerCourtUpdateView = () => {
                       }}
                     />
                     <FormHelperText>
-                      Percentage of the total price that customers must pay as
-                      deposit
+                      Phần trăm của tổng giá mà khách hàng phải trả làm tiền đặt cọc
                     </FormHelperText>
                   </Grid>
 
                   <Grid item xs={12} md={4}>
                     <TextField
                       fullWidth
-                      label="Cancellation Window (hours)"
+                      label="Khung thời gian hủy đặt sân (giờ)"
                       name="cancellationWindowHours"
                       type="number"
                       value={court.cancellationWindowHours}
@@ -1122,14 +1121,14 @@ const CourtOwnerCourtUpdateView = () => {
                       }}
                     />
                     <FormHelperText>
-                      Hours before the booking time when cancellation is allowed
+                      Số giờ trước khi thời gian đặt sân mà khách hàng có thể hủy
                     </FormHelperText>
                   </Grid>
 
                   <Grid item xs={12} md={4}>
                     <TextField
                       fullWidth
-                      label="Refund Percentage"
+                      label="Phần trăm hoàn tiền (%)"
                       name="refundPercentage"
                       type="number"
                       value={court.refundPercentage}
@@ -1149,8 +1148,7 @@ const CourtOwnerCourtUpdateView = () => {
                       }}
                     />
                     <FormHelperText>
-                      Percentage of the deposit that will be refunded on
-                      cancellation
+                      Phần trăm của tiền đặt cọc mà khách hàng sẽ nhận lại khi hủy đặt sân
                     </FormHelperText>
                   </Grid>
 
@@ -1171,7 +1169,7 @@ const CourtOwnerCourtUpdateView = () => {
                         sx={{ mr: 1, color: theme.palette.primary.main }}
                       />
                       <Typography variant="h6" fontWeight={600} color="primary">
-                        Facilities
+                        Cơ sở vật chất
                       </Typography>
                     </Box>
                     <Divider sx={{ my: 2 }} />
@@ -1180,12 +1178,12 @@ const CourtOwnerCourtUpdateView = () => {
                   <Grid item xs={12} md={5}>
                     <TextField
                       fullWidth
-                      label="Facility Name"
+                      label="Tên cơ sở vật chất"
                       value={facilityName}
                       onChange={(e) => setFacilityName(e.target.value)}
                       error={!!errors.facilityName}
                       helperText={errors.facilityName}
-                      placeholder="E.g., Shower, Locker Room, etc."
+                      placeholder="Tủ đồ, khu nhà tắm, etc."
                       sx={{
                         "& .MuiOutlinedInput-root": {
                           borderRadius: 2,
@@ -1197,10 +1195,10 @@ const CourtOwnerCourtUpdateView = () => {
                   <Grid item xs={12} md={5}>
                     <TextField
                       fullWidth
-                      label="Facility Description"
+                      label="Thông tin mô tả cơ sở vật chất"
                       value={facilityDesc}
                       onChange={(e) => setFacilityDesc(e.target.value)}
-                      placeholder="Briefly describe this facility"
+                      placeholder="Mô tả chi tiết về cơ sở vật chất..."
                       sx={{
                         "& .MuiOutlinedInput-root": {
                           borderRadius: 2,
@@ -1231,7 +1229,7 @@ const CourtOwnerCourtUpdateView = () => {
                         },
                       }}
                     >
-                      Add
+                      Thêm mới
                     </Button>
                   </Grid>
 
@@ -1264,7 +1262,7 @@ const CourtOwnerCourtUpdateView = () => {
                                 onClick={() => handleRemoveFacility(index)}
                                 startIcon={<DeleteOutline />}
                               >
-                                Remove
+                                Xóa
                               </Button>
                             ),
                           },
@@ -1279,8 +1277,7 @@ const CourtOwnerCourtUpdateView = () => {
                         icon={<InfoOutlined />}
                         sx={{ borderRadius: 2 }}
                       >
-                        No facilities added yet. Add facilities to enhance your
-                        court's appeal.
+                        Chưa có cơ sở vật chất nào được thêm vào. Vui lòng thêm mới.
                       </Alert>
                     )}
                   </Grid>
@@ -1324,7 +1321,7 @@ const CourtOwnerCourtUpdateView = () => {
                           },
                         }}
                       >
-                        {submitLoading ? "Updating..." : "Update Court"}
+                        {submitLoading ? "Đang cập nhật..." : "Cập nhật thông tin sân"}
                       </Button>
                     </Box>
                   </Grid>
@@ -1368,11 +1365,11 @@ const CourtOwnerCourtUpdateView = () => {
                     <EventAvailable
                       sx={{ mr: 1, color: theme.palette.primary.main }}
                     />
-                    Manage Court Schedules
+                    Quản lý lịch đặt sân
                   </Typography>
 
                   <Chip
-                    label={`${schedules.length} Schedules`}
+                    label={`${schedules.length} lịch đặt sân`}
                     color="primary"
                     variant="outlined"
                   />
@@ -1392,20 +1389,20 @@ const CourtOwnerCourtUpdateView = () => {
                     fontWeight={600}
                     sx={{ mb: 1 }}
                   >
-                    Add New Schedule
+                    Tạo lịch đặt sân mới
                   </Typography>
 
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={3}>
                       <FormControl fullWidth>
-                        <InputLabel>Days of Week</InputLabel>
+                        <InputLabel>Ngày trong tuần</InputLabel>
                         <Select
                           multiple
                           value={newSchedule.dayOfWeek}
                           onChange={(e) =>
                             handleScheduleChange("dayOfWeek", e.target.value)
                           }
-                          label="Days of Week"
+                          label="Ngày trong tuần"
                           renderValue={(selected) => (
                             <Box
                               sx={{
@@ -1439,7 +1436,7 @@ const CourtOwnerCourtUpdateView = () => {
                     <Grid item xs={12} md={2}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <TimeField
-                          label="Start Time"
+                          label="Thời gian bắt đầu"
                           value={dayjs(`2022-01-01T${newSchedule.startTime}`)}
                           onChange={(newValue) => {
                             handleScheduleChange(
@@ -1463,7 +1460,7 @@ const CourtOwnerCourtUpdateView = () => {
                     <Grid item xs={12} md={2}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <TimeField
-                          label="End Time"
+                          label="Thời gian kết thúc"
                           value={dayjs(`2022-01-01T${newSchedule.endTime}`)}
                           onChange={(newValue) => {
                             handleScheduleChange(
@@ -1487,7 +1484,7 @@ const CourtOwnerCourtUpdateView = () => {
                     <Grid item xs={12} md={3}>
                       <TextField
                         fullWidth
-                        label="Price per Slot (VND)"
+                        label="Giá thuê mỗi ca (VND)"
                         type="number"
                         value={newSchedule.priceSlot}
                         onChange={(e) =>
@@ -1535,14 +1532,14 @@ const CourtOwnerCourtUpdateView = () => {
                           },
                         }}
                       >
-                        Add Schedule
+                        Thêm lịch mới
                       </Button>
                     </Grid>
                   </Grid>
                 </Box>
 
                 <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
-                  Current Schedules
+                  Danh sách lịch đặt sân
                 </Typography>
 
                 {schedules.length > 0 ? (
@@ -1558,8 +1555,8 @@ const CourtOwnerCourtUpdateView = () => {
                       record.status === 1
                         ? "ant-table-row-booked"
                         : record.status === 2
-                        ? "ant-table-row-maintenance"
-                        : ""
+                          ? "ant-table-row-maintenance"
+                          : ""
                     }
                   />
                 ) : (
@@ -1567,8 +1564,7 @@ const CourtOwnerCourtUpdateView = () => {
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                     description={
                       <Typography variant="body1" color="text.secondary">
-                        No schedules added yet. Add your first schedule using
-                        the form above.
+                        Chưa có lịch đặt sân nào được thêm vào. Vui lòng thêm mới.
                       </Typography>
                     }
                   />
@@ -1587,18 +1583,16 @@ const CourtOwnerCourtUpdateView = () => {
                     fontWeight={600}
                     color="warning.dark"
                   >
-                    Note
+                    Ghi chú
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    - You cannot delete schedules that are currently booked.
+                    - Bạn không thể xóa lịch đã được đặt.
                     <br />
-                    - The status "Available" means the schedule is open for
-                    booking.
+                    - Trạng thái "Có sẵn" có nghĩa là lịch này có thể được đặt.
                     <br />
-                    - The status "Maintenance" means the schedule is temporarily
-                    unavailable.
-                    <br />- The status "Booked" is set automatically when a
-                    customer books this slot.
+                    - Trạng thái "Bảo trì" có nghĩa là lịch này tạm thời không có sẵn.
+                    <br />- Trạng thái "Đã đặt" sẽ được thiết lập tự động khi khách hàng đặt lịch này.
+
                   </Typography>
                 </Box>
               </Paper>
@@ -1640,7 +1634,7 @@ const CourtOwnerCourtUpdateView = () => {
                     <CardGiftcard
                       sx={{ mr: 1, color: theme.palette.primary.main }}
                     />
-                    Manage Court Promotions
+                    Quản lý khuyến mãi sân
                   </Typography>
 
                   <Button
@@ -1663,7 +1657,7 @@ const CourtOwnerCourtUpdateView = () => {
                       },
                     }}
                   >
-                    Add New Promotion
+                    Thêm mới khuyến mãi
                   </Button>
                 </Box>
 
@@ -1681,14 +1675,14 @@ const CourtOwnerCourtUpdateView = () => {
                     fontWeight={600}
                     sx={{ mb: 1 }}
                   >
-                    About Promotions
+                    Về khuyến mãi
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Promotions allow you to offer discounts on your court
-                    bookings to attract more customers. You can create
-                    percentage-based discounts (e.g., 10% off) or fixed amount
-                    discounts (e.g., 50,000 VND off). Set valid date ranges to
-                    control when these promotions are active.
+                    Khuyến mãi cho phép bạn cung cấp các giảm giá cho các buổi đặt sân
+                    để thu hút nhiều khách hàng hơn. Bạn có thể tạo các giảm giá theo
+                    phần trăm (ví dụ, giảm 10%) hoặc giảm giá theo số tiền cố định
+                    (ví dụ, giảm 50,000 VND). Thiết lập phạm vi ngày hợp lệ để kiểm soát
+                    thời gian các chương trình khuyến mãi này có hiệu lực.
                   </Typography>
                 </Box>
 
@@ -1713,8 +1707,8 @@ const CourtOwnerCourtUpdateView = () => {
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                     description={
                       <Typography variant="body1" color="text.secondary">
-                        No promotions added yet. Create your first promotion to
-                        attract more customers.
+                        Chưa có chương trình khuyến mãi nào được thêm vào. Tạo chương trình
+                        khuyến mãi đầu tiên của bạn để thu hút nhiều khách hàng hơn.
                       </Typography>
                     }
                   />
@@ -1732,19 +1726,19 @@ const CourtOwnerCourtUpdateView = () => {
           maxWidth="sm"
         >
           <DialogTitle sx={{ pb: 1 }}>
-            {editingPromotion ? "Edit Promotion" : "Create New Promotion"}
+            {editingPromotion ? "Cập nhật khuyến mãi" : "Thêm khuyến mãi mới"}
           </DialogTitle>
           <DialogContent>
             <Grid container spacing={2} sx={{ mt: 0.5 }}>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="Description"
+                  label="Thông tin mô tả"
                   value={newPromotion.description}
                   onChange={(e) =>
                     handlePromotionInputChange("description", e.target.value)
                   }
-                  placeholder="E.g., Summer Special, Weekend Discount"
+                  placeholder="E.g., Khuyến mãi mùa hè, Giảm giá cho khách hàng mới"
                   required
                   sx={{ mb: 2 }}
                 />
@@ -1758,10 +1752,10 @@ const CourtOwnerCourtUpdateView = () => {
                     onChange={(e) =>
                       handlePromotionInputChange("discountType", e.target.value)
                     }
-                    label="Discount Type"
+                    label="Loại giảm giá"
                   >
-                    <MenuItem value="Percentage">Percentage (%)</MenuItem>
-                    <MenuItem value="Fixed">Fixed Amount (VND)</MenuItem>
+                    <MenuItem value="Percentage">Giảm giá phần trăm (%)</MenuItem>
+                    <MenuItem value="Fixed">Giảm giá tiền (VND)</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -1771,8 +1765,8 @@ const CourtOwnerCourtUpdateView = () => {
                   fullWidth
                   label={
                     newPromotion.discountType === "Percentage"
-                      ? "Discount Percentage"
-                      : "Discount Amount (VND)"
+                      ? "Phần trăm giảm giá (%)"
+                      : "Giá trị giảm giá (VND)"
                   }
                   type="number"
                   value={newPromotion.discountValue}
@@ -1805,7 +1799,7 @@ const CourtOwnerCourtUpdateView = () => {
               <Grid item xs={12} sm={6}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Valid From"
+                    label="Có hiệu lực từ"
                     value={newPromotion.validFrom}
                     onChange={(newValue) =>
                       handlePromotionInputChange("validFrom", newValue)
@@ -1818,7 +1812,7 @@ const CourtOwnerCourtUpdateView = () => {
               <Grid item xs={12} sm={6}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Valid To"
+                    label="Có hiệu lực đến"
                     value={newPromotion.validTo}
                     onChange={(newValue) =>
                       handlePromotionInputChange("validTo", newValue)
@@ -1846,7 +1840,7 @@ const CourtOwnerCourtUpdateView = () => {
                 promotionLoading ? <CircularProgress size={20} /> : <Save />
               }
             >
-              {promotionLoading ? "Saving..." : "Save Promotion"}
+              {promotionLoading ? "Đang lưu thông tin..." : "Lưu thông tin khuyến mại"}
             </Button>
           </DialogActions>
         </Dialog>

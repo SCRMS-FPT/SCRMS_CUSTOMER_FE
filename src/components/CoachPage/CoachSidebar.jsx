@@ -56,32 +56,32 @@ const CoachSidebar = ({ children }) => {
     {
       key: "/coach/dashboard",
       icon: <DashboardOutlined />,
-      label: <Link to="/coach/dashboard">Dashboard</Link>,
+      label: <Link to="/coach/dashboard">Bảng điều khiển</Link>,
     },
     {
       key: "/coach-profile",
       icon: <ProfileOutlined />,
-      label: <Link to="/coach-profile">Coach Profile</Link>,
+      label: <Link to="/coach-profile">Thông tin</Link>,
     },
     {
       key: "/coach-schedules",
       icon: <ScheduleOutlined />,
-      label: <Link to="/coach-schedules">Coach Schedules</Link>,
+      label: <Link to="/coach-schedules">Lịch</Link>,
     },
     {
       key: "/coach-packages",
       icon: <InboxOutlined />,
-      label: <Link to="/coach-packages">Coach Packages</Link>,
+      label: <Link to="/coach-packages">Gói huấn luyện</Link>,
     },
     {
       key: "/coach-bookings",
       icon: <FormOutlined />,
-      label: <Link to="/coach-bookings">Coach Bookings</Link>,
+      label: <Link to="/coach-bookings">Lịch huấn luyện</Link>,
     },
     {
       key: "/coach-promotions",
       icon: <PercentageOutlined />,
-      label: <Link to="/coach-promotions">Coach Promotions</Link>,
+      label: <Link to="/coach-promotions">Ưu đãi</Link>,
     },
   ];
 
@@ -89,17 +89,17 @@ const CoachSidebar = ({ children }) => {
     {
       key: "/home",
       icon: <HomeOutlined />,
-      label: <Link to="/home">Return to Homepage</Link>,
+      label: <Link to="/home">Trở về trang chủ</Link>,
     },
     {
       key: "/settings",
       icon: <SettingOutlined />,
-      label: <Link to="/settings">View Profile Settings</Link>,
+      label: <Link to="/settings">Cài đặt cá nhân</Link>,
     },
     {
       key: "/logout",
       icon: <LogoutOutlined />,
-      label: <Link to="/logout">Sign Out</Link>,
+      label: <Link to="/logout">Đăng xuất</Link>,
     },
   ];
 
@@ -125,7 +125,7 @@ const CoachSidebar = ({ children }) => {
       >
         <div className="flex justify-between items-center p-4">
           <h2 className={`text-lg font-bold ${collapsed ? "hidden" : "block"}`}>
-            Coach Dashboard
+            Huấn luyện viên
           </h2>
           <Button
             type="text"
