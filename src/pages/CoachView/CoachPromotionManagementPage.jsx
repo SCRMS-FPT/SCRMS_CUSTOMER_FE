@@ -298,7 +298,7 @@ const CoachPromotionManagementPage = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Quản Lý Khuyến Mãi Cho HLV</h1>
-                    <p className="text-gray-500 mt-1">Qu��n lý tất cả các chương trình khuyến mãi của huấn luyện viên</p>
+                    <p className="text-gray-500 mt-1">Quản lý tất cả các chương trình khuyến mãi của huấn luyện viên</p>
                 </div>
                 <div className="flex gap-2">
                     <button

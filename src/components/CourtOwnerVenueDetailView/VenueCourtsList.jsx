@@ -32,48 +32,48 @@ const VenueCourtsList = ({ courts }) => {
 
   const columns = [
     {
-      title: "Court Name",
+      title: "Tên sân",
       dataIndex: "courtName",
       key: "courtName",
       render: (text) => <strong>{text}</strong>,
     },
     {
-      title: "Sport Type",
+      title: "Môn thể thao",
       dataIndex: "sportName",
       key: "sportName",
       render: (sport) => <Tag color="blue">{sport}</Tag>,
     },
     {
-      title: "Surface Type",
+      title: "Loại bề mặt",
       key: "surface_type",
       render: (_, record) => {
         const surfaceType = getFacilityValue(record, "surface_type");
         return surfaceType ? (
           <Tag color="green">{surfaceType}</Tag>
         ) : (
-          <span className="text-gray-400">Not specified</span>
+          <span className="text-gray-400">Không có thông tin</span>
         );
       },
     },
     {
-      title: "Court Type",
+      title: "Loại sân",
       dataIndex: "courtType",
       key: "courtType",
       render: (type) => {
-        let label = "Unknown";
+        let label = "Không có thông tin";
         let color = "default";
 
         switch (type) {
           case 1:
-            label = "Indoor";
+            label = "Trong nhà";
             color = "volcano";
             break;
           case 2:
-            label = "Outdoor";
+            label = "Ngoài trời";
             color = "geekblue";
             break;
           case 3:
-            label = "Mixed";
+            label = "Hỗn hợp";
             color = "purple";
             break;
         }
@@ -82,7 +82,7 @@ const VenueCourtsList = ({ courts }) => {
       },
     },
     {
-      title: "Features",
+      title: "Tiện ích",
       key: "features",
       render: (_, record) => {
         const hasLighting = hasFacility(record, "lighting");
@@ -91,24 +91,24 @@ const VenueCourtsList = ({ courts }) => {
 
         return (
           <div className="flex flex-wrap gap-1">
-            {hasLighting && <Tag color="gold">Lighting</Tag>}
-            {hasShowers && <Tag color="cyan">Showers</Tag>}
-            {hasParking && <Tag color="lime">Parking</Tag>}
+            {hasLighting && <Tag color="gold">Đèn chiếu sáng</Tag>}
+            {hasShowers && <Tag color="cyan">Phòng tắm</Tag>}
+            {hasParking && <Tag color="lime">Bãi đỗ xe</Tag>}
             {!hasLighting && !hasShowers && !hasParking && (
-              <span className="text-gray-400">None specified</span>
+              <span className="text-gray-400">Không có thông tin chi tiết</span>
             )}
           </div>
         );
       },
     },
     {
-      title: "Min Deposit",
+      title: "Số tiền đặt cọc tối thiểu",
       dataIndex: "minDepositPercentage",
       key: "minDepositPercentage",
       render: (value) => (value ? `${value}%` : "Not set"),
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <div className="flex gap-2">
@@ -116,13 +116,13 @@ const VenueCourtsList = ({ courts }) => {
             type="primary"
             onClick={() => navigate(`/court-owner/courts/${record.id}`)}
           >
-            Manage
+            Chi tiết
           </Button>
           <Button
             type="default"
             onClick={() => navigate(`/court-owner/courts/update/${record.id}`)}
           >
-            Edit
+            Cập nhật thông tin
           </Button>
         </div>
       ),
@@ -131,14 +131,14 @@ const VenueCourtsList = ({ courts }) => {
 
   if (!courts || courts.length === 0) {
     return (
-      <Card title="Courts" className="mb-6">
-        <Empty description="No courts available for this venue" />
+      <Card title="Sân thể thao" className="mb-6">
+        <Empty description="Trung tâm thể thao hiện tại chưa có sân nào" />
       </Card>
     );
   }
 
   return (
-    <Card title="Courts" className="mb-6">
+    <Card title="Sân thể thao" className="mb-6">
       <Table
         dataSource={courts}
         rowKey="id"

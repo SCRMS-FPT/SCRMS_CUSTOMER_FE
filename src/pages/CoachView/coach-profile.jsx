@@ -313,7 +313,7 @@ export default function CoachProfile() {
                     />
                   </Badge>
 
-                  <Box className="mt-4 sm:mt-0 sm:ml-6 flex-1">
+                  <Box className="mt-4 sm:mt-0 sm:ml-6 flex-1" style={{ marginTop: "" }}>            
                     {isEditing ? (
                       <TextField
                         name="fullName"
@@ -324,8 +324,9 @@ export default function CoachProfile() {
                         variant="outlined"
                         sx={{ mb: 1 }}
                         InputProps={{
-                          sx: { borderRadius: "10px" },
+                          sx: { borderRadius: "10px", },
                         }}
+                        style={{ marginTop: "" }}
                       />
                     ) : (
                       <Typography

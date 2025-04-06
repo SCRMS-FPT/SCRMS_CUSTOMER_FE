@@ -73,7 +73,7 @@ const CourtOwnerVenueListView = () => {
 
   const columns = [
     {
-      title: "Venue Name",
+      title: "Trung tâm thể thao",
       dataIndex: "name",
       key: "name",
       sorter: (a, b) => a.name.localeCompare(b.name),
@@ -82,18 +82,18 @@ const CourtOwnerVenueListView = () => {
       ),
     },
     {
-      title: "Location",
+      title: "Địa chỉ",
       dataIndex: "address",
       key: "location",
       render: (address) => address || "No address provided",
     },
     {
-      title: "Phone",
+      title: "Số điện thoại",
       dataIndex: "phoneNumber",
       key: "phoneNumber",
     },
     {
-      title: "Sports",
+      title: "Môn thể thao",
       dataIndex: "sportNames",
       key: "sports",
       render: (sportNames = []) => {
@@ -118,7 +118,7 @@ const CourtOwnerVenueListView = () => {
       },
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space>
@@ -126,11 +126,11 @@ const CourtOwnerVenueListView = () => {
             type="primary"
             onClick={() => navigate(`/court-owner/venues/${record.id}`)}
           >
-            Manage
+            Quản lý
           </Button>
-          <Button onClick={() => navigate(`/court-owner/venues/${record.id}`)}>
-            Courts
-          </Button>
+          {/* <Button onClick={() => navigate(`/court-owner/venues/${record.id}`)}>
+            Sân
+          </Button> */}
         </Space>
       ),
     },
@@ -138,20 +138,20 @@ const CourtOwnerVenueListView = () => {
 
   return (
     <Card
-      title="My Venues"
+      title="Quản lý trung tâm thể thao"
       extra={
         <Button
           type="primary"
           onClick={() => navigate("/court-owner/venues/create")}
         >
-          Add New Venue
+          Thiết lập trung tâm thể thao mới
         </Button>
       }
     >
       {/* Search & Filter Controls */}
       <Space className="mb-4" wrap>
         <Input
-          placeholder="Search Venue Name"
+          placeholder="Tim kiếm theo tên"
           value={searchText}
           onChange={(e) => handleSearch(e.target.value)}
           style={{ width: 200 }}
@@ -162,10 +162,10 @@ const CourtOwnerVenueListView = () => {
             setSelectedSport(value);
             setPage(1); // Reset to first page when changing filters
           }}
-          style={{ width: 150 }}
+          style={{ width: 200 }}
           placeholder="Filter by Sport"
         >
-          <Option value="all">All Sports</Option>
+          <Option value="all">Tất cả các môn thể thao</Option>
           {sports.map((sport) => (
             <Option key={sport.id} value={sport.id}>
               {sport.name}
@@ -195,7 +195,7 @@ const CourtOwnerVenueListView = () => {
             showSizeChanger: true,
             pageSizeOptions: ["10", "20", "50"],
           }}
-          locale={{ emptyText: "No venues found" }}
+          locale={{ emptyText: "Không tìm thấy trung tâm thể thao phù hợp" }}
         />
       )}
     </Card>

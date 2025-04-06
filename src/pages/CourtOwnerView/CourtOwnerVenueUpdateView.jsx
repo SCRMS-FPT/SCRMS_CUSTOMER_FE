@@ -88,7 +88,7 @@ const CourtOwnerVenueUpdateView = () => {
         }
       } catch (error) {
         console.error("Error fetching sport center data:", error);
-        message.error("Failed to load sport center data");
+        message.error("Truy xuất thông tin trung tâm thể thao thất bại");
       } finally {
         setLoading(false);
       }
@@ -145,7 +145,7 @@ const CourtOwnerVenueUpdateView = () => {
       const response = await client.updateSportCenter(venueId, formData);
 
       if (response) {
-        message.success("Sport center updated successfully!");
+        message.success("Thông tin trung tâm thể thao được cập nhật thành công!");
         navigate(`/court-owner/venues/${venueId}`);
       } else {
         throw new Error("Failed to update sport center");
@@ -153,7 +153,7 @@ const CourtOwnerVenueUpdateView = () => {
     } catch (error) {
       console.error("Error updating sport center:", error);
       message.error(
-        "Failed to update sport center: " + (error.message || "Unknown error")
+        "Gặp lỗi trong quá trình cập nhật thông tin trung tâm thể thao: " + (error.message || "Unknown error")
       );
     } finally {
       setSubmitLoading(false);
@@ -173,7 +173,7 @@ const CourtOwnerVenueUpdateView = () => {
       }, 500);
     } catch (error) {
       console.error("Error uploading avatar:", error);
-      message.error("Failed to upload avatar");
+      message.error("Lỗi trong quá trình cập nhật ảnh đại diện!");
     }
   };
 
@@ -244,10 +244,10 @@ const CourtOwnerVenueUpdateView = () => {
               onClick={() => navigate(`/court-owner/venues/${venueId}`)}
               style={{ marginRight: 16 }}
             >
-              Back
+              Quay lại
             </Button>
             <Title level={4} style={{ margin: 0 }}>
-              Update Sport Center
+              Cập nhật thông tin trung tâm thể thao
             </Title>
           </div>
         }
@@ -259,7 +259,7 @@ const CourtOwnerVenueUpdateView = () => {
               loading={submitLoading}
               onClick={() => form.submit()}
             >
-              Save Changes
+              Lưu thay đổi
             </Button>
           </Space>
         }
@@ -275,20 +275,20 @@ const CourtOwnerVenueUpdateView = () => {
         >
           <Row gutter={24}>
             <Col span={24}>
-              <Card title="Basic Information" bordered={false}>
+              <Card title="Thông tin cơ bản" bordered={false}>
                 <Row gutter={24}>
                   <Col span={24} md={12}>
                     <Form.Item
                       name="name"
-                      label="Sport Center Name"
+                      label="Tên trung tâm thể thao"
                       rules={[
                         {
                           required: true,
-                          message: "Please enter the sport center name",
+                          message: "Vui lòng điền tên trung tâm thể thao",
                         },
                       ]}
                     >
-                      <Input placeholder="Enter sport center name" />
+                      <Input placeholder="Nhập tên trung tâm thể thao" />
                     </Form.Item>
                   </Col>
 
@@ -297,17 +297,17 @@ const CourtOwnerVenueUpdateView = () => {
                       name="phoneNumber"
                       label={
                         <span>
-                          <PhoneOutlined /> Phone Number
+                          <PhoneOutlined /> Số điện thoại
                         </span>
                       }
                       rules={[
                         {
                           required: true,
-                          message: "Please enter phone number",
+                          message: "Vui lòng điền số điện thoại",
                         },
                       ]}
                     >
-                      <Input placeholder="Enter phone number" />
+                      <Input placeholder="Nhập số điện thoại" />
                     </Form.Item>
                   </Col>
 
@@ -316,13 +316,13 @@ const CourtOwnerVenueUpdateView = () => {
                       name="description"
                       label={
                         <span>
-                          <InfoCircleOutlined /> Description
+                          <InfoCircleOutlined /> Thông tin mô tả
                         </span>
                       }
                     >
                       <TextArea
                         rows={4}
-                        placeholder="Enter a detailed description of your sport center"
+                        placeholder="Nhập thông tin mô tả về trung tâm thể thao"
                       />
                     </Form.Item>
                   </Col>
@@ -334,7 +334,7 @@ const CourtOwnerVenueUpdateView = () => {
               <Card
                 title={
                   <span>
-                    <EnvironmentOutlined /> Location
+                    <EnvironmentOutlined /> Địa chỉ
                   </span>
                 }
                 bordered={false}
@@ -343,9 +343,9 @@ const CourtOwnerVenueUpdateView = () => {
                   <Col span={24} md={12}>
                     <Form.Item
                       name="addressLine"
-                      label="Address Line"
+                      label="Địa chỉ"
                       rules={[
-                        { required: true, message: "Please enter address" },
+                        { required: true, message: "Vui lòng nhập địa chỉ" },
                       ]}
                     >
                       <Input placeholder="Street address" />
@@ -355,22 +355,22 @@ const CourtOwnerVenueUpdateView = () => {
                   <Col span={24} md={12}>
                     <Form.Item
                       name="city"
-                      label="City"
-                      rules={[{ required: true, message: "Please enter city" }]}
+                      label="Tỉnh/Thành phố"
+                      rules={[{ required: true, message: "Nhập tên tỉnh/thành phố" }]}
                     >
                       <Input placeholder="City" />
                     </Form.Item>
                   </Col>
 
                   <Col span={12} md={6}>
-                    <Form.Item name="district" label="District">
-                      <Input placeholder="District (optional)" />
+                    <Form.Item name="district" label="Quận/Huyện">
+                      <Input placeholder="Quận/Huyện (tùy chọn)" />
                     </Form.Item>
                   </Col>
 
                   <Col span={12} md={6}>
-                    <Form.Item name="commune" label="Commune/Ward">
-                      <Input placeholder="Commune or Ward (optional)" />
+                    <Form.Item name="commune" label="Xã/Huyện">
+                      <Input placeholder="Xã/Huyện (tùy chọn)" />
                     </Form.Item>
                   </Col>
 
@@ -379,14 +379,14 @@ const CourtOwnerVenueUpdateView = () => {
                       name="latitude"
                       label={
                         <span>
-                          Latitude
+                          Vĩ độ
                           <Tooltip title="Optional: coordinates for map display">
                             <QuestionCircleOutlined style={{ marginLeft: 4 }} />
                           </Tooltip>
                         </span>
                       }
                     >
-                      <Input type="number" placeholder="Latitude" />
+                      <Input type="number" placeholder="Vĩ độ" />
                     </Form.Item>
                   </Col>
 
@@ -395,14 +395,14 @@ const CourtOwnerVenueUpdateView = () => {
                       name="longitude"
                       label={
                         <span>
-                          Longitude
+                          Kinh độ
                           <Tooltip title="Optional: coordinates for map display">
                             <QuestionCircleOutlined style={{ marginLeft: 4 }} />
                           </Tooltip>
                         </span>
                       }
                     >
-                      <Input type="number" placeholder="Longitude" />
+                      <Input type="number" placeholder="Kinh độ" />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -413,14 +413,14 @@ const CourtOwnerVenueUpdateView = () => {
               <Card
                 title={
                   <span>
-                    <PictureOutlined /> Images
+                    <PictureOutlined /> Hình ảnh trung tâm thể thao
                   </span>
                 }
                 bordered={false}
               >
                 <Row gutter={[24, 24]}>
                   <Col span={24} md={12}>
-                    <Title level={5}>Sport Center Avatar</Title>
+                    <Title level={5}>Ảnh đại diện trung tâm thể thao</Title>
 
                     {venue.avatar && (
                       <div style={{ marginBottom: 16 }}>
@@ -434,12 +434,12 @@ const CourtOwnerVenueUpdateView = () => {
                           }}
                         />
                         <div style={{ marginTop: 8 }}>
-                          <Text type="secondary">Current avatar</Text>
+                          <Text type="secondary">Ảnh đại diện hiện tại</Text>
                           <Switch
                             checked={keepExistingAvatar}
                             onChange={setKeepExistingAvatar}
-                            checkedChildren="Keep"
-                            unCheckedChildren="Replace"
+                            checkedChildren="Giữ"
+                            unCheckedChildren="Thay thế"
                             style={{ marginLeft: 16 }}
                           />
                         </div>
@@ -453,13 +453,13 @@ const CourtOwnerVenueUpdateView = () => {
                       fileList={
                         !keepExistingAvatar && avatarFile
                           ? [
-                              {
-                                uid: "-1",
-                                name: avatarFile.name,
-                                status: "done",
-                                url: URL.createObjectURL(avatarFile),
-                              },
-                            ]
+                            {
+                              uid: "-1",
+                              name: avatarFile.name,
+                              status: "done",
+                              url: URL.createObjectURL(avatarFile),
+                            },
+                          ]
                           : []
                       }
                       customRequest={customAvatarUpload}
@@ -477,7 +477,7 @@ const CourtOwnerVenueUpdateView = () => {
                             <div style={{ marginTop: 8 }}>
                               {keepExistingAvatar && venue.avatar
                                 ? "Avatar Upload (Disabled)"
-                                : "Upload New Avatar"}
+                                : "Tải ảnh"}
                             </div>
                           </div>
                         )}
@@ -485,12 +485,12 @@ const CourtOwnerVenueUpdateView = () => {
                   </Col>
 
                   <Col span={24} md={12}>
-                    <Title level={5}>Gallery Images</Title>
+                    <Title level={5}>Hình ảnh</Title>
 
                     {venue.imageUrl && venue.imageUrl.length > 0 && (
                       <div style={{ marginBottom: 16 }}>
                         <div style={{ marginTop: 8 }}>
-                          <Text type="secondary">Current gallery images</Text>
+                          <Text type="secondary">Hình ảnh hiện tại</Text>
                           <Switch
                             checked={keepExistingGallery}
                             onChange={(checked) => {
@@ -536,8 +536,8 @@ const CourtOwnerVenueUpdateView = () => {
                       multiple
                     >
                       {keepExistingGallery &&
-                      venue.imageUrl &&
-                      venue.imageUrl.length > 0 ? (
+                        venue.imageUrl &&
+                        venue.imageUrl.length > 0 ? (
                         <div>
                           <div style={{ marginTop: 8 }}>
                             Gallery Upload (Disabled)
@@ -546,13 +546,12 @@ const CourtOwnerVenueUpdateView = () => {
                       ) : fileList.length >= 5 ? null : (
                         <div>
                           <PlusOutlined />
-                          <div style={{ marginTop: 8 }}>Upload</div>
+                          <div style={{ marginTop: 8 }}>Tải lên</div>
                         </div>
                       )}
                     </Upload>
                     <Text type="secondary">
-                      Upload multiple gallery images of your sport center (max
-                      5)
+                      Tải lên nhiều ảnh của trung tâm thể thao của bạn (tối đa 5 ảnh)
                     </Text>
                   </Col>
                 </Row>
@@ -567,7 +566,7 @@ const CourtOwnerVenueUpdateView = () => {
               <Button
                 onClick={() => navigate(`/court-owner/venues/${venueId}`)}
               >
-                Cancel
+                Hủy
               </Button>
             </Col>
             <Col>
@@ -578,7 +577,7 @@ const CourtOwnerVenueUpdateView = () => {
                   loading={submitLoading}
                   icon={<SaveOutlined />}
                 >
-                  Save Changes
+                  Lưu thay đổi
                 </Button>
               </Space>
             </Col>

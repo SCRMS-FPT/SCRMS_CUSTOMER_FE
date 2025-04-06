@@ -28,10 +28,11 @@ import {
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { alpha } from "@mui/material";
 import PropTypes from "prop-types";
 import { useTheme } from "@mui/material/styles";
+import { logout } from "@/store/userSlice";
 
 const { Sider, Content } = Layout;
 const { Text } = Typography;
@@ -40,9 +41,15 @@ const CourtOwnerSidebar = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const theme = useTheme();
   const user = useSelector((state) => state.user.userProfile);
   const [notificationCount, setNotificationCount] = useState(0);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
 
   // Mock data for notification count - replace with real data
   useEffect(() => {
@@ -57,38 +64,38 @@ const CourtOwnerSidebar = ({ children }) => {
         {
           key: "/court-owner/dashboard",
           icon: <DashboardOutlined />,
-          label: "Dashboard",
+          label: "Bảng điều khiển",
           onClick: () => navigate("/court-owner/dashboard"),
         },
       ],
     },
     {
       key: "management",
-      label: "Management",
+      label: "Quản lý",
       items: [
         {
           key: "/court-owner/venues",
           icon: <GoldOutlined />,
-          label: "My Venues",
+          label: "Trung tâm thể thao",
           onClick: () => navigate("/court-owner/venues"),
         },
         {
           key: "/court-owner/courts",
           icon: <BankOutlined />,
-          label: "My Courts",
+          label: "Sân",
           onClick: () => navigate("/court-owner/courts"),
         },
         {
           key: "/court-owner/bookings",
           icon: <CalendarOutlined />,
-          label: "Bookings",
+          label: "Lịch đặt sân",
           onClick: () => navigate("/court-owner/bookings"),
         },
       ],
     },
     {
       key: "communication",
-      label: "Communication",
+      label: "Giao tiếp",
       items: [
         {
           key: "/court-owner/notifications",
@@ -97,19 +104,19 @@ const CourtOwnerSidebar = ({ children }) => {
               <BellOutlined />
             </Badge>
           ),
-          label: "Notifications",
+          label: "Thông báo",
           onClick: () => navigate("/court-owner/notifications"),
         },
       ],
     },
     {
       key: "analytics",
-      label: "Analytics",
+      label: "Số liệu",
       items: [
         {
           key: "/court-owner/reports",
           icon: <BarChartOutlined />,
-          label: "Reports & Analytics",
+          label: "Báo cáo & Số liệu",
           onClick: () => navigate("/court-owner/reports"),
         },
       ],
@@ -141,9 +148,8 @@ const CourtOwnerSidebar = ({ children }) => {
           bottom: 0,
           height: "100vh",
           overflow: "auto",
-          background: `linear-gradient(180deg, ${
-            theme.palette.background.paper
-          } 0%, ${alpha(theme.palette.primary.dark, 0.05)} 100%)`,
+          background: `linear-gradient(180deg, ${theme.palette.background.paper
+            } 0%, ${alpha(theme.palette.primary.dark, 0.05)} 100%)`,
           borderRight: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           boxShadow: "0 0 20px rgba(0,0,0,0.06)",
           zIndex: 1000,
@@ -235,7 +241,7 @@ const CourtOwnerSidebar = ({ children }) => {
         <Button
           type="text"
           className="absolute top-3 right-3 z-10"
-            icon={collapsed ? <MenuUnfoldOutlined style={{ fontSize: "20px", marginLeft: 16 }} /> : <MenuFoldOutlined style={{ fontSize: "20px" }} />}
+          icon={collapsed ? <MenuUnfoldOutlined style={{ fontSize: "20px", marginLeft: 16 }} /> : <MenuFoldOutlined style={{ fontSize: "20px" }} />}
           onClick={() => setCollapsed(!collapsed)}
           style={{
             color: theme.palette.primary.main,
@@ -322,7 +328,7 @@ const CourtOwnerSidebar = ({ children }) => {
                     <span>Homepage</span>
                   </Tooltip>
                 ) : (
-                  "Return to Homepage"
+                  "Trở về trang chủ"
                 ),
                 onClick: () => navigate("/home"),
               },
@@ -334,7 +340,7 @@ const CourtOwnerSidebar = ({ children }) => {
                     <span>Settings</span>
                   </Tooltip>
                 ) : (
-                  "Settings"
+                  "Cài đặt"
                 ),
                 onClick: () => navigate("/settings"),
               },
@@ -346,9 +352,11 @@ const CourtOwnerSidebar = ({ children }) => {
                     <span>Sign Out</span>
                   </Tooltip>
                 ) : (
-                  "Sign Out"
+                  "Đăng xuất"
                 ),
-                onClick: () => navigate("/logout"),
+                onClick: () => {
+                  handleLogout();
+                },
                 style: { color: theme.palette.error.main },
               },
             ]}
