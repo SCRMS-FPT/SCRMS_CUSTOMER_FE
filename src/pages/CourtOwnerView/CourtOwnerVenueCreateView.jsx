@@ -57,7 +57,7 @@ const CourtOwnerVenueCreateView = () => {
       }, 500);
     } catch (error) {
       console.error("Error uploading avatar:", error);
-      message.error("Failed to upload logo");
+      message.error("Tải ảnh Logo thất bại!");
     }
   };
 
@@ -73,7 +73,7 @@ const CourtOwnerVenueCreateView = () => {
       }, 500);
     } catch (error) {
       console.error("Error uploading image:", error);
-      message.error("Failed to upload image");
+      message.error("Tải ảnh lên thất bại!");
     }
   };
 
@@ -134,7 +134,7 @@ const CourtOwnerVenueCreateView = () => {
       navigate("/court-owner/venues");
     } catch (error) {
       console.error("Error creating sport center:", error);
-      message.error("Failed to create venue. Please try again.");
+      message.error("Gặp lỗi trong quá trình tạo trung tâm thể thao. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
@@ -150,12 +150,12 @@ const CourtOwnerVenueCreateView = () => {
             onClick={() => navigate("/court-owner/venues")}
             className="mr-2"
           >
-            Back to Venue List
+            Quay trở lại
           </Button>
         </div>
       }
     >
-      <div className="font-semibold text-2xl mb-4">Create New Venue</div>
+      <div className="font-semibold text-2xl mb-4">Thiết lập trung tâm thể thao mới</div>
 
       <Form
         layout="vertical"
@@ -166,23 +166,23 @@ const CourtOwnerVenueCreateView = () => {
         <Row gutter={24}>
           <Col span={12}>
             <Form.Item
-              label="Venue Name"
+              label="Tên trung tâm thể thao"
               name="name"
-              rules={[{ required: true, message: "Please enter venue name" }]}
+              rules={[{ required: true, message: "Vui lòng nhập tên trung tâm thể thao" }]}
             >
               <Input
-                placeholder="Enter venue name"
+                placeholder="Nhập tên trung tâm thể thao"
                 onChange={(e) => handleFieldChange("name", e.target.value)}
               />
             </Form.Item>
 
             <Form.Item
-              label="Phone Number"
+              label="Số điện thoại"
               name="phoneNumber"
-              rules={[{ required: true, message: "Please enter phone number" }]}
+              rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
             >
               <Input
-                placeholder="Enter phone number"
+                placeholder="Nhập số điện thoại"
                 onChange={(e) =>
                   handleFieldChange("phoneNumber", e.target.value)
                 }
@@ -190,12 +190,12 @@ const CourtOwnerVenueCreateView = () => {
             </Form.Item>
 
             <Form.Item
-              label="Address"
+              label="Địa chỉ"
               name="addressLine"
-              rules={[{ required: true, message: "Please enter address" }]}
+              rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
             >
               <Input
-                placeholder="Enter full address"
+                placeholder="Nhập địa chỉ"
                 onChange={(e) =>
                   handleFieldChange("addressLine", e.target.value)
                 }
@@ -205,24 +205,24 @@ const CourtOwnerVenueCreateView = () => {
             <Row gutter={16}>
               <Col span={8}>
                 <Form.Item
-                  label="City"
+                  label="Tỉnh/Thành phố"
                   name="city"
                   rules={[{ required: true, message: "Required" }]}
                 >
                   <Input
-                    placeholder="City"
+                    placeholder="Tỉnh/Thành phố"
                     onChange={(e) => handleFieldChange("city", e.target.value)}
                   />
                 </Form.Item>
               </Col>
               <Col span={8}>
                 <Form.Item
-                  label="District"
+                  label="Quận/Huyện"
                   name="district"
                   rules={[{ required: true, message: "Required" }]}
                 >
                   <Input
-                    placeholder="District"
+                    placeholder="Quận/Huyện"
                     onChange={(e) =>
                       handleFieldChange("district", e.target.value)
                     }
@@ -231,12 +231,12 @@ const CourtOwnerVenueCreateView = () => {
               </Col>
               <Col span={8}>
                 <Form.Item
-                  label="Commune"
+                  label="Xã/Phường"
                   name="commune"
                   rules={[{ required: true, message: "Required" }]}
                 >
                   <Input
-                    placeholder="Commune"
+                    placeholder="Xã/Phường"
                     onChange={(e) =>
                       handleFieldChange("commune", e.target.value)
                     }
@@ -247,10 +247,10 @@ const CourtOwnerVenueCreateView = () => {
           </Col>
 
           <Col span={12}>
-            <Form.Item label="Description" name="description">
+            <Form.Item label="Thông tin mô tả" name="description">
               <Input.TextArea
                 rows={4}
-                placeholder="Describe your venue"
+                placeholder="Mô tả thông tin trung tâm thể thao"
                 onChange={(e) =>
                   handleFieldChange("description", e.target.value)
                 }
@@ -258,10 +258,10 @@ const CourtOwnerVenueCreateView = () => {
             </Form.Item>
 
             <Form.Item
-              label="Venue Logo (Required)"
+              label={<span>Logo trung tâm thể thao <span style={{color: "red"}}>(Bắt buộc)</span></span>}
               name="avatarImage"
               rules={[
-                { required: true, message: "Please upload a venue logo" },
+                { required: true, message: "Vui lòng tải lên logo trung tâm thể thao" },
               ]}
             >
               <Upload
@@ -285,13 +285,13 @@ const CourtOwnerVenueCreateView = () => {
                 {!avatarFile && (
                   <div>
                     <PlusOutlined />
-                    <div style={{ marginTop: 8 }}>Upload Logo</div>
+                    <div style={{ marginTop: 8 }}>Tải lên Logo</div>
                   </div>
                 )}
               </Upload>
             </Form.Item>
 
-            <Form.Item label="Venue Images (Max 5)" name="galleryImages">
+            <Form.Item label="Hình ảnh trung tâm thể thao (Tối đa 5 ảnh)" name="galleryImages">
               <Upload
                 listType="picture-card"
                 fileList={galleryFiles.map((file, index) => ({
@@ -313,7 +313,7 @@ const CourtOwnerVenueCreateView = () => {
                 {galleryFiles.length >= 5 ? null : (
                   <div>
                     <PlusOutlined />
-                    <div style={{ marginTop: 8 }}>Upload</div>
+                    <div style={{ marginTop: 8 }}>Tải lên</div>
                   </div>
                 )}
               </Upload>
@@ -336,7 +336,7 @@ const CourtOwnerVenueCreateView = () => {
             loading={loading}
             disabled={loading}
           >
-            {loading ? "Creating..." : "Create Venue"}
+            {loading ? "Đang tạo..." : "Tạo mới"}
           </Button>
         </Form.Item>
       </Form>

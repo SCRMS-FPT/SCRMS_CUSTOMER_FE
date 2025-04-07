@@ -100,7 +100,7 @@ const CourtOwnerCourtDetailView = () => {
       } catch (err) {
         console.error("Error fetching court details:", err);
         setError("Failed to load court details. Please try again later.");
-        message.error("Failed to load court details");
+        message.error("Gặp lỗi trong quá trình tải thông tin sân. Vui lòng thử lại sau.");
       } finally {
         setLoading(false);
       }
@@ -114,9 +114,8 @@ const CourtOwnerCourtDetailView = () => {
   // Format address display
   const formatAddress = (sportCenter) => {
     if (!sportCenter) return "";
-    return `${sportCenter.addressLine || ""}, ${sportCenter.city || ""}, ${
-      sportCenter.district || ""
-    }, ${sportCenter.commune || ""}`;
+    return `${sportCenter.addressLine || ""}, ${sportCenter.city || ""}, ${sportCenter.district || ""
+      }, ${sportCenter.commune || ""}`;
   };
 
   // Format operating hours from court schedules
@@ -126,13 +125,13 @@ const CourtOwnerCourtDetailView = () => {
     // Group schedules by day
     const schedulesByDay = {};
     const dayNames = [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
+      "Thứ Hai",
+      "Thứ Ba",
+      "Thứ Tư",
+      "Thứ Năm",
+      "Thứ Sáu",
+      "Thứ Bảy",
+      "Chủ Nhật",
     ];
 
     courtSchedules.forEach((schedule) => {
@@ -200,13 +199,13 @@ const CourtOwnerCourtDetailView = () => {
   const getStatusDisplay = (status) => {
     switch (status) {
       case CourtStatus.Open:
-        return { text: "Open", color: "green" };
+        return { text: "Mở cửa", color: "green" };
       case CourtStatus.Closed:
-        return { text: "Closed", color: "red" };
+        return { text: "Đóng cửa", color: "red" };
       case CourtStatus.Maintenance:
-        return { text: "Maintenance", color: "orange" };
+        return { text: "Đang bảo trì", color: "orange" };
       default:
-        return { text: "Unknown", color: "default" };
+        return { text: "Không có thông tin", color: "default" };
     }
   };
 
@@ -214,13 +213,13 @@ const CourtOwnerCourtDetailView = () => {
   const getCourtTypeDisplay = (type) => {
     switch (type) {
       case CourtType.Indoor:
-        return { text: "Indoor", color: "blue" };
+        return { text: "Trong nhà", color: "blue" };
       case CourtType.Outdoor:
-        return { text: "Outdoor", color: "green" };
+        return { text: "Ngoài trời", color: "green" };
       case CourtType.Covered:
-        return { text: "Covered", color: "purple" };
+        return { text: "Có mái che", color: "purple" };
       default:
-        return { text: "Unknown", color: "default" };
+        return { text: "Không có thông tin", color: "default" };
     }
   };
 
@@ -238,7 +237,7 @@ const CourtOwnerCourtDetailView = () => {
     return (
       <Card>
         <Alert
-          message="Error Loading Court Details"
+          message="Lỗi Tải Thông Tin"
           description={error}
           type="error"
           showIcon
@@ -248,7 +247,7 @@ const CourtOwnerCourtDetailView = () => {
           onClick={() => navigate("/court-owner/courts")}
           style={{ marginTop: 16 }}
         >
-          Go Back to Courts
+          Quay trở lại
         </Button>
       </Card>
     );
@@ -264,7 +263,7 @@ const CourtOwnerCourtDetailView = () => {
           onClick={() => navigate("/court-owner/courts")}
           style={{ marginTop: 16, textAlign: "center" }}
         >
-          Go Back to Courts
+          Quay trở lại
         </Button>
       </Card>
     );
@@ -295,7 +294,7 @@ const CourtOwnerCourtDetailView = () => {
               icon={<EditOutlined />}
               onClick={() => navigate(`/court-owner/courts/update/${court.id}`)}
             >
-              Edit Court
+              Chỉnh sửa thông tin
             </Button>
 
             <Button
@@ -303,7 +302,7 @@ const CourtOwnerCourtDetailView = () => {
               icon={<LeftOutlined />}
               onClick={() => navigate("/court-owner/courts")}
             >
-              Go Back
+              Quay lại
             </Button>
           </Space>
         </div>
@@ -315,7 +314,7 @@ const CourtOwnerCourtDetailView = () => {
         items={[
           {
             key: "1",
-            label: "Overview",
+            label: "Tổng quan",
             children: (
               <>
                 <Title level={4}>{court.courtName}</Title>
@@ -324,32 +323,32 @@ const CourtOwnerCourtDetailView = () => {
 
                 <List>
                   <List.Item>
-                    <Text strong>Sport Type:</Text>{" "}
+                    <Text strong>Môn thể thao:</Text>{" "}
                     <Tag color="blue">{court.sportName}</Tag>
                   </List.Item>
                   <List.Item>
-                    <Text strong>Court Type:</Text>
+                    <Text strong>Loại sân:</Text>{" "}
                     <Tag color={courtTypeDisplay.color}>
                       {courtTypeDisplay.text}
                     </Tag>
                   </List.Item>
                   <List.Item>
-                    <Text strong>Status:</Text>
+                    <Text strong>Trạng thái:</Text>{" "}
                     <Tag color={statusDisplay.color}>{statusDisplay.text}</Tag>
                   </List.Item>
                   <List.Item>
-                    <Text strong>Minimum Deposit:</Text>{" "}
-                    {court.minDepositPercentage}%
+                    <Text strong>Mức đặt cọc tối thiểu:</Text>{" "}
+                    <Tag color={statusDisplay.color}>{court.minDepositPercentage}%</Tag>
                   </List.Item>
                   <List.Item>
-                    <Text strong>Slot Duration:</Text> {court.slotDuration}
+                    <Text strong>Thởi lượng slot:</Text> {court.slotDuration}
                   </List.Item>
                   <List.Item>
-                    <Text strong>Cancellation Window:</Text>{" "}
-                    {court.cancellationWindowHours} hours
+                    <Text strong>Giới hạn thời gian hủy đặt sân:</Text>{" "}
+                    <span className="text-blue-500 font-semibold">{court.cancellationWindowHours}</span> giờ trước giờ đặt sân
                   </List.Item>
                   <List.Item>
-                    <Text strong>Refund Percentage:</Text>{" "}
+                    <Text strong>Phần trăm hoàn tiền:</Text>{" "}
                     {court.refundPercentage}%
                   </List.Item>
                 </List>
@@ -358,10 +357,10 @@ const CourtOwnerCourtDetailView = () => {
           },
           {
             key: "2",
-            label: "Features & Amenities",
+            label: "TÍnh năng & Tiện ích",
             children: (
               <>
-                <Title level={5}>Court Facilities</Title>
+                <Title level={5}>Tiện ích sân</Title>
                 {facilities.length > 0 ? (
                   facilities.map((facility, index) => (
                     <div key={index} style={{ marginBottom: 16 }}>
@@ -374,25 +373,25 @@ const CourtOwnerCourtDetailView = () => {
                     </div>
                   ))
                 ) : (
-                  <Text>No facilities information available.</Text>
+                  <Text>Không có thông tin tiện ích khả dụng.</Text>
                 )}
 
                 <Divider />
 
-                <Title level={5}>Description</Title>
+                <Title level={5}>Thông tin mô tả</Title>
                 <Paragraph>
-                  {court.description || "No description available."}
+                  {court.description || "Không có thông tin mô tả."}
                 </Paragraph>
               </>
             ),
           },
           {
             key: "3",
-            label: "Pricing & Schedules",
+            label: "Giá thuê & Lịch đặt sân",
             children: (
               <>
                 <Title level={5}>
-                  <DollarOutlined /> Pricing & Schedules
+                  <DollarOutlined /> Giá thuê & Lịch đặt sân
                 </Title>
 
                 {operatingHours.length > 0 ? (
@@ -400,13 +399,13 @@ const CourtOwnerCourtDetailView = () => {
                     dataSource={operatingHours}
                     columns={[
                       {
-                        title: "Day",
+                        title: "Ngày",
                         dataIndex: "day",
                         key: "day",
                         render: (text) => <Text strong>{text}</Text>,
                       },
                       {
-                        title: "Hours & Pricing",
+                        title: "Giá tiền & Thời gian",
                         dataIndex: "hoursText",
                         key: "hoursText",
                         render: (text, record) => (
@@ -432,31 +431,31 @@ const CourtOwnerCourtDetailView = () => {
                     bordered
                   />
                 ) : (
-                  <Empty description="No schedule information available" />
+                  <Empty description="Không có thông tin về lịch khả dụng." />
                 )}
               </>
             ),
           },
           {
             key: "4",
-            label: "Booking Policies",
+            label: "Chính sách đặt sân",
             children: (
               <>
                 <Title level={5}>
-                  <SnippetsOutlined /> Booking Policies
+                  <SnippetsOutlined /> Chính sách đặt sân
                 </Title>
                 <List>
                   <List.Item>
-                    <Text strong>Minimum Deposit Required:</Text>{" "}
-                    {court.minDepositPercentage}% of total booking cost
+                    <Text strong>Mức đặt cọc sân tối thiểu:</Text>{" "}
+                    {court.minDepositPercentage}% của tổng chi phí đặt sân
                   </List.Item>
                   <List.Item>
-                    <Text strong>Cancellation Window:</Text>{" "}
-                    {court.cancellationWindowHours} hours before booking time
+                    <Text strong>Khung thời gian giới hạn hủy đặt sân:</Text>{" "}
+                    {court.cancellationWindowHours} giờ trước lịch đặt sân
                   </List.Item>
                   <List.Item>
-                    <Text strong>Refund Amount:</Text> {court.refundPercentage}%
-                    of deposit amount if cancelled within window
+                    <Text strong>Lượng hoàn tiền:</Text> {court.refundPercentage}%
+                    của tổng chi phí đặt sân nếu hủy đặt sân trong khung thời gian cho phép
                   </List.Item>
                 </List>
               </>
@@ -464,11 +463,11 @@ const CourtOwnerCourtDetailView = () => {
           },
           {
             key: "5",
-            label: "Availability",
+            label: "Lịch khả dụng",
             children: (
               <>
                 <Title level={5}>
-                  <CalendarOutlined /> Court Availability
+                  <CalendarOutlined /> Lịch đặt sân khả dụng
                 </Title>
 
                 {availability && availability.schedule ? (
@@ -511,18 +510,18 @@ const CourtOwnerCourtDetailView = () => {
                     ))}
                   </div>
                 ) : (
-                  <Empty description="No availability information" />
+                  <Empty description="Không có thông tin lịch đặt sân khả dụng" />
                 )}
               </>
             ),
           },
           {
             key: "6",
-            label: "Promotions",
+            label: "Khuyễn mãi",
             children: (
               <>
                 <Title level={5}>
-                  <StarOutlined /> Promotions
+                  <StarOutlined /> Khuyến mãi
                 </Title>
 
                 {court.promotions && court.promotions.length > 0 ? (
@@ -535,8 +534,8 @@ const CourtOwnerCourtDetailView = () => {
                             <div>
                               <Tag color="orange">
                                 {promotion.discountType === "Percentage"
-                                  ? `${promotion.discountValue}% OFF`
-                                  : `${promotion.discountValue.toLocaleString()}₫ OFF`}
+                                  ? `${promotion.discountValue}% Giảm giá`
+                                  : `${promotion.discountValue.toLocaleString()}₫ giảm giá`}
                               </Tag>
                               <Text style={{ marginLeft: 8 }}>
                                 {promotion.description}
@@ -545,11 +544,11 @@ const CourtOwnerCourtDetailView = () => {
                           }
                           description={
                             <Text type="secondary">
-                              Valid from{" "}
+                              Có hiệu lực từ{" "}
                               {new Date(
                                 promotion.validFrom
                               ).toLocaleDateString()}
-                              to{" "}
+                              đến{" "}
                               {new Date(promotion.validTo).toLocaleDateString()}
                             </Text>
                           }
@@ -558,7 +557,7 @@ const CourtOwnerCourtDetailView = () => {
                     )}
                   />
                 ) : (
-                  <Empty description="No active promotions for this court" />
+                  <Empty description="Không có khuyến mãi nào khả dụng cho sân này." />
                 )}
 
                 <div style={{ marginTop: 16, textAlign: "right" }}>
@@ -570,7 +569,7 @@ const CourtOwnerCourtDetailView = () => {
                       })
                     }
                   >
-                    Add Promotion
+                    Tạo khuyến mãi mới
                   </Button>
                 </div>
               </>

@@ -287,18 +287,17 @@ function SkillSetupStep({ sports, onComplete }) {
                     <StyledCard
                       selected={currentSportId === sport.id}
                       onClick={() => handleSelectSport(sport)}
+                      style={{
+                        backgroundColor: 'white',
+                        borderRadius: '8px', // Rounded corners
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
+                        transition: 'all 0.3s ease', // Smooth transition for hover effects
+                      }}
+                      className="hover:shadow-xl hover:scale-105" // Scale the card on hover for more interactivity
                     >
                       <CardActionArea sx={{ height: "100%" }}>
-                        <CardMedia
-                          component="img"
-                          height="140"
-                          image={
-                            sport.imageUrl ||
-                            `https://source.unsplash.com/random/300x200/?${sport.name}`
-                          }
-                          alt={sport.name}
-                        />
                         <CardContent>
+                          <div className="text-center text-3xl">{sport.icon}</div> {/* Icon centered with larger size */}
                           <Typography gutterBottom variant="h6" component="div">
                             {sport.name}
                           </Typography>
@@ -309,6 +308,7 @@ function SkillSetupStep({ sports, onComplete }) {
                         </CardContent>
                       </CardActionArea>
                     </StyledCard>
+
                   </Grid>
                 ))}
             </Grid>

@@ -63,7 +63,7 @@ const CourtOwnerCourtListView = () => {
       } catch (err) {
         console.error("Error fetching courts:", err);
         setError("Failed to load courts data. Please try again.");
-        message.error("Failed to load courts data");
+        message.error("Không thể tải dữ liệu sân. Vui lòng thử lại.");
       } finally {
         setLoading(false);
       }
@@ -98,27 +98,27 @@ const CourtOwnerCourtListView = () => {
   const getCourtTypeString = (typeValue) => {
     switch (typeValue) {
       case 1:
-        return "Indoor";
+        return "Trong nhà";
       case 2:
-        return "Outdoor";
+        return "Ngoài trời";
       case 3:
-        return "Mixed";
+        return "Hỗn hợp";
       default:
-        return "Unknown";
+        return "Không có thông tin";
     }
   };
 
   // Map court status to user-friendly string and color
   const getStatusTag = (statusValue) => {
     switch (statusValue) {
-      case 1:
-        return <Tag color="red">Inactive</Tag>;
       case 0:
-        return <Tag color="green">Active</Tag>;
+        return <Tag color="red">Không hoạt động</Tag>;
+      case 1:
+        return <Tag color="green">Hoạt động</Tag>;
       case 2:
-        return <Tag color="orange">Maintenance</Tag>;
+        return <Tag color="orange">Đang bảo trì</Tag>;
       default:
-        return <Tag color="default">Unknown</Tag>;
+        return <Tag color="default">Không có thông tin</Tag>;
     }
   };
 
@@ -136,7 +136,7 @@ const CourtOwnerCourtListView = () => {
 
   const columns = [
     {
-      title: "Court Name",
+      title: "Tên sân",
       dataIndex: "courtName",
       key: "name",
       sorter: (a, b) => a.courtName.localeCompare(b.courtName),
@@ -145,14 +145,14 @@ const CourtOwnerCourtListView = () => {
       ),
     },
     {
-      title: "Sport",
+      title: "Môn thể thao",
       dataIndex: "sportName",
       key: "sport",
       sorter: (a, b) => a.sportName.localeCompare(b.sportName),
       render: (sport) => <Tag color="blue">{sport}</Tag>,
     },
     {
-      title: "Venue",
+      title: "Trung tâm thể thao",
       dataIndex: "sportCenterName",
       key: "venue",
       sorter: (a, b) => a.sportCenterName.localeCompare(b.sportCenterName),
@@ -164,7 +164,7 @@ const CourtOwnerCourtListView = () => {
       ),
     },
     {
-      title: "Facilities",
+      title: "Cơ sở vật chất",
       dataIndex: "facilities",
       key: "amenities",
       render: (facilities) => {
@@ -196,7 +196,7 @@ const CourtOwnerCourtListView = () => {
                 }
               >
                 <Tag color="default" className="cursor-pointer">
-                  +{remainingFacilities.length} more
+                  +{remainingFacilities.length} thêm
                 </Tag>
               </Tooltip>
             )}
@@ -205,31 +205,31 @@ const CourtOwnerCourtListView = () => {
       },
     },
     {
-      title: "Type",
+      title: "Loại sân",
       dataIndex: "courtType",
       key: "courtType",
       render: (type) => <Tag color="purple">{getCourtTypeString(type)}</Tag>,
       filters: [
-        { text: "Indoor", value: 1 },
-        { text: "Outdoor", value: 2 },
-        { text: "Mixed", value: 3 },
+        { text: "Trong nhà", value: 1 },
+        { text: "Ngoài trời", value: 2 },
+        { text: "Hỗn hợp", value: 3 },
       ],
       onFilter: (value, record) => record.courtType === value,
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       render: (status) => getStatusTag(status),
       filters: [
-        { text: "Active", value: 1 },
-        { text: "Inactive", value: 0 },
-        { text: "Maintenance", value: 2 },
+        { text: "Hoạt động", value: 1 },
+        { text: "Không hoạt động", value: 0 },
+        { text: "Đang bảo trì", value: 2 },
       ],
       onFilter: (value, record) => record.status === value,
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space>
@@ -237,13 +237,13 @@ const CourtOwnerCourtListView = () => {
             type="primary"
             onClick={() => navigate(`/court-owner/courts/${record.id}`)}
           >
-            View
+            Chi tiết
           </Button>
           <Button
             type="default"
             onClick={() => navigate(`/court-owner/courts/update/${record.id}`)}
           >
-            Edit
+            Cập nhật thông tin
           </Button>
         </Space>
       ),
@@ -253,7 +253,7 @@ const CourtOwnerCourtListView = () => {
   // Error display
   if (error) {
     return (
-      <Card title="My Courts">
+      <Card title="Danh sach sân của tôi" className="mt-5">
         <div className="text-center py-5">
           <InfoCircleOutlined style={{ fontSize: 48, color: "#ff4d4f" }} />
           <h3 className="mt-3 text-red-600">{error}</h3>
@@ -262,7 +262,7 @@ const CourtOwnerCourtListView = () => {
             onClick={() => window.location.reload()}
             className="mt-3"
           >
-            Try Again
+            Tải lại
           </Button>
         </div>
       </Card>
@@ -273,7 +273,7 @@ const CourtOwnerCourtListView = () => {
     <Card
       title={
         <div style={{ display: "flex", alignItems: "center" }}>
-          <span style={{ marginRight: 8 }}>My Courts</span>
+          <span style={{ marginRight: 8 }}>Danh sách sân của tôi</span>
           <Badge count={totalCourts} style={{ backgroundColor: "#52c41a" }} />
         </div>
       }
@@ -283,14 +283,14 @@ const CourtOwnerCourtListView = () => {
           icon={<PlusOutlined />}
           onClick={() => navigate("/court-owner/courts/create")}
         >
-          Add New Court
+          Thêm mới
         </Button>
       }
     >
       {/* Search & Filter Controls */}
       <Space className="mb-4" wrap>
         <Input
-          placeholder="Search by Court Name"
+          placeholder="Tìm kiếm theo tên sân"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           style={{ width: 200 }}
@@ -303,8 +303,8 @@ const CourtOwnerCourtListView = () => {
             setSelectedSport(value);
             setCurrentPage(1);
           }}
-          style={{ width: 180 }}
-          placeholder="Filter by Sport"
+          style={{ width: 200 }}
+          placeholder="Lọc theo môn thể thao"
           allowClear
         >
           {sports.map((sport) => (
@@ -320,16 +320,16 @@ const CourtOwnerCourtListView = () => {
             setCurrentPage(1);
           }}
           style={{ width: 180 }}
-          placeholder="Filter by Court Type"
+          placeholder="Lọc theo loại sân"
           allowClear
         >
-          <Option value={1}>Indoor</Option>
-          <Option value={2}>Outdoor</Option>
-          <Option value={3}>Mixed</Option>
+          <Option value={1}>Trong nhà</Option>
+          <Option value={2}>Ngoài trời</Option>
+          <Option value={3}>Hỗn hợp</Option>
         </Select>
         {(searchText || selectedSport || selectedCourtType) && (
           <Button icon={<FilterOutlined />} onClick={resetFilters}>
-            Clear Filters
+            Xóa bộ lọc
           </Button>
         )}
       </Space>
@@ -338,14 +338,14 @@ const CourtOwnerCourtListView = () => {
       {loading ? (
         <div style={{ textAlign: "center", padding: "50px 0" }}>
           <Spin size="large" />
-          <p style={{ marginTop: 16 }}>Loading courts...</p>
+          <p style={{ marginTop: 16 }}>Đang tải sân...</p>
         </div>
       ) : courts.length === 0 ? (
         <Empty
           description={
             <span>
-              No courts available. Add your first court by clicking the "Add New
-              Court" button.
+              Không có sân nào khả dụng trong danh sách của bạn. Vui lòng tạo
+              sân bằng việc bấm vào nút "Thêm mới".
             </span>
           }
           image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -361,7 +361,7 @@ const CourtOwnerCourtListView = () => {
             total: totalCourts,
             onChange: handlePageChange,
             showSizeChanger: true,
-            showTotal: (total) => `Total ${total} courts`,
+            showTotal: (total) => `Tổng ${total} sân`,
           }}
         />
       )}

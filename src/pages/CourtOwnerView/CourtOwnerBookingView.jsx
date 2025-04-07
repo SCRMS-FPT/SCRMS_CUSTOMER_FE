@@ -65,28 +65,28 @@ const CourtOwnerBookingView = () => {
   const client = new Client();
   const handleMarkAsComplete = (bookingId) => {
     Modal.confirm({
-      title: "Mark Booking as Complete",
+      title: "Đánh dấu lịch đặt hoàn thành",
       icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
       content:
-        "Are you sure this booking has been completed? This will update the booking status.",
-      okText: "Yes, Mark as Complete",
+        "Bạn chắc chắn muốn đánh dấu lịch đặt này là hoàn thành? Hành động này sẽ không thể hoàn tác.",
+      okText: "Đồng ý, đánh dấu hoàn thành",
       okButtonProps: {
         style: { background: "#52c41a", borderColor: "#52c41a" },
       },
-      cancelText: "No",
+      cancelText: "Hủy",
       onOk: async () => {
         try {
           await client.updateBookingStatus(bookingId, {
             status: "Completed",
           });
 
-          message.success("Booking has been marked as completed");
+          message.success("Lịch đặt đã được đánh dấu hoàn thành");
           fetchBookings(); // Refresh booking list
         } catch (err) {
           console.error("Error updating booking status:", err);
           message.error(
-            "Failed to update booking status: " +
-              (err.message || "Unknown error")
+            "Gặp lỗi trong quá trình cập nhật thông tin lịch đặt sân: " +
+              (err.message || "Lỗi không xác định")
           );
         }
       },
@@ -159,7 +159,7 @@ const CourtOwnerBookingView = () => {
     } catch (err) {
       console.error("Error fetching bookings:", err);
       setError("Failed to load bookings. Please try again.");
-      message.error("Failed to load bookings");
+      message.error("Gặp lỗi trong quá trình tải lịch đặt sân.");
     } finally {
       setLoading(false);
     }
@@ -250,12 +250,12 @@ const CourtOwnerBookingView = () => {
   // Handle cancel booking
   const handleCancelBooking = (bookingId) => {
     Modal.confirm({
-      title: "Cancel Booking",
+      title: "Hủy lịch đặt",
       icon: <ExclamationCircleOutlined />,
       content:
-        "Are you sure you want to cancel this booking? This action cannot be undone.",
-      okText: "Yes, Cancel Booking",
-      cancelText: "No",
+        "Bạn có chắc chắn muốn hủy lịch đặt này? Hành động này sẽ không thể hoàn tác.",
+      okText: "Có, hủy lịch đặt",
+      cancelText: "Không",
       onOk: async () => {
         try {
           await client.cancelBooking(bookingId, {
@@ -263,12 +263,12 @@ const CourtOwnerBookingView = () => {
             requestedAt: new Date(),
           });
 
-          message.success("Booking has been cancelled successfully");
+          message.success("Lịch đặt đã được hủy thành công");
           fetchBookings(); // Refresh booking list
         } catch (err) {
           console.error("Error cancelling booking:", err);
           message.error(
-            "Failed to cancel booking: " + (err.message || "Unknown error")
+            "Gặp lỗi trong quá trình hủy lịch đặt: " + (err.message || "Lỗi không xác định")
           );
         }
       },
@@ -295,7 +295,7 @@ const CourtOwnerBookingView = () => {
   // Table columns definition
   const columns = [
     {
-      title: "Booking ID",
+      title: "ID lịch đặt sân",
       dataIndex: "id",
       key: "id",
       render: (id) => (
@@ -310,14 +310,14 @@ const CourtOwnerBookingView = () => {
       ),
     },
     {
-      title: "Booking Date",
+      title: "Ngày đặt sân",
       dataIndex: "bookingDate",
       key: "bookingDate",
       sorter: (a, b) => new Date(a.bookingDate) - new Date(b.bookingDate),
       render: (date) => dayjs(date).format("MMM DD, YYYY"),
     },
     {
-      title: "Courts",
+      title: "Sân",
       key: "courts",
       render: (_, record) => (
         <div>
@@ -335,7 +335,7 @@ const CourtOwnerBookingView = () => {
       ),
     },
     {
-      title: "Center",
+      title: "Trung tâm thể thao",
       key: "center",
       render: (_, record) => {
         // Get the first sports center name (assuming all details have the same center)
@@ -344,14 +344,14 @@ const CourtOwnerBookingView = () => {
       },
     },
     {
-      title: "Total Price",
+      title: "Tổng tiền",
       dataIndex: "totalPrice",
       key: "totalPrice",
       sorter: (a, b) => a.totalPrice - b.totalPrice,
       render: (price) => `${price?.toLocaleString()} VND`,
     },
     {
-      title: "Status",
+      title: "Trang thái",
       dataIndex: "status",
       key: "status",
       render: (status) => {
@@ -363,7 +363,7 @@ const CourtOwnerBookingView = () => {
       },
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space>
@@ -372,7 +372,7 @@ const CourtOwnerBookingView = () => {
             onClick={() => navigate(`/court-owner/bookings/${record.id}`)}
             icon={<EyeOutlined />}
           >
-            View Details
+            Xem chi tiết
           </Button>
 
           {/* Show Mark as Complete button for Confirmed bookings */}
@@ -385,7 +385,7 @@ const CourtOwnerBookingView = () => {
               onClick={() => handleMarkAsComplete(record.id)}
               icon={<CheckCircleOutlined />}
             >
-              Mark as Complete
+              Đánh dấu hoàn thành
             </Button>
           )}
 
@@ -399,7 +399,7 @@ const CourtOwnerBookingView = () => {
               onClick={() => handleCancelBooking(record.id)}
               icon={<StopOutlined />}
             >
-              Cancel
+              Hủy
             </Button>
           )}
         </Space>
@@ -419,7 +419,7 @@ const CourtOwnerBookingView = () => {
             onClick={() => fetchBookings()}
             className="mt-3"
           >
-            Try Again
+            Thử lại
           </Button>
         </div>
       </Card>
@@ -430,7 +430,7 @@ const CourtOwnerBookingView = () => {
     <Card
       title={
         <div style={{ display: "flex", alignItems: "center" }}>
-          <span style={{ marginRight: 8 }}>Manage Bookings</span>
+          <span style={{ marginRight: 8 }}>Quản lý lịch đặt</span>
           <Badge
             count={pagination.total}
             style={{ backgroundColor: "#52c41a" }}
@@ -443,7 +443,7 @@ const CourtOwnerBookingView = () => {
         <Space direction="vertical" style={{ width: "100%" }} size="middle">
           <Space wrap>
             <Input
-              placeholder="Search by Court or Center"
+              placeholder="Tìm kiếm theo tên sân hoặc trung tâm"
               value={searchText}
               onChange={handleSearchChange}
               style={{ width: 250 }}
@@ -452,7 +452,7 @@ const CourtOwnerBookingView = () => {
             />
 
             <Select
-              placeholder="Filter by Status"
+              placeholder="Lọc theo trạng thái"
               value={selectedStatus}
               onChange={(value) => handleFilterChange("status", value)}
               style={{ width: 180 }}
@@ -466,7 +466,7 @@ const CourtOwnerBookingView = () => {
             </Select>
 
             <Select
-              placeholder="Filter by Court"
+              placeholder="Lọc theo sân"
               value={selectedCourtId}
               onChange={(value) => handleFilterChange("court", value)}
               style={{ width: 180 }}
@@ -482,7 +482,7 @@ const CourtOwnerBookingView = () => {
             </Select>
 
             <Select
-              placeholder="Filter by Sport Center"
+              placeholder="Lọc theo trung tâm"
               value={selectedCenterId}
               onChange={(value) => handleFilterChange("center", value)}
               style={{ width: 180 }}
@@ -500,7 +500,7 @@ const CourtOwnerBookingView = () => {
 
           <Space wrap>
             <RangePicker
-              placeholder={["Start Date", "End Date"]}
+              placeholder={["NGày bắt đầu", "Ngày kết thúc"]}
               value={dateRange}
               onChange={(dates) => handleFilterChange("dateRange", dates)}
               style={{ width: 300 }}
@@ -508,8 +508,8 @@ const CourtOwnerBookingView = () => {
               allowClear
               presets={{
                 Today: [dayjs(), dayjs()],
-                "This Week": [dayjs().startOf("week"), dayjs().endOf("week")],
-                "This Month": [
+                "Tuần này": [dayjs().startOf("week"), dayjs().endOf("week")],
+                "Tháng này": [
                   dayjs().startOf("month"),
                   dayjs().endOf("month"),
                 ],
@@ -521,14 +521,14 @@ const CourtOwnerBookingView = () => {
               icon={<FilterOutlined />}
               onClick={applyFilters}
             >
-              Apply Filters
+              Áp dụng bộ lọc
             </Button>
 
             {(selectedStatus !== undefined ||
               selectedCourtId !== undefined ||
               selectedCenterId !== undefined ||
               dateRange !== null) && (
-              <Button onClick={resetFilters}>Reset Filters</Button>
+              <Button onClick={resetFilters}>Làm mới lại bộ lọc</Button>
             )}
           </Space>
         </Space>
@@ -538,13 +538,13 @@ const CourtOwnerBookingView = () => {
       {loading ? (
         <div style={{ textAlign: "center", padding: "50px 0" }}>
           <Spin size="large" />
-          <p style={{ marginTop: 16 }}>Loading bookings...</p>
+          <p style={{ marginTop: 16 }}>Đang tải lịch đặt...</p>
         </div>
       ) : filteredBookings.length === 0 ? (
         <Empty
           description={
             <span>
-              No bookings found. Try adjusting your filters or check back later.
+              Không có lịch đặt nào phù hợp với bộ lọc hiện tại. Vui lòng thử lại với các bộ lọc khác.
             </span>
           }
           image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -557,7 +557,7 @@ const CourtOwnerBookingView = () => {
           pagination={{
             ...pagination,
             showSizeChanger: true,
-            showTotal: (total) => `Total ${total} bookings`,
+            showTotal: (total) => `Tổng ${total} lịch đặt sân`,
             current: pagination.current + 1, // Display 1-based index to user but use 0-based internally
           }}
           onChange={(paginationParam) => {

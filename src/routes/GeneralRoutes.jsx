@@ -29,6 +29,7 @@ import ChatPage from "@/pages/ChatView/ChatPage";
 import NotFoundView from "@/pages/GeneralView/NotFoundView";
 import UserProfileView from "@/pages/GeneralView/UserProfileView";
 import Forbidden403 from "@/pages/Error/Forbidden403";
+import VerificationView from "@/pages/GeneralView/VerificationView";
 
 const GeneralRoutes = [
   <Route
@@ -55,6 +56,15 @@ const GeneralRoutes = [
     element={
       <Layout>
         <LoginView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="verify"
+    path="/verify/:token"
+    element={
+      <Layout>
+        <VerificationView />
       </Layout>
     }
   />,
