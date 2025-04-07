@@ -376,7 +376,9 @@ const CourtOwnerBookingView = () => {
           </Button>
 
           {/* Show Mark as Complete button for Confirmed bookings */}
-          {["PendingPayment", "Deposited"].includes(record.status) && (
+          {["PendingPayment", "Confirmed", "Deposited"].includes(
+            record.status
+          ) && (
             <Button
               type="primary"
               style={{ background: "#52c41a", borderColor: "#52c41a" }}

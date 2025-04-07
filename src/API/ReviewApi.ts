@@ -49,6 +49,7 @@ private getAuthHeaders(): HeadersInit {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -85,8 +86,7 @@ private getAuthHeaders(): HeadersInit {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -121,8 +121,7 @@ private getAuthHeaders(): HeadersInit {
 
         let options_: RequestInit = {
             method: "DELETE",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -161,6 +160,7 @@ private getAuthHeaders(): HeadersInit {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -204,8 +204,7 @@ private getAuthHeaders(): HeadersInit {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -267,9 +266,7 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -291,6 +288,7 @@ private getAuthHeaders(): HeadersInit {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -303,11 +301,11 @@ private getAuthHeaders(): HeadersInit {
     protected processCreateReview(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
+        if (status === 201) {
             return response.text().then((_responseText) => {
             return;
             });
-        } else if (status !== 200 && status !== 204) {
+        } else if (status !== 201 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
@@ -337,8 +335,7 @@ private getAuthHeaders(): HeadersInit {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -383,8 +380,7 @@ private getAuthHeaders(): HeadersInit {
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -423,6 +419,7 @@ private getAuthHeaders(): HeadersInit {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };

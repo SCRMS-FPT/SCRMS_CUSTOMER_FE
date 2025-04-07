@@ -134,8 +134,8 @@ const TimeSlotCard = styled(Card)(({ theme, selected, available }) => ({
   backgroundColor: !available
     ? alpha("#f5f5f5", 0.6)
     : selected
-      ? alpha(theme.palette.primary.main, 0.1)
-      : "white",
+    ? alpha(theme.palette.primary.main, 0.1)
+    : "white",
   transition: "all 0.2s",
   "&:hover": {
     transform: available ? "translateY(-3px)" : "none",
@@ -473,7 +473,8 @@ const CoachDetails = () => {
             gap: 1,
           }}
         >
-          <InfoCircleOutlined /> Các buổi trong gói sẽ có hiệu lực trong 30 ngày kể từ ngày mua.
+          <InfoCircleOutlined /> Các buổi trong gói sẽ có hiệu lực trong 30 ngày
+          kể từ ngày mua.
         </Typography>
       </Box>
     );
@@ -523,12 +524,11 @@ const CoachDetails = () => {
               content: (
                 <Box>
                   <Typography variant="body1" sx={{ mb: 2 }}>
-                    Bạn đã thanh toán thành công gói {packageToSelect.name}{" "}
-                    .
+                    Bạn đã thanh toán thành công gói {packageToSelect.name} .
                   </Typography>
                   <Typography variant="body2">
-                    Bạn có thể sử dụng gói này khi luyện tập cùng huấn luyện viên{" "}
-                    {coach.fullName}.
+                    Bạn có thể sử dụng gói này khi luyện tập cùng huấn luyện
+                    viên {coach.fullName}.
                   </Typography>
                 </Box>
               ),
@@ -617,7 +617,9 @@ const CoachDetails = () => {
                     alt={coach.fullName}
                     sx={{ width: 40, height: 40, mr: 2 }}
                   />
-                  <Typography variant="h6" className="">{coach.fullName}</Typography>
+                  <Typography variant="h6" className="">
+                    {coach.fullName}
+                  </Typography>
                 </Box>
               </Grid>
 
@@ -702,18 +704,18 @@ const CoachDetails = () => {
                               borderRadius: "8px",
                               borderColor:
                                 selectedPackageRef.current ===
-                                  purchase.coachPackageId
+                                purchase.coachPackageId
                                   ? theme.palette.success.main
                                   : theme.palette.divider,
                               backgroundColor:
                                 selectedPackageRef.current ===
-                                  purchase.coachPackageId
+                                purchase.coachPackageId
                                   ? alpha(theme.palette.success.light, 0.1)
                                   : "white",
                               transition: "all 0.2s ease",
                               transform:
                                 selectedPackageRef.current ===
-                                  purchase.coachPackageId
+                                purchase.coachPackageId
                                   ? "scale(1.02)"
                                   : "scale(1)",
                             }}
@@ -733,7 +735,8 @@ const CoachDetails = () => {
                                 }}
                               >
                                 {remainingSessions} buổi tất cả
-                                {remainingSessions !== 1 ? "s" : ""} buổi còn lại
+                                {remainingSessions !== 1 ? "s" : ""} buổi còn
+                                lại
                               </Typography>
                             </Box>
                             <Chip
@@ -741,7 +744,7 @@ const CoachDetails = () => {
                               label="Use package"
                               color={
                                 selectedPackageRef.current ===
-                                  purchase.coachPackageId
+                                purchase.coachPackageId
                                   ? "success"
                                   : "default"
                               }
@@ -888,7 +891,7 @@ const CoachDetails = () => {
               referenceId: bookingResult.id,
               coachId: coach.id,
               bookingId: bookingResult.id,
-              status: "Completed",
+              status: bookingResult.status,
             };
 
             await paymentClient.processBookingPayment(paymentRequest);
@@ -974,7 +977,8 @@ const CoachDetails = () => {
                   </Grid>
                 </Box>
                 <Typography variant="body2" sx={{ mt: 2 }}>
-                  Bạn có thể xem và quản lý lịch đặt của bạn trong bảng điều khiển cá nhân.
+                  Bạn có thể xem và quản lý lịch đặt của bạn trong bảng điều
+                  khiển cá nhân.
                 </Typography>
               </Box>
             ),
@@ -1142,9 +1146,10 @@ const CoachDetails = () => {
         {/* Hero Section */}
         <HeroSection
           sx={{
-            backgroundImage: `url(${coach.avatar ||
+            backgroundImage: `url(${
+              coach.avatar ||
               "https://source.unsplash.com/random/1200x400/?sport"
-              })`,
+            })`,
           }}
         >
           <HeroOverlay />
@@ -1283,7 +1288,8 @@ const CoachDetails = () => {
                   <Box sx={{ p: 3 }}>
                     <Title level={4}>Tiểu sử</Title>
                     <Paragraph style={{ fontSize: 16, lineHeight: 1.6 }}>
-                      {coach.bio || "Không có thông tin mô tả được cung cấp, huấn luyện này muốn để chuyên môn của mình thể hiện qua việc đào tạo."}
+                      {coach.bio ||
+                        "Không có thông tin mô tả được cung cấp, huấn luyện này muốn để chuyên môn của mình thể hiện qua việc đào tạo."}
                     </Paragraph>
 
                     <Divider />
@@ -1300,8 +1306,7 @@ const CoachDetails = () => {
                                 width={150}
                                 height={150}
                                 src={img}
-                                alt={`${coach.fullName} - Ảnh số ${index + 1
-                                  }`}
+                                alt={`${coach.fullName} - Ảnh số ${index + 1}`}
                                 style={{ objectFit: "cover", borderRadius: 8 }}
                               />
                             ))}
@@ -1450,7 +1455,8 @@ const CoachDetails = () => {
                                 variant="body2"
                                 color="text.secondary"
                               >
-                                Lựa chọn một khung giờ trống để đặt lịch buổi tập của bạn.
+                                Lựa chọn một khung giờ trống để đặt lịch buổi
+                                tập của bạn.
                               </Typography>
                             </Box>
                             <Button
@@ -1619,13 +1625,13 @@ const CoachDetails = () => {
                                         borderTop: "none",
                                         bgcolor: isToday
                                           ? alpha(
-                                            theme.palette.success.light,
-                                            0.15
-                                          )
+                                              theme.palette.success.light,
+                                              0.15
+                                            )
                                           : alpha(
-                                            theme.palette.background.paper,
-                                            0.8
-                                          ),
+                                              theme.palette.background.paper,
+                                              0.8
+                                            ),
                                         borderRadius: "0 0 8px 8px",
                                         transition: "all 0.3s ease",
                                         "&:hover": {
@@ -1668,7 +1674,7 @@ const CoachDetails = () => {
                                           const isSelected =
                                             selectedSlot?.date === slot.date &&
                                             selectedSlot?.startTime ===
-                                            slot.startTime;
+                                              slot.startTime;
                                           const isAvailable =
                                             slot.status === "available";
 
@@ -1685,12 +1691,12 @@ const CoachDetails = () => {
                                                 bgcolor: isSelected
                                                   ? "primary.main"
                                                   : isAvailable
-                                                    ? alpha(
+                                                  ? alpha(
                                                       theme.palette.success
                                                         .light,
                                                       0.3
                                                     )
-                                                    : alpha(
+                                                  : alpha(
                                                       theme.palette.grey[300],
                                                       0.5
                                                     ),
@@ -1711,14 +1717,14 @@ const CoachDetails = () => {
                                                     ? isSelected
                                                       ? "primary.dark"
                                                       : alpha(
-                                                        theme.palette.success
-                                                          .main,
-                                                        0.4
-                                                      )
+                                                          theme.palette.success
+                                                            .main,
+                                                          0.4
+                                                        )
                                                     : alpha(
-                                                      theme.palette.grey[300],
-                                                      0.5
-                                                    ),
+                                                        theme.palette.grey[300],
+                                                        0.5
+                                                      ),
                                                 },
                                                 transition: "all 0.2s ease",
 
@@ -1778,9 +1784,9 @@ const CoachDetails = () => {
                                                   >
                                                     {slot.status.length > 10
                                                       ? slot.status.substring(
-                                                        0,
-                                                        10
-                                                      ) + "..."
+                                                          0,
+                                                          10
+                                                        ) + "..."
                                                       : slot.status}
                                                   </Tag>
                                                 )}
@@ -2040,7 +2046,8 @@ const CoachDetails = () => {
                                       align="center"
                                       sx={{ mt: 1, color: "text.secondary" }}
                                     >
-                                      Lịch của bạn sẽ được xác nhận sau khi đặt thành công
+                                      Lịch của bạn sẽ được xác nhận sau khi đặt
+                                      thành công
                                     </Typography>
                                   </Box>
                                 </Grid>
@@ -2076,7 +2083,8 @@ const CoachDetails = () => {
                                 align="center"
                                 sx={{ mt: 1 }}
                               >
-                                Thông tin đặt lịch sẽ hiển thị tại đây sau khi bạn lựa chọn một khung giờ trống
+                                Thông tin đặt lịch sẽ hiển thị tại đây sau khi
+                                bạn lựa chọn một khung giờ trống
                               </Typography>
                             </Box>
                           )}
@@ -2183,7 +2191,7 @@ const CoachDetails = () => {
                                   ) / 100;
                                 const savingsPercent = Math.round(
                                   (1 - sessionsPerPrice / coach.ratePerHour) *
-                                  100
+                                    100
                                 );
 
                                 return (
@@ -2345,7 +2353,6 @@ const CoachDetails = () => {
                                                     {remainingSessions !== 1
                                                       ? "s"
                                                       : ""}{" "}
-
                                                   </Typography>
                                                 }
                                                 showIcon
@@ -2387,12 +2394,12 @@ const CoachDetails = () => {
                                                   selectedPackage?.id === pkg.id
                                                     ? theme.palette.success.main
                                                     : theme.palette.primary
-                                                      .main,
+                                                        .main,
                                                 borderColor:
                                                   selectedPackage?.id === pkg.id
                                                     ? theme.palette.success.main
                                                     : theme.palette.primary
-                                                      .main,
+                                                        .main,
                                               }}
                                             >
                                               {selectedPackage?.id === pkg.id
@@ -2442,10 +2449,13 @@ const CoachDetails = () => {
                             Về gói huấn luyện viên
                           </Typography>
                           <Typography variant="body2">
-                            Mua một gói huấn luyện giúp bạn có quyền truy cập vào nhiều buổi tập với mức giá ưu đãi.
-                            Các gói có hiệu lực trong 30 ngày kể từ ngày mua và có thể được sử dụng để đặt bất kỳ
-                            khung giờ trống nào với huấn luyện viên này. Sau khi mua, bạn có thể chọn gói trong quá
-                            trình đặt lịch thay vì thanh toán cho từng buổi riêng lẻ.
+                            Mua một gói huấn luyện giúp bạn có quyền truy cập
+                            vào nhiều buổi tập với mức giá ưu đãi. Các gói có
+                            hiệu lực trong 30 ngày kể từ ngày mua và có thể được
+                            sử dụng để đặt bất kỳ khung giờ trống nào với huấn
+                            luyện viên này. Sau khi mua, bạn có thể chọn gói
+                            trong quá trình đặt lịch thay vì thanh toán cho từng
+                            buổi riêng lẻ.
                           </Typography>
                         </Box>
                       </Box>

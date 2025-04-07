@@ -111,9 +111,9 @@ const CourtOwnerCourtListView = () => {
   // Map court status to user-friendly string and color
   const getStatusTag = (statusValue) => {
     switch (statusValue) {
-      case 0:
-        return <Tag color="red">Inactive</Tag>;
       case 1:
+        return <Tag color="red">Inactive</Tag>;
+      case 0:
         return <Tag color="green">Active</Tag>;
       case 2:
         return <Tag color="orange">Maintenance</Tag>;
