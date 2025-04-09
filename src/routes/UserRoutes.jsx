@@ -27,6 +27,8 @@ import FindMatchContainer from "@/pages/UserView/FindMatchContainer";
 import MatchesListPage from "@/pages/UserView/MatchesListPage";
 import UserCoachBookingDetailView from "../pages/UserView/UserCoachBookingDetailView";
 import MessengerPage from "../pages/ChatView/MessengerPage";
+import WalletWithdrawalForm from "@/pages/UserView/WalletWithdrawalForm";
+import WithdrawalsList from "@/pages/UserView/WithdrawalsList";
 
 const UserRoutes = [
   <Route
@@ -162,6 +164,24 @@ const UserRoutes = [
     key="user-deposit"
     path="/wallet/deposit"
     element={<UserDepositView />}
+  />,
+  <Route
+    key="wallet-withdraw"
+    path="/wallet/withdraw"
+    element={
+      <Layout>
+        <WalletWithdrawalForm />
+      </Layout>
+    }
+  />,
+  <Route
+    key="wallet-withdrawals"
+    path="/wallet/withdrawals"
+    element={
+      <Layout>
+        <WithdrawalsList />
+      </Layout>
+    }
   />,
   <Route
     key="match-opponents"

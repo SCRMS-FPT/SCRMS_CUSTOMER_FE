@@ -188,7 +188,6 @@ const WalletView = () => {
                   </IconButton>
                 </Tooltip>
               </Box>
-
               {balanceLoading ? (
                 <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
                   <CircularProgress color="inherit" />
@@ -202,28 +201,67 @@ const WalletView = () => {
                   {walletBalance?.balance?.toLocaleString()} VND
                 </Typography>
               )}
+              <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  startIcon={<Add />}
+                  onClick={() => navigate("/wallet/deposit")}
+                  size="large"
+                  fullWidth
+                  sx={{
+                    py: 1.2,
+                    fontWeight: "bold",
+                    backgroundColor: "#4caf50",
+                    borderRadius: 2,
+                    boxShadow: "0 4px 10px rgba(76, 175, 80, 0.5)",
+                    "&:hover": {
+                      backgroundColor: "#3d8b40",
+                    },
+                  }}
+                >
+                  Nạp tiền
+                </Button>
 
-              <Button
-                variant="contained"
-                color="success"
-                startIcon={<Add />}
-                onClick={() => navigate("/wallet/deposit")}
-                size="large"
-                fullWidth
-                sx={{
-                  mt: 2,
-                  py: 1.2,
-                  fontWeight: "bold",
-                  backgroundColor: "#4caf50",
-                  borderRadius: 2,
-                  boxShadow: "0 4px 10px rgba(76, 175, 80, 0.5)",
-                  "&:hover": {
-                    backgroundColor: "#3d8b40",
-                  },
-                }}
-              >
-                Nạp tiền
-              </Button>
+                <Button
+                  variant="outlined"
+                  color="inherit"
+                  startIcon={<ArrowDownward />}
+                  onClick={() => navigate("/wallet/withdraw")}
+                  size="large"
+                  fullWidth
+                  sx={{
+                    py: 1.2,
+                    fontWeight: "bold",
+                    borderColor: "rgba(255,255,255,0.5)",
+                    borderRadius: 2,
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "rgba(255,255,255,0.1)",
+                      borderColor: "white",
+                    },
+                  }}
+                >
+                  Rút tiền
+                </Button>
+              </Box>
+              <Box sx={{ mt: 2, textAlign: "center" }}>
+                <Button
+                  variant="text"
+                  color="inherit"
+                  size="small"
+                  onClick={() => navigate("/wallet/withdrawals")}
+                  startIcon={<ArrowDownward />}
+                  sx={{
+                    color: "rgba(255,255,255,0.8)",
+                    "&:hover": {
+                      color: "#fff",
+                    },
+                  }}
+                >
+                  Quản lý yêu cầu rút tiền
+                </Button>
+              </Box>
             </CardContent>
           </Card>
         </Grid>

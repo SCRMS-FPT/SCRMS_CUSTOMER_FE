@@ -148,6 +148,156 @@ export class Client {
      * @param limit (optional) 
      * @return OK
      */
+    getPendingWithdrawalRequests(page: number | undefined, limit: number | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/admin/payments/withdrawal-requests?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (limit === null)
+            throw new Error("The parameter 'limit' cannot be null.");
+        else if (limit !== undefined)
+            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: this.getAuthHeaders()
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPendingWithdrawalRequests(_response);
+        });
+    }
+
+    protected processGetPendingWithdrawalRequests(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.json();
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+
+    /**
+     * @return OK
+     */
+    processWithdrawalRequest(requestId: string, body: ProcessWithdrawalRequestDto): Promise<void> {
+        let url_ = this.baseUrl + "/api/admin/payments/withdrawal-requests/{requestId}";
+        if (requestId === undefined || requestId === null)
+            throw new Error("The parameter 'requestId' must be defined.");
+        url_ = url_.replace("{requestId}", encodeURIComponent("" + requestId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                ...this.getAuthHeaders(), // Add auth headers
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processProcessWithdrawalRequest(_response);
+        });
+    }
+
+    protected processProcessWithdrawalRequest(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+/**
+     * @return OK
+     */
+getUserWithdrawalRequests(): Promise<void> {
+    let url_ = this.baseUrl + "/api/payments/wallet/withdrawals";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: this.getAuthHeaders()
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetUserWithdrawalRequests(_response);
+    });
+}
+
+protected processGetUserWithdrawalRequests(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.json();
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<void>(null as any);
+}
+
+
+        /**
+     * @return OK
+     */
+        createWithdrawalRequest(body: WithdrawalRequestDto): Promise<void> {
+            let url_ = this.baseUrl + "/api/payments/wallet/withdraw";
+            url_ = url_.replace(/[?&]$/, "");
+    
+            const content_ = JSON.stringify(body);
+    
+            let options_: RequestInit = {
+                body: content_,
+                method: "POST",
+                headers: {
+                    ...this.getAuthHeaders(),
+                    "Content-Type": "application/json",
+                }
+            };
+    
+            return this.http.fetch(url_, options_).then((_response: Response) => {
+                return this.processCreateWithdrawalRequest(_response);
+            });
+        }
+    
+        protected processCreateWithdrawalRequest(response: Response): Promise<void> {
+            const status = response.status;
+            let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+            if (status === 200) {
+                return response.text().then((_responseText) => {
+                return;
+                });
+            } else if (status !== 200 && status !== 204) {
+                return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                });
+            }
+            return Promise.resolve<void>(null as any);
+        }
+
+    /**
+     * @param page (optional) 
+     * @param limit (optional) 
+     * @return OK
+     */
     getTransactionHistory(page: number | undefined, limit: number | undefined): Promise<void> {
         let url_ = this.baseUrl + "/api/payments/wallet/transactions?";
         if (page === null)
@@ -258,6 +408,95 @@ export class DepositFundsRequest implements IDepositFundsRequest {
 export interface IDepositFundsRequest {
     amount?: number;
     description?: string | undefined;
+}
+
+export class WithdrawalRequestDto implements IWithdrawalRequestDto {
+    amount!: number;
+    bankName!: string;
+    accountNumber!: string;
+    accountHolderName!: string;
+
+    constructor(data?: IWithdrawalRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.bankName = _data["bankName"];
+            this.accountNumber = _data["accountNumber"];
+            this.accountHolderName = _data["accountHolderName"];
+        }
+    }
+
+    static fromJS(data: any): WithdrawalRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new WithdrawalRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["bankName"] = this.bankName;
+        data["accountNumber"] = this.accountNumber;
+        data["accountHolderName"] = this.accountHolderName;
+        return data;
+    }
+}
+
+export interface IWithdrawalRequestDto {
+    amount: number;
+    bankName: string;
+    accountNumber: string;
+    accountHolderName: string;
+}
+
+
+export class ProcessWithdrawalRequestDto implements IProcessWithdrawalRequestDto {
+    status!: string;
+    adminNote?: string | undefined;
+
+    constructor(data?: IProcessWithdrawalRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.status = _data["status"];
+            this.adminNote = _data["adminNote"];
+        }
+    }
+
+    static fromJS(data: any): ProcessWithdrawalRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProcessWithdrawalRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["status"] = this.status;
+        data["adminNote"] = this.adminNote;
+        return data;
+    }
+}
+
+export interface IProcessWithdrawalRequestDto {
+    status: string;
+    adminNote?: string | undefined;
 }
 
 export class ProcessPaymentRequest implements IProcessPaymentRequest {
