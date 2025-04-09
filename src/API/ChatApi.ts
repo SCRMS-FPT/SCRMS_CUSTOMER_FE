@@ -19,20 +19,18 @@ export class Client {
         this.http = http ? http : window as any;
         this.baseUrl = baseUrl ?? API_CHAT_URL;
     }
-// Helper method to get authorization headers
-private getAuthHeaders(): HeadersInit {
-    // Get token from localStorage (which is synced with Redux store)
-    const token = localStorage.getItem("token");
-    
-    // Return headers with Authorization if token exists
-    return token ? {
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/json"
-    } : {
-        "Accept": "application/json"
-    };
-}
-
+    private getAuthHeaders(): HeadersInit {
+        // Get token from localStorage (which is synced with Redux store)
+        const token = localStorage.getItem("token");
+        
+        // Return headers with Authorization if token exists
+        return token ? {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json"
+        } : {
+            "Accept": "application/json"
+        };
+    }
     /**
      * @return OK
      */
@@ -49,8 +47,8 @@ private getAuthHeaders(): HeadersInit {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
             }
         };
 
@@ -62,42 +60,37 @@ private getAuthHeaders(): HeadersInit {
     protected processSendMessage(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
+        if (status === 201) {
+            return response.json();
+        } else if (status !== 201 && status !== 204) {
             return response.text().then((_responseText) => {
-                return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
     }
 
     /**
-     * @param page (optional) 
-     * @param limit (optional) 
      * @return OK
      */
-    getChatMessages(chatSessionId: string, page: number | undefined, limit: number | undefined): Promise<void> {
+    getChatMessages(chatSessionId: string, page: number, limit: number): Promise<void> {
         let url_ = this.baseUrl + "/api/chats/{chatSessionId}/messages?";
         if (chatSessionId === undefined || chatSessionId === null)
             throw new Error("The parameter 'chatSessionId' must be defined.");
         url_ = url_.replace("{chatSessionId}", encodeURIComponent("" + chatSessionId));
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
+        if (page === undefined || page === null)
+            throw new Error("The parameter 'page' must be defined and cannot be null.");
+        else
             url_ += "page=" + encodeURIComponent("" + page) + "&";
-        if (limit === null)
-            throw new Error("The parameter 'limit' cannot be null.");
-        else if (limit !== undefined)
+        if (limit === undefined || limit === null)
+            throw new Error("The parameter 'limit' must be defined and cannot be null.");
+        else
             url_ += "limit=" + encodeURIComponent("" + limit) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -109,12 +102,10 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
@@ -135,8 +126,7 @@ private getAuthHeaders(): HeadersInit {
 
         let options_: RequestInit = {
             method: "POST",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -148,38 +138,33 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
     }
 
     /**
-     * @param page (optional) 
-     * @param limit (optional) 
      * @return OK
      */
-    getChatSessions(page: number | undefined, limit: number | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/chats?";
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
+    getChatSessions(page: number, limit: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/chats/list?";
+        if (page === undefined || page === null)
+            throw new Error("The parameter 'page' must be defined and cannot be null.");
+        else
             url_ += "page=" + encodeURIComponent("" + page) + "&";
-        if (limit === null)
-            throw new Error("The parameter 'limit' cannot be null.");
-        else if (limit !== undefined)
+        if (limit === undefined || limit === null)
+            throw new Error("The parameter 'limit' must be defined and cannot be null.");
+        else
             url_ += "limit=" + encodeURIComponent("" + limit) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
             method: "GET",
-            headers: {
-            }
+            headers: this.getAuthHeaders(),
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
@@ -191,12 +176,48 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getChatSessionByUsers(user1_id: string, user2_id: string): Promise<void> {
+        let url_ = this.baseUrl + "/api/chats?";
+        if (user1_id === undefined || user1_id === null)
+            throw new Error("The parameter 'user1_id' must be defined and cannot be null.");
+        else
+            url_ += "user1_id=" + encodeURIComponent("" + user1_id) + "&";
+        if (user2_id === undefined || user2_id === null)
+            throw new Error("The parameter 'user2_id' must be defined and cannot be null.");
+        else
+            url_ += "user2_id=" + encodeURIComponent("" + user2_id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: this.getAuthHeaders(),
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetChatSessionByUsers(_response);
+        });
+    }
+
+    protected processGetChatSessionByUsers(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.json();
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
@@ -215,6 +236,7 @@ private getAuthHeaders(): HeadersInit {
             body: content_,
             method: "POST",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -228,12 +250,10 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
@@ -258,6 +278,7 @@ private getAuthHeaders(): HeadersInit {
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -271,12 +292,10 @@ private getAuthHeaders(): HeadersInit {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
+            return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
@@ -284,7 +303,6 @@ private getAuthHeaders(): HeadersInit {
 }
 
 export class CreateChatSessionRequest implements ICreateChatSessionRequest {
-    user1Id?: string;
     user2Id?: string;
 
     constructor(data?: ICreateChatSessionRequest) {
@@ -298,7 +316,6 @@ export class CreateChatSessionRequest implements ICreateChatSessionRequest {
 
     init(_data?: any) {
         if (_data) {
-            this.user1Id = _data["user1Id"];
             this.user2Id = _data["user2Id"];
         }
     }
@@ -312,14 +329,12 @@ export class CreateChatSessionRequest implements ICreateChatSessionRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["user1Id"] = this.user1Id;
         data["user2Id"] = this.user2Id;
         return data;
     }
 }
 
 export interface ICreateChatSessionRequest {
-    user1Id?: string;
     user2Id?: string;
 }
 

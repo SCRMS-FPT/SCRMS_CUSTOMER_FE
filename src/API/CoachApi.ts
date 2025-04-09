@@ -526,9 +526,11 @@ protected processUpdateMyProfile(response: Response): Promise<void> {
      * @param sportId (optional) 
      * @param minPrice (optional) 
      * @param maxPrice (optional) 
+     * @param pageIndex (optional) 
+     * @param pageSize (optional) 
      * @return OK
      */
- getCoaches(name: string | undefined, sportId: string | undefined, minPrice: number | undefined, maxPrice: number | undefined): Promise<CoachResponse[]> {
+ getCoaches(name: string | undefined, sportId: string | undefined, minPrice: number | undefined, maxPrice: number | undefined, pageIndex: number | undefined, pageSize: number | undefined): Promise<CoachResponsePaginatedResult> {
     let url_ = this.baseUrl + "/coaches?";
     if (name === null)
         throw new Error("The parameter 'name' cannot be null.");
@@ -546,6 +548,14 @@ protected processUpdateMyProfile(response: Response): Promise<void> {
         throw new Error("The parameter 'maxPrice' cannot be null.");
     else if (maxPrice !== undefined)
         url_ += "maxPrice=" + encodeURIComponent("" + maxPrice) + "&";
+    if (pageIndex === null)
+        throw new Error("The parameter 'pageIndex' cannot be null.");
+    else if (pageIndex !== undefined)
+        url_ += "pageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+    if (pageSize === null)
+        throw new Error("The parameter 'pageSize' cannot be null.");
+    else if (pageSize !== undefined)
+        url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
     url_ = url_.replace(/[?&]$/, "");
 
     let options_: RequestInit = {
@@ -561,21 +571,14 @@ protected processUpdateMyProfile(response: Response): Promise<void> {
     });
 }
 
-protected processGetCoaches(response: Response): Promise<CoachResponse[]> {
+protected processGetCoaches(response: Response): Promise<CoachResponsePaginatedResult> {
     const status = response.status;
     let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
     if (status === 200) {
         return response.text().then((_responseText) => {
         let result200: any = null;
         let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        if (Array.isArray(resultData200)) {
-            result200 = [] as any;
-            for (let item of resultData200)
-                result200!.push(CoachResponse.fromJS(item));
-        }
-        else {
-            result200 = <any>null;
-        }
+        result200 = CoachResponsePaginatedResult.fromJS(resultData200);
         return result200;
         });
     } else if (status !== 200 && status !== 204) {
@@ -583,7 +586,7 @@ protected processGetCoaches(response: Response): Promise<CoachResponse[]> {
         return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         });
     }
-    return Promise.resolve<CoachResponse[]>(null as any);
+    return Promise.resolve<CoachResponsePaginatedResult>(null as any);
 }
 
     /**
@@ -1957,6 +1960,62 @@ export interface ICoachPackageResponse {
     description?: string | undefined;
     price?: number;
     sessionCount?: number;
+}
+
+export class CoachResponsePaginatedResult implements ICoachResponsePaginatedResult {
+    pageIndex?: number;
+    pageSize?: number;
+    count?: number;
+    data?: CoachResponse[] | undefined;
+
+    constructor(data?: ICoachResponsePaginatedResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageIndex = _data["pageIndex"];
+            this.pageSize = _data["pageSize"];
+            this.count = _data["count"];
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(CoachResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CoachResponsePaginatedResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new CoachResponsePaginatedResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageIndex"] = this.pageIndex;
+        data["pageSize"] = this.pageSize;
+        data["count"] = this.count;
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICoachResponsePaginatedResult {
+    pageIndex?: number;
+    pageSize?: number;
+    count?: number;
+    data?: CoachResponse[] | undefined;
 }
 
 export class CoachResponse implements ICoachResponse {

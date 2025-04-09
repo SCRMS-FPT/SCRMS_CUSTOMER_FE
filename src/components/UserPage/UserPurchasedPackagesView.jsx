@@ -33,7 +33,13 @@ const UserPurchasedPackagesView = () => {
       try {
         setLoading(true);
         // Get purchased packages from API
-        const response = await client.getHistoryPurchase(false, false, 1, 100);
+        const response = await client.getHistoryPurchase(
+          false,
+          false,
+          undefined,
+          1,
+          100
+        );
         setPurchasedPackages(response);
         setError(null);
       } catch (err) {
@@ -112,12 +118,14 @@ const UserPurchasedPackagesView = () => {
             />
             <Text type="secondary">
               {isExpired
-                ? `Hết hạn vào ngày ${dayjs(record.expiryDate).format("MMM D, YYYY")}`
-                : record.expiryDate
-                  ? `Khả dụng đến ngày ${dayjs(record.expiryDate).format(
+                ? `Hết hạn vào ngày ${dayjs(record.expiryDate).format(
                     "MMM D, YYYY"
                   )}`
-                  : "Không giới hạn ngày"}
+                : record.expiryDate
+                ? `Khả dụng đến ngày ${dayjs(record.expiryDate).format(
+                    "MMM D, YYYY"
+                  )}`
+                : "Không giới hạn ngày"}
             </Text>
           </Space>
         );
@@ -169,7 +177,8 @@ const UserPurchasedPackagesView = () => {
       <Space direction="vertical" style={{ width: "100%", marginBottom: 16 }}>
         <Title level={4}>Những gói bạn đã mua</Title>
         <Text type="secondary">
-          Xem và quản lý các gói huấn luyện viên bạn đã mua. Sử dụng các buổi tập còn lại để đặt lịch hẹn với huấn luyện viên.
+          Xem và quản lý các gói huấn luyện viên bạn đã mua. Sử dụng các buổi
+          tập còn lại để đặt lịch hẹn với huấn luyện viên.
         </Text>
       </Space>
 
@@ -187,11 +196,12 @@ const UserPurchasedPackagesView = () => {
                   <strong>ID gói:</strong> {record.id}
                 </p>
                 <p>
-                  <strong>ID gói huấn luyện viên:</strong> {record.coachPackageId}
+                  <strong>ID gói huấn luyện viên:</strong>{" "}
+                  {record.coachPackageId}
                 </p>
                 <p>
-                  <strong>Số buổi:</strong> {record.sessionUsed} đã sử dụng trên tổng số {" "}
-                  {record.sessionCount} buổi
+                  <strong>Số buổi:</strong> {record.sessionUsed} đã sử dụng trên
+                  tổng số {record.sessionCount} buổi
                 </p>
                 <p>
                   <strong>Còn lại:</strong>{" "}
@@ -211,7 +221,8 @@ const UserPurchasedPackagesView = () => {
             <ShoppingOutlined style={{ fontSize: 48, color: "#bfbfbf" }} />
             <Title level={4}>Chưa mua gói huấn luyện nào</Title>
             <Text type="secondary">
-              Bạn chưa mua gói huấn luyện viên nào. Hãy duyệt qua các huấn luyện viên của chúng tôi để tìm huấn luyện viên phù hợp với bạn.
+              Bạn chưa mua gói huấn luyện viên nào. Hãy duyệt qua các huấn luyện
+              viên của chúng tôi để tìm huấn luyện viên phù hợp với bạn.
             </Text>
             <Button
               type="primary"

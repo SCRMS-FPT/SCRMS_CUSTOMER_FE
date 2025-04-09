@@ -26,6 +26,8 @@ import {
   Switch,
   Alert,
   Radio,
+  Pagination,
+  Progress,
 } from "antd";
 import {
   CalendarOutlined,
@@ -50,6 +52,8 @@ import {
   DashboardOutlined,
   FireOutlined,
   ThunderboltOutlined,
+  MessageOutlined,
+  StarFilled,
 } from "@ant-design/icons";
 import {
   Box,
@@ -78,6 +82,7 @@ import {
   Client as PaymentClient,
   ProcessPaymentRequest,
 } from "../../API/PaymentApi";
+import { Client as ReviewClient } from "../../API/ReviewApi";
 import { motion, AnimatePresence } from "framer-motion";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -258,6 +263,16 @@ const CoachDetails = () => {
   // Add this ref at the component level (with other state variables)
   const selectedPackageRef = useRef(null);
 
+  // Add this with your other state variables in CoachDetails
+  const [coachReviews, setCoachReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState(null);
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [reviewsPageSize, setReviewsPageSize] = useState(5);
+  const [reviewsTotalCount, setReviewsTotalCount] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+  const reviewClient = new ReviewClient();
+
   // API client
   const client = new Client();
   const paymentClient = new PaymentClient();
@@ -365,6 +380,62 @@ const CoachDetails = () => {
 
     fetchCoachPackages();
   }, [id]);
+
+  // Add this useEffect to fetch coach reviews
+  useEffect(() => {
+    const fetchCoachReviews = async () => {
+      if (!id) return;
+
+      try {
+        setReviewsLoading(true);
+
+        const response = await reviewClient.getReviews(
+          "coach",
+          id,
+          reviewsPage,
+          reviewsPageSize
+        );
+
+        // Parse the response
+        const responseData = await response;
+
+        if (responseData && responseData.data) {
+          setCoachReviews(responseData.data || []);
+          setReviewsTotalCount(responseData.totalCount || 0);
+
+          // Calculate average rating
+          if (responseData.data.length > 0) {
+            const sum = responseData.data.reduce(
+              (acc, review) => acc + review.rating,
+              0
+            );
+            setAverageRating(sum / responseData.data.length);
+          } else {
+            setAverageRating(0);
+          }
+        } else {
+          setCoachReviews([]);
+          setReviewsTotalCount(0);
+          setAverageRating(0);
+        }
+
+        setReviewsError(null);
+      } catch (error) {
+        console.error("Error fetching coach reviews:", error);
+        setReviewsError("Failed to load reviews. Please try again later.");
+        setCoachReviews([]);
+        setReviewsTotalCount(0);
+        setAverageRating(0);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    if (activeTab === "4") {
+      fetchCoachReviews();
+    }
+  }, [id, reviewsPage, reviewsPageSize, activeTab]);
+
   // Handle tab change
   const handleTabChange = (key) => {
     setActiveTab(key);
@@ -983,7 +1054,7 @@ const CoachDetails = () => {
               </Box>
             ),
             okText: "Go to Dashboard",
-            onOk: () => navigate("/dashboard"),
+            onOk: () => navigate("/user/coachings"),
             cancelText: "Stay Here",
             okCancel: true,
           });
@@ -2108,12 +2179,177 @@ const CoachDetails = () => {
                 <TabPane
                   tab={
                     <span>
-                      <StarOutlined /> Đánh giá
+                      <StarOutlined /> Đánh giá{" "}
+                      {reviewsTotalCount > 0 && `(${reviewsTotalCount})`}
                     </span>
                   }
                   key="4"
                 >
-                  {/* Content for reviews tab */}
+                  <Box sx={{ p: 3 }}>
+                    <Box sx={{ mb: 4, textAlign: "center" }}>
+                      <Typography variant="h4" fontWeight="bold" gutterBottom>
+                        {coach.rating
+                          ? coach.rating.toFixed(1)
+                          : averageRating.toFixed(1)}
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          mb: 1,
+                        }}
+                      >
+                        <Rate
+                          disabled
+                          value={coach.rating || averageRating}
+                          allowHalf
+                        />
+                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Dựa trên {reviewsTotalCount} đánh giá
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ mb: 4 }}>
+                      <RatingSummary
+                        coachReviews={coachReviews}
+                        totalCount={reviewsTotalCount}
+                      />
+                    </Box>
+
+                    {reviewsLoading ? (
+                      <Box sx={{ py: 3 }}>
+                        <Skeleton active avatar paragraph={{ rows: 2 }} />
+                        <Skeleton
+                          active
+                          avatar
+                          paragraph={{ rows: 2 }}
+                          style={{ marginTop: 16 }}
+                        />
+                      </Box>
+                    ) : reviewsError ? (
+                      <Alert
+                        message="Error"
+                        description={reviewsError}
+                        type="error"
+                        showIcon
+                      />
+                    ) : coachReviews.length === 0 ? (
+                      <Empty
+                        description="Chưa có đánh giá nào cho huấn luyện viên này"
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      />
+                    ) : (
+                      <motion.div layout>
+                        <List
+                          itemLayout="vertical"
+                          dataSource={coachReviews}
+                          renderItem={(review, index) => (
+                            <motion.div
+                              initial={{ opacity: 0, y: 30 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{
+                                duration: 0.3,
+                                delay: index * 0.1,
+                                ease: "easeOut",
+                              }}
+                            >
+                              <Card
+                                className="review-card"
+                                style={{
+                                  marginBottom: 16,
+                                  overflow: "hidden",
+                                  transition: "all 0.3s ease",
+                                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                }}
+                                hoverable
+                              >
+                                <div className="flex items-start gap-4">
+                                  <Avatar
+                                    size={48}
+                                    src={review.userAvatar}
+                                    icon={
+                                      !review.userAvatar && <UserOutlined />
+                                    }
+                                    style={{
+                                      backgroundColor: alpha(
+                                        theme.palette.primary.main,
+                                        0.8
+                                      ),
+                                      flexShrink: 0,
+                                    }}
+                                  />
+                                  <div className="flex-1">
+                                    <div className="flex justify-between flex-wrap">
+                                      <div>
+                                        <Text strong className="text-lg">
+                                          {review.userName ||
+                                            "Người dùng ẩn danh"}
+                                        </Text>
+                                        <div className="text-gray-500 text-sm flex items-center gap-1 mt-1">
+                                          <CalendarOutlined
+                                            style={{ fontSize: 12 }}
+                                          />
+                                          {review.createdAt
+                                            ? dayjs(review.createdAt).format(
+                                                "DD/MM/YYYY"
+                                              )
+                                            : "Không có ngày"}
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <Rate
+                                          disabled
+                                          value={review.rating}
+                                          className="text-sm"
+                                        />
+                                      </div>
+                                    </div>
+
+                                    <div className="mt-3 text-gray-700">
+                                      {review.comment}
+                                    </div>
+
+                                    {review.reply && (
+                                      <div className="mt-3 p-3 bg-blue-50 rounded-md border-l-4 border-blue-400">
+                                        <div className="flex items-center text-blue-600 font-medium">
+                                          <MessageOutlined
+                                            style={{ marginRight: 8 }}
+                                          />
+                                          Phản hồi từ huấn luyện viên
+                                        </div>
+                                        <div className="mt-2 text-gray-600">
+                                          {review.reply}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </Card>
+                            </motion.div>
+                          )}
+                        />
+
+                        {reviewsTotalCount > reviewsPageSize && (
+                          <Box
+                            sx={{
+                              mt: 4,
+                              display: "flex",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Pagination
+                              current={reviewsPage}
+                              total={reviewsTotalCount}
+                              pageSize={reviewsPageSize}
+                              onChange={(page) => setReviewsPage(page)}
+                              showSizeChanger={false}
+                            />
+                          </Box>
+                        )}
+                      </motion.div>
+                    )}
+                  </Box>
                 </TabPane>
 
                 <TabPane
@@ -2473,6 +2709,72 @@ const CoachDetails = () => {
         </Grid>
       </Container>
     </motion.div>
+  );
+};
+
+// Add this component inside CoachDetails but before the return statement
+const RatingSummary = ({ coachReviews, totalCount }) => {
+  // Skip if we have no reviews
+  if (coachReviews.length === 0) return null;
+
+  // Count reviews by rating
+  const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  coachReviews.forEach((review) => {
+    const rating = Math.floor(review.rating);
+    if (rating >= 1 && rating <= 5) {
+      ratingCounts[rating]++;
+    }
+  });
+
+  return (
+    <Card className="rating-summary-card">
+      <div className="space-y-2 py-2">
+        {[5, 4, 3, 2, 1].map((rating) => {
+          const count = ratingCounts[rating] || 0;
+          const percent = totalCount
+            ? Math.round((count / totalCount) * 100)
+            : 0;
+
+          return (
+            <div key={rating} className="flex items-center gap-4">
+              <div className="w-10 flex items-center">
+                <span className="text-sm font-medium">{rating}</span>
+                <StarFilled
+                  style={{ color: "#faad14", marginLeft: 4, fontSize: "12px" }}
+                />
+              </div>
+              <div className="flex-grow">
+                <Progress
+                  percent={percent}
+                  size="small"
+                  showInfo={false}
+                  strokeColor={{
+                    "0%":
+                      rating >= 4
+                        ? "#52c41a"
+                        : rating >= 3
+                        ? "#faad14"
+                        : "#f5222d",
+                    "100%":
+                      rating >= 4
+                        ? "#95de64"
+                        : rating >= 3
+                        ? "#ffd666"
+                        : "#ff7875",
+                  }}
+                  trailColor="#f5f5f5"
+                />
+              </div>
+              <div className="w-16 text-right">
+                <Text type="secondary" style={{ fontSize: "12px" }}>
+                  {count} ({percent}%)
+                </Text>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
   );
 };
 
