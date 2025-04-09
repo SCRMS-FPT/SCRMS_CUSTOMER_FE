@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
@@ -20,6 +20,12 @@ import {
   message,
   Alert,
   Skeleton,
+  Form,
+  Input,
+  Tooltip,
+  Modal,
+  Badge,
+  Pagination,
 } from "antd";
 import {
   LeftOutlined,
@@ -32,8 +38,21 @@ import {
   ClockCircleOutlined,
   SnippetsOutlined,
   CalendarOutlined,
+  MessageOutlined,
+  FlagOutlined,
+  UserOutlined,
+  WarningOutlined,
+  SendOutlined,
+  CommentOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 import { Client } from "@/API/CourtApi";
+import {
+  Client as ReviewClient,
+  ReplyToReviewRequest,
+  FlagReviewRequest,
+} from "../../API/ReviewApi";
+import { motion, AnimatePresence } from "framer-motion";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -65,7 +84,20 @@ const CourtOwnerCourtDetailView = () => {
   const [error, setError] = useState(null);
   const [court, setCourt] = useState(null);
   const [availability, setAvailability] = useState(null);
-  const [courtSchedules, setCourtSchedules] = useState([]); // New state for court schedules
+  const [courtSchedules, setCourtSchedules] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState(null);
+  const [replyForm] = Form.useForm();
+  const [activeReplyId, setActiveReplyId] = useState(null);
+  const [flagModalVisible, setFlagModalVisible] = useState(false);
+  const [flagReason, setFlagReason] = useState("");
+  const [flaggedReviewId, setFlaggedReviewId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [submittingReply, setSubmittingReply] = useState(false);
+  const [submittingFlag, setSubmittingFlag] = useState(false);
+  const [activeTab, setActiveTab] = useState("1");
 
   // Fetch court data when component mounts
   useEffect(() => {
@@ -100,7 +132,9 @@ const CourtOwnerCourtDetailView = () => {
       } catch (err) {
         console.error("Error fetching court details:", err);
         setError("Failed to load court details. Please try again later.");
-        message.error("Gặp lỗi trong quá trình tải thông tin sân. Vui lòng thử lại sau.");
+        message.error(
+          "Gặp lỗi trong quá trình tải thông tin sân. Vui lòng thử lại sau."
+        );
       } finally {
         setLoading(false);
       }
@@ -111,11 +145,48 @@ const CourtOwnerCourtDetailView = () => {
     }
   }, [courtId]);
 
+  // Fetch reviews
+  const fetchReviews = useCallback(
+    async (page = 1, pageSize = 10) => {
+      if (!courtId) return;
+
+      try {
+        setReviewsLoading(true);
+        setReviewsError(null);
+
+        const reviewClient = new ReviewClient();
+        const response = await reviewClient.getReviews(
+          "court",
+          courtId,
+          page,
+          pageSize
+        );
+
+        setReviews(response.data || []);
+        setTotalReviews(response.totalItems || 0);
+        setCurrentPage(page);
+      } catch (err) {
+        console.error("Error fetching court reviews:", err);
+        setReviewsError("Không thể tải đánh giá. Vui lòng thử lại sau.");
+      } finally {
+        setReviewsLoading(false);
+      }
+    },
+    [courtId]
+  );
+
+  useEffect(() => {
+    if (court && activeTab === "7") {
+      fetchReviews();
+    }
+  }, [courtId, activeTab, fetchReviews]);
+
   // Format address display
   const formatAddress = (sportCenter) => {
     if (!sportCenter) return "";
-    return `${sportCenter.addressLine || ""}, ${sportCenter.city || ""}, ${sportCenter.district || ""
-      }, ${sportCenter.commune || ""}`;
+    return `${sportCenter.addressLine || ""}, ${sportCenter.city || ""}, ${
+      sportCenter.district || ""
+    }, ${sportCenter.commune || ""}`;
   };
 
   // Format operating hours from court schedules
@@ -223,6 +294,71 @@ const CourtOwnerCourtDetailView = () => {
     }
   };
 
+  // Handle replying to a review
+  const handleReply = async (reviewId) => {
+    try {
+      setSubmittingReply(true);
+
+      const values = await replyForm.validateFields();
+      const reviewClient = new ReviewClient();
+
+      await reviewClient.replyToReview(reviewId, {
+        replyText: values.reply,
+      });
+
+      // Clear form and refresh reviews
+      replyForm.resetFields();
+      setActiveReplyId(null);
+      message.success("Phản hồi đã được gửi thành công");
+      fetchReviews(currentPage);
+    } catch (err) {
+      console.error("Error replying to review:", err);
+      message.error("Không thể gửi phản hồi. Vui lòng thử lại.");
+    } finally {
+      setSubmittingReply(false);
+    }
+  };
+
+  // Handle flagging a review
+  const handleFlagReview = async () => {
+    if (!flaggedReviewId || !flagReason.trim()) {
+      return;
+    }
+
+    try {
+      setSubmittingFlag(true);
+
+      const reviewClient = new ReviewClient();
+      await reviewClient.flagReview(flaggedReviewId, {
+        flagReason: flagReason,
+      });
+
+      setFlagModalVisible(false);
+      setFlaggedReviewId(null);
+      setFlagReason("");
+      message.success("Báo cáo đã được gửi thành công");
+    } catch (err) {
+      console.error("Error flagging review:", err);
+      message.error("Không thể gửi báo cáo. Vui lòng thử lại.");
+    } finally {
+      setSubmittingFlag(false);
+    }
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("vi-VN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
+
   // If loading, show skeleton
   if (loading) {
     return (
@@ -311,6 +447,8 @@ const CourtOwnerCourtDetailView = () => {
     >
       <Tabs
         defaultActiveKey="1"
+        activeKey={activeTab}
+        onChange={(key) => setActiveTab(key)}
         items={[
           {
             key: "1",
@@ -338,14 +476,19 @@ const CourtOwnerCourtDetailView = () => {
                   </List.Item>
                   <List.Item>
                     <Text strong>Mức đặt cọc tối thiểu:</Text>{" "}
-                    <Tag color={statusDisplay.color}>{court.minDepositPercentage}%</Tag>
+                    <Tag color={statusDisplay.color}>
+                      {court.minDepositPercentage}%
+                    </Tag>
                   </List.Item>
                   <List.Item>
                     <Text strong>Thởi lượng slot:</Text> {court.slotDuration}
                   </List.Item>
                   <List.Item>
                     <Text strong>Giới hạn thời gian hủy đặt sân:</Text>{" "}
-                    <span className="text-blue-500 font-semibold">{court.cancellationWindowHours}</span> giờ trước giờ đặt sân
+                    <span className="text-blue-500 font-semibold">
+                      {court.cancellationWindowHours}
+                    </span>{" "}
+                    giờ trước giờ đặt sân
                   </List.Item>
                   <List.Item>
                     <Text strong>Phần trăm hoàn tiền:</Text>{" "}
@@ -454,8 +597,9 @@ const CourtOwnerCourtDetailView = () => {
                     {court.cancellationWindowHours} giờ trước lịch đặt sân
                   </List.Item>
                   <List.Item>
-                    <Text strong>Lượng hoàn tiền:</Text> {court.refundPercentage}%
-                    của tổng chi phí đặt sân nếu hủy đặt sân trong khung thời gian cho phép
+                    <Text strong>Lượng hoàn tiền:</Text>{" "}
+                    {court.refundPercentage}% của tổng chi phí đặt sân nếu hủy
+                    đặt sân trong khung thời gian cho phép
                   </List.Item>
                 </List>
               </>
@@ -573,6 +717,326 @@ const CourtOwnerCourtDetailView = () => {
                   </Button>
                 </div>
               </>
+            ),
+          },
+          {
+            key: "7",
+            label: (
+              <span>
+                <CommentOutlined /> Đánh giá
+              </span>
+            ),
+            children: (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="p-4"
+              >
+                <div className="flex items-center gap-2 mb-6">
+                  <MessageOutlined className="text-lg text-blue-500" />
+                  <Typography.Title level={5} className="m-0">
+                    Đánh giá của khách hàng
+                  </Typography.Title>
+
+                  {totalReviews > 0 && (
+                    <Tag color="blue" className="ml-2">
+                      {totalReviews} đánh giá
+                    </Tag>
+                  )}
+                </div>
+
+                {reviewsError && (
+                  <Alert
+                    message="Lỗi tải đánh giá"
+                    description={reviewsError}
+                    type="error"
+                    showIcon
+                    className="mb-4"
+                  />
+                )}
+
+                {reviewsLoading ? (
+                  <div className="space-y-6">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="bg-white rounded-lg shadow-sm p-4"
+                      >
+                        <div className="flex items-center mb-4">
+                          <Skeleton.Avatar active size={40} />
+                          <div className="ml-3 flex-grow">
+                            <Skeleton active paragraph={{ rows: 0 }} />
+                          </div>
+                        </div>
+                        <Skeleton active paragraph={{ rows: 2 }} />
+                      </div>
+                    ))}
+                  </div>
+                ) : reviews.length > 0 ? (
+                  <div className="space-y-8">
+                    {reviews.map((review) => (
+                      <motion.div
+                        key={review.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="review-card"
+                      >
+                        <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-100 hover:border-blue-200 transition-all duration-300">
+                          <div className="flex items-start">
+                            <Badge
+                              dot={review.verifiedBooking}
+                              color="green"
+                              title={
+                                review.verifiedBooking
+                                  ? "Đã xác thực từ đặt sân"
+                                  : "Chưa xác thực"
+                              }
+                            >
+                              <Avatar
+                                src={review.userAvatarUrl || null}
+                                icon={<UserOutlined />}
+                                className="border-2 border-blue-100"
+                              />
+                            </Badge>
+
+                            <div className="ml-3 flex-grow">
+                              <div className="flex items-center flex-wrap gap-2">
+                                <span className="font-medium text-gray-800">
+                                  {review.userName || "Người dùng ẩn danh"}
+                                </span>
+
+                                {review.verifiedBooking && (
+                                  <Tooltip title="Đánh giá từ người đã đặt sân">
+                                    <Tag color="green" className="text-xs">
+                                      Đã xác thực
+                                    </Tag>
+                                  </Tooltip>
+                                )}
+
+                                <span className="text-xs text-gray-500 ml-auto">
+                                  {formatDate(review.createdAt)}
+                                </span>
+                              </div>
+
+                              <div className="my-1">
+                                <Rate
+                                  disabled
+                                  value={review.rating}
+                                  className="text-amber-400 text-sm"
+                                />
+                              </div>
+
+                              <div className="text-gray-700 mt-2 whitespace-pre-line">
+                                {review.comment}
+                              </div>
+
+                              {/* Review Replies Section */}
+                              {review.reviewReplyResponses &&
+                                review.reviewReplyResponses.length > 0 && (
+                                  <div className="mt-4 pl-4 border-l-2 border-gray-100">
+                                    <AnimatePresence>
+                                      {review.reviewReplyResponses.map(
+                                        (reply) => (
+                                          <motion.div
+                                            key={reply.id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 10 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="mb-3 bg-gray-50 p-3 rounded-lg"
+                                          >
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <Avatar
+                                                size="small"
+                                                icon={<ShopOutlined />}
+                                                className="bg-blue-500"
+                                              />
+                                              <span className="font-medium text-blue-600">
+                                                {reply.responderName ||
+                                                  court?.sportCenterName ||
+                                                  "Chủ sân"}
+                                              </span>
+                                              <span className="text-xs text-gray-500">
+                                                {formatDate(reply.createdAt)}
+                                              </span>
+                                            </div>
+                                            <div className="text-gray-700 ml-6">
+                                              {reply.replyText}
+                                            </div>
+                                          </motion.div>
+                                        )
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
+                                )}
+
+                              {/* Reply and Report Actions */}
+                              <div className="mt-3 flex items-center gap-2">
+                                <Tooltip title="Phản hồi đánh giá">
+                                  <Button
+                                    type="text"
+                                    icon={<MessageOutlined />}
+                                    onClick={() =>
+                                      setActiveReplyId(
+                                        review.id === activeReplyId
+                                          ? null
+                                          : review.id
+                                      )
+                                    }
+                                    className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                                  >
+                                    Phản hồi
+                                  </Button>
+                                </Tooltip>
+
+                                <Tooltip title="Báo cáo đánh giá không phù hợp">
+                                  <Button
+                                    type="text"
+                                    icon={<FlagOutlined />}
+                                    onClick={() => {
+                                      setFlaggedReviewId(review.id);
+                                      setFlagModalVisible(true);
+                                    }}
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    Báo cáo
+                                  </Button>
+                                </Tooltip>
+                              </div>
+
+                              {/* Reply Form */}
+                              <AnimatePresence>
+                                {activeReplyId === review.id && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="mt-3 overflow-hidden"
+                                  >
+                                    <Form
+                                      form={replyForm}
+                                      onFinish={() => handleReply(review.id)}
+                                      layout="vertical"
+                                    >
+                                      <Form.Item
+                                        name="reply"
+                                        rules={[
+                                          {
+                                            required: true,
+                                            message:
+                                              "Vui lòng nhập nội dung phản hồi",
+                                          },
+                                        ]}
+                                      >
+                                        <Input.TextArea
+                                          rows={2}
+                                          placeholder="Nhập phản hồi của bạn..."
+                                          className="rounded-lg resize-none"
+                                          autoFocus
+                                        />
+                                      </Form.Item>
+                                      <Form.Item className="mb-0 text-right">
+                                        <Button
+                                          onClick={() => setActiveReplyId(null)}
+                                          className="mr-2"
+                                        >
+                                          Hủy
+                                        </Button>
+                                        <Button
+                                          type="primary"
+                                          htmlType="submit"
+                                          loading={submittingReply}
+                                          icon={<SendOutlined />}
+                                        >
+                                          Gửi phản hồi
+                                        </Button>
+                                      </Form.Item>
+                                    </Form>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+
+                    {/* Pagination */}
+                    {totalReviews > 10 && (
+                      <div className="flex justify-center mt-6">
+                        <Pagination
+                          current={currentPage}
+                          pageSize={10}
+                          total={totalReviews}
+                          onChange={(page) => fetchReviews(page - 1, 10)} // Converting 1-based UI page to 0-based API page
+                          showSizeChanger={false}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Empty
+                    description="Chưa có đánh giá nào cho sân này"
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    className="py-10"
+                  />
+                )}
+
+                {/* Flag Review Modal */}
+                <Modal
+                  title={
+                    <div className="flex items-center gap-2 text-red-500">
+                      <WarningOutlined /> Báo cáo đánh giá
+                    </div>
+                  }
+                  open={flagModalVisible}
+                  onCancel={() => {
+                    setFlagModalVisible(false);
+                    setFlaggedReviewId(null);
+                    setFlagReason("");
+                  }}
+                  footer={[
+                    <Button
+                      key="cancel"
+                      onClick={() => {
+                        setFlagModalVisible(false);
+                        setFlaggedReviewId(null);
+                        setFlagReason("");
+                      }}
+                    >
+                      Hủy
+                    </Button>,
+                    <Button
+                      key="submit"
+                      danger
+                      type="primary"
+                      loading={submittingFlag}
+                      onClick={handleFlagReview}
+                      disabled={!flagReason.trim()}
+                    >
+                      Gửi báo cáo
+                    </Button>,
+                  ]}
+                >
+                  <Alert
+                    message="Tại sao bạn muốn báo cáo đánh giá này?"
+                    description="Vui lòng cho chúng tôi biết lý do bạn cho rằng đánh giá này không phù hợp hoặc vi phạm quy định."
+                    type="info"
+                    showIcon
+                    className="mb-4"
+                  />
+                  <Input.TextArea
+                    rows={4}
+                    value={flagReason}
+                    onChange={(e) => setFlagReason(e.target.value)}
+                    placeholder="Nhập lý do báo cáo..."
+                    className="rounded-lg"
+                  />
+                </Modal>
+              </motion.div>
             ),
           },
         ]}

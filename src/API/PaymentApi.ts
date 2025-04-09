@@ -23,7 +23,7 @@ export class Client {
     // Helper method to get authorization headers
     private getAuthHeaders(): HeadersInit {
         // Get token from localStorage (which is synced with Redux store)
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("authToken");
         
         // Return headers with Authorization if token exists
         return token ? {
@@ -182,6 +182,112 @@ export class Client {
         }
         return Promise.resolve<void>(null as any);
     }
+    /**
+     * @return OK
+     */
+    adminDeleteReview(reviewId: string): Promise<void> {
+        let url_ = this.baseUrl + "/api/admin/reviews/{reviewId}";
+        if (reviewId === undefined || reviewId === null)
+            throw new Error("The parameter 'reviewId' must be defined.");
+        url_ = url_.replace("{reviewId}", encodeURIComponent("" + reviewId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: this.getAuthHeaders() // Add auth headers
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAdminDeleteReview(_response);
+        });
+    }
+
+    protected processAdminDeleteReview(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.json();
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+ /**
+     * @param page (optional) 
+     * @param limit (optional) 
+     * @return OK
+     */
+ getFlaggedReviews(page: number | undefined, limit: number | undefined): Promise<void> {
+    let url_ = this.baseUrl + "/api/admin/reviews/flagged?";
+    if (page === null)
+        throw new Error("The parameter 'page' cannot be null.");
+    else if (page !== undefined)
+        url_ += "page=" + encodeURIComponent("" + page) + "&";
+    if (limit === null)
+        throw new Error("The parameter 'limit' cannot be null.");
+    else if (limit !== undefined)
+        url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: this.getAuthHeaders()
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetFlaggedReviews(_response);
+    });
+}
+
+protected processGetFlaggedReviews(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.json();
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<void>(null as any);
+}
+
+
+ /**
+     * @return OK
+     */
+ getUserWalletBalance(userId: string): Promise<void> {
+    let url_ = this.baseUrl + "/api/admin/payments/wallet/{userId}";
+    if (userId === undefined || userId === null)
+        throw new Error("The parameter 'userId' must be defined.");
+    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: this.getAuthHeaders()
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetUserWalletBalance(_response);
+    });
+}
+
+protected processGetUserWalletBalance(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.json();
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<void>(null as any);
+}
 
 
     /**
@@ -224,35 +330,6 @@ export class Client {
         }
         return Promise.resolve<void>(null as any);
     }
-/**
-     * @return OK
-     */
-getUserWithdrawalRequests(): Promise<void> {
-    let url_ = this.baseUrl + "/api/payments/wallet/withdrawals";
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: RequestInit = {
-        method: "GET",
-        headers: this.getAuthHeaders()
-    };
-
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-        return this.processGetUserWithdrawalRequests(_response);
-    });
-}
-
-protected processGetUserWithdrawalRequests(response: Response): Promise<void> {
-    const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-    if (status === 200) {
-        return response.json();
-    } else if (status !== 200 && status !== 204) {
-        return response.text().then((_responseText) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        });
-    }
-    return Promise.resolve<void>(null as any);
-}
 
 
         /**
