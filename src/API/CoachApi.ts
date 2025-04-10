@@ -521,7 +521,7 @@ protected processUpdateMyProfile(response: Response): Promise<void> {
     /**
      * @return OK
      */
- /**
+/**
      * @param name (optional) 
      * @param sportId (optional) 
      * @param minPrice (optional) 
@@ -530,7 +530,7 @@ protected processUpdateMyProfile(response: Response): Promise<void> {
      * @param pageSize (optional) 
      * @return OK
      */
- getCoaches(name: string | undefined, sportId: string | undefined, minPrice: number | undefined, maxPrice: number | undefined, pageIndex: number | undefined, pageSize: number | undefined): Promise<CoachResponsePaginatedResult> {
+getCoaches(name: string | undefined, sportId: string | undefined, minPrice: number | undefined, maxPrice: number | undefined, pageIndex: number | undefined, pageSize: number | undefined): Promise<CoachResponsePaginatedResult> {
     let url_ = this.baseUrl + "/coaches?";
     if (name === null)
         throw new Error("The parameter 'name' cannot be null.");
@@ -588,6 +588,8 @@ protected processGetCoaches(response: Response): Promise<CoachResponsePaginatedR
     }
     return Promise.resolve<CoachResponsePaginatedResult>(null as any);
 }
+
+
 
     /**
      * Create Coach

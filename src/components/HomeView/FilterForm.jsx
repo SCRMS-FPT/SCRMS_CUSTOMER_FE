@@ -5,7 +5,6 @@ import dayjs from "dayjs";
 import {
   Box,
   FormControl,
-  InputLabel,
   Select,
   MenuItem,
   Button,
@@ -26,6 +25,7 @@ import {
   LocationOn,
   CalendarMonth,
 } from "@mui/icons-material";
+import { Client } from "@/API/CourtApi";
 
 const FilterForm = () => {
   const navigate = useNavigate();
@@ -49,10 +49,9 @@ const FilterForm = () => {
     const fetchSports = async () => {
       setLoadingSports(true);
       try {
-        const response = await axios.get(
-          "https://api.courtsite.com/api/sports"
-        );
-        setSports(response.data || []);
+        const courtApiClient = new Client();
+        const response = await courtApiClient.getSports();
+        setSports(response.sports || []);
       } catch (err) {
         console.error("Error fetching sports:", err);
         // Fallback sports data
@@ -205,9 +204,6 @@ const FilterForm = () => {
                       paddingTop: "16px",
                       paddingBottom: "16px",
                     },
-                    "& .MuiSvgIcon-root": {
-                      color: "#1976D2", // Set icon color
-                    },
                   },
                 },
                 InputProps: {
@@ -253,9 +249,6 @@ const FilterForm = () => {
                     "& .MuiFilledInput-input": {
                       paddingTop: "16px",
                       paddingBottom: "16px",
-                    },
-                    "& .MuiSvgIcon-root": {
-                      color: "#1976D2", // Set icon color
                     },
                   },
                 },

@@ -120,51 +120,40 @@ const CoachList = () => {
       const minPriceParam = priceRange[0];
       const maxPriceParam = priceRange[1];
 
+      // Convert from 1-based UI pagination to 0-based API pagination
+      const pageIndex = pagination.current - 1;
+      const pageSize = pagination.pageSize;
+
       console.log("API Call Parameters:", {
         name: nameParam,
         sportId: sportIdParam,
         minPrice: minPriceParam,
         maxPrice: maxPriceParam,
+        pageIndex,
+        pageSize,
       });
 
-      // Call the API with properly handled parameters
+      // Call the API with all parameters including pagination
       const response = await client.getCoaches(
         nameParam,
         sportIdParam,
         minPriceParam,
-        maxPriceParam
+        maxPriceParam,
+        pageIndex,
+        pageSize
       );
 
-      console.log("API Response:", response); // Debug log
+      console.log("API Response:", response);
 
-      // Handle different response formats
       if (response) {
-        // If response is an array of coaches directly
-        if (Array.isArray(response)) {
-          console.log("Setting coaches from array response:", response);
-          setCoaches(response);
-          setPagination({
-            ...pagination,
-            total: response.length,
-          });
-        }
-        // If response has coaches property (nested structure)
-        else if (response.coaches) {
-          console.log(
-            "Setting coaches from nested response:",
-            response.coaches
-          );
-          setCoaches(response.coaches);
-          setPagination({
-            ...pagination,
-            total: response.totalCount || response.coaches.length,
-          });
-        }
-        // Other unexpected response format
-        else {
-          console.error("Unexpected response format:", response);
-          setError("Received unexpected data format from the server.");
-        }
+        // Extract coaches from data array in response
+        const coachesData = response.data || [];
+
+        setCoaches(coachesData);
+        setPagination({
+          ...pagination,
+          total: response.count || 0,
+        });
       } else {
         setCoaches([]);
         setPagination({
@@ -292,10 +281,11 @@ const CoachList = () => {
     <Box sx={{ py: 4, px: 3 }}>
       <Box sx={{ mb: 4, display: "flex", flexDirection: "column" }}>
         <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-          Tìm huấn luyện viên phù hợp với bạn
+          Find Your Perfect Coach
         </Typography>
         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          Duyệt qua danh sách các huấn luyện viên chuyên nghiệp và tìm người phù hợp nhất với nhu cầu luyện tập của bạn.
+          Browse our selection of professional coaches and find the perfect
+          match for your training needs
         </Typography>
       </Box>
 
@@ -315,7 +305,7 @@ const CoachList = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <Search
-              placeholder="Tìm huấn luyện viên theo tên"
+              placeholder="Search coaches by name"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onSearch={handleSearch}
@@ -327,7 +317,7 @@ const CoachList = () => {
           <Grid item xs={12} md={3}>
             <FormControl fullWidth>
               <Select
-                placeholder="Lọc theo môn thể thao"
+                placeholder="Filter by Sport"
                 value={selectedSport}
                 onChange={handleSportChange}
                 allowClear
@@ -347,7 +337,7 @@ const CoachList = () => {
 
           <Grid item xs={12} md={3}>
             <Select
-              placeholder="Lọc theo"
+              placeholder="Sort By"
               value={sortOrder}
               onChange={handleSortChange}
               style={{ width: "100%" }}
@@ -355,13 +345,13 @@ const CoachList = () => {
               <Option value="rating">
                 <Space>
                   <StarOutlined />
-                  Đánh giá cao nhất
+                  Highest Rating
                 </Space>
               </Option>
               <Option value="priceAsc">
                 <Space>
                   <SortAscendingOutlined />
-                  Giá: Từ thấp đến cao
+                  Price: Low to High
                 </Space>
               </Option>
               <Option value="priceDesc">
@@ -369,7 +359,7 @@ const CoachList = () => {
                   <SortAscendingOutlined
                     style={{ transform: "rotateX(180deg)" }}
                   />
-                  Giá: Từ cao đến thấp
+                  Price: High to Low
                 </Space>
               </Option>
             </Select>
@@ -381,13 +371,13 @@ const CoachList = () => {
               onClick={resetFilters}
               style={{ width: "100%" }}
             >
-              Cài đặt lại bộ lọc
+              Reset Filters
             </Button>
           </Grid>
 
           <Grid item xs={12}>
             <Typography id="price-range-slider" gutterBottom>
-              Khoảng giá: {formatPrice(priceRange[0])} -{" "}
+              Price Range: {formatPrice(priceRange[0])} -{" "}
               {formatPrice(priceRange[1])}
             </Typography>
             <Slider
@@ -420,7 +410,7 @@ const CoachList = () => {
             {error}
           </Typography>
           <Button variant="contained" onClick={fetchCoaches} sx={{ mt: 2 }}>
-            Thử lại
+            Try Again
           </Button>
         </Box>
       )}
@@ -432,7 +422,8 @@ const CoachList = () => {
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
               <Typography variant="body1">
-                Không tìm thấy huấn luyện viên phù hợp với tiêu chí của bạn. Hãy thử tìm kiếm theo bộ lọc khác.
+                No coaches found matching your criteria. Try adjusting your
+                filters.
               </Typography>
             }
           />
@@ -441,7 +432,7 @@ const CoachList = () => {
             onClick={resetFilters}
             style={{ marginTop: 16 }}
           >
-            Cài đặt lại bộ lọc.
+            Reset Filters
           </Button>
         </Box>
       )}
@@ -553,7 +544,7 @@ const CoachList = () => {
                           size="small"
                           variant="outlined"
                           icon={<TeamOutlined />}
-                          label={`${coach.experienceYears || 1}+ năm kinh nghiệm`}
+                          label={`${coach.experienceYears || 1}+ yrs exp.`}
                         />
                       </Box>
                     </Box>
@@ -564,7 +555,7 @@ const CoachList = () => {
                     sx={{ mb: 2, height: 60, overflow: "hidden" }}
                   >
                     {coach.bio ||
-                      "Không có thông tin giới thiệu. Huấn luyện viên này muốn để chuyên môn của mình thể hiện qua việc đào tạo."}
+                      "No bio provided. This coach prefers to let their expertise speak through training."}
                   </Typography>
 
                   <Box
@@ -579,14 +570,14 @@ const CoachList = () => {
                       icon={<CalendarOutlined />}
                       onClick={() => navigate(`/coaches/${coach.id}`)}
                     >
-                      Xem chi tiết
+                      View Details
                     </Button>
                     <Button
                       type="primary"
                       icon={<BookOnline />}
                       onClick={() => navigate(`/coaches/${coach.id}/book`)}
                     >
-                      Đặt ngay
+                      Book Now
                     </Button>
                   </Box>
                 </StyledCard>

@@ -20,6 +20,7 @@ import {
   Space,
   Switch,
   Collapse,
+  InputNumber,
 } from "antd";
 import {
   UploadOutlined,
@@ -75,6 +76,48 @@ const dayOptions = [
 
 const client = new Client();
 
+// Helper functions for time validation
+const convertTimeToMinutes = (timeString) => {
+  const [hours, minutes, seconds] = timeString.split(":").map(Number);
+  return hours * 60 + minutes + (seconds || 0) / 60;
+};
+
+const isDivisibleBySlotDuration = (timeString, slotDuration) => {
+  const timeMinutes = convertTimeToMinutes(timeString);
+  const durationMinutes = convertTimeToMinutes(slotDuration);
+  return timeMinutes % durationMinutes === 0;
+};
+
+const hasOverlap = (newSchedule, existingSchedules, excludeIndex = -1) => {
+  const newStart = convertTimeToMinutes(newSchedule.startTime);
+  const newEnd = convertTimeToMinutes(newSchedule.endTime);
+
+  for (let i = 0; i < existingSchedules.length; i++) {
+    if (i === excludeIndex) continue;
+
+    const existingSchedule = existingSchedules[i];
+    const hasCommonDay = existingSchedule.days.some((day) =>
+      newSchedule.days.includes(day)
+    );
+
+    if (hasCommonDay) {
+      const existingStart = convertTimeToMinutes(existingSchedule.startTime);
+      const existingEnd = convertTimeToMinutes(existingSchedule.endTime);
+
+      // Check time overlap
+      if (
+        (newStart >= existingStart && newStart < existingEnd) ||
+        (newEnd > existingStart && newEnd <= existingEnd) ||
+        (newStart <= existingStart && newEnd >= existingEnd)
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
 const CourtOwnerCourtCreateView = () => {
   const { venueId, courtId } = useParams();
   const navigate = useNavigate();
@@ -87,6 +130,8 @@ const CourtOwnerCourtCreateView = () => {
   const [venues, setVenues] = useState([]);
   const [currentVenue, setCurrentVenue] = useState(null);
   const [schedules, setSchedules] = useState(defaultSchedules);
+  const [scheduleErrors, setScheduleErrors] = useState([]);
+  const [slotDurationError, setSlotDurationError] = useState("");
 
   // Fetch initial data: sports list and venue details if venueId is provided
   useEffect(() => {
@@ -161,7 +206,9 @@ const CourtOwnerCourtCreateView = () => {
         }
       } catch (error) {
         console.error("Error fetching initial data:", error);
-        message.error("Gặp lỗi trong quá trình lấy thông tin. Vui lòng thử lại.");
+        message.error(
+          "Gặp lỗi trong quá trình lấy thông tin. Vui lòng thử lại."
+        );
       } finally {
         setLoading(false);
       }
@@ -187,14 +234,77 @@ const CourtOwnerCourtCreateView = () => {
     setSchedules(newSchedules);
   };
 
+  const validateScheduleTimes = (index, field, value) => {
+    const newErrors = [...scheduleErrors];
+
+    if (!newErrors[index]) {
+      newErrors[index] = {};
+    }
+
+    const slotDuration = form.getFieldValue("slotDuration") || "01:00:00";
+
+    // If updating startTime or endTime, check if divisible by slotDuration
+    if (field === "startTime" || field === "endTime") {
+      if (!isDivisibleBySlotDuration(`${value}:00`, slotDuration)) {
+        newErrors[index][
+          field
+        ] = `Thời gian phải chia hết cho thời lượng slot (${slotDuration})`;
+      } else {
+        delete newErrors[index][field];
+      }
+    }
+
+    // Check for schedule overlap
+    const currentSchedule = { ...schedules[index] };
+    currentSchedule[field] = value;
+
+    if (hasOverlap(currentSchedule, schedules, index)) {
+      newErrors[index].overlap =
+        "Lịch này bị trùng với lịch khác trong cùng ngày";
+    } else {
+      delete newErrors[index].overlap;
+    }
+
+    setScheduleErrors(newErrors);
+  };
+
   const updateSchedule = (index, field, value) => {
     const newSchedules = [...schedules];
     newSchedules[index][field] = value;
     setSchedules(newSchedules);
+
+    // Validate the schedule after update
+    validateScheduleTimes(index, field, value);
+  };
+
+  const handleSlotDurationChange = (e) => {
+    const newSlotDuration = e.target.value;
+    form.setFieldsValue({ slotDuration: newSlotDuration });
+
+    // Revalidate all schedules when slot duration changes
+    schedules.forEach((schedule, index) => {
+      validateScheduleTimes(index, "startTime", schedule.startTime);
+      validateScheduleTimes(index, "endTime", schedule.endTime);
+    });
   };
 
   const handleSubmit = async (values) => {
     try {
+      // Check for schedule validation errors before submitting
+      let hasScheduleErrors = false;
+      scheduleErrors.forEach((errors) => {
+        if (errors && Object.keys(errors).length > 0) {
+          hasScheduleErrors = true;
+        }
+      });
+
+      if (hasScheduleErrors) {
+        message.error(
+          "Vui lòng sửa các lỗi trong lịch trình trước khi tiếp tục"
+        );
+        return;
+      }
+
       setSubmitting(true);
 
       // Transform form values to match the API request structure
@@ -243,7 +353,7 @@ const CourtOwnerCourtCreateView = () => {
           sportCenterId: venueId || values.venue_id,
           description: values.description || "",
           facilities: facilities,
-          slotDuration: "01:00:00", // Format with seconds
+          slotDuration: values.slotDuration, // Use the form's slotDuration value
           minDepositPercentage: values.minDepositPercentage || 0,
           courtType: values.courtType || 1,
           courtSchedules: courtSchedules,
@@ -273,7 +383,8 @@ const CourtOwnerCourtCreateView = () => {
     } catch (error) {
       console.error("Error creating court:", error);
       message.error(
-        `Gặp lỗi trong quá trình ${isEditMode ? "cập nhật" : "tạo mới"} sân: ${error.message || "Lỗi không xác định"
+        `Gặp lỗi trong quá trình ${isEditMode ? "cập nhật" : "tạo mới"} sân: ${
+          error.message || "Lỗi không xác định"
         }`
       );
     } finally {
@@ -356,7 +467,10 @@ const CourtOwnerCourtCreateView = () => {
                         name="sport_type"
                         label="Môn thể thao"
                         rules={[
-                          { required: true, message: "Vui lòng chọn môn thể thao" },
+                          {
+                            required: true,
+                            message: "Vui lòng chọn môn thể thao",
+                          },
                         ]}
                       >
                         <Select placeholder="Lựa chọn một môn thể thao">
@@ -382,7 +496,10 @@ const CourtOwnerCourtCreateView = () => {
                       name="venue_id"
                       label="Trung tâm thể thao"
                       rules={[
-                        { required: true, message: "Vui lòng chọn một trung tâm thể thao" },
+                        {
+                          required: true,
+                          message: "Vui lòng chọn một trung tâm thể thao",
+                        },
                       ]}
                     >
                       <Select placeholder="Chọn trung tâm thể thao">
@@ -423,18 +540,43 @@ const CourtOwnerCourtCreateView = () => {
                     </Col>
                     <Col span={8}>
                       <Form.Item
+                        name="slotDuration"
+                        label="Thời lượng slot"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng nhập thời lượng slot",
+                          },
+                          {
+                            pattern: /^(\d{2}):(\d{2}):(\d{2})$/,
+                            message:
+                              "Định dạng thời gian không hợp lệ. Sử dụng định dạng HH:MM:SS",
+                          },
+                        ]}
+                        tooltip="Định dạng: HH:MM:SS (ví dụ: 01:00:00 cho 1 giờ)"
+                      >
+                        <Input
+                          placeholder="01:00:00"
+                          onChange={handleSlotDurationChange}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item
                         name="minDepositPercentage"
                         label="Mức đặt cọc tối thiểu (%)"
                         rules={[
                           {
                             required: true,
-                            message: "Vui lòng nhập mức đặt cọc tối thiểu của sân",
+                            message:
+                              "Vui lòng nhập mức đặt cọc tối thiểu của sân",
                           },
                           {
                             type: "number",
                             min: 0,
                             max: 100,
-                            message: "Giá trị phần trăm phải nằm trong khoảng từ 0 đến 100",
+                            message:
+                              "Giá trị phần trăm phải nằm trong khoảng từ 0 đến 100",
                           },
                         ]}
                       >
@@ -443,24 +585,6 @@ const CourtOwnerCourtCreateView = () => {
                           min={0}
                           max={100}
                           placeholder="Nhập giá trị phần trăm đặt cọc tối thiểu"
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item
-                        name="cancellationWindowHours"
-                        label="Khung thời gian hủy đặt sân (giờ)"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập khung thời gian hủy đặt sân",
-                          },
-                        ]}
-                      >
-                        <Input
-                          type="number"
-                          min={1}
-                          placeholder="Số giờ trước lịch đặt sân"
                         />
                       </Form.Item>
                     </Col>
@@ -493,10 +617,7 @@ const CourtOwnerCourtCreateView = () => {
                       </Form.Item>
                     </Col>
                     <Col span={12}>
-                      <Form.Item
-                        name="seating_capacity"
-                        label="Sức chứa"
-                      >
+                      <Form.Item name="seating_capacity" label="Sức chứa">
                         <Input
                           type="number"
                           min={0}
@@ -577,7 +698,9 @@ const CourtOwnerCourtCreateView = () => {
                             valuePropName="checked"
                             noStyle
                           >
-                            <Checkbox>Hệ thống điều hòa không khí (máy lạnh/sưởi)</Checkbox>
+                            <Checkbox>
+                              Hệ thống điều hòa không khí (máy lạnh/sưởi)
+                            </Checkbox>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -611,7 +734,8 @@ const CourtOwnerCourtCreateView = () => {
                 <>
                   <Title level={5}>Lịch đặt sân</Title>
                   <Text type="secondary" className="mb-4 block">
-                    Thiết lập giờ hoạt động và giá thuê cho các ngày và khung giờ khác nhau
+                    Thiết lập giờ hoạt động và giá thuê cho các ngày và khung
+                    giờ khác nhau
                   </Text>
 
                   <Collapse defaultActiveKey={["0"]} className="mb-4">
@@ -640,6 +764,16 @@ const CourtOwnerCourtCreateView = () => {
                           </Button>
                         }
                       >
+                        {scheduleErrors[index] &&
+                          scheduleErrors[index].overlap && (
+                            <Alert
+                              message={scheduleErrors[index].overlap}
+                              type="error"
+                              showIcon
+                              className="mb-3"
+                            />
+                          )}
+
                         <Row gutter={16}>
                           <Col span={24} className="mb-4">
                             <div className="flex flex-wrap gap-2">
@@ -657,8 +791,8 @@ const CourtOwnerCourtCreateView = () => {
                                       day.value
                                     )
                                       ? schedule.days.filter(
-                                        (d) => d !== day.value
-                                      )
+                                          (d) => d !== day.value
+                                        )
                                       : [...schedule.days, day.value];
                                     updateSchedule(index, "days", newDays);
                                   }}
@@ -677,7 +811,15 @@ const CourtOwnerCourtCreateView = () => {
                                 updateSchedule(index, "startTime", timeString)
                               }
                               className="w-full"
+                              status={
+                                scheduleErrors[index]?.startTime ? "error" : ""
+                              }
                             />
+                            {scheduleErrors[index]?.startTime && (
+                              <div className="text-red-500 text-xs mt-1">
+                                {scheduleErrors[index].startTime}
+                              </div>
+                            )}
                           </Col>
                           <Col span={8}>
                             <div className="mb-2">Thời gian kết thúc</div>
@@ -688,7 +830,15 @@ const CourtOwnerCourtCreateView = () => {
                                 updateSchedule(index, "endTime", timeString)
                               }
                               className="w-full"
+                              status={
+                                scheduleErrors[index]?.endTime ? "error" : ""
+                              }
                             />
+                            {scheduleErrors[index]?.endTime && (
+                              <div className="text-red-500 text-xs mt-1">
+                                {scheduleErrors[index].endTime}
+                              </div>
+                            )}
                           </Col>
                           <Col span={8}>
                             <div className="mb-2">Giá thuê (mỗi giờ)</div>
@@ -725,11 +875,19 @@ const CourtOwnerCourtCreateView = () => {
                     message="Schedule Tips"
                     description={
                       <ul>
-                        <li>Thiết lập mức giá khác nhau cho giờ cao điểm và giờ thấp điểm</li>
-                        <li>Giá vào cuối tuần thường cao hơn so với các ngày trong tuần</li>
-                        <li>Bạn có thể tạo nhiều khung giờ trong cùng một ngày với thời gian và mức giá khác nhau</li>
+                        <li>
+                          Thiết lập mức giá khác nhau cho giờ cao điểm và giờ
+                          thấp điểm
+                        </li>
+                        <li>
+                          Giá vào cuối tuần thường cao hơn so với các ngày trong
+                          tuần
+                        </li>
+                        <li>
+                          Bạn có thể tạo nhiều khung giờ trong cùng một ngày với
+                          thời gian và mức giá khác nhau
+                        </li>
                       </ul>
-
                     }
                   />
                 </>
@@ -753,7 +911,6 @@ const CourtOwnerCourtCreateView = () => {
                         placeholder="Ví dụ: Không mang giày đinh kim loại, Sử dụng các lối vào được chỉ định"
                       />
                     </Form.Item>
-
                   </Col>
 
                   <Col xs={24} md={12}>

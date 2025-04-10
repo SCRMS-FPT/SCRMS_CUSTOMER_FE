@@ -12,6 +12,7 @@ import CoachPromotionManagementPage from "@/pages/CoachView/CoachPromotionManage
 import CoachOnboarding from "@/pages/CoachView/CoachOnboarding";
 import { useSelector } from "react-redux";
 import { Navigate, Route } from "react-router-dom";
+import CoachReviewsPage from "@/pages/CoachView/CoachReviewsPage";
 
 // Protected route component that checks for Coach role
 const ProtectedCoachRoute = ({ children }) => {
@@ -177,7 +178,17 @@ const CoachRoutes = [
       </ProtectedCoachRoute>
     }
   />,
-
+  <Route
+    key="coach-reviews"
+    path="/coach-reviews"
+    element={
+      <ProtectedCoachRoute>
+        <CoachSidebar>
+          <CoachReviewsPage />
+        </CoachSidebar>
+      </ProtectedCoachRoute>
+    }
+  />,
   /////Booking của Coach
 
   <Route

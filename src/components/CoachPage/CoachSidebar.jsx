@@ -25,6 +25,7 @@ import { Box } from "@mui/material";
 import { Iconify } from "../iconify";
 import { NotificationsPopover } from "./notifications-popover";
 import { AccountPopover } from "./account-popover";
+import { CommentOutlined } from "@mui/icons-material";
 const { Sider, Content } = Layout;
 const _notifications = [
   {
@@ -83,6 +84,11 @@ const CoachSidebar = ({ children }) => {
       icon: <PercentageOutlined />,
       label: <Link to="/coach-promotions">Ưu đãi</Link>,
     },
+    {
+      key: "/coach-reviews",
+      icon: <CommentOutlined />,
+      label: <Link to="/coach-reviews">Đánh giá</Link>,
+    },
   ];
 
   const bottomMenuItems = [
@@ -129,7 +135,15 @@ const CoachSidebar = ({ children }) => {
           </h2>
           <Button
             type="text"
-            icon={collapsed ? <MenuUnfoldOutlined style={{ fontSize: "20px", marginLeft: 16 }} /> : <MenuFoldOutlined style={{ fontSize: "20px" }} />}
+            icon={
+              collapsed ? (
+                <MenuUnfoldOutlined
+                  style={{ fontSize: "20px", marginLeft: 16 }}
+                />
+              ) : (
+                <MenuFoldOutlined style={{ fontSize: "20px" }} />
+              )
+            }
             onClick={() => setCollapsed(!collapsed)}
           />
         </div>

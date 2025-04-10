@@ -20,7 +20,8 @@ import {
   Avatar,
   Fade,
   Zoom,
-  Divider, LinearProgress
+  Divider,
+  LinearProgress,
 } from "@mui/material";
 import {
   Spin,
@@ -54,6 +55,47 @@ import { Client } from "@/API/CourtApi";
 
 const { Panel } = Collapse;
 const { Title, Text } = AntTypography;
+
+// Helper functions for time validation
+const convertTimeToMinutes = (timeString) => {
+  const [hours, minutes, seconds] = timeString.split(":").map(Number);
+  return hours * 60 + minutes + (seconds || 0) / 60;
+};
+
+const isDivisibleBySlotDuration = (timeString, slotDuration) => {
+  const timeMinutes = convertTimeToMinutes(timeString);
+  const durationMinutes = convertTimeToMinutes(slotDuration);
+  return timeMinutes % durationMinutes === 0;
+};
+
+const hasOverlap = (newSchedule, existingSchedules, excludeIndex = -1) => {
+  const newStart = convertTimeToMinutes(newSchedule.startTime);
+  const newEnd = convertTimeToMinutes(newSchedule.endTime);
+
+  for (let i = 0; i < existingSchedules.length; i++) {
+    if (i === excludeIndex) continue;
+
+    const existingSchedule = existingSchedules[i];
+    const hasCommonDay = existingSchedule.days.some((day) =>
+      newSchedule.days.includes(day)
+    );
+
+    if (hasCommonDay) {
+      const existingStart = convertTimeToMinutes(existingSchedule.startTime);
+      const existingEnd = convertTimeToMinutes(existingSchedule.endTime);
+
+      if (
+        (newStart >= existingStart && newStart < existingEnd) ||
+        (newEnd > existingStart && newEnd <= existingEnd) ||
+        (newStart <= existingStart && newEnd >= existingEnd)
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
 
 // Default operating hours format - same as in CourtCreateView
 const defaultSchedules = [
@@ -138,6 +180,7 @@ const CourtOwnerOnboarding = () => {
   });
   const [sports, setSports] = useState([]);
   const [sportCenterId, setSportCenterId] = useState("");
+  const [scheduleErrors, setScheduleErrors] = useState([]);
   const navigate = useNavigate();
   const user = useSelector((state) => state.user.userProfile);
 
@@ -152,7 +195,8 @@ const CourtOwnerOnboarding = () => {
         console.error("Error fetching sports:", error);
         notification.error({
           message: "Lỗi",
-          description: "Không thể hiển thị các môn thể thao. Vui lòng thử lại sau.",
+          description:
+            "Không thể hiển thị các môn thể thao. Vui lòng thử lại sau.",
         });
       }
     };
@@ -212,10 +256,45 @@ const CourtOwnerOnboarding = () => {
     setSchedules(newSchedules);
   };
 
+  const validateScheduleTimes = (index, field, value) => {
+    const newErrors = [...scheduleErrors];
+
+    if (!newErrors[index]) {
+      newErrors[index] = {};
+    }
+
+    // If updating startTime or endTime, check if divisible by slotDuration
+    if (field === "startTime" || field === "endTime") {
+      if (!isDivisibleBySlotDuration(`${value}:00`, court.slotDuration)) {
+        newErrors[index][
+          field
+        ] = `Thời gian phải chia hết cho thời lượng slot (${court.slotDuration})`;
+      } else {
+        delete newErrors[index][field];
+      }
+    }
+
+    // Check for schedule overlap
+    const currentSchedule = { ...schedules[index] };
+    currentSchedule[field] = value;
+
+    if (hasOverlap(currentSchedule, schedules, index)) {
+      newErrors[index].overlap =
+        "Lịch này bị trùng với lịch khác trong cùng ngày";
+    } else {
+      delete newErrors[index].overlap;
+    }
+
+    setScheduleErrors(newErrors);
+  };
+
   const updateSchedule = (index, field, value) => {
     const newSchedules = [...schedules];
     newSchedules[index][field] = value;
     setSchedules(newSchedules);
+
+    // Validate the schedule after update
+    validateScheduleTimes(index, field, value);
   };
   // Custom upload handler for gallery images
   const customGalleryUpload = async ({ file, onSuccess }) => {
@@ -395,11 +474,26 @@ const CourtOwnerOnboarding = () => {
     }, 1000);
   };
 
+  const handleSlotDurationChange = (e) => {
+    const newSlotDuration = e.target.value;
+    setCourt({
+      ...court,
+      slotDuration: newSlotDuration,
+    });
+
+    // Kiểm tra lại tất cả các lịch trình hiện có
+    schedules.forEach((schedule, index) => {
+      validateScheduleTimes(index, "startTime", schedule.startTime);
+      validateScheduleTimes(index, "endTime", schedule.endTime);
+    });
+  };
+
   const steps = [
     {
       label: "Chào mừng bạn đến với Cổng thông tin Chủ Sở Hữu Sân",
-      description: `Xin chào ${user?.name || "bạn"
-        }! Hãy bắt đầu bằng cách thiết lập trung tâm thể thao đầu tiên của bạn.`,
+      description: `Xin chào ${
+        user?.name || "bạn"
+      }! Hãy bắt đầu bằng cách thiết lập trung tâm thể thao đầu tiên của bạn.`,
       content: (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -487,8 +581,9 @@ const CourtOwnerOnboarding = () => {
                 }}
               >
                 Chúng tôi rất vui khi bạn gia nhập nền tảng của chúng tôi! Trình
-                hướng dẫn thiết lập này sẽ giúp bạn thiết lập trung tâm thể thao, sân
-                thi đấu và chuẩn bị mọi thứ sẵn sàng cho khách hàng của bạn.
+                hướng dẫn thiết lập này sẽ giúp bạn thiết lập trung tâm thể
+                thao, sân thi đấu và chuẩn bị mọi thứ sẵn sàng cho khách hàng
+                của bạn.
               </Typography>
 
               <Box
@@ -522,7 +617,8 @@ const CourtOwnerOnboarding = () => {
                       Tạo trung tâm thể thao của bạn
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Thiết lập thông tin, vị trí và hình ảnh cho trung tâm thể thao của bạn
+                      Thiết lập thông tin, vị trí và hình ảnh cho trung tâm thể
+                      thao của bạn
                     </Typography>
                   </Timeline.Item>
 
@@ -647,7 +743,11 @@ const CourtOwnerOnboarding = () => {
                 <LinearProgress
                   variant="determinate"
                   value={33} // Giá trị tiến độ (0 - 100)
-                  sx={{ height: 8, backgroundColor: '#e0e0e0', borderRadius: '5px' }} // Tùy chỉnh kiểu dáng
+                  sx={{
+                    height: 8,
+                    backgroundColor: "#e0e0e0",
+                    borderRadius: "5px",
+                  }} // Tùy chỉnh kiểu dáng
                 />
               </Box>
 
@@ -917,11 +1017,7 @@ const CourtOwnerOnboarding = () => {
                           color: "text.primary",
                         }}
                       >
-                        <Badge
-                          count="Yêu cầu"
-                          color="#1976d2"
-                          offset={[28, 0]}
-                        >
+                        <Badge count="Yêu cầu" color="#1976d2" offset={[28, 0]}>
                           <PhotoCamera sx={{ mr: 1, color: "primary.main" }} />
                           Tải lên Logo của trung tâm thể thao
                         </Badge>
@@ -932,13 +1028,13 @@ const CourtOwnerOnboarding = () => {
                         fileList={
                           avatarFile
                             ? [
-                              {
-                                uid: "-1",
-                                name: avatarFile.name,
-                                status: "done",
-                                url: URL.createObjectURL(avatarFile), // Tạo URL tạm thời cho ảnh
-                              },
-                            ]
+                                {
+                                  uid: "-1",
+                                  name: avatarFile.name,
+                                  status: "done",
+                                  url: URL.createObjectURL(avatarFile), // Tạo URL tạm thời cho ảnh
+                                },
+                              ]
                             : []
                         }
                         customRequest={customAvatarUpload}
@@ -1060,7 +1156,11 @@ const CourtOwnerOnboarding = () => {
                 <LinearProgress
                   variant="determinate"
                   value={67} // Giá trị tiến độ (0 - 100)
-                  sx={{ height: 8, backgroundColor: '#e0e0e0', borderRadius: '5px' }} // Tùy chỉnh kiểu dáng
+                  sx={{
+                    height: 8,
+                    backgroundColor: "#e0e0e0",
+                    borderRadius: "5px",
+                  }} // Tùy chỉnh kiểu dáng
                 />
               </Box>
 
@@ -1116,7 +1216,9 @@ const CourtOwnerOnboarding = () => {
                             </MenuItem>
                           ))
                         ) : (
-                          <MenuItem disabled>Đang tải thông tin các môn thể thao...</MenuItem>
+                          <MenuItem disabled>
+                            Đang tải thông tin các môn thể thao...
+                          </MenuItem>
                         )}
                       </Select>
                     </FormControl>
@@ -1155,9 +1257,7 @@ const CourtOwnerOnboarding = () => {
                       label="Thời lượng 1 Slot (hh:mm:ss)"
                       variant="outlined"
                       value={court.slotDuration}
-                      onChange={(e) =>
-                        setCourt({ ...court, slotDuration: e.target.value })
-                      }
+                      onChange={handleSlotDurationChange}
                       required
                       margin="normal"
                       placeholder="01:00:00"
@@ -1321,7 +1421,8 @@ const CourtOwnerOnboarding = () => {
                     color="text.secondary"
                     sx={{ mb: 2 }}
                   >
-                    Xác định thời gian sân của bạn có sẵn và thiết lập giá cho các khung giờ khác nhau.
+                    Xác định thời gian sân của bạn có sẵn và thiết lập giá cho
+                    các khung giờ khác nhau.
                   </Typography>
 
                   <Collapse defaultActiveKey={["0"]} sx={{ mb: 2 }}>
@@ -1385,8 +1486,8 @@ const CourtOwnerOnboarding = () => {
                                       day.value
                                     )
                                       ? schedule.days.filter(
-                                        (d) => d !== day.value
-                                      )
+                                          (d) => d !== day.value
+                                        )
                                       : [...schedule.days, day.value];
                                     updateSchedule(index, "days", newDays);
                                   }}
@@ -1508,7 +1609,8 @@ const CourtOwnerOnboarding = () => {
     },
     {
       label: "Xin chúc mừng!",
-      description: "Tất cả thông tin đã được thiết lập, bạn đã sẵn sàng để bắt đầu!",
+      description:
+        "Tất cả thông tin đã được thiết lập, bạn đã sẵn sàng để bắt đầu!",
       content: (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -1542,7 +1644,11 @@ const CourtOwnerOnboarding = () => {
                 <LinearProgress
                   variant="determinate"
                   value={100} // Giá trị tiến độ (0 - 100)
-                  sx={{ height: 8, backgroundColor: '#e0e0e0', borderRadius: '5px' }} // Tùy chỉnh kiểu dáng
+                  sx={{
+                    height: 8,
+                    backgroundColor: "#e0e0e0",
+                    borderRadius: "5px",
+                  }} // Tùy chỉnh kiểu dáng
                 />
               </Box>
 
@@ -1591,7 +1697,9 @@ const CourtOwnerOnboarding = () => {
                   fontWeight: "normal",
                 }}
               >
-                Trung tâm thể thao và sân của bạn đã được thiết lập thành công. Bạn có thể bắt đầu quản lý lịch đặt sân và khách hàng ngay bây giờ.
+                Trung tâm thể thao và sân của bạn đã được thiết lập thành công.
+                Bạn có thể bắt đầu quản lý lịch đặt sân và khách hàng ngay bây
+                giờ.
               </Typography>
 
               <motion.div
@@ -1681,7 +1789,8 @@ const CourtOwnerOnboarding = () => {
                         </Typography>
 
                         <Typography variant="body1" color="text.secondary">
-                          Thiết lập thời gian sân của bạn có sẵn và thiết lập giá cho các khung giờ khác nhau.
+                          Thiết lập thời gian sân của bạn có sẵn và thiết lập
+                          giá cho các khung giờ khác nhau.
                         </Typography>
 
                         <Button
@@ -1735,7 +1844,8 @@ const CourtOwnerOnboarding = () => {
                         </Typography>
 
                         <Typography variant="body1" color="text.secondary">
-                          Thu hút khách hàng với các ưu đãi và giảm giá đặc biệt cho sân của bạn.
+                          Thu hút khách hàng với các ưu đãi và giảm giá đặc biệt
+                          cho sân của bạn.
                         </Typography>
 
                         <Button
@@ -1789,7 +1899,8 @@ const CourtOwnerOnboarding = () => {
                         </Typography>
 
                         <Typography variant="body1" color="text.secondary">
-                          Mở rộng dịch vụ của bạn bằng cách thêm các loại sân khác nhau vào trung tâm thể thao của bạn.
+                          Mở rộng dịch vụ của bạn bằng cách thêm các loại sân
+                          khác nhau vào trung tâm thể thao của bạn.
                         </Typography>
 
                         <Button
@@ -1849,7 +1960,7 @@ const CourtOwnerOnboarding = () => {
             ".MuiStepConnector-line": {
               borderLeft: "2px dashed rgba(25, 118, 210, 0.3)",
               minHeight: 20,
-              marginLeft: 1
+              marginLeft: 1,
             },
           }}
         >
