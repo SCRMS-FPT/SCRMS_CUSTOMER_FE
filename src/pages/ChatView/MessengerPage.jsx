@@ -1160,22 +1160,22 @@ const MessengerPage = () => {
           request
         );
 
-        if (response) {
-          setMessages((prevMessages) => [...prevMessages, response]);
+        // if (response) {
+        //   setMessages((prevMessages) => [...prevMessages, response]);
 
-          // Update last message state for the user list
-          const otherUserId =
-            currentChatSession.user1_id === currentUserId
-              ? currentChatSession.user2_id
-              : currentChatSession.user1_id;
+        //   // Update last message state for the user list
+        //   const otherUserId =
+        //     currentChatSession.user1_id === currentUserId
+        //       ? currentChatSession.user2_id
+        //       : currentChatSession.user1_id;
 
-          setLastMessages((prev) => ({
-            ...prev,
-            [otherUserId]: response,
-          }));
+        //   setLastMessages((prev) => ({
+        //     ...prev,
+        //     [otherUserId]: response,
+        //   }));
 
-          scrollToBottom();
-        }
+        //   scrollToBottom();
+        // }
       }
 
       // Clear message input
@@ -1246,7 +1246,6 @@ const MessengerPage = () => {
     if (activeUser && user.id === activeUser.id) return;
 
     setActiveUser(user);
-    setCurrentChatSession(null);
     setMessages([]);
     navigate(`/messenger/${user.id}`);
 

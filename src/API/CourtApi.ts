@@ -507,6 +507,62 @@ protected processGetOwnedSportCenters(response: Response): Promise<GetOwnedSport
         }
         return Promise.resolve<BookingDto>(null as any);
     }
+ /**
+     * Đánh dấu sân đã đặt bởi chủ sân
+     * @return Created
+     */
+ createOwnerBooking(body: CreateOwnerBookingRequest): Promise<CreateOwnerBookingResponse> {
+    let url_ = this.baseUrl + "/api/bookings/owner-booking";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(body);
+
+    let options_: RequestInit = {
+        body: content_,
+        method: "POST",
+        headers: {
+            ...this.getAuthHeaders(),
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processCreateOwnerBooking(_response);
+    });
+}
+
+protected processCreateOwnerBooking(response: Response): Promise<CreateOwnerBookingResponse> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 201) {
+        return response.text().then((_responseText) => {
+        let result201: any = null;
+        let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result201 = CreateOwnerBookingResponse.fromJS(resultData201);
+        return result201;
+        });
+    } else if (status === 400) {
+        return response.text().then((_responseText) => {
+        let result400: any = null;
+        let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result400 = ProblemDetails.fromJS(resultData400);
+        return throwException("Bad Request", status, _responseText, _headers, result400);
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<CreateOwnerBookingResponse>(null as any);
+}
 
     /**
      * Cancel a booking
@@ -4597,6 +4653,90 @@ export class PromotionInfo implements IPromotionInfo {
 export interface IPromotionInfo {
     discountType?: string | undefined;
     discountValue?: number;
+}
+
+export class CreateOwnerBookingRequest implements ICreateOwnerBookingRequest {
+    booking?: BookingCreateDTO;
+    note?: string | undefined;
+
+    constructor(data?: ICreateOwnerBookingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.booking = _data["booking"] ? BookingCreateDTO.fromJS(_data["booking"]) : <any>undefined;
+            this.note = _data["note"];
+        }
+    }
+
+    static fromJS(data: any): CreateOwnerBookingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateOwnerBookingRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["booking"] = this.booking ? this.booking.toJSON() : <any>undefined;
+        data["note"] = this.note;
+        return data;
+    }
+}
+
+export interface ICreateOwnerBookingRequest {
+    booking?: BookingCreateDTO;
+    note?: string | undefined;
+}
+
+export class CreateOwnerBookingResponse implements ICreateOwnerBookingResponse {
+    id?: string;
+    status?: string | undefined;
+    message?: string | undefined;
+
+    constructor(data?: ICreateOwnerBookingResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.status = _data["status"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): CreateOwnerBookingResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateOwnerBookingResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["status"] = this.status;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface ICreateOwnerBookingResponse {
+    id?: string;
+    status?: string | undefined;
+    message?: string | undefined;
 }
 
 export class SportCenterListDTO implements ISportCenterListDTO {

@@ -635,7 +635,9 @@ const CourtOwnerCourtDetailView = () => {
                               <Tag
                                 key={slotIndex}
                                 color={
-                                  slot.status === "Available" ? "green" : "red"
+                                  slot.status.toLowerCase() === "available"
+                                    ? "green"
+                                    : "red"
                                 }
                                 style={{ padding: "4px 8px", marginBottom: 8 }}
                               >
