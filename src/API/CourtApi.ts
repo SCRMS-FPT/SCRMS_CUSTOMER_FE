@@ -19,6 +19,15 @@ export class Client {
         this.http = http ? http : window as any;
         this.baseUrl = baseUrl ?? API_COURT_BOOKING_URL;
     }
+    
+    // Format date as YYYY-MM-DD to preserve local date when sending in requests
+    private formatLocalDate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    
     private getAuthHeaders(): HeadersInit {
         // Get token from localStorage (which is synced with Redux store)
         const token = localStorage.getItem("token");
@@ -994,11 +1003,11 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         if (startDate === undefined || startDate === null)
             throw new Error("The parameter 'startDate' must be defined and cannot be null.");
         else
-            url_ += "startDate=" + encodeURIComponent(startDate ? "" + startDate.toISOString() : "") + "&";
+            url_ += "startDate=" + encodeURIComponent(startDate ? "" + this.formatLocalDate(startDate) : "") + "&";
         if (endDate === undefined || endDate === null)
             throw new Error("The parameter 'endDate' must be defined and cannot be null.");
         else
-            url_ += "endDate=" + encodeURIComponent(endDate ? "" + endDate.toISOString() : "") + "&";
+            url_ += "endDate=" + encodeURIComponent(endDate ? "" + this.formatLocalDate(endDate) : "") + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
