@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { Client, LoginUserRequest } from "@/API/IdentityApi";
-import { API_IDENTITY_URL } from "@/API/config";
+import { API_IDENTITY_URL, API_GATEWAY_URL } from "@/API/config";
 
 export const login = createAsyncThunk(
   "user/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const apiClient = new Client(API_IDENTITY_URL);
+      const apiClient = new Client(API_GATEWAY_URL);
       const loginRequest = new LoginUserRequest({
         email: credentials.email,
         password: credentials.password,
@@ -33,8 +33,11 @@ export const loginWithGoogle = createAsyncThunk(
   "user/loginWithGoogle",
   async (googleToken, { rejectWithValue }) => {
     try {
-      const apiClient = new Client("http://localhost:6001");
-      const data = await apiClient.loginWithGoogle(googleToken);
+      const apiClient = new Client(API_GATEWAY_URL);
+      const obj = {
+        token: googleToken,
+      };
+      const data = await apiClient.loginWithGoogle(obj);
 
       if (!data || !data.token || !data.user) {
         return rejectWithValue("Invalid Google login response");
@@ -45,7 +48,19 @@ export const loginWithGoogle = createAsyncThunk(
 
       return { token: data.token, userProfile: data.user };
     } catch (error) {
-      return rejectWithValue(error.status + ": " + error.message);
+      let errorMsg = "Unknown error";
+
+      try {
+        const parsed = JSON.parse(error.response);
+
+        errorMsg = `${error.status}: ${error.message} : ${parsed.detail}`;
+      } catch {
+        errorMsg = `${error.status || "500"}: ${
+          error.message || "Internal error"
+        }`;
+      }
+
+      return rejectWithValue(errorMsg);
     }
   }
 );
