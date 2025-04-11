@@ -86,6 +86,119 @@ export class Client {
         }
         return Promise.resolve<void>(null as any);
     }
+ /**
+     * Get My Promotions
+     * @param page (optional) 
+     * @param recordPerPage (optional) 
+     * @return OK
+     */
+ getMyPromotions(page: number | undefined, recordPerPage: number | undefined): Promise<PromotionRecord[]> {
+    let url_ = this.baseUrl + "/api/promotions?";
+    if (page === null)
+        throw new Error("The parameter 'page' cannot be null.");
+    else if (page !== undefined)
+        url_ += "Page=" + encodeURIComponent("" + page) + "&";
+    if (recordPerPage === null)
+        throw new Error("The parameter 'recordPerPage' cannot be null.");
+    else if (recordPerPage !== undefined)
+        url_ += "RecordPerPage=" + encodeURIComponent("" + recordPerPage) + "&";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: {
+            ...this.getAuthHeaders(),
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetMyPromotions(_response);
+    });
+}
+
+protected processGetMyPromotions(response: Response): Promise<PromotionRecord[]> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        if (Array.isArray(resultData200)) {
+            result200 = [] as any;
+            for (let item of resultData200)
+                result200!.push(PromotionRecord.fromJS(item));
+        }
+        else {
+            result200 = <any>null;
+        }
+        return result200;
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<PromotionRecord[]>(null as any);
+}
+
+/**
+ * Create My Promotion
+ * @return OK
+ */
+createMyPromotion(body: CreateMyPromotionRequest): Promise<CreateCoachPromotionResult> {
+    let url_ = this.baseUrl + "/api/promotions";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(body);
+
+    let options_: RequestInit = {
+        body: content_,
+        method: "POST",
+        headers: {
+            ...this.getAuthHeaders(),
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processCreateMyPromotion(_response);
+    });
+}
+
+protected processCreateMyPromotion(response: Response): Promise<CreateCoachPromotionResult> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = CreateCoachPromotionResult.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<CreateCoachPromotionResult>(null as any);
+}
+
 
     /**
      * Get Booking Details
@@ -3135,6 +3248,11 @@ export class UpdateScheduleRequest implements IUpdateScheduleRequest {
     }
 }
 
+export interface IUpdateScheduleRequest {
+    dayOfWeek?: number;
+    startTime?: string;
+    endTime?: string;
+}
 
 export class PurchasePackageRequest implements IPurchasePackageRequest {
     packageId?: string;
@@ -3171,7 +3289,96 @@ export class PurchasePackageRequest implements IPurchasePackageRequest {
 export interface IPurchasePackageRequest {
     packageId?: string;
 }
+export class CreateMyPromotionRequest implements ICreateMyPromotionRequest {
+    packageId?: string | undefined;
+    description?: string | undefined;
+    discountType?: string | undefined;
+    discountValue?: number;
+    validFrom?: Date;
+    validTo?: Date;
 
+    constructor(data?: ICreateMyPromotionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.packageId = _data["packageId"];
+            this.description = _data["description"];
+            this.discountType = _data["discountType"];
+            this.discountValue = _data["discountValue"];
+            this.validFrom = _data["validFrom"] ? new Date(_data["validFrom"].toString()) : <any>undefined;
+            this.validTo = _data["validTo"] ? new Date(_data["validTo"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CreateMyPromotionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateMyPromotionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["packageId"] = this.packageId;
+        data["description"] = this.description;
+        data["discountType"] = this.discountType;
+        data["discountValue"] = this.discountValue;
+        data["validFrom"] = this.validFrom ? formatDate(this.validFrom) : <any>undefined;
+        data["validTo"] = this.validTo ? formatDate(this.validTo) : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICreateMyPromotionRequest {
+    packageId?: string | undefined;
+    description?: string | undefined;
+    discountType?: string | undefined;
+    discountValue?: number;
+    validFrom?: Date;
+    validTo?: Date;
+}
+export class CreateCoachPromotionResult implements ICreateCoachPromotionResult {
+    id?: string;
+
+    constructor(data?: ICreateCoachPromotionResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): CreateCoachPromotionResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCoachPromotionResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface ICreateCoachPromotionResult {
+    id?: string;
+}
 export class PurchasePackageResult implements IPurchasePackageResult {
     id?: string;
     coachPackageId?: string;

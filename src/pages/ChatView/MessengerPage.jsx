@@ -870,6 +870,14 @@ const MessengerPage = () => {
           } else {
             // It's your own message - update in the last messages list
             setLastMessages((prev) => {
+              // Add null check for currentChatSession
+              if (!currentChatSession) {
+                console.warn(
+                  "Chat session is null when processing own message"
+                );
+                return prev;
+              }
+
               const otherUserId =
                 currentChatSession.user1_id === currentUserId
                   ? currentChatSession.user2_id
