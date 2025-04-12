@@ -301,18 +301,7 @@ const CourtOwnerRoutes = [
         </CourtOwnerSidebar>
       </ProtectedCourtOwnerRoute>
     }
-  />,
-  <Route
-    key="court-owner-reports"
-    path="/court-owner/reports"
-    element={
-      <ProtectedCourtOwnerRoute>
-        <CourtOwnerSidebar>
-          <CourtOwnerReportsView />
-        </CourtOwnerSidebar>
-      </ProtectedCourtOwnerRoute>
-    }
-  />,
+  />
 ];
 
 export default CourtOwnerRoutes;

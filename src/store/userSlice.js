@@ -6,7 +6,7 @@ export const login = createAsyncThunk(
   "user/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const apiClient = new Client(API_GATEWAY_URL);
+      const apiClient = new Client();
       const loginRequest = new LoginUserRequest({
         email: credentials.email,
         password: credentials.password,
@@ -33,7 +33,7 @@ export const loginWithGoogle = createAsyncThunk(
   "user/loginWithGoogle",
   async (googleToken, { rejectWithValue }) => {
     try {
-      const apiClient = new Client(API_GATEWAY_URL);
+      const apiClient = new Client();
       const obj = {
         token: googleToken,
       };

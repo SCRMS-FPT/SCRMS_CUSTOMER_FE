@@ -990,6 +990,51 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         }
         return Promise.resolve<DeleteCourtResponse>(null as any);
     }
+/**
+     * Get Court Owner Dashboard
+     * @return OK
+     */
+getCourtOwnerDashboard(): Promise<GetCourtOwnerDashboardResult> {
+    let url_ = this.baseUrl + "/api/courtowner/dashboard";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: {
+            ...this.getAuthHeaders(),
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetCourtOwnerDashboard(_response);
+    });
+}
+
+protected processGetCourtOwnerDashboard(response: Response): Promise<GetCourtOwnerDashboardResult> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = GetCourtOwnerDashboardResult.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<GetCourtOwnerDashboardResult>(null as any);
+}
 
     /**
      * Lấy lịch khả dụng của sân
@@ -4361,6 +4406,191 @@ export class GetCourtDetailsResponse implements IGetCourtDetailsResponse {
 export interface IGetCourtDetailsResponse {
     court?: CourtDTO;
 }
+
+export class GetCourtOwnerDashboardResult implements IGetCourtOwnerDashboardResult {
+    totalSportCenters?: number;
+    totalCourts?: number;
+    totalBookings?: number;
+    completedBookingRate?: number;
+    confirmedBookingRate?: number;
+    todayRevenue?: RevenueStats;
+    weeklyRevenue?: RevenueStats;
+    monthlyRevenue?: RevenueStats;
+    todayBookings?: TodayBookingDto[] | undefined;
+
+    constructor(data?: IGetCourtOwnerDashboardResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalSportCenters = _data["totalSportCenters"];
+            this.totalCourts = _data["totalCourts"];
+            this.totalBookings = _data["totalBookings"];
+            this.completedBookingRate = _data["completedBookingRate"];
+            this.confirmedBookingRate = _data["confirmedBookingRate"];
+            this.todayRevenue = _data["todayRevenue"] ? RevenueStats.fromJS(_data["todayRevenue"]) : <any>undefined;
+            this.weeklyRevenue = _data["weeklyRevenue"] ? RevenueStats.fromJS(_data["weeklyRevenue"]) : <any>undefined;
+            this.monthlyRevenue = _data["monthlyRevenue"] ? RevenueStats.fromJS(_data["monthlyRevenue"]) : <any>undefined;
+            if (Array.isArray(_data["todayBookings"])) {
+                this.todayBookings = [] as any;
+                for (let item of _data["todayBookings"])
+                    this.todayBookings!.push(TodayBookingDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GetCourtOwnerDashboardResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCourtOwnerDashboardResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalSportCenters"] = this.totalSportCenters;
+        data["totalCourts"] = this.totalCourts;
+        data["totalBookings"] = this.totalBookings;
+        data["completedBookingRate"] = this.completedBookingRate;
+        data["confirmedBookingRate"] = this.confirmedBookingRate;
+        data["todayRevenue"] = this.todayRevenue ? this.todayRevenue.toJSON() : <any>undefined;
+        data["weeklyRevenue"] = this.weeklyRevenue ? this.weeklyRevenue.toJSON() : <any>undefined;
+        data["monthlyRevenue"] = this.monthlyRevenue ? this.monthlyRevenue.toJSON() : <any>undefined;
+        if (Array.isArray(this.todayBookings)) {
+            data["todayBookings"] = [];
+            for (let item of this.todayBookings)
+                data["todayBookings"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGetCourtOwnerDashboardResult {
+    totalSportCenters?: number;
+    totalCourts?: number;
+    totalBookings?: number;
+    completedBookingRate?: number;
+    confirmedBookingRate?: number;
+    todayRevenue?: RevenueStats;
+    weeklyRevenue?: RevenueStats;
+    monthlyRevenue?: RevenueStats;
+    todayBookings?: TodayBookingDto[] | undefined;
+}
+
+export class TodayBookingDto implements ITodayBookingDto {
+    bookingId?: string;
+    userId?: string;
+    courtName?: string | undefined;
+    sportCenterName?: string | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    totalPrice?: number;
+    status?: string | undefined;
+
+    constructor(data?: ITodayBookingDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.bookingId = _data["bookingId"];
+            this.userId = _data["userId"];
+            this.courtName = _data["courtName"];
+            this.sportCenterName = _data["sportCenterName"];
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
+            this.totalPrice = _data["totalPrice"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): TodayBookingDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TodayBookingDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["bookingId"] = this.bookingId;
+        data["userId"] = this.userId;
+        data["courtName"] = this.courtName;
+        data["sportCenterName"] = this.sportCenterName;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
+        data["totalPrice"] = this.totalPrice;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface ITodayBookingDto {
+    bookingId?: string;
+    userId?: string;
+    courtName?: string | undefined;
+    sportCenterName?: string | undefined;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    totalPrice?: number;
+    status?: string | undefined;
+}
+
+export class RevenueStats implements IRevenueStats {
+    amount?: number;
+    percentageChange?: number;
+    isIncrease?: boolean;
+
+    constructor(data?: IRevenueStats) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.percentageChange = _data["percentageChange"];
+            this.isIncrease = _data["isIncrease"];
+        }
+    }
+
+    static fromJS(data: any): RevenueStats {
+        data = typeof data === 'object' ? data : {};
+        let result = new RevenueStats();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["percentageChange"] = this.percentageChange;
+        data["isIncrease"] = this.isIncrease;
+        return data;
+    }
+}
+
+export interface IRevenueStats {
+    amount?: number;
+    percentageChange?: number;
+    isIncrease?: boolean;
+}
+
 export class GetOwnedSportCentersResponse implements IGetOwnedSportCentersResponse {
     sportCenters?: SportCenterListDTOPaginatedResult;
 

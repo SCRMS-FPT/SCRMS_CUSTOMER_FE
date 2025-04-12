@@ -22,13 +22,16 @@ import {
   Divider,
   ButtonBase,
   useTheme,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
 
 // MUI X Charts
 import { BarChart } from "@mui/x-charts/BarChart";
 
-// API Client
+// API Clients
 import { Client } from "../../API/CoachApi";
+import { Client as PaymentClient } from "../../API/PaymentApi"; // Import Payment API Client
 
 // Iconify for beautiful icons
 import { Iconify } from "@/components/iconify";
@@ -52,22 +55,33 @@ const staggeredContainer = {
 const CoachDashboardView = () => {
   const theme = useTheme();
   const [dashboardStats, setDashboardStats] = useState(null);
+  const [revenueData, setRevenueData] = useState(null); // New state for revenue data
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTimeRange, setActiveTimeRange] = useState("year");
+  const [activeTimeRange, setActiveTimeRange] = useState("month");
+  const [activeDateRange, setActiveDateRange] = useState("1year"); // New state for date range (1year or 3years)
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
         const apiClient = new Client();
+        const paymentClient = new PaymentClient(); // Create Payment API client
 
-        // Calculate date ranges for dashboard stats (1 year)
+        // Calculate date ranges based on selected date range
         const currentDate = new Date();
         const endDate = currentDate.toISOString().split("T")[0];
         const startDate = new Date(currentDate);
-        startDate.setFullYear(startDate.getFullYear() - 1);
+
+        // Set startDate based on activeDateRange
+        if (activeDateRange === "3years") {
+          startDate.setFullYear(startDate.getFullYear() - 3);
+        } else {
+          // Default to 1 year
+          startDate.setFullYear(startDate.getFullYear() - 1);
+        }
+
         const formattedStartDate = startDate.toISOString().split("T")[0];
 
         // Fetch dashboard stats
@@ -77,6 +91,14 @@ const CoachDashboardView = () => {
           "month"
         );
         setDashboardStats(stats);
+
+        // Fetch revenue data using payment API
+        const revenueReport = await paymentClient.getCoachRevenueReport(
+          formattedStartDate,
+          endDate,
+          activeTimeRange
+        );
+        setRevenueData(revenueReport);
 
         // Calculate date range for schedules (5 days from now)
         const scheduleEndDate = new Date(currentDate);
@@ -103,11 +125,23 @@ const CoachDashboardView = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [activeTimeRange, activeDateRange]); // Add both dependencies to refetch when either changes
+
+  // Update time range and fetch new data
+  const handleTimeRangeChange = (timeRange) => {
+    setActiveTimeRange(timeRange);
+  };
+
+  // Update date range and fetch new data
+  const handleDateRangeChange = (event, newDateRange) => {
+    if (newDateRange !== null) {
+      setActiveDateRange(newDateRange);
+    }
+  };
 
   // Summary stats with enhanced design
   const getSummaryStats = () => {
-    if (!dashboardStats) return [];
+    if (!dashboardStats || !revenueData) return [];
 
     return [
       {
@@ -126,10 +160,12 @@ const CoachDashboardView = () => {
       },
       {
         title: "Doanh thu",
-        value: `${dashboardStats.totalRevenue.toLocaleString()} VND`,
+        value: `${revenueData?.totalRevenue?.toLocaleString() || 0} VND`,
         icon: "solar:wallet-money-bold-duotone",
         bgGradient: "linear-gradient(135deg, #ea580c 0%, #f97316 100%)",
-        secondaryText: "Tổng doanh thu trong 12 tháng qua",
+        secondaryText: `Tổng doanh thu ${
+          activeDateRange === "3years" ? "3 năm" : "12 tháng"
+        } qua`,
       },
       {
         title: "Gói đào tạo",
@@ -141,27 +177,99 @@ const CoachDashboardView = () => {
     ];
   };
 
-  // Format period for chart labels
+  // Format period for chart labels based on activeTimeRange
   const formatPeriodLabel = (period) => {
     if (!period) return "";
-    const month = parseInt(period.split("-")[1]);
-    return `T${month}`;
+
+    if (activeTimeRange === "month") {
+      const [year, month] = period.split("-");
+      return `T${month}/${year.slice(2)}`;
+    } else if (activeTimeRange === "quarter") {
+      return `Q${period.charAt(period.length - 1)}/${period
+        .slice(0, 4)
+        .slice(2)}`;
+    } else if (activeTimeRange === "year") {
+      return period;
+    }
+
+    return period;
   };
 
-  // Prepare chart data from API response
   const prepareChartData = () => {
-    if (!dashboardStats || !dashboardStats.stats)
-      return { labels: [], data: [] };
+    if (!revenueData || !revenueData.dateRange) return { labels: [], data: [] };
 
-    // Sort stats by period to ensure chronological order
-    const sortedStats = [...dashboardStats.stats].sort((a, b) =>
-      a.period.localeCompare(b.period)
+    // Generate all periods within the date range based on activeTimeRange
+    const allPeriods = generateAllPeriods(
+      revenueData.dateRange.startDate,
+      revenueData.dateRange.endDate,
+      activeTimeRange
     );
 
+    // Create a map of existing revenue data
+    const revenueMap = {};
+    if (revenueData.stats) {
+      revenueData.stats.forEach((stat) => {
+        revenueMap[stat.period] = stat.revenue;
+      });
+    }
+
+    // Generate complete dataset with 0 revenue for missing periods
+    const completeDataset = allPeriods.map((period) => ({
+      period: period,
+      revenue: revenueMap[period] || 0,
+    }));
+
     return {
-      labels: sortedStats.map((stat) => formatPeriodLabel(stat.period)),
-      data: sortedStats.map((stat) => stat.revenue),
+      labels: completeDataset.map((item) => formatPeriodLabel(item.period)),
+      data: completeDataset.map((item) => item.revenue),
+      rawData: completeDataset,
     };
+  };
+
+  // Generate all periods within a date range based on activeTimeRange
+  const generateAllPeriods = (startDateStr, endDateStr, timeRange) => {
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(endDateStr);
+    const periods = [];
+
+    if (timeRange === "month") {
+      // Generate all months in the range
+      const currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        const year = currentDate.getFullYear();
+        // JavaScript months are 0-indexed, so add 1 and pad with leading zero if needed
+        const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+        periods.push(`${year}-${month}`);
+
+        // Move to next month
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+    } else if (timeRange === "quarter") {
+      // Generate all quarters in the range
+      const currentDate = new Date(startDate);
+      // Set to first month of the quarter
+      currentDate.setMonth(Math.floor(currentDate.getMonth() / 3) * 3);
+
+      while (currentDate <= endDate) {
+        const year = currentDate.getFullYear();
+        const quarter = Math.floor(currentDate.getMonth() / 3) + 1;
+        periods.push(`${year}-Q${quarter}`);
+
+        // Move to next quarter (add 3 months)
+        currentDate.setMonth(currentDate.getMonth() + 3);
+      }
+    } else if (timeRange === "year") {
+      // Generate all years in the range
+      for (
+        let year = startDate.getFullYear();
+        year <= endDate.getFullYear();
+        year++
+      ) {
+        periods.push(`${year}`);
+      }
+    }
+
+    return periods;
   };
 
   // Map schedule status to display status
@@ -308,52 +416,6 @@ const CoachDashboardView = () => {
               Theo dõi hiệu suất và lịch trình công việc của bạn
             </Typography>
           </Box>
-
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Box
-              className="flex items-center mt-3 sm:mt-0 bg-gray-50 rounded-lg p-1"
-              sx={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}
-            >
-              {[
-                { label: "Năm", value: "year" },
-                { label: "Quý", value: "quarter" },
-                { label: "Tháng", value: "month" },
-              ].map((item) => (
-                <ButtonBase
-                  key={item.value}
-                  onClick={() => setActiveTimeRange(item.value)}
-                  sx={{
-                    px: 2.5,
-                    py: 1,
-                    borderRadius: "8px",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    transition: "all 0.2s ease",
-                    backgroundColor:
-                      activeTimeRange === item.value
-                        ? theme.palette.primary.main
-                        : "transparent",
-                    color:
-                      activeTimeRange === item.value
-                        ? "#fff"
-                        : theme.palette.text.secondary,
-                    "&:hover": {
-                      backgroundColor:
-                        activeTimeRange === item.value
-                          ? theme.palette.primary.main
-                          : "rgba(0,0,0,0.04)",
-                    },
-                  }}
-                >
-                  {item.label}
-                </ButtonBase>
-              ))}
-            </Box>
-          </motion.div>
         </Box>
 
         {/* Summary Widgets */}
@@ -364,13 +426,7 @@ const CoachDashboardView = () => {
         >
           <Grid container spacing={3} sx={{ mb: 4 }}>
             {getSummaryStats().map((stat, index) => (
-              <Grid
-                key={index}
-                size={{
-                  xs: 12,
-                  sm: 6,
-                  md: 3
-                }}>
+              <Grid key={index} item xs={12} sm={6} md={3}>
                 <motion.div
                   variants={fadeIn}
                   transition={{ delay: index * 0.1 }}
@@ -491,7 +547,13 @@ const CoachDashboardView = () => {
                     color="text.secondary"
                     sx={{ mt: 0.5 }}
                   >
-                    Theo dõi doanh thu của bạn theo từng tháng
+                    {revenueData?.dateRange
+                      ? `Từ ${new Date(
+                          revenueData.dateRange.startDate
+                        ).toLocaleDateString("vi-VN")} đến ${new Date(
+                          revenueData.dateRange.endDate
+                        ).toLocaleDateString("vi-VN")}`
+                      : "Theo dõi doanh thu của bạn"}
                   </Typography>
                 </Box>
 
@@ -509,11 +571,100 @@ const CoachDashboardView = () => {
                       variant="caption"
                       sx={{ fontWeight: 500, color: "#3b82f6" }}
                     >
-                      {dashboardStats?.trend
-                        ? `+${dashboardStats.trend}% so với kỳ trước`
-                        : "Không có dữ liệu so sánh"}
+                      Tổng: {revenueData?.totalRevenue?.toLocaleString() || 0}{" "}
+                      VND
                     </Typography>
                   </Box>
+                </Box>
+              </Box>
+
+              {/* Chart Controls */}
+              <Box
+                className="flex flex-col md:flex-row justify-between items-start md:items-center"
+                sx={{ mb: 2 }}
+              >
+                {/* Date Range Toggle */}
+                <ToggleButtonGroup
+                  value={activeDateRange}
+                  exclusive
+                  onChange={handleDateRangeChange}
+                  size="small"
+                  sx={{
+                    mb: { xs: 2, md: 0 },
+                    "& .MuiToggleButton-root": {
+                      borderRadius: "6px",
+                      mx: 0.5,
+                      px: 2,
+                      py: 0.5,
+                      fontWeight: 500,
+                      fontSize: "0.8rem",
+                      textTransform: "none",
+                      borderColor: "rgba(0, 0, 0, 0.08)",
+                      "&.Mui-selected": {
+                        backgroundColor: "rgba(59, 130, 246, 0.08)",
+                        color: "#3b82f6",
+                        fontWeight: 600,
+                      },
+                    },
+                  }}
+                >
+                  <ToggleButton value="1year">
+                    <Iconify
+                      icon="solar:calendar-linear"
+                      width={16}
+                      style={{ marginRight: 6 }}
+                    />
+                    1 năm gần đây
+                  </ToggleButton>
+                  <ToggleButton value="3years">
+                    <Iconify
+                      icon="solar:calendar-bold-duotone"
+                      width={16}
+                      style={{ marginRight: 6 }}
+                    />
+                    3 năm gần đây
+                  </ToggleButton>
+                </ToggleButtonGroup>
+
+                {/* Grouping Toggle */}
+                <Box
+                  className="flex items-center bg-gray-50 rounded-lg p-1"
+                  sx={{ boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}
+                >
+                  {[
+                    { label: "Năm", value: "year" },
+                    { label: "Quý", value: "quarter" },
+                    { label: "Tháng", value: "month" },
+                  ].map((item) => (
+                    <ButtonBase
+                      key={item.value}
+                      onClick={() => handleTimeRangeChange(item.value)}
+                      sx={{
+                        px: 2,
+                        py: 0.7,
+                        borderRadius: "6px",
+                        fontSize: "0.8rem",
+                        fontWeight: 500,
+                        transition: "all 0.2s ease",
+                        backgroundColor:
+                          activeTimeRange === item.value
+                            ? theme.palette.primary.main
+                            : "transparent",
+                        color:
+                          activeTimeRange === item.value
+                            ? "#fff"
+                            : theme.palette.text.secondary,
+                        "&:hover": {
+                          backgroundColor:
+                            activeTimeRange === item.value
+                              ? theme.palette.primary.main
+                              : "rgba(0,0,0,0.04)",
+                        },
+                      }}
+                    >
+                      {item.label}
+                    </ButtonBase>
+                  ))}
                 </Box>
               </Box>
 
@@ -527,16 +678,14 @@ const CoachDashboardView = () => {
                   px: { xs: 0, sm: 2 },
                 }}
               >
-                {dashboardStats?.stats?.length > 0 ? (
+                {revenueData?.stats?.length > 0 ? (
                   <BarChart
-                    dataset={chartData.labels.map((month, index) => ({
-                      month: month,
-                      revenue: chartData.data[index],
-                    }))}
+                    dataset={chartData.rawData || []}
                     xAxis={[
                       {
                         scaleType: "band",
-                        dataKey: "month",
+                        dataKey: "period",
+                        valueFormatter: (value) => formatPeriodLabel(value),
                         tickLabelStyle: {
                           angle: 0,
                           textAnchor: "middle",
@@ -561,6 +710,7 @@ const CoachDashboardView = () => {
                     slotProps={{
                       legend: { hidden: false },
                     }}
+                    height={350}
                     layout="vertical"
                     colors={["#3b82f6"]}
                     sx={{

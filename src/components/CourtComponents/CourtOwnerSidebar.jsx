@@ -109,18 +109,6 @@ const CourtOwnerSidebar = ({ children }) => {
         },
       ],
     },
-    {
-      key: "analytics",
-      label: "Số liệu",
-      items: [
-        {
-          key: "/court-owner/reports",
-          icon: <BarChartOutlined />,
-          label: "Báo cáo & Số liệu",
-          onClick: () => navigate("/court-owner/reports"),
-        },
-      ],
-    },
   ];
 
   // Get all possible paths to determine the active section
@@ -148,8 +136,9 @@ const CourtOwnerSidebar = ({ children }) => {
           bottom: 0,
           height: "100vh",
           overflow: "auto",
-          background: `linear-gradient(180deg, ${theme.palette.background.paper
-            } 0%, ${alpha(theme.palette.primary.dark, 0.05)} 100%)`,
+          background: `linear-gradient(180deg, ${
+            theme.palette.background.paper
+          } 0%, ${alpha(theme.palette.primary.dark, 0.05)} 100%)`,
           borderRight: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           boxShadow: "0 0 20px rgba(0,0,0,0.06)",
           zIndex: 1000,
@@ -241,7 +230,15 @@ const CourtOwnerSidebar = ({ children }) => {
         <Button
           type="text"
           className="absolute top-3 right-3 z-10"
-          icon={collapsed ? <MenuUnfoldOutlined style={{ fontSize: "20px", marginLeft: 16 }} /> : <MenuFoldOutlined style={{ fontSize: "20px" }} />}
+          icon={
+            collapsed ? (
+              <MenuUnfoldOutlined
+                style={{ fontSize: "20px", marginLeft: 16 }}
+              />
+            ) : (
+              <MenuFoldOutlined style={{ fontSize: "20px" }} />
+            )
+          }
           onClick={() => setCollapsed(!collapsed)}
           style={{
             color: theme.palette.primary.main,

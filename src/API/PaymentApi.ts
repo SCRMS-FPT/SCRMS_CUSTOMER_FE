@@ -142,6 +142,125 @@ export class Client {
         }
         return Promise.resolve<void>(null as any);
     }
+/**
+     * @param start_date (optional) 
+     * @param end_date (optional) 
+     * @param select_by (optional) 
+     * @return OK
+     */
+getCoachRevenueReport(start_date: string | undefined, end_date: string | undefined, select_by: string | undefined): Promise<CoachRevenueReportDto> {
+    let url_ = this.baseUrl + "/api/coach/reports/revenue?";
+    if (start_date === null)
+        throw new Error("The parameter 'start_date' cannot be null.");
+    else if (start_date !== undefined)
+        url_ += "start_date=" + encodeURIComponent("" + start_date) + "&";
+    if (end_date === null)
+        throw new Error("The parameter 'end_date' cannot be null.");
+    else if (end_date !== undefined)
+        url_ += "end_date=" + encodeURIComponent("" + end_date) + "&";
+    if (select_by === null)
+        throw new Error("The parameter 'select_by' cannot be null.");
+    else if (select_by !== undefined)
+        url_ += "select_by=" + encodeURIComponent("" + select_by) + "&";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: {
+            ...this.getAuthHeaders(), // Add auth headers
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetCoachRevenueReport(_response);
+    });
+}
+
+protected processGetCoachRevenueReport(response: Response): Promise<CoachRevenueReportDto> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = CoachRevenueReportDto.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<CoachRevenueReportDto>(null as any);
+}
+
+/**
+ * @param start_date (optional) 
+ * @param end_date (optional) 
+ * @param select_by (optional) 
+ * @return OK
+ */
+getCourtRevenueReport(start_date: string | undefined, end_date: string | undefined, select_by: string | undefined): Promise<CourtRevenueReportDto> {
+    let url_ = this.baseUrl + "/api/court/reports/revenue?";
+    if (start_date === null)
+        throw new Error("The parameter 'start_date' cannot be null.");
+    else if (start_date !== undefined)
+        url_ += "start_date=" + encodeURIComponent("" + start_date) + "&";
+    if (end_date === null)
+        throw new Error("The parameter 'end_date' cannot be null.");
+    else if (end_date !== undefined)
+        url_ += "end_date=" + encodeURIComponent("" + end_date) + "&";
+    if (select_by === null)
+        throw new Error("The parameter 'select_by' cannot be null.");
+    else if (select_by !== undefined)
+        url_ += "select_by=" + encodeURIComponent("" + select_by) + "&";
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "GET",
+        headers: {
+                ...this.getAuthHeaders(), // Add auth headers
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processGetCourtRevenueReport(_response);
+    });
+}
+
+protected processGetCourtRevenueReport(response: Response): Promise<CourtRevenueReportDto> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = CourtRevenueReportDto.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 401) {
+        return response.text().then((_responseText) => {
+        let result401: any = null;
+        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result401 = ProblemDetails.fromJS(resultData401);
+        return throwException("Unauthorized", status, _responseText, _headers, result401);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<CourtRevenueReportDto>(null as any);
+}
 
     /**
      * @param page (optional) 
@@ -564,6 +683,332 @@ export interface IWithdrawalRequestDto {
     bankName: string;
     accountNumber: string;
     accountHolderName: string;
+}
+export class RevenueStatDto implements IRevenueStatDto {
+    period?: string | undefined;
+    revenue?: number;
+
+    constructor(data?: IRevenueStatDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.period = _data["period"];
+            this.revenue = _data["revenue"];
+        }
+    }
+
+    static fromJS(data: any): RevenueStatDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RevenueStatDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["period"] = this.period;
+        data["revenue"] = this.revenue;
+        return data;
+    }
+}
+
+export interface IRevenueStatDto {
+    period?: string | undefined;
+    revenue?: number;
+}
+
+export class CoachRevenueReportDto implements ICoachRevenueReportDto {
+    totalRevenue?: number;
+    stats?: RevenueStatDto[] | undefined;
+    dateRange?: DateRangeDto;
+
+    constructor(data?: ICoachRevenueReportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalRevenue = _data["totalRevenue"];
+            if (Array.isArray(_data["stats"])) {
+                this.stats = [] as any;
+                for (let item of _data["stats"])
+                    this.stats!.push(RevenueStatDto.fromJS(item));
+            }
+            this.dateRange = _data["dateRange"] ? DateRangeDto.fromJS(_data["dateRange"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CoachRevenueReportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CoachRevenueReportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalRevenue"] = this.totalRevenue;
+        if (Array.isArray(this.stats)) {
+            data["stats"] = [];
+            for (let item of this.stats)
+                data["stats"].push(item.toJSON());
+        }
+        data["dateRange"] = this.dateRange ? this.dateRange.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICoachRevenueReportDto {
+    totalRevenue?: number;
+    stats?: RevenueStatDto[] | undefined;
+    dateRange?: DateRangeDto;
+}
+
+export class CourtDateRangeDto implements ICourtDateRangeDto {
+    startDate?: string | undefined;
+    endDate?: string | undefined;
+
+    constructor(data?: ICourtDateRangeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.startDate = _data["startDate"];
+            this.endDate = _data["endDate"];
+        }
+    }
+
+    static fromJS(data: any): CourtDateRangeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourtDateRangeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["startDate"] = this.startDate;
+        data["endDate"] = this.endDate;
+        return data;
+    }
+}
+
+export interface ICourtDateRangeDto {
+    startDate?: string | undefined;
+    endDate?: string | undefined;
+}
+
+export class CourtRevenueReportDto implements ICourtRevenueReportDto {
+    totalRevenue?: number;
+    stats?: CourtRevenueStatDto[] | undefined;
+    dateRange?: CourtDateRangeDto;
+
+    constructor(data?: ICourtRevenueReportDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalRevenue = _data["totalRevenue"];
+            if (Array.isArray(_data["stats"])) {
+                this.stats = [] as any;
+                for (let item of _data["stats"])
+                    this.stats!.push(CourtRevenueStatDto.fromJS(item));
+            }
+            this.dateRange = _data["dateRange"] ? CourtDateRangeDto.fromJS(_data["dateRange"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CourtRevenueReportDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourtRevenueReportDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalRevenue"] = this.totalRevenue;
+        if (Array.isArray(this.stats)) {
+            data["stats"] = [];
+            for (let item of this.stats)
+                data["stats"].push(item.toJSON());
+        }
+        data["dateRange"] = this.dateRange ? this.dateRange.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICourtRevenueReportDto {
+    totalRevenue?: number;
+    stats?: CourtRevenueStatDto[] | undefined;
+    dateRange?: CourtDateRangeDto;
+}
+
+export class CourtRevenueStatDto implements ICourtRevenueStatDto {
+    period?: string | undefined;
+    revenue?: number;
+
+    constructor(data?: ICourtRevenueStatDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.period = _data["period"];
+            this.revenue = _data["revenue"];
+        }
+    }
+
+    static fromJS(data: any): CourtRevenueStatDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourtRevenueStatDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["period"] = this.period;
+        data["revenue"] = this.revenue;
+        return data;
+    }
+}
+
+export interface ICourtRevenueStatDto {
+    period?: string | undefined;
+    revenue?: number;
+}
+export class ProblemDetails implements IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.type = _data["type"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+        }
+    }
+
+    static fromJS(data: any): ProblemDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["type"] = this.type;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        return data;
+    }
+}
+
+export interface IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class DateRangeDto implements IDateRangeDto {
+    startDate?: string | undefined;
+    endDate?: string | undefined;
+
+    constructor(data?: IDateRangeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.startDate = _data["startDate"];
+            this.endDate = _data["endDate"];
+        }
+    }
+
+    static fromJS(data: any): DateRangeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DateRangeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["startDate"] = this.startDate;
+        data["endDate"] = this.endDate;
+        return data;
+    }
+}
+
+export interface IDateRangeDto {
+    startDate?: string | undefined;
+    endDate?: string | undefined;
 }
 
 

@@ -43,7 +43,7 @@ const LoginView = () => {
 
   const { status } = useSelector((state) => state.user);
 
-  const client = new Client(API_GATEWAY_URL);
+  const client = new Client();
 
   const radioStyle = {
     display: "flex",

@@ -86,6 +86,53 @@ export class Client {
         }
         return Promise.resolve<void>(null as any);
     }
+    
+    /**
+     * Get Coach's Own Schedules
+     * @return OK
+     */
+    getMyCoachSchedules(): Promise<CoachSchedulesListResponse> {
+        let url_ = this.baseUrl + "/api/coach/schedules/my";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMyCoachSchedules(_response);
+        });
+    }
+
+    protected processGetMyCoachSchedules(response: Response): Promise<CoachSchedulesListResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CoachSchedulesListResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CoachSchedulesListResponse>(null as any);
+    }
+
  /**
      * Get My Promotions
      * @param page (optional) 
@@ -2849,6 +2896,105 @@ export interface IGetStatsResponse {
     stats?: StatPeriod[] | undefined;
 }
 
+export class CoachScheduleDto implements ICoachScheduleDto {
+    id?: string;
+    dayOfWeek?: number;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    createdAt?: Date;
+    updatedAt?: Date;
+
+    constructor(data?: ICoachScheduleDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.dayOfWeek = _data["dayOfWeek"];
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CoachScheduleDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CoachScheduleDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["dayOfWeek"] = this.dayOfWeek;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICoachScheduleDto {
+    id?: string;
+    dayOfWeek?: number;
+    startTime?: string | undefined;
+    endTime?: string | undefined;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+export class CoachSchedulesListResponse implements ICoachSchedulesListResponse {
+    schedules?: CoachScheduleDto[] | undefined;
+
+    constructor(data?: ICoachSchedulesListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["schedules"])) {
+                this.schedules = [] as any;
+                for (let item of _data["schedules"])
+                    this.schedules!.push(CoachScheduleDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CoachSchedulesListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new CoachSchedulesListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.schedules)) {
+            data["schedules"] = [];
+            for (let item of this.schedules)
+                data["schedules"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICoachSchedulesListResponse {
+    schedules?: CoachScheduleDto[] | undefined;
+}
 export class ProblemDetails implements IProblemDetails {
     type?: string | undefined;
     title?: string | undefined;

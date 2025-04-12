@@ -8,7 +8,7 @@ const VerificationView = () => {
   const [verificationState, setVerificationState] = useState("loading"); // loading, success, error
   const [message, setMessage] = useState("");
 
-  const client = new Client("http://localhost:5002");
+  const client = new Client();
   const { token } = useParams();
 
   useEffect(() => {
