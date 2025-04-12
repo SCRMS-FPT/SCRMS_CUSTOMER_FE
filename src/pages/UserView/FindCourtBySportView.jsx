@@ -6,7 +6,7 @@ import LoadingIndicator from "@/components/FindCourtBySportView/LoadingIndicator
 import Pagination from "@/components/FindCourtBySportView/Pagination";
 import "@/styles/animations.css";
 import data from "@/data/court_mock_data";
-import sportsData from "@/data/sportsData"; // Import sports data
+// Import sports data
 
 import { Container, Grid, Box, Typography, Paper } from "@mui/material";
 
@@ -104,7 +104,10 @@ const FindCourtBySportView = () => {
             {loading ? (
               <LoadingIndicator />
             ) : (
-              <CourtList courts={paginatedCourts} animationClass={animationClass} />
+              <CourtList
+                courts={paginatedCourts}
+                animationClass={animationClass}
+              />
             )}
             {filteredCourts.length > ITEMS_PER_PAGE && (
               <Box sx={{ mt: 2 }}>

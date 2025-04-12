@@ -79,8 +79,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
 import soccerBg from "@/assets/soccer_04.jpg";
-import sportsData from "@/data/sportsData";
-import { FACILITIES } from "@/data/courtFacilitiesData";
 
 // Time slot presets for quick selection
 const TIME_PRESETS = [
@@ -153,8 +151,8 @@ const HeroBanner = () => (
               fontSize: { xs: "1rem", md: "1.25rem" },
             }}
           >
-            Khám phá và đặt sân thể thao trên khắp Việt Nam với
-            tình trạng sẵn có theo thời gian thực
+            Khám phá và đặt sân thể thao trên khắp Việt Nam với tình trạng sẵn
+            có theo thời gian thực
           </Typography>
         </Box>
       </Zoom>
@@ -304,7 +302,7 @@ const BrowseCourtsView = () => {
   const [loadingCities, setLoadingCities] = useState(false);
 
   // Sports state
-  const [sports, setSports] = useState(sportsData);
+  const [sports, setSports] = useState(null);
   const [loadingSports, setLoadingSports] = useState(false);
 
   // API client
@@ -842,7 +840,9 @@ const BrowseCourtsView = () => {
                                 )
                               }
                             >
-                              <MenuItem value="">Tất cả các môn thể thao</MenuItem>
+                              <MenuItem value="">
+                                Tất cả các môn thể thao
+                              </MenuItem>
                               {sports.map((sport) => (
                                 <MenuItem key={sport.id} value={sport.id}>
                                   <ListItemIcon>
@@ -1085,11 +1085,12 @@ const BrowseCourtsView = () => {
               )}
               {sportFilter && (
                 <Chip
-                  label={`Sport: ${sportFilter.includes("-")
-                    ? sports.find((s) => s.id === sportFilter)?.name ||
-                    sportFilter
-                    : sportFilter
-                    }`}
+                  label={`Sport: ${
+                    sportFilter.includes("-")
+                      ? sports.find((s) => s.id === sportFilter)?.name ||
+                        sportFilter
+                      : sportFilter
+                  }`}
                   size="small"
                   onDelete={() => setSportFilter("")}
                   sx={{ borderRadius: 2 }}
@@ -1369,7 +1370,8 @@ const BrowseCourtsView = () => {
                     Không tìm thấy trung tâm thể thao nào phù hợp
                   </Typography>
                   <Typography variant="body1" color="text.secondary" paragraph>
-                    Hãy thử điều chỉnh tìm kiếm hoặc bộ lọc để tìm thấy những gì bạn đang tìm kiếm.
+                    Hãy thử điều chỉnh tìm kiếm hoặc bộ lọc để tìm thấy những gì
+                    bạn đang tìm kiếm.
                   </Typography>
                   <Button
                     variant="contained"
@@ -1494,14 +1496,15 @@ const BrowseCourtsView = () => {
                                     ))}
                                   {(center.sportNames?.length ||
                                     uniqueSports.length) > 3 && (
-                                      <Chip
-                                        label={`+${(center.sportNames?.length ||
+                                    <Chip
+                                      label={`+${
+                                        (center.sportNames?.length ||
                                           uniqueSports.length) - 3
-                                          }`}
-                                        size="small"
-                                        sx={{ borderRadius: 2, height: 24 }}
-                                      />
-                                    )}
+                                      }`}
+                                      size="small"
+                                      sx={{ borderRadius: 2, height: 24 }}
+                                    />
+                                  )}
                                 </Box>
                               </Box>
 
@@ -1520,10 +1523,10 @@ const BrowseCourtsView = () => {
                                     {priceRange.min === priceRange.max
                                       ? `${formatPrice(priceRange.min)} VND`
                                       : `${formatPrice(
-                                        priceRange.min
-                                      )} - ${formatPrice(
-                                        priceRange.max
-                                      )} VND`}
+                                          priceRange.min
+                                        )} - ${formatPrice(
+                                          priceRange.max
+                                        )} VND`}
                                   </Typography>
                                 </Box>
                               )}
@@ -1679,13 +1682,13 @@ const BrowseCourtsView = () => {
                                         >
                                           {priceRange.min === priceRange.max
                                             ? `${formatPrice(
-                                              priceRange.min
-                                            )} VND/hour`
+                                                priceRange.min
+                                              )} VND/hour`
                                             : `${formatPrice(
-                                              priceRange.min
-                                            )} - ${formatPrice(
-                                              priceRange.max
-                                            )} VND/hour`}
+                                                priceRange.min
+                                              )} - ${formatPrice(
+                                                priceRange.max
+                                              )} VND/hour`}
                                         </Typography>
                                       </Box>
                                     )}
@@ -1810,11 +1813,13 @@ const BrowseCourtsView = () => {
               </Typography>
             </Box>
             <Typography variant="body2" color="text.secondary">
-              • Sử dụng bộ lọc ngày và giờ để tìm sân có sẵn theo lịch trình bạn mong muốn
+              • Sử dụng bộ lọc ngày và giờ để tìm sân có sẵn theo lịch trình bạn
+              mong muốn
               <br />
-              • Lọc theo loại môn thể thao để tìm các trung tâm cung cấp hoạt động cụ thể
-              <br />
-              • Kiểm tra yêu cầu cơ sở vật chất (phòng thay đồ, thuê thiết bị) để đảm bảo trung tâm đáp ứng nhu cầu của bạn
+              • Lọc theo loại môn thể thao để tìm các trung tâm cung cấp hoạt
+              động cụ thể
+              <br />• Kiểm tra yêu cầu cơ sở vật chất (phòng thay đồ, thuê thiết
+              bị) để đảm bảo trung tâm đáp ứng nhu cầu của bạn
             </Typography>
           </Paper>
         </Container>

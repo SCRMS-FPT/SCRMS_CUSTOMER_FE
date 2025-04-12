@@ -14,9 +14,7 @@ import UserFeedbackView from "@/pages/UserView/UserFeedbackView";
 import UserFeedbackDetailView from "@/pages/UserView/UserFeedbackDetailView";
 import UserDepositView from "@/pages/UserView/UserDepositView";
 import UserTransactionView from "@/pages/UserView/UserTransactionView";
-import Feedback from "@/pages/Feedback";
-import BookCoachSession from "@/pages/BookCoachSession";
-import TransactionHistoryPage from "@/pages/TransactionHistoryPage";
+// import BookCoachSession from "@/pages/BookCoachSession";
 
 import UserSidebar from "@/components/UserPage/UserSidebar";
 import ChatWidget from "../components/Chat/ChatWidget";
@@ -201,33 +199,17 @@ const UserRoutes = [
       </Layout>
     }
   />,
-  <Route
-    key="feedback"
-    path="/feedback/:courtId"
-    element={
-      <Layout>
-        <Feedback />
-      </Layout>
-    }
-  />,
-  <Route
-    key="book-coach"
-    path="/book-coach/:id"
-    element={
-      <Layout>
-        <BookCoachSession />
-      </Layout>
-    }
-  />,
-  <Route
-    key="history"
-    path="/History"
-    element={
-      <Layout>
-        <TransactionHistoryPage />
-      </Layout>
-    }
-  />,
+
+  // <Route
+  //   key="book-coach"
+  //   path="/book-coach/:id"
+  //   element={
+  //     <Layout>
+  //       <BookCoachSession />
+  //     </Layout>
+  //   }
+  // />,
+
   <Route
     key="profile"
     path="/profile"

@@ -4,7 +4,6 @@ import {
   UserRoutes,
   CourtOwnerRoutes,
   CoachRoutes,
-  LegacyRoutes,
 } from "./routes";
 
 function App() {
@@ -21,9 +20,6 @@ function App() {
 
       {/* Coach Routes */}
       {CoachRoutes}
-
-      {/* Legacy Routes - To be updated */}
-      {LegacyRoutes}
     </Routes>
   );
 }

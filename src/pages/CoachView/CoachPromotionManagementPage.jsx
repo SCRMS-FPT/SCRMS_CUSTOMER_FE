@@ -16,9 +16,9 @@ import {
 } from "lucide-react";
 import { notification, Modal, Spin, Tooltip } from "antd";
 import { Card, CardContent } from "@mui/material";
-import CoachPromotionSearch from "../../components/promation/CoachPromotionSearch";
+// import CoachPromotionSearch from "../../components/promation/CoachPromotionSearch";
 import CoachPromotionTable from "../../components/promation/CoachPromotionTable";
-import CoachPromotionForm from "../../components/promation/CoachPromotionForm";
+// import CoachPromotionForm from "../../components/promation/CoachPromotionForm";
 import { Icon } from "@iconify/react";
 
 const CoachPromotionManagementPage = () => {
@@ -475,12 +475,12 @@ const CoachPromotionManagementPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-lg shadow-md p-6 mb-6"
         >
-          <CoachPromotionForm
+          {/* <CoachPromotionForm
             promotion={selectedPromotion}
             onSave={handleSave}
-            onCancel={handleCancel}
+            // onCancel={handleCancel}
             coachPackages={packages}
-          />
+          /> */}
         </motion.div>
       ) : (
         <>
@@ -489,11 +489,11 @@ const CoachPromotionManagementPage = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
           >
-            <CoachPromotionSearch
+            {/* <CoachPromotionSearch
               onSearch={handleSearch}
               onFilter={handleFilter}
               coachPackages={packages}
-            />
+            /> */}
           </motion.div>
 
           <motion.div

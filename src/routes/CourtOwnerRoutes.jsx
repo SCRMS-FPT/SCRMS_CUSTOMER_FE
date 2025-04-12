@@ -16,9 +16,6 @@ import CourtOwnerPromotionDetailView from "@/pages/CourtOwnerView/CourtOwnerProm
 import CourtOwnerPromotionCreateView from "@/pages/CourtOwnerView/CourtOwnerPromotionCreateView";
 import CourtOwnerNotificationView from "@/pages/CourtOwnerView/CourtOwnerNotificationView";
 import CourtOwnerReportsView from "@/pages/CourtOwnerView/CourtOwnerReportsView";
-import PromotionManagement from "@/pages/PromotionManagementPage";
-import CourtsManage from "@/pages/CourtsManage";
-import CourtReport from "@/pages/CourtReport";
 import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
@@ -313,59 +310,6 @@ const CourtOwnerRoutes = [
         <CourtOwnerSidebar>
           <CourtOwnerReportsView />
         </CourtOwnerSidebar>
-      </ProtectedCourtOwnerRoute>
-    }
-  />,
-  <Route
-    key="courts-manage"
-    path="/courts-manage"
-    element={
-      <ProtectedCourtOwnerRoute>
-        <Layout>
-          <CourtsManage />
-        </Layout>
-      </ProtectedCourtOwnerRoute>
-    }
-  />,
-  <Route
-    key="courts-manage-center"
-    path="/courts-manage/:centerId"
-    element={
-      <ProtectedCourtOwnerRoute>
-        <Layout>
-          <CourtsManage />
-        </Layout>
-      </ProtectedCourtOwnerRoute>
-    }
-  />,
-  <Route
-    key="promotion-management"
-    path="/PromotionManagement"
-    element={
-      <ProtectedCourtOwnerRoute>
-        <Layout>
-          <PromotionManagement />
-        </Layout>
-      </ProtectedCourtOwnerRoute>
-    }
-  />,
-  <Route
-    key="promotion-management-court"
-    path="/PromotionManagement/:courtId"
-    element={
-      <ProtectedCourtOwnerRoute>
-        <Layout>
-          <PromotionManagement />
-        </Layout>
-      </ProtectedCourtOwnerRoute>
-    }
-  />,
-  <Route
-    key="reports"
-    path="/reports"
-    element={
-      <ProtectedCourtOwnerRoute>
-        <CourtReport />
       </ProtectedCourtOwnerRoute>
     }
   />,

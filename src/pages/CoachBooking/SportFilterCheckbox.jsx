@@ -11,9 +11,12 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-import sportsData from "@/data/sportsData";
 
-const SportFilterCheckbox = ({ selectedSports, setSelectedSports, loadingSports }) => {
+const SportFilterCheckbox = ({
+  selectedSports,
+  setSelectedSports,
+  loadingSports,
+}) => {
   const handleChange = (event) => {
     const { value } = event.target;
     setSelectedSports(typeof value === "string" ? value.split(",") : value);
@@ -34,8 +37,14 @@ const SportFilterCheckbox = ({ selectedSports, setSelectedSports, loadingSports 
             {selected.map((sportName) => {
               const sport = sportsData.find((s) => s.name === sportName);
               return (
-                <Box key={sportName} sx={{ display: "flex", alignItems: "center" }}>
-                  <Avatar src={sport?.icon} sx={{ width: 24, height: 24, mr: 0.5 }} />
+                <Box
+                  key={sportName}
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <Avatar
+                    src={sport?.icon}
+                    sx={{ width: 24, height: 24, mr: 0.5 }}
+                  />
                   <Typography variant="body1" noWrap>
                     {sportName}
                   </Typography>

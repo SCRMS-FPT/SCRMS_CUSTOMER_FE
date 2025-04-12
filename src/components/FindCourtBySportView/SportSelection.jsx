@@ -9,7 +9,6 @@ import {
   Avatar,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import sportsData from "@/data/sportsData";
 
 const SportSelection = ({ selectedSport, setSelectedSport }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -67,7 +66,13 @@ const SportSelection = ({ selectedSport, setSelectedSport }) => {
         ))}
       </Grid>
 
-      <Typography variant="h6" fontWeight="bold" color="text.primary" mt={4} mb={2}>
+      <Typography
+        variant="h6"
+        fontWeight="bold"
+        color="text.primary"
+        mt={4}
+        mb={2}
+      >
         Lựa chọn môn thể thao
       </Typography>
       <Button
@@ -81,8 +86,10 @@ const SportSelection = ({ selectedSport, setSelectedSport }) => {
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Avatar
             src={
-              (sportsData.find((s) => s.name === selectedSport) || sportsData[0])
-                .icon
+              (
+                sportsData.find((s) => s.name === selectedSport) ||
+                sportsData[0]
+              ).icon
             }
             alt={selectedSport}
             sx={{ width: 24, height: 24, mr: 1 }}
@@ -92,7 +99,10 @@ const SportSelection = ({ selectedSport, setSelectedSport }) => {
       </Button>
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
         {sportsData.map((sport) => (
-          <MenuItem key={sport.name} onClick={() => handleMenuItemClick(sport.name)}>
+          <MenuItem
+            key={sport.name}
+            onClick={() => handleMenuItemClick(sport.name)}
+          >
             <Avatar
               src={sport.icon}
               alt={sport.name}

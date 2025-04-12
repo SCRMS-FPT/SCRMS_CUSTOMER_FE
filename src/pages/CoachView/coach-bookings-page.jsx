@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import BookingCard from "../../components/bookinfo/booking-card";
-import BookingDetailModal from "../../components/bookinfo/booking-detail-modal";
+// import BookingDetailModal from "../../components/bookinfo/booking-detail-modal";
 import BookingFilter from "../../components/bookinfo/booking-filter";
 import BookingPagination from "../../components/bookinfo/booking-pagination";
 import BookingSkeleton from "../../components/bookinfo/booking-skeleton";
@@ -535,7 +535,7 @@ const CoachBookingsPage = () => {
       </div>
 
       {/* Modals */}
-      <BookingDetailModal
+      {/* <BookingDetailModal
         isOpen={isDetailModalOpen}
         onClose={() => {
           setIsDetailModalOpen(false);
@@ -546,7 +546,7 @@ const CoachBookingsPage = () => {
         onReject={handleRejectBooking}
         statusUpdated={statusUpdated}
         bookingStatuses={bookingStatuses}
-      />
+      /> */}
 
       <ConfirmActionModal
         isOpen={isConfirmModalOpen}

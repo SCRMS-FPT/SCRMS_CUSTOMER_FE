@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import courts from "../../data/courtsData";
-import ownersData from "../../data/ownersData";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay, EffectFade } from "swiper/modules";
 import "swiper/css";
@@ -28,7 +26,6 @@ import {
   FaMapMarked,
 } from "react-icons/fa";
 import placeholderImage from "../../assets/image_error.png";
-import bookedSchedule from "../../data/bookedSchedule";
 
 const CourtDetails = () => {
   const { id } = useParams();
