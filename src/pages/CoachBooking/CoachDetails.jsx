@@ -477,7 +477,7 @@ const CoachDetails = () => {
           }}
         >
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                 <Avatar
                   src={coach.avatar}
@@ -493,7 +493,7 @@ const CoachDetails = () => {
               </Box>
             </Grid>
 
-            <Grid item xs={6}>
+            <Grid size={6}>
               <Typography variant="body2" color="text.secondary">
                 Số buổi:
               </Typography>
@@ -508,7 +508,7 @@ const CoachDetails = () => {
               </Typography>
             </Grid>
 
-            <Grid item xs={6}>
+            <Grid size={6}>
               <Typography variant="body2" color="text.secondary">
                 Giá gói:
               </Typography>
@@ -522,7 +522,7 @@ const CoachDetails = () => {
               </Typography>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="body2" sx={{ mt: 2 }}>
                 {packageToSelect.description ||
                   "This package will allow you to attend multiple sessions with your coach at a discounted rate."}
@@ -681,7 +681,7 @@ const CoachDetails = () => {
             }}
           >
             <Grid container spacing={2}>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                   <Avatar
                     src={coach.avatar}
@@ -694,7 +694,7 @@ const CoachDetails = () => {
                 </Box>
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <Typography variant="body2" color="text.secondary">
                   Ngày:
                 </Typography>
@@ -707,7 +707,7 @@ const CoachDetails = () => {
                 </Typography>
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <Typography variant="body2" color="text.secondary">
                   Thời gian:
                 </Typography>
@@ -724,7 +724,7 @@ const CoachDetails = () => {
               </Grid>
 
               {hasActivePackages ? (
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Box sx={{ mt: 2, width: "100%" }}>
                     <Typography
                       variant="body2"
@@ -873,7 +873,7 @@ const CoachDetails = () => {
                   </Box>
                 </Grid>
               ) : (
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2" color="text.secondary">
                     Giá tiền:
                   </Typography>
@@ -991,7 +991,7 @@ const CoachDetails = () => {
                   }}
                 >
                   <Grid container spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <Typography
                         variant="body2"
                         sx={{
@@ -1004,7 +1004,7 @@ const CoachDetails = () => {
                         {dayjs(selectedSlot.date).format("dddd, MMMM D, YYYY")}
                       </Typography>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <Typography
                         variant="body2"
                         sx={{
@@ -1027,7 +1027,7 @@ const CoachDetails = () => {
                     {/* Show sessions remaining if using a package */}
                     {selectedPackageId &&
                       bookingResult.sessionsRemaining !== undefined && (
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                           <Typography
                             variant="body2"
                             sx={{
@@ -1226,7 +1226,7 @@ const CoachDetails = () => {
           <HeroOverlay />
           <HeroContent>
             <Grid container alignItems="flex-end" spacing={2}>
-              <Grid item>
+              <Grid>
                 <Avatar
                   src={coach.avatar}
                   alt={coach.fullName}
@@ -1238,7 +1238,7 @@ const CoachDetails = () => {
                   }}
                 />
               </Grid>
-              <Grid item xs>
+              <Grid size="grow">
                 <Box>
                   <Box
                     sx={{
@@ -1308,7 +1308,7 @@ const CoachDetails = () => {
                   </Stack>
                 </Box>
               </Grid>
-              <Grid item>
+              <Grid>
                 <Button
                   type="primary"
                   size="large"
@@ -1328,7 +1328,11 @@ const CoachDetails = () => {
         {/* Main Content */}
         <Grid container spacing={4}>
           {/* Left Content - Tabs */}
-          <Grid item xs={12} md={8}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 8
+            }}>
             <Paper
               elevation={0}
               sx={{
@@ -1434,7 +1438,11 @@ const CoachDetails = () => {
                       <Title level={4}>Thông tin liên hệ</Title>
                       <Grid container spacing={2}>
                         {coach.email && (
-                          <Grid item xs={12} sm={6}>
+                          <Grid
+                            size={{
+                              xs: 12,
+                              sm: 6
+                            }}>
                             <Card
                               size="small"
                               bordered={false}
@@ -1458,7 +1466,11 @@ const CoachDetails = () => {
                           </Grid>
                         )}
                         {coach.phone && (
-                          <Grid item xs={12} sm={6}>
+                          <Grid
+                            size={{
+                              xs: 12,
+                              sm: 6
+                            }}>
                             <Card
                               size="small"
                               bordered={false}
@@ -1498,7 +1510,7 @@ const CoachDetails = () => {
                     {/* Improved layout with full-width container */}
                     <Grid container spacing={3}>
                       {/* Weekly Schedule Section - Expanded width */}
-                      <Grid item xs={12}>
+                      <Grid size={12}>
                         <Paper
                           elevation={0}
                           sx={{
@@ -1620,7 +1632,7 @@ const CoachDetails = () => {
                                 "Thứ 7",
                                 "Chủ nhật",
                               ].map((day, index) => (
-                                <Grid item xs={12 / 7} key={day}>
+                                <Grid key={day} size={12 / 7}>
                                   <Box
                                     sx={{
                                       p: 1.5,
@@ -1682,7 +1694,7 @@ const CoachDetails = () => {
                                   displayedDate;
 
                                 return (
-                                  <Grid item xs={12 / 7} key={`slots-${day}`}>
+                                  <Grid key={`slots-${day}`} size={12 / 7}>
                                     <Paper
                                       elevation={0}
                                       sx={{
@@ -1942,7 +1954,7 @@ const CoachDetails = () => {
                       </Grid>
 
                       {/* Booking Summary Section */}
-                      <Grid item xs={12}>
+                      <Grid size={12}>
                         <Paper
                           elevation={0}
                           sx={{
@@ -1967,7 +1979,11 @@ const CoachDetails = () => {
                           {selectedSlot ? (
                             <Box sx={{ p: 3 }}>
                               <Grid container spacing={3}>
-                                <Grid item xs={12} md={8}>
+                                <Grid
+                                  size={{
+                                    xs: 12,
+                                    md: 8
+                                  }}>
                                   <Box
                                     sx={{
                                       p: 3,
@@ -1980,7 +1996,11 @@ const CoachDetails = () => {
                                     }}
                                   >
                                     <Grid container spacing={2}>
-                                      <Grid item xs={12} sm={6}>
+                                      <Grid
+                                        size={{
+                                          xs: 12,
+                                          sm: 6
+                                        }}>
                                         <Typography
                                           variant="subtitle2"
                                           color="text.secondary"
@@ -2002,7 +2022,11 @@ const CoachDetails = () => {
                                           )}
                                         </Typography>
                                       </Grid>
-                                      <Grid item xs={12} sm={6}>
+                                      <Grid
+                                        size={{
+                                          xs: 12,
+                                          sm: 6
+                                        }}>
                                         <Typography
                                           variant="subtitle2"
                                           color="text.secondary"
@@ -2027,7 +2051,11 @@ const CoachDetails = () => {
                                           {formatTime(selectedSlot.endTime)}
                                         </Typography>
                                       </Grid>
-                                      <Grid item xs={12} sm={6}>
+                                      <Grid
+                                        size={{
+                                          xs: 12,
+                                          sm: 6
+                                        }}>
                                         <Typography
                                           variant="subtitle2"
                                           color="text.secondary"
@@ -2051,7 +2079,11 @@ const CoachDetails = () => {
                                           {formatPrice(coach.ratePerHour)}
                                         </Typography>
                                       </Grid>
-                                      <Grid item xs={12} sm={6}>
+                                      <Grid
+                                        size={{
+                                          xs: 12,
+                                          sm: 6
+                                        }}>
                                         <Typography
                                           variant="subtitle2"
                                           color="text.secondary"
@@ -2078,7 +2110,11 @@ const CoachDetails = () => {
                                     </Grid>
                                   </Box>
                                 </Grid>
-                                <Grid item xs={12} md={4}>
+                                <Grid
+                                  size={{
+                                    xs: 12,
+                                    md: 4
+                                  }}>
                                   <Box
                                     sx={{
                                       height: "100%",
@@ -2391,12 +2427,12 @@ const CoachDetails = () => {
                       <Grid container spacing={3}>
                         {[1, 2, 3].map((item) => (
                           <Grid
-                            item
-                            xs={12}
-                            md={6}
-                            lg={4}
                             key={`skeleton-${item}`}
-                          >
+                            size={{
+                              xs: 12,
+                              md: 6,
+                              lg: 4
+                            }}>
                             <Card>
                               <Skeleton active avatar paragraph={{ rows: 4 }} />
                             </Card>
@@ -2431,7 +2467,13 @@ const CoachDetails = () => {
                                 );
 
                                 return (
-                                  <Grid item xs={12} md={6} lg={4} key={pkg.id}>
+                                  <Grid
+                                    key={pkg.id}
+                                    size={{
+                                      xs: 12,
+                                      md: 6,
+                                      lg: 4
+                                    }}>
                                     <PackageCard
                                       initial={{ opacity: 0, y: 20 }}
                                       animate={{
@@ -2703,7 +2745,11 @@ const CoachDetails = () => {
           </Grid>
 
           {/* Right sidebar */}
-          <Grid item xs={12} md={4}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 4
+            }}>
             {/* Quick booking card and other sidebar content */}
           </Grid>
         </Grid>

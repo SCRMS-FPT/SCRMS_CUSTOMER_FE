@@ -77,7 +77,11 @@ function CustomSportSkillForm({ selectedSport, initialSkill, onSubmit }) {
     <>
       <Grid container spacing={4} alignItems="center">
         {/* Cột minh họa */}
-        <Grid item xs={12} md={5}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 5
+          }}>
           <Box
             component="img"
             src={soccerImg}
@@ -93,7 +97,11 @@ function CustomSportSkillForm({ selectedSport, initialSkill, onSubmit }) {
         </Grid>
 
         {/* Cột form chọn môn & kỹ năng */}
-        <Grid item xs={12} md={7}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 7
+          }}>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
             Chọn Môn Thể Thao & Mức Kỹ Năng
           </Typography>
@@ -158,7 +166,6 @@ function CustomSportSkillForm({ selectedSport, initialSkill, onSubmit }) {
           </Button>
         </Grid>
       </Grid>
-
       {/* Modal xác nhận */}
       <Dialog open={openModal} onClose={handleCloseModal}>
         <DialogTitle>Xác nhận tìm trận</DialogTitle>

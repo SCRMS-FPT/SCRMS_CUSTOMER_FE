@@ -172,7 +172,6 @@ const PricingView = () => {
           các tính năng cao cấp và quyền lợi đặc biệt
         </Typography>
       </Box>
-
       {/* Package cards */}
       {packages.length === 0 ? (
         <Alert severity="info">
@@ -183,7 +182,13 @@ const PricingView = () => {
           {packages.map((pkg) => {
             const popular = isPopular(pkg);
             return (
-              <Grid item key={pkg.id} xs={12} sm={6} md={4}>
+              <Grid
+                key={pkg.id}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 4
+                }}>
                 <Card
                   sx={{
                     height: "100%",
@@ -292,7 +297,6 @@ const PricingView = () => {
           })}
         </Grid>
       )}
-
       {/* FAQ/Support section */}
       <Box
         sx={{

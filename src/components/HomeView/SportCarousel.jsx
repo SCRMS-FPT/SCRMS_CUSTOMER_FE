@@ -174,7 +174,13 @@ const SportsCarousel = () => {
         {isLoading ? (
           <Grid container spacing={3} justifyContent="center">
             {loadingItems.map((item) => (
-              <Grid item xs={12} sm={6} md={4} key={item}>
+              <Grid
+                key={item}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 4
+                }}>
                 <Card
                   elevation={0}
                   sx={{
@@ -215,7 +221,14 @@ const SportsCarousel = () => {
           >
             <Grid container spacing={3} justifyContent="center">
               {sports.map((sport) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={sport.id}>
+                <Grid
+                  key={sport.id}
+                  size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 4,
+                    lg: 3
+                  }}>
                   <motion.div variants={itemVariants}>
                     <Card
                       elevation={0}

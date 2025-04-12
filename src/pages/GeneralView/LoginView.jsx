@@ -326,7 +326,6 @@ const LoginView = () => {
           </Form>
         </Modal>
       </ConfigProvider>
-
       <div className="relative flex justify-center items-center min-h-screen bg-gray-100 bg-[url('/src/assets/soccer.jpg')] bg-cover bg-center">
         {/* <div className="absolute inset-0 backdrop-blur-sm"></div> */}
         <div className="relative bg-white p-8 rounded-lg shadow-lg max-w-md w-full z-10">

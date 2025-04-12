@@ -47,7 +47,7 @@ const SportSelection = ({ selectedSport, setSelectedSport }) => {
       </Typography>
       <Grid container spacing={2}>
         {popularSports.map((sport) => (
-          <Grid item xs={6} key={sport.name}>
+          <Grid key={sport.name} size={6}>
             <Button
               fullWidth
               variant={selectedSport === sport.name ? "contained" : "outlined"}
@@ -65,7 +65,6 @@ const SportSelection = ({ selectedSport, setSelectedSport }) => {
           </Grid>
         ))}
       </Grid>
-
       <Typography
         variant="h6"
         fontWeight="bold"

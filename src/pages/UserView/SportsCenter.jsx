@@ -141,7 +141,6 @@ const SportsCenter = () => {
           Tìm trung tâm thể thao phù hợp với bạn
         </Typography>
       </Box>
-
       {/* Search and Filter Section */}
       <Paper
         elevation={3}
@@ -153,7 +152,11 @@ const SportsCenter = () => {
         }}
       >
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={6}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 6
+            }}>
             <TextField
               fullWidth
               variant="outlined"
@@ -181,7 +184,11 @@ const SportsCenter = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 4
+            }}>
             <FormControl fullWidth variant="outlined">
               <InputLabel id="city-filter-label">Thành phố</InputLabel>
               <Select
@@ -208,7 +215,11 @@ const SportsCenter = () => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} md={2}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 2
+            }}>
             <Button
               fullWidth
               variant="outlined"
@@ -258,7 +269,6 @@ const SportsCenter = () => {
           )}
         </Box>
       </Paper>
-
       {/* Error Message */}
       {error && (
         <Box textAlign="center" py={4}>
@@ -273,12 +283,17 @@ const SportsCenter = () => {
           </Button>
         </Box>
       )}
-
       {/* Loading State */}
       {loading && (
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {[...Array(6)].map((_, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+            <Grid
+              key={index}
+              size={{
+                xs: 12,
+                sm: 6,
+                md: 4
+              }}>
               <Card
                 sx={{
                   height: "100%",
@@ -307,7 +322,6 @@ const SportsCenter = () => {
           ))}
         </Grid>
       )}
-
       {/* Sport Centers Grid */}
       {!loading && !error && (
         <>
@@ -340,7 +354,13 @@ const SportsCenter = () => {
           ) : (
             <Grid container spacing={3} sx={{ mb: 4 }}>
               {sportCenters.map((center) => (
-                <Grid item xs={12} sm={6} md={4} key={center.id}>
+                <Grid
+                  key={center.id}
+                  size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 4
+                  }}>
                   <Card
                     sx={{
                       height: "100%",

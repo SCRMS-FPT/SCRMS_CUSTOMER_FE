@@ -280,41 +280,41 @@ const DepositView = () => {
                     </Typography>
                     <Divider sx={{ my: 1 }} />
                     <Grid container spacing={2} sx={{ mt: 1 }}>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="body2" color="text.secondary">
                           Mã giao dịch
                         </Typography>
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="body2" fontWeight="bold">
                           {transactionId}
                         </Typography>
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="body2" color="text.secondary">
                           Thời gian
                         </Typography>
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="body2">
                           {new Date().toLocaleString()}
                         </Typography>
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="body2" color="text.secondary">
                           Loại giao dịch
                         </Typography>
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="body2">Nạp tiền vào ví</Typography>
                       </Grid>
 
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="body2" color="text.secondary">
                           Số tiền
                         </Typography>
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography
                           variant="body2"
                           fontWeight="bold"
@@ -324,12 +324,12 @@ const DepositView = () => {
                         </Typography>
                       </Grid>
 
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="body2" color="text.secondary">
                           Số dư hiện tại
                         </Typography>
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="body2" fontWeight="bold">
                           {walletBalance?.balance?.toLocaleString()} VND
                         </Typography>

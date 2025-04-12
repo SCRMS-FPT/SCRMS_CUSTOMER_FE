@@ -252,7 +252,13 @@ const CoachList = () => {
   const CoachSkeleton = () => (
     <Grid container spacing={3}>
       {[1, 2, 3, 4, 5, 6].map((item) => (
-        <Grid item xs={12} sm={6} md={4} key={item}>
+        <Grid
+          key={item}
+          size={{
+            xs: 12,
+            sm: 6,
+            md: 4
+          }}>
           <Paper sx={{ p: 2, height: "100%" }}>
             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
               <Skeleton variant="circular" width={64} height={64} />
@@ -288,7 +294,6 @@ const CoachList = () => {
           match for your training needs
         </Typography>
       </Box>
-
       {/* Search & Filter Panel */}
       <Paper
         elevation={2}
@@ -303,7 +308,11 @@ const CoachList = () => {
         }}
       >
         <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 4
+            }}>
             <Search
               placeholder="Search coaches by name"
               value={searchText}
@@ -314,7 +323,11 @@ const CoachList = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 3
+            }}>
             <FormControl fullWidth>
               <Select
                 placeholder="Filter by Sport"
@@ -335,7 +348,11 @@ const CoachList = () => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 3
+            }}>
             <Select
               placeholder="Sort By"
               value={sortOrder}
@@ -365,7 +382,11 @@ const CoachList = () => {
             </Select>
           </Grid>
 
-          <Grid item xs={12} md={2}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 2
+            }}>
             <Button
               icon={<FilterOutlined />}
               onClick={resetFilters}
@@ -375,7 +396,7 @@ const CoachList = () => {
             </Button>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography id="price-range-slider" gutterBottom>
               Price Range: {formatPrice(priceRange[0])} -{" "}
               {formatPrice(priceRange[1])}
@@ -399,10 +420,8 @@ const CoachList = () => {
           </Grid>
         </Grid>
       </Paper>
-
       {/* Loading State */}
       {loading && <CoachSkeleton />}
-
       {/* Error State */}
       {error && (
         <Box sx={{ textAlign: "center", py: 5 }}>
@@ -414,7 +433,6 @@ const CoachList = () => {
           </Button>
         </Box>
       )}
-
       {/* Empty State */}
       {!loading && !error && filteredCoaches.length === 0 && (
         <Box sx={{ textAlign: "center", py: 5 }}>
@@ -436,13 +454,18 @@ const CoachList = () => {
           </Button>
         </Box>
       )}
-
       {/* Coach Grid */}
       {!loading && !error && filteredCoaches.length > 0 && (
         <>
           <Grid container spacing={3}>
             {filteredCoaches.map((coach) => (
-              <Grid item xs={12} sm={6} md={4} key={coach.id}>
+              <Grid
+                key={coach.id}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 4
+                }}>
                 <StyledCard
                   hoverable
                   cover={

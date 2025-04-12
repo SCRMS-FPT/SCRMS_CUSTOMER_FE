@@ -334,7 +334,6 @@ const SubscribePackageView = () => {
           Quay lại danh sách gói
         </Button>
       </Box>
-
       {/* Header */}
       <Typography
         variant="h4"
@@ -345,7 +344,6 @@ const SubscribePackageView = () => {
       >
         Đăng Ký Gói Dịch Vụ
       </Typography>
-
       {/* Success message */}
       {success && (
         <Alert
@@ -358,7 +356,6 @@ const SubscribePackageView = () => {
           đã được nâng cấp.
         </Alert>
       )}
-
       {/* Error message */}
       {error && !success && (
         <Alert severity="error" sx={{ mb: 4 }}>
@@ -366,10 +363,13 @@ const SubscribePackageView = () => {
           {error}
         </Alert>
       )}
-
       <Grid container spacing={4}>
         {/* Package details */}
-        <Grid item xs={12} md={7}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 7
+          }}>
           <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
             <Typography variant="h5" fontWeight="bold" gutterBottom>
               Thông tin gói dịch vụ
@@ -426,7 +426,11 @@ const SubscribePackageView = () => {
         </Grid>
 
         {/* Payment details */}
-        <Grid item xs={12} md={5}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 5
+          }}>
           <Card elevation={3} sx={{ borderRadius: 2, height: "100%" }}>
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h5" fontWeight="bold" gutterBottom>
@@ -469,26 +473,26 @@ const SubscribePackageView = () => {
                 </Typography>
 
                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                  <Grid item xs={8}>
+                  <Grid size={8}>
                     <Typography>Gói dịch vụ</Typography>
                   </Grid>
-                  <Grid item xs={4} sx={{ textAlign: "right" }}>
+                  <Grid sx={{ textAlign: "right" }} size={4}>
                     <Typography fontWeight="medium">
                       {packageDetails.name}
                     </Typography>
                   </Grid>
 
-                  <Grid item xs={8}>
+                  <Grid size={8}>
                     <Typography>Thời hạn</Typography>
                   </Grid>
-                  <Grid item xs={4} sx={{ textAlign: "right" }}>
+                  <Grid sx={{ textAlign: "right" }} size={4}>
                     <Typography>{packageDetails.durationDays} ngày</Typography>
                   </Grid>
 
-                  <Grid item xs={8}>
+                  <Grid size={8}>
                     <Typography>Giá</Typography>
                   </Grid>
-                  <Grid item xs={4} sx={{ textAlign: "right" }}>
+                  <Grid sx={{ textAlign: "right" }} size={4}>
                     <Typography>{formatPrice(packageDetails.price)}</Typography>
                   </Grid>
                 </Grid>
@@ -496,10 +500,10 @@ const SubscribePackageView = () => {
                 <Divider sx={{ my: 2 }} />
 
                 <Grid container spacing={2}>
-                  <Grid item xs={8}>
+                  <Grid size={8}>
                     <Typography fontWeight="bold">Tổng thanh toán</Typography>
                   </Grid>
-                  <Grid item xs={4} sx={{ textAlign: "right" }}>
+                  <Grid sx={{ textAlign: "right" }} size={4}>
                     <Typography fontWeight="bold" color="primary.main">
                       {formatPrice(packageDetails.price)}
                     </Typography>
@@ -570,7 +574,6 @@ const SubscribePackageView = () => {
           </Card>
         </Grid>
       </Grid>
-
       {/* Confirmation dialog */}
       <Dialog
         open={confirmDialogOpen}
@@ -599,7 +602,6 @@ const SubscribePackageView = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
       {/* Processing backdrop */}
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}

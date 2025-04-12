@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Client } from "../../API/CoachApi";
 import { motion } from "framer-motion";
@@ -14,12 +12,23 @@ import {
   Package,
   PlusCircle,
 } from "lucide-react";
-import { notification, Modal, Spin, Tooltip } from "antd";
-import { Card, CardContent } from "@mui/material";
-// import CoachPromotionSearch from "../../components/promation/CoachPromotionSearch";
-import CoachPromotionTable from "../../components/promation/CoachPromotionTable";
-// import CoachPromotionForm from "../../components/promation/CoachPromotionForm";
-import { Icon } from "@iconify/react";
+import {
+  notification,
+  Modal,
+  Spin,
+  Tooltip,
+  Input,
+  Select,
+  Button as AntButton,
+  Space,
+  DatePicker,
+} from "antd";
+import { Card, CardContent, Button, Box, Typography } from "@mui/material";
+
+// Import your components
+import CoachPromotionTable from "@/components/promation/CoachPromotionTable";
+import { Iconify } from "@/components/iconify";
+import CoachPromotionForm from "@/components/promation/CoachPromotionForm";
 
 const CoachPromotionManagementPage = () => {
   const { coachId, packageId } = useParams();
@@ -30,6 +39,14 @@ const CoachPromotionManagementPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [packages, setPackages] = useState([]);
   const [api, contextHolder] = notification.useNotification();
+
+  // Search state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchType, setSearchType] = useState("all");
+  const [filterStatus, setFilterStatus] = useState(null);
+  const [filterType, setFilterType] = useState(null);
+  const [filterPackage, setFilterPackage] = useState(null);
+  const [filterDateRange, setFilterDateRange] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,7 +117,7 @@ const CoachPromotionManagementPage = () => {
     setPaginatedPromotions(paginatedData);
   }, [filteredPromotions, currentPage, itemsPerPage]);
 
-  const handleSearch = (searchTerm, searchType) => {
+  const handleSearch = () => {
     if (!searchTerm.trim()) {
       setFilteredPromotions(promotions);
       return;
@@ -125,50 +142,66 @@ const CoachPromotionManagementPage = () => {
     setCurrentPage(1);
   };
 
-  const handleFilter = (filters) => {
-    if (!filters || filters.length === 0) {
-      setFilteredPromotions(promotions);
-      return;
-    }
+  const applyFilters = () => {
+    let filtered = [...promotions];
+    const now = new Date();
 
-    const filtered = promotions.filter((promotion) => {
-      return filters.every((filter) => {
-        if (filter.type === "status") {
-          const now = new Date();
-          const startDate = new Date(promotion.validFrom);
-          const endDate = new Date(promotion.validTo);
+    // Apply status filter
+    if (filterStatus) {
+      filtered = filtered.filter((promotion) => {
+        const startDate = new Date(promotion.validFrom);
+        const endDate = new Date(promotion.validTo);
 
-          if (filter.value === "active") {
-            return now >= startDate && now <= endDate;
-          } else if (filter.value === "expired") {
-            return now > endDate;
-          } else if (filter.value === "upcoming") {
-            return now < startDate;
-          }
+        if (filterStatus === "active") {
+          return now >= startDate && now <= endDate;
+        } else if (filterStatus === "expired") {
+          return now > endDate;
+        } else if (filterStatus === "upcoming") {
+          return now < startDate;
         }
-
-        if (filter.type === "discountType") {
-          return promotion.discountType === filter.value;
-        }
-
-        if (filter.type === "packageId") {
-          return promotion.packageId === filter.value;
-        }
-
-        if (filter.type === "promotion_type") {
-          if (filter.value === "package") {
-            return promotion.packageId !== undefined;
-          } else if (filter.value === "schedule") {
-            return promotion.scheduleId !== undefined;
-          }
-        }
-
         return true;
       });
-    });
+    }
+
+    // Apply discount type filter
+    if (filterType) {
+      filtered = filtered.filter((p) => p.discountType === filterType);
+    }
+
+    // Apply package filter
+    if (filterPackage) {
+      filtered = filtered.filter((p) => p.packageId === filterPackage);
+    }
+
+    // Apply date range filter
+    if (filterDateRange && filterDateRange.length === 2) {
+      const startDate = filterDateRange[0].startOf("day");
+      const endDate = filterDateRange[1].endOf("day");
+
+      filtered = filtered.filter((p) => {
+        const promoStart = moment(p.validFrom);
+        const promoEnd = moment(p.validTo);
+
+        return (
+          promoStart.isBetween(startDate, endDate, null, "[]") ||
+          promoEnd.isBetween(startDate, endDate, null, "[]") ||
+          (promoStart.isBefore(startDate) && promoEnd.isAfter(endDate))
+        );
+      });
+    }
 
     setFilteredPromotions(filtered);
     setCurrentPage(1);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSearchType("all");
+    setFilterStatus(null);
+    setFilterType(null);
+    setFilterPackage(null);
+    setFilterDateRange(null);
+    setFilteredPromotions(promotions);
   };
 
   const handleEdit = (promotion) => {
@@ -215,7 +248,6 @@ const CoachPromotionManagementPage = () => {
         // Update existing promotion
         await client.updateCoachPromotion(selectedPromotion.id, {
           packageId: formData.packageId,
-          scheduleId: formData.scheduleId,
           description: formData.description,
           discountType: formData.discountType,
           discountValue: formData.discountValue,
@@ -231,7 +263,6 @@ const CoachPromotionManagementPage = () => {
         // Create new promotion
         const result = await client.createMyPromotion({
           packageId: formData.packageId,
-          scheduleId: formData.scheduleId,
           description: formData.description,
           discountType: formData.discountType,
           discountValue: formData.discountValue,
@@ -247,15 +278,14 @@ const CoachPromotionManagementPage = () => {
 
       // Refresh data
       fetchPromotions();
+      setShowForm(false);
+      setSelectedPromotion(null);
     } catch (error) {
       console.error("Error saving promotion:", error);
       api.error({
         message: "Lỗi",
         description: "Không thể lưu khuyến mãi. Vui lòng thử lại sau.",
       });
-    } finally {
-      setShowForm(false);
-      setSelectedPromotion(null);
     }
   };
 
@@ -363,7 +393,10 @@ const CoachPromotionManagementPage = () => {
           </Tooltip>
 
           <button
-            onClick={() => setShowForm(true)}
+            onClick={() => {
+              setSelectedPromotion(null);
+              setShowForm(true);
+            }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow hover:shadow-md transition-all duration-300 flex items-center gap-2"
           >
             <PlusCircle className="h-4 w-4" />
@@ -444,7 +477,10 @@ const CoachPromotionManagementPage = () => {
           className="bg-white p-4 rounded-lg shadow-sm flex items-center border border-transparent hover:border-pink-300 transition-all duration-300"
         >
           <div className="rounded-full bg-pink-50 p-3 mr-4">
-            <Icon icon="mdi:calendar-clock" className="h-6 w-6 text-pink-600" />
+            <Iconify
+              icon="mdi:calendar-clock"
+              className="h-6 w-6 text-pink-600"
+            />
           </div>
           <div>
             <p className="text-sm text-gray-500">KM lịch tập</p>
@@ -473,14 +509,14 @@ const CoachPromotionManagementPage = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow-md p-6 mb-6"
+          className="mb-6"
         >
-          {/* <CoachPromotionForm
+          <CoachPromotionForm
             promotion={selectedPromotion}
             onSave={handleSave}
-            // onCancel={handleCancel}
+            onCancel={handleCancel}
             coachPackages={packages}
-          /> */}
+          />
         </motion.div>
       ) : (
         <>
@@ -488,12 +524,87 @@ const CoachPromotionManagementPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
+            className="bg-white p-4 rounded-lg shadow-sm mb-6"
           >
-            {/* <CoachPromotionSearch
-              onSearch={handleSearch}
-              onFilter={handleFilter}
-              coachPackages={packages}
-            /> */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              {/* Search Input */}
+              <Input.Group compact className="flex">
+                <Select
+                  defaultValue="all"
+                  style={{ width: "40%" }}
+                  value={searchType}
+                  onChange={(value) => setSearchType(value)}
+                >
+                  <Select.Option value="all">Tất cả</Select.Option>
+                  <Select.Option value="description">Mô tả</Select.Option>
+                  <Select.Option value="packageId">Gói tập</Select.Option>
+                </Select>
+                <Input
+                  style={{ width: "60%" }}
+                  placeholder="Tìm kiếm khuyến mãi..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onPressEnter={handleSearch}
+                />
+              </Input.Group>
+
+              {/* Status Filter */}
+              <Select
+                placeholder="Trạng thái khuyến mãi"
+                allowClear
+                style={{ width: "100%" }}
+                value={filterStatus}
+                onChange={(value) => setFilterStatus(value)}
+              >
+                <Select.Option value="active">Đang hoạt động</Select.Option>
+                <Select.Option value="upcoming">Sắp diễn ra</Select.Option>
+                <Select.Option value="expired">Đã hết hạn</Select.Option>
+              </Select>
+
+              {/* Package Filter */}
+              <Select
+                placeholder="Lọc theo gói tập"
+                allowClear
+                style={{ width: "100%" }}
+                value={filterPackage}
+                onChange={(value) => setFilterPackage(value)}
+              >
+                {packages.map((pkg) => (
+                  <Select.Option key={pkg.id} value={pkg.id}>
+                    {pkg.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {/* Discount Type Filter */}
+              <Select
+                placeholder="Loại giảm giá"
+                allowClear
+                style={{ width: "100%" }}
+                value={filterType}
+                onChange={(value) => setFilterType(value)}
+              >
+                <Select.Option value="percentage">Phần trăm (%)</Select.Option>
+                <Select.Option value="fixed">Số tiền cố định</Select.Option>
+              </Select>
+
+              {/* Date Range Filter */}
+              <DatePicker.RangePicker
+                format="DD/MM/YYYY"
+                style={{ width: "100%" }}
+                value={filterDateRange}
+                onChange={(value) => setFilterDateRange(value)}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <AntButton onClick={clearFilters}>Xóa bộ lọc</AntButton>
+              <AntButton type="primary" onClick={applyFilters}>
+                Áp dụng
+              </AntButton>
+            </div>
           </motion.div>
 
           <motion.div

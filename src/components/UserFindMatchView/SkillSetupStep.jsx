@@ -207,7 +207,6 @@ function SkillSetupStep({ sports, onComplete }) {
       >
         Thiết lập kỹ năng
       </Typography>
-
       <Typography
         variant="body1"
         textAlign="center"
@@ -216,7 +215,6 @@ function SkillSetupStep({ sports, onComplete }) {
       >
         Hãy chọn các môn thể thao bạn chơi và cấp độ kỹ năng tương ứng
       </Typography>
-
       <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
         <Step>
           <StepLabel>Chọn môn thể thao</StepLabel>
@@ -225,7 +223,6 @@ function SkillSetupStep({ sports, onComplete }) {
           <StepLabel>Đánh giá kỹ năng</StepLabel>
         </Step>
       </Stepper>
-
       <AnimatePresence mode="wait">
         {activeStep === 0 ? (
           <motion.div
@@ -283,7 +280,13 @@ function SkillSetupStep({ sports, onComplete }) {
                     !selectedSports.some((item) => item.sportId === sport.id)
                 )
                 .map((sport) => (
-                  <Grid item xs={12} sm={6} md={4} key={sport.id}>
+                  <Grid
+                    key={sport.id}
+                    size={{
+                      xs: 12,
+                      sm: 6,
+                      md: 4
+                    }}>
                     <StyledCard
                       selected={currentSportId === sport.id}
                       onClick={() => handleSelectSport(sport)}

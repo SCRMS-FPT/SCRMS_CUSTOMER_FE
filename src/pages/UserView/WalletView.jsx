@@ -151,16 +151,18 @@ const WalletView = () => {
       >
         Ví của tôi
       </Typography>
-
       {error && (
         <Alert severity="error" sx={{ mb: 4 }}>
           {error}
         </Alert>
       )}
-
       <Grid container spacing={4}>
         {/* Wallet Balance Card */}
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <Card
             elevation={3}
             sx={{
@@ -267,7 +269,11 @@ const WalletView = () => {
         </Grid>
 
         {/* Recent Transactions Card */}
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <Card elevation={3} sx={{ borderRadius: 2, height: "100%" }}>
             <CardContent sx={{ p: 4 }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>

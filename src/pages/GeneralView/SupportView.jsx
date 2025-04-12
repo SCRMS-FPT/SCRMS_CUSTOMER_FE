@@ -134,7 +134,11 @@ const SupportView = () => {
         </Box>
 
         <Grid container spacing={3} mb={6}>
-          <Grid item xs={12} md={4}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 4
+            }}>
             <Card
               elevation={2}
               sx={{
@@ -177,7 +181,11 @@ const SupportView = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 4
+            }}>
             <Card
               elevation={2}
               sx={{
@@ -220,7 +228,11 @@ const SupportView = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 4
+            }}>
             <Card
               elevation={2}
               sx={{
@@ -267,7 +279,11 @@ const SupportView = () => {
 
         <Grid container spacing={4}>
           {/* Cột Bên Trái */}
-          <Grid item xs={12} md={6}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 6
+            }}>
             {/* Phần Câu Hỏi Thường Gặp */}
             <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
               <Box display="flex" alignItems="center" mb={3}>
@@ -376,7 +392,11 @@ const SupportView = () => {
           </Grid>
 
           {/* Cột Bên Phải */}
-          <Grid item xs={12} md={6}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 6
+            }}>
             {/* Form Liên Hệ */}
             <Paper elevation={3} sx={{ p: { xs: 3, md: 4 }, borderRadius: 2 }}>
               <Box display="flex" alignItems="center" mb={3}>

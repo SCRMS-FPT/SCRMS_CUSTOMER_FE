@@ -8,12 +8,17 @@ const CourtList = ({ courts, animationClass }) => {
       <Grid container spacing={3}>
         {courts.length > 0 ? (
           courts.map((court) => (
-            <Grid item xs={12} sm={6} key={court.court_id}>
+            <Grid
+              key={court.court_id}
+              size={{
+                xs: 12,
+                sm: 6
+              }}>
               <CourtCard court={court} />
             </Grid>
           ))
         ) : (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography variant="body1" align="center" color="text.secondary">
               Không có sân phù hợp.
             </Typography>

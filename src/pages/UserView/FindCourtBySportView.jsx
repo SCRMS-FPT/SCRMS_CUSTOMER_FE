@@ -85,11 +85,14 @@ const FindCourtBySportView = () => {
           Tìm sân theo môn thể thao bạn lựa chọn
         </Typography>
       </Box>
-
       {/* Main Content Grid */}
       <Grid container spacing={4}>
         {/* Sidebar - Sport Selection */}
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           <Paper sx={{ p: 2, borderRadius: 2 }} elevation={3}>
             <SportSelection
               selectedSport={selectedSport}
@@ -99,7 +102,11 @@ const FindCourtBySportView = () => {
         </Grid>
 
         {/* Courts List Section */}
-        <Grid item xs={12} md={8}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 8
+          }}>
           <Paper sx={{ p: 2, borderRadius: 2 }} elevation={3}>
             {loading ? (
               <LoadingIndicator />

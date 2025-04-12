@@ -1390,7 +1390,7 @@ const BookCourtView = () => {
                         </div>
                       ) : (
                         // Show time slots for each selected court
-                        selectedCourtIds.map((courtId) => {
+                        (selectedCourtIds.map((courtId) => {
                           const court = courts.find((c) => c.id === courtId);
                           const courtSlots = availableSlotsMap[courtId] || [];
 
@@ -1500,7 +1500,7 @@ const BookCourtView = () => {
                               )}
                             </div>
                           );
-                        })
+                        }))
                       )}
                     </>
                   )}
@@ -2530,7 +2530,7 @@ const BookCourtView = () => {
             >
               {getSelectedCourt() ? (
                 // Court Information
-                <>
+                (<>
                   <div style={{ textAlign: "center", marginBottom: 16 }}>
                     <Avatar
                       size={80}
@@ -2550,9 +2550,7 @@ const BookCourtView = () => {
                     </Title>
                     <Text type="secondary">{getSelectedCourt().sportName}</Text>
                   </div>
-
                   <Divider style={{ margin: "16px 0" }} />
-
                   <List
                     itemLayout="horizontal"
                     dataSource={[
@@ -2604,7 +2602,6 @@ const BookCourtView = () => {
                       </List.Item>
                     )}
                   />
-
                   {getSelectedCourt().facilities &&
                     getSelectedCourt().facilities.length > 0 && (
                       <>
@@ -2633,84 +2630,79 @@ const BookCourtView = () => {
                       </>
                     )}
                   <CourtReviewsSection />
-                </>
+                </>)
               ) : (
                 // Sport Center Information
-                sportCenter && (
-                  <>
-                    <div style={{ textAlign: "center", marginBottom: 16 }}>
-                      <Avatar
-                        size={80}
-                        src={sportCenter.avatar}
-                        style={{
-                          backgroundColor: "#f0f5ff",
-                          marginBottom: 12,
-                        }}
-                      >
-                        {sportCenter.name?.charAt(0)}
-                      </Avatar>
-                      <Title level={4} style={{ margin: 0 }}>
-                        {sportCenter.name}
-                      </Title>
-                      <Text type="secondary">{formatAddress(sportCenter)}</Text>
-                    </div>
-
-                    <Divider style={{ margin: "16px 0" }} />
-
-                    <List
-                      itemLayout="horizontal"
-                      dataSource={[
-                        {
-                          title: "Address",
-                          description: formatAddress(sportCenter),
-                          icon: (
-                            <EnvironmentOutlined style={{ color: "#1890ff" }} />
-                          ),
-                        },
-                        {
-                          title: "Phone",
-                          description:
-                            sportCenter.phoneNumber || "Not available",
-                          icon: <PhoneOutlined style={{ color: "#52c41a" }} />,
-                        },
-                        {
-                          title: "Available Courts",
-                          description: `${courts.length} courts`,
-                          icon: (
-                            <AppstoreOutlined style={{ color: "#faad14" }} />
-                          ),
-                        },
-                      ]}
-                      renderItem={(item) => (
-                        <List.Item>
-                          <List.Item.Meta
-                            avatar={
-                              <Avatar
-                                icon={item.icon}
-                                style={{ backgroundColor: "transparent" }}
-                              />
-                            }
-                            title={item.title}
-                            description={item.description}
-                          />
-                        </List.Item>
-                      )}
-                    />
-
-                    {sportCenter.description && (
-                      <>
-                        <Divider
-                          orientation="left"
-                          plain
-                          style={{ fontSize: 14 }}
-                        >
-                          Description
-                        </Divider>
-                        <Paragraph>{sportCenter.description}</Paragraph>
-                      </>
+                (sportCenter && (<>
+                  <div style={{ textAlign: "center", marginBottom: 16 }}>
+                    <Avatar
+                      size={80}
+                      src={sportCenter.avatar}
+                      style={{
+                        backgroundColor: "#f0f5ff",
+                        marginBottom: 12,
+                      }}
+                    >
+                      {sportCenter.name?.charAt(0)}
+                    </Avatar>
+                    <Title level={4} style={{ margin: 0 }}>
+                      {sportCenter.name}
+                    </Title>
+                    <Text type="secondary">{formatAddress(sportCenter)}</Text>
+                  </div>
+                  <Divider style={{ margin: "16px 0" }} />
+                  <List
+                    itemLayout="horizontal"
+                    dataSource={[
+                      {
+                        title: "Address",
+                        description: formatAddress(sportCenter),
+                        icon: (
+                          <EnvironmentOutlined style={{ color: "#1890ff" }} />
+                        ),
+                      },
+                      {
+                        title: "Phone",
+                        description:
+                          sportCenter.phoneNumber || "Not available",
+                        icon: <PhoneOutlined style={{ color: "#52c41a" }} />,
+                      },
+                      {
+                        title: "Available Courts",
+                        description: `${courts.length} courts`,
+                        icon: (
+                          <AppstoreOutlined style={{ color: "#faad14" }} />
+                        ),
+                      },
+                    ]}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <List.Item.Meta
+                          avatar={
+                            <Avatar
+                              icon={item.icon}
+                              style={{ backgroundColor: "transparent" }}
+                            />
+                          }
+                          title={item.title}
+                          description={item.description}
+                        />
+                      </List.Item>
                     )}
-                  </>
-                )
+                  />
+                  {sportCenter.description && (
+                    <>
+                      <Divider
+                        orientation="left"
+                        plain
+                        style={{ fontSize: 14 }}
+                      >
+                        Description
+                      </Divider>
+                      <Paragraph>{sportCenter.description}</Paragraph>
+                    </>
+                  )}
+                </>))
               )}
             </Card>
 

@@ -758,7 +758,6 @@ export default function ProfilePage() {
           </div>
         </Card>
       </div>
-
       {/* Image Preview Modal */}
       <Modal
         open={previewVisible}

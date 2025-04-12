@@ -1,758 +1,571 @@
-"use client"
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  InputNumber,
+  Radio,
+  Spin,
+  Alert,
+} from "antd";
+import {
+  Box,
+  Typography,
+  Divider,
+  Button,
+  Paper,
+  TextField,
+  FormControl,
+  FormHelperText,
+  Chip,
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import moment from "moment";
 
-import { useState, useEffect } from "react"
-import { Save, X, Calendar, Tag, Percent, DollarSign, AlignLeft, Info, User, Package } from "lucide-react"
-import { coachData } from "../../data/coachData"
-import { coachPackages } from "../../data/coachPackageData"
-import { coachSchedulesData } from "../../data/coachSchedulesData"
-import { userData } from "../../data/userData.js"
+// Icons
+import { Iconify } from "@/components/iconify";
 
-const CoachPromotionForm = ({ promotion, onSave, onCancel }) => {
-    const [formData, setFormData] = useState({
-        id: "",
-        coach_id: "",
-        packageId: "",
-        scheduleId: "",
-        description: "",
-        discount_type: "percentage",
-        discount_value: "",
-        valid_from: "",
-        valid_to: "",
-        created_at: new Date().toISOString(),
-    })
-    const [errors, setErrors] = useState({})
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [selectedCoach, setSelectedCoach] = useState(null)
-    const [selectedPackage, setSelectedPackage] = useState(null)
-    const [selectedSchedule, setSelectedSchedule] = useState(null)
-    const [promotionType, setPromotionType] = useState("package") // "package" or "schedule"
-    const [filteredPackages, setFilteredPackages] = useState([])
-    const [filteredSchedules, setFilteredSchedules] = useState([])
+const CoachPromotionForm = ({ promotion, onSave, onCancel, coachPackages }) => {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [promotionType, setPromotionType] = useState("package");
 
-    useEffect(() => {
-        if (promotion) {
-            setFormData({
-                ...promotion,
-                valid_from: formatDateForInput(promotion.valid_from),
-                valid_to: formatDateForInput(promotion.valid_to),
-            })
+  // Setup form initial values
+  useEffect(() => {
+    if (promotion) {
+      // Populate form with existing promotion data
+      form.setFieldsValue({
+        packageId: promotion.packageId,
+        description: promotion.description,
+        discountType: promotion.discountType || "percentage",
+        discountValue: promotion.discountValue,
+        validDateRange: [
+          promotion.validFrom ? moment(promotion.validFrom) : null,
+          promotion.validTo ? moment(promotion.validTo) : null,
+        ],
+      });
 
-            // Determine promotion type
-            if (promotion.packageId) {
-                setPromotionType("package")
-            } else if (promotion.scheduleId) {
-                setPromotionType("schedule")
-            }
-
-            // Find the selected coach, package, and schedule
-            const coach = coachData.find((c) => c.id === promotion.coach_id)
-            setSelectedCoach(coach)
-
-            if (promotion.packageId) {
-                const pkg = coachPackages.find((p) => p.id === promotion.packageId)
-                setSelectedPackage(pkg)
-            }
-
-            if (promotion.scheduleId) {
-                const schedule = coachSchedulesData.find((s) => s.id === promotion.scheduleId)
-                setSelectedSchedule(schedule)
-            }
-
-            // Filter packages and schedules by selected coach
-            if (promotion.coach_id) {
-                const packages = coachPackages.filter((p) => p.coach_id === promotion.coach_id)
-                setFilteredPackages(packages)
-
-                const schedules = coachSchedulesData.filter((s) => s.coach_id === promotion.coach_id)
-                setFilteredSchedules(schedules)
-            }
-        } else {
-            // Generate a new ID for new promotions
-            setFormData((prev) => ({
-                ...prev,
-                id: `uuid-promotion-${Math.floor(Math.random() * 1000)
-                    .toString()
-                    .padStart(3, "0")}`,
-            }))
-        }
-    }, [promotion])
-
-    const formatDateForInput = (dateString) => {
-        const date = new Date(dateString)
-        return date.toISOString().split("T")[0]
+      // Set selected package
+      if (promotion.packageId) {
+        const pkg = coachPackages.find((p) => p.id === promotion.packageId);
+        setSelectedPackage(pkg);
+        setPromotionType("package");
+      } else {
+        setPromotionType("schedule");
+      }
+    } else {
+      // Initialize with default values for new promotion
+      form.resetFields();
+      form.setFieldsValue({
+        discountType: "percentage",
+      });
     }
+  }, [promotion, form, coachPackages]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target
-        setFormData({
-            ...formData,
-            [name]: value,
-        })
+  // Handle package selection change
+  const handlePackageChange = (packageId) => {
+    const selectedPkg = coachPackages.find((p) => p.id === packageId);
+    setSelectedPackage(selectedPkg);
+  };
 
-        // Clear error when field is edited
-        if (errors[name]) {
-            setErrors({
-                ...errors,
-                [name]: null,
-            })
-        }
+  // Format currency
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
+  };
 
-        // Handle coach selection
-        if (name === "coach_id") {
-            const coach = coachData.find((c) => c.id === value)
-            setSelectedCoach(coach)
+  // Calculate discounted price
+  const calculateDiscountedPrice = () => {
+    if (!selectedPackage) return null;
 
-            // Filter packages and schedules by selected coach
-            if (value) {
-                const packages = coachPackages.filter((p) => p.coach_id === value)
-                setFilteredPackages(packages)
+    const values = form.getFieldsValue();
+    const { discountType, discountValue } = values;
 
-                const schedules = coachSchedulesData.filter((s) => s.coach_id === value)
-                setFilteredSchedules(schedules)
+    if (!discountValue || isNaN(discountValue)) return selectedPackage.price;
 
-                // Reset package and schedule selections
-                setFormData((prev) => ({
-                    ...prev,
-                    packageId: "",
-                    scheduleId: "",
-                }))
-                setSelectedPackage(null)
-                setSelectedSchedule(null)
-            } else {
-                setFilteredPackages([])
-                setFilteredSchedules([])
-            }
-        }
-
-        // Update selected package when packageId changes
-        if (name === "packageId") {
-            const pkg = coachPackages.find((p) => p.id === value)
-            setSelectedPackage(pkg)
-
-            // Clear scheduleId if packageId is selected
-            if (value) {
-                setFormData((prev) => ({
-                    ...prev,
-                    scheduleId: "",
-                }))
-                setSelectedSchedule(null)
-            }
-        }
-
-        // Update selected schedule when scheduleId changes
-        if (name === "scheduleId") {
-            const schedule = coachSchedulesData.find((s) => s.id === value)
-            setSelectedSchedule(schedule)
-
-            // Clear packageId if scheduleId is selected
-            if (value) {
-                setFormData((prev) => ({
-                    ...prev,
-                    packageId: "",
-                }))
-                setSelectedPackage(null)
-            }
-        }
+    if (discountType === "percentage") {
+      const discount = (selectedPackage.price * discountValue) / 100;
+      return Math.max(0, selectedPackage.price - discount);
+    } else {
+      return Math.max(0, selectedPackage.price - discountValue);
     }
+  };
 
-    const handlePromotionTypeChange = (type) => {
-        setPromotionType(type)
+  // Handle form submission
+  const handleSubmit = async (values) => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        // Clear the other type's selection
-        if (type === "package") {
-            setFormData((prev) => ({
-                ...prev,
-                scheduleId: "",
-            }))
-            setSelectedSchedule(null)
-        } else {
-            setFormData((prev) => ({
-                ...prev,
-                packageId: "",
-            }))
-            setSelectedPackage(null)
-        }
+      const [validFrom, validTo] = values.validDateRange || [];
+
+      const promotionData = {
+        packageId: values.packageId,
+        description: values.description,
+        discountType: values.discountType,
+        discountValue: Number(values.discountValue),
+        validFrom: validFrom ? validFrom.format("YYYY-MM-DD") : null,
+        validTo: validTo ? validTo.format("YYYY-MM-DD") : null,
+      };
+
+      await onSave(promotionData);
+    } catch (err) {
+      console.error("Error saving promotion:", err);
+      setError("Có lỗi xảy ra khi lưu khuyến mãi. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const validateForm = () => {
-        const newErrors = {}
+  const calculateSavings = () => {
+    if (!selectedPackage) return null;
 
-        if (!formData.id.trim()) {
-            newErrors.id = "Vui lòng nhập mã khuyến mãi"
-        }
+    const values = form.getFieldsValue();
+    const { discountType, discountValue } = values;
 
-        if (!formData.coach_id) {
-            newErrors.coach_id = "Vui lòng chọn huấn luyện viên"
-        }
+    if (!discountValue || isNaN(discountValue)) return 0;
 
-        if (promotionType === "package" && !formData.packageId) {
-            newErrors.packageId = "Vui lòng chọn gói tập"
-        }
-
-        if (promotionType === "schedule" && !formData.scheduleId) {
-            newErrors.scheduleId = "Vui lòng chọn lịch tập"
-        }
-
-        if (!formData.description.trim()) {
-            newErrors.description = "Vui lòng nhập mô tả khuyến mãi"
-        }
-
-        if (!formData.discount_value || formData.discount_value <= 0) {
-            newErrors.discount_value = "Vui lòng nhập giá trị giảm giá hợp lệ"
-        }
-
-        if (!formData.valid_from) {
-            newErrors.valid_from = "Vui lòng chọn ngày bắt đầu"
-        }
-
-        if (!formData.valid_to) {
-            newErrors.valid_to = "Vui lòng chọn ngày kết thúc"
-        } else if (
-            formData.valid_from &&
-            formData.valid_to &&
-            new Date(formData.valid_to) <= new Date(formData.valid_from)
-        ) {
-            newErrors.valid_to = "Ngày kết thúc phải sau ngày bắt đầu"
-        }
-
-        setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
+    if (discountType === "percentage") {
+      return (selectedPackage.price * discountValue) / 100;
+    } else {
+      return Math.min(discountValue, selectedPackage.price);
     }
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white rounded-xl shadow-lg overflow-hidden"
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          p: 3,
+          bgcolor: "#f8fafc",
+          borderBottom: "1px solid rgba(0,0,0,0.08)",
+        }}
+      >
+        <Typography variant="h6" fontWeight={600}>
+          {promotion ? "Chỉnh sửa khuyến mãi" : "Thêm khuyến mãi mới"}
+        </Typography>
+        <Button
+          variant="outlined"
+          color="inherit"
+          size="small"
+          startIcon={<Iconify icon="solar:close-circle-linear" />}
+          onClick={onCancel}
+        >
+          Đóng
+        </Button>
+      </Box>
+      {error && (
+        <Alert
+          severity="error"
+          onClose={() => setError(null)}
+          sx={{ mx: 3, mt: 2 }}
+        >
+          {error}
+        </Alert>
+      )}
+      <Box sx={{ p: 3 }}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+          requiredMark={false}
+          validateTrigger={["onChange", "onBlur"]}
+        >
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+            <Box sx={{ flex: "1 1 400px" }}>
+              {/* Package Selection */}
+              <Form.Item
+                name="packageId"
+                label="Gói huấn luyện"
+                rules={[
+                  { required: true, message: "Vui lòng chọn gói huấn luyện" },
+                ]}
+              >
+                <Select
+                  placeholder="Chọn gói huấn luyện"
+                  onChange={handlePackageChange}
+                  disabled={loading}
+                  size="large"
+                  style={{ width: "100%" }}
+                  optionFilterProp="children"
+                  showSearch
+                  filterOption={(input, option) =>
+                    option.children
+                      ?.toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
+                >
+                  {coachPackages?.map((pkg) => (
+                    <Select.Option key={pkg.id} value={pkg.id}>
+                      {pkg.name} - {formatCurrency(pkg.price)} (
+                      {pkg.sessionCount} buổi)
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
 
-        if (!validateForm()) {
-            return
-        }
+              {/* Discount Type */}
+              <Form.Item
+                name="discountType"
+                label="Loại giảm giá"
+                rules={[
+                  { required: true, message: "Vui lòng chọn loại giảm giá" },
+                ]}
+              >
+                <Radio.Group size="large" disabled={loading}>
+                  <Radio.Button
+                    value="percentage"
+                    style={{ width: 150, textAlign: "center" }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 0.5,
+                      }}
+                    >
+                      <Iconify icon="solar:percent-round-bold-duotone" />
+                      Phần trăm (%)
+                    </Box>
+                  </Radio.Button>
+                  <Radio.Button
+                    value="fixed"
+                    style={{ width: 150, textAlign: "center" }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 0.5,
+                      }}
+                    >
+                      <Iconify icon="solar:dollar-minimalistic-bold-duotone" />
+                      Số tiền cố định
+                    </Box>
+                  </Radio.Button>
+                </Radio.Group>
+              </Form.Item>
 
-        setIsSubmitting(true)
+              {/* Discount Value */}
+              <Form.Item
+                name="discountValue"
+                label="Giá trị giảm giá"
+                rules={[
+                  { required: true, message: "Vui lòng nhập giá trị giảm giá" },
+                  {
+                    type: "number",
+                    min: 0,
+                    message: "Giá trị phải lớn hơn hoặc bằng 0",
+                  },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (
+                        getFieldValue("discountType") === "percentage" &&
+                        value > 100
+                      ) {
+                        return Promise.reject(
+                          "Phần trăm giảm giá không thể lớn hơn 100%"
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
+                <InputNumber
+                  style={{ width: "100%" }}
+                  size="large"
+                  min={0}
+                  max={
+                    form.getFieldValue("discountType") === "percentage"
+                      ? 100
+                      : undefined
+                  }
+                  formatter={(value) =>
+                    form.getFieldValue("discountType") === "percentage"
+                      ? `${value}%`
+                      : `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value.replace(/[%,]/g, "")}
+                  disabled={loading}
+                  addonAfter={
+                    form.getFieldValue("discountType") === "percentage"
+                      ? "%"
+                      : "VND"
+                  }
+                />
+              </Form.Item>
 
-        try {
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 500))
-            onSave(formData)
-        } catch (error) {
-            console.error("Error saving promotion:", error)
-        } finally {
-            setIsSubmitting(false)
-        }
-    }
+              {/* Validity Period */}
+              <Form.Item
+                name="validDateRange"
+                label="Thời gian hiệu lực"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn thời gian hiệu lực",
+                  },
+                ]}
+              >
+                <DatePicker.RangePicker
+                  style={{ width: "100%" }}
+                  size="large"
+                  format="DD/MM/YYYY"
+                  disabled={loading}
+                  placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
+                />
+              </Form.Item>
 
-    const formatDiscountPreview = () => {
-        if (!formData.discount_value) return "Chưa có giá trị"
+              {/* Description */}
+              <Form.Item
+                name="description"
+                label="Mô tả khuyến mãi"
+                rules={[
+                  { required: true, message: "Vui lòng nhập mô tả khuyến mãi" },
+                ]}
+              >
+                <Input.TextArea
+                  rows={4}
+                  placeholder="Nhập mô tả chi tiết về chương trình khuyến mãi"
+                  disabled={loading}
+                  maxLength={500}
+                  showCount
+                />
+              </Form.Item>
+            </Box>
 
-        if (formData.discount_type === "percentage") {
-            return `${formData.discount_value}%`
-        } else {
-            return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(formData.discount_value)
-        }
-    }
+            {/* Preview and Information Section */}
+            <Box sx={{ flex: "1 1 300px" }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2.5,
+                  borderRadius: 2,
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  backgroundColor: "#f8fafc",
+                  mb: 3,
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  Xem trước khuyến mãi
+                </Typography>
 
-    const formatScheduleInfo = (schedule) => {
-        if (!schedule) return null
+                {selectedPackage ? (
+                  <Box>
+                    <Typography variant="h6" sx={{ mb: 0.5 }}>
+                      {selectedPackage.name}
+                    </Typography>
 
-        const daysOfWeek = {
-            1: "Thứ 2",
-            2: "Thứ 3",
-            3: "Thứ 4",
-            4: "Thứ 5",
-            5: "Thứ 6",
-            6: "Thứ 7",
-            7: "Chủ nhật",
-        }
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 1,
+                        mb: 1.5,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Chip
+                        size="small"
+                        label={`${selectedPackage.sessionCount} buổi tập`}
+                        sx={{
+                          bgcolor: "rgba(25, 118, 210, 0.08)",
+                          color: "primary.main",
+                          fontWeight: 500,
+                        }}
+                      />
+                    </Box>
 
-        const days = schedule.day_of_week.map((d) => daysOfWeek[d]).join(", ")
-        return `${days} (${schedule.start_time.substring(0, 5)} - ${schedule.end_time.substring(0, 5)})`
-    }
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "baseline",
+                        gap: 1,
+                        mb: 2,
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        component="span"
+                        sx={{
+                          textDecoration: "line-through",
+                          color: "text.secondary",
+                        }}
+                      >
+                        {formatCurrency(selectedPackage.price)}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        component="span"
+                        color="error.main"
+                        fontWeight={700}
+                      >
+                        {formatCurrency(calculateDiscountedPrice())}
+                      </Typography>
+                    </Box>
 
-    return (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-800">
-                    {promotion ? "Chỉnh sửa khuyến mãi" : "Thêm khuyến mãi mới"}
-                </h2>
-                <button onClick={onCancel} className="text-gray-500 hover:text-gray-700">
-                    <X className="h-5 w-5" />
-                </button>
-            </div>
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 1,
+                        bgcolor: "rgba(25, 118, 210, 0.04)",
+                        border: "1px dashed rgba(25, 118, 210, 0.3)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                      }}
+                    >
+                      <Iconify
+                        icon="solar:tag-price-bold-duotone"
+                        width={18}
+                        sx={{ color: "primary.main" }}
+                      />
+                      <Typography variant="body2" fontWeight={500}>
+                        Tiết kiệm {formatCurrency(calculateSavings())}
+                        {form.getFieldValue("discountType") ===
+                          "percentage" && (
+                          <span>
+                            {" "}
+                            ({form.getFieldValue("discountValue") || 0}%)
+                          </span>
+                        )}
+                      </Typography>
+                    </Box>
 
-            <div className="p-6">
-                <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="id">
-                                    <div className="flex items-center">
-                                        <Tag className="h-4 w-4 mr-1 text-gray-500" />
-                                        Mã khuyến mãi
-                                    </div>
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        id="id"
-                                        name="id"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.id
-                                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                                            }`}
-                                        value={formData.id}
-                                        onChange={handleChange}
-                                        disabled={!!promotion}
-                                        placeholder="Nhập mã khuyến mãi"
-                                    />
-                                    {errors.id && <p className="mt-1 text-sm text-red-600">{errors.id}</p>}
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="coach_id">
-                                    <div className="flex items-center">
-                                        <User className="h-4 w-4 mr-1 text-gray-500" />
-                                        Huấn luyện viên
-                                    </div>
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        id="coach_id"
-                                        name="coach_id"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.coach_id
-                                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                                            }`}
-                                        value={formData.coach_id}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="">-- Chọn huấn luyện viên --</option>
-                                        {coachData.map((coach) => {
-                                            const user = userData.find((u) => u.id === coach.id)
-                                            const fullName = user ? `${user.lastName} ${user.firstName}` : `HLV ${coach.id.split("-").pop()}`
-                                            return (
-                                                <option key={coach.id} value={coach.id}>
-                                                    {fullName} - {coach.rate_per_hour.toLocaleString("vi-VN")}đ/giờ
-                                                </option>
-                                            )
-                                        })}
-                                    </select>
-                                    {errors.coach_id && <p className="mt-1 text-sm text-red-600">{errors.coach_id}</p>}
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    <div className="flex items-center">
-                                        <Info className="h-4 w-4 mr-1 text-gray-500" />
-                                        Loại khuyến mãi
-                                    </div>
-                                </label>
-                                <div className="flex space-x-4">
-                                    <div className="flex items-center">
-                                        <input
-                                            type="radio"
-                                            id="type_package"
-                                            name="promotion_type"
-                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            checked={promotionType === "package"}
-                                            onChange={() => handlePromotionTypeChange("package")}
-                                        />
-                                        <label htmlFor="type_package" className="ml-2 block text-sm text-gray-700">
-                                            Khuyến mãi gói tập
-                                        </label>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <input
-                                            type="radio"
-                                            id="type_schedule"
-                                            name="promotion_type"
-                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            checked={promotionType === "schedule"}
-                                            onChange={() => handlePromotionTypeChange("schedule")}
-                                        />
-                                        <label htmlFor="type_schedule" className="ml-2 block text-sm text-gray-700">
-                                            Khuyến mãi lịch tập
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {promotionType === "package" && (
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="packageId">
-                                        <div className="flex items-center">
-                                            <Package className="h-4 w-4 mr-1 text-gray-500" />
-                                            Gói tập
-                                        </div>
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            id="packageId"
-                                            name="packageId"
-                                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.packageId
-                                                ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                                : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                                                }`}
-                                            value={formData.packageId}
-                                            onChange={handleChange}
-                                            disabled={!formData.coach_id || filteredPackages.length === 0}
-                                        >
-                                            <option value="">-- Chọn gói tập --</option>
-                                            {filteredPackages.map((pkg) => (
-                                                <option key={pkg.id} value={pkg.id}>
-                                                    {pkg.package_name} - {pkg.session_count} buổi
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.packageId && <p className="mt-1 text-sm text-red-600">{errors.packageId}</p>}
-                                        {!formData.coach_id && !errors.packageId && (
-                                            <p className="mt-1 text-sm text-gray-500">Vui lòng chọn huấn luyện viên trước</p>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {promotionType === "schedule" && (
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="scheduleId">
-                                        <div className="flex items-center">
-                                            <Calendar className="h-4 w-4 mr-1 text-gray-500" />
-                                            Lịch tập
-                                        </div>
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            id="scheduleId"
-                                            name="scheduleId"
-                                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.scheduleId
-                                                ? "border-red-300 focus:ring-red-500 focus:borderr-red-500"
-                                                : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                                                }`}
-                                            value={formData.scheduleId}
-                                            onChange={handleChange}
-                                            disabled={!formData.coach_id || filteredSchedules.length === 0}
-                                        >
-                                            <option value="">-- Chọn lịch tập --</option>
-                                            {filteredSchedules.map((schedule) => (
-                                                <option key={schedule.id} value={schedule.id}>
-                                                    {formatScheduleInfo(schedule)}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.scheduleId && <p className="mt-1 text-sm text-red-600">{errors.scheduleId}</p>}
-                                        {!formData.coach_id && !errors.scheduleId && (
-                                            <p className="mt-1 text-sm text-gray-500">Vui lòng chọn huấn luyện viên trước</p>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="discount_type">
-                                    <div className="flex items-center">
-                                        <Info className="h-4 w-4 mr-1 text-gray-500" />
-                                        Loại giảm giá
-                                    </div>
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        id="discount_type"
-                                        name="discount_type"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white pr-10"
-                                        value={formData.discount_type}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="percentage">Phần trăm (%)</option>
-                                        <option value="fixed">Số tiền cố định (VNĐ)</option>
-                                    </select>
-                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        {formData.discount_type === "percentage" ? (
-                                            <Percent className="h-4 w-4 text-gray-500" />
-                                        ) : (
-                                            <DollarSign className="h-4 w-4 text-gray-500" />
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="discount_value">
-                                    <div className="flex items-center">
-                                        {formData.discount_type === "percentage" ? (
-                                            <Percent className="h-4 w-4 mr-1 text-gray-500" />
-                                        ) : (
-                                            <DollarSign className="h-4 w-4 mr-1 text-gray-500" />
-                                        )}
-                                        Giá trị giảm giá
-                                    </div>
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="number"
-                                        id="discount_value"
-                                        name="discount_value"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.discount_value
-                                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                                            }`}
-                                        value={formData.discount_value}
-                                        onChange={handleChange}
-                                        placeholder={formData.discount_type === "percentage" ? "Nhập % giảm giá" : "Nhập số tiền giảm giá"}
-                                        min="0"
-                                    />
-                                    {errors.discount_value && <p className="mt-1 text-sm text-red-600">{errors.discount_value}</p>}
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="valid_from">
-                                        <div className="flex items-center">
-                                            <Calendar className="h-4 w-4 mr-1 text-gray-500" />
-                                            Hiệu lực từ
-                                        </div>
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="date"
-                                            id="valid_from"
-                                            name="valid_from"
-                                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.valid_from
-                                                ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                                : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                                                }`}
-                                            value={formData.valid_from}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.valid_from && <p className="mt-1 text-sm text-red-600">{errors.valid_from}</p>}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="valid_to">
-                                        <div className="flex items-center">
-                                            <Calendar className="h-4 w-4 mr-1 text-gray-500" />
-                                            Hiệu lực đến
-                                        </div>
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="date"
-                                            id="valid_to"
-                                            name="valid_to"
-                                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.valid_to
-                                                ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                                : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                                                }`}
-                                            value={formData.valid_to}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.valid_to && <p className="mt-1 text-sm text-red-600">{errors.valid_to}</p>}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="description">
-                                    <div className="flex items-center">
-                                        <AlignLeft className="h-4 w-4 mr-1 text-gray-500" />
-                                        Mô tả
-                                    </div>
-                                </label>
-                                <div className="relative">
-                                    <textarea
-                                        id="description"
-                                        name="description"
-                                        rows="4"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.description
-                                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                                            }`}
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        placeholder="Nhập mô tả chi tiết về khuyến mãi"
-                                    ></textarea>
-                                    {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
-                                </div>
-                            </div>
-
-                            {/* Coach Preview */}
-                            {selectedCoach && (
-                                <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                    <h3 className="text-sm font-medium text-gray-700 mb-3">Thông tin huấn luyện viên</h3>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-500">Tên HLV:</span>
-                                            <span className="text-sm font-medium">
-                                                {(() => {
-                                                    const user = userData.find((u) => u.id === selectedCoach.id)
-                                                    return user
-                                                        ? `${user.lastName} ${user.firstName}`
-                                                        : `HLV ${selectedCoach.id.split("-").pop()}`
-                                                })()}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-500">Giá/giờ:</span>
-                                            <span className="text-sm font-medium">
-                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                    selectedCoach.rate_per_hour,
-                                                )}
-                                            </span>
-                                        </div>
-                                        <div className="text-sm text-gray-500 mt-2">
-                                            <p className="text-xs italic">{selectedCoach.bio}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Package Preview */}
-                            {selectedPackage && (
-                                <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                    <h3 className="text-sm font-medium text-gray-700 mb-3">Thông tin gói tập</h3>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-500">Tên gói:</span>
-                                            <span className="text-sm font-medium">{selectedPackage.package_name}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-500">Số buổi tập:</span>
-                                            <span className="text-sm font-medium">{selectedPackage.session_count} buổi</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-500">Giá gói tập:</span>
-                                            <span className="text-sm font-medium">
-                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                    selectedPackage.price,
-                                                )}
-                                            </span>
-                                        </div>
-                                        <div className="text-sm text-gray-500 mt-2">
-                                            <p className="text-xs italic">{selectedPackage.description}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Schedule Preview */}
-                            {selectedSchedule && (
-                                <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                    <h3 className="text-sm font-medium text-gray-700 mb-3">Thông tin lịch tập</h3>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-500">Mã lịch:</span>
-                                            <span className="text-sm font-medium">{selectedSchedule.id}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-500">Lịch tập:</span>
-                                            <span className="text-sm font-medium">{formatScheduleInfo(selectedSchedule)}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-500">Trạng thái:</span>
-                                            <span
-                                                className={`text-sm font-medium px-2 py-1 rounded-full ${selectedSchedule.status === "available"
-                                                    ? "bg-green-100 text-green-800"
-                                                    : "bg-red-100 text-red-800"
-                                                    }`}
-                                            >
-                                                {selectedSchedule.status === "available" ? "Còn trống" : "Đã đặt"}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Promotion Preview */}
-                            <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                <h3 className="text-sm font-medium text-gray-700 mb-3">Xem trước khuyến mãi</h3>
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-500">Mã khuyến mãi:</span>
-                                        <span className="text-sm font-medium">{formData.id || "Chưa có mã"}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-500">Loại khuyến mãi:</span>
-                                        <span className="text-sm font-medium">
-                                            {promotionType === "package" ? "Khuyến mãi gói tập" : "Khuyến mãi lịch tập"}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-500">Loại giảm giá:</span>
-                                        <span className="text-sm font-medium">
-                                            {formData.discount_type === "percentage" ? "Phần trăm" : "Số tiền cố định"}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-500">Giá trị giảm giá:</span>
-                                        <span className="text-sm font-medium">{formatDiscountPreview()}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-500">Thời gian hiệu lực:</span>
-                                        <span className="text-sm font-medium">
-                                            {formData.valid_from && formData.valid_to
-                                                ? `${new Date(formData.valid_from).toLocaleDateString("vi-VN")} - ${new Date(formData.valid_to).toLocaleDateString("vi-VN")}`
-                                                : "Chưa thiết lập"}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="mt-8 flex justify-end gap-3">
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200 flex items-center gap-2"
-                            disabled={isSubmitting}
+                    {form.getFieldValue("validDateRange") &&
+                      form.getFieldValue("validDateRange")[0] && (
+                        <Box
+                          sx={{
+                            mt: 2,
+                            fontSize: "0.75rem",
+                            color: "text.secondary",
+                          }}
                         >
-                            <X className="h-4 w-4" />
-                            Hủy
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <svg
-                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <circle
-                                            className="opacity-25"
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        ></circle>
-                                        <path
-                                            className="opacity-75"
-                                            fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        ></path>
-                                    </svg>
-                                    Đang lưu...
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="h-4 w-4" />
-                                    {promotion ? "Cập nhật" : "Thêm mới"}
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    )
-}
+                          <Typography variant="caption" display="block">
+                            Hiệu lực từ:{" "}
+                            {form
+                              .getFieldValue("validDateRange")[0]
+                              .format("DD/MM/YYYY")}
+                          </Typography>
+                          <Typography variant="caption" display="block">
+                            Hiệu lực đến:{" "}
+                            {form
+                              .getFieldValue("validDateRange")[1]
+                              ?.format("DD/MM/YYYY")}
+                          </Typography>
+                        </Box>
+                      )}
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      p: 3,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexDirection: "column",
+                      color: "text.secondary",
+                      gap: 1,
+                    }}
+                  >
+                    <Iconify
+                      icon="solar:document-bold-duotone"
+                      width={32}
+                      sx={{ opacity: 0.6 }}
+                    />
+                    <Typography variant="body2">
+                      Vui lòng chọn gói huấn luyện để xem trước
+                    </Typography>
+                  </Box>
+                )}
+              </Paper>
 
-export default CoachPromotionForm
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2.5,
+                  borderRadius: 2,
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  backgroundColor: "rgba(255, 244, 229, 0.4)",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mb: 1.5,
+                  }}
+                >
+                  <Iconify
+                    icon="solar:info-circle-bold-duotone"
+                    color="#ed6c02"
+                    width={22}
+                  />
+                  <Typography variant="subtitle2" color="warning.dark">
+                    Lưu ý
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  • Khuyến mãi có hiệu lực dựa trên thời gian bạn đã chọn.
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  • Khuyến mãi sẽ được áp dụng tự động cho khách hàng khi họ đặt
+                  gói huấn luyện.
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  • Bạn có thể chỉnh sửa hoặc hủy khuyến mãi bất kỳ lúc nào.
+                </Typography>
+              </Paper>
+            </Box>
+          </Box>
 
+          {/* Form Actions */}
+          <Divider sx={{ my: 3 }} />
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+            <Button variant="outlined" onClick={onCancel} disabled={loading}>
+              Hủy bỏ
+            </Button>
+            <LoadingButton
+              type="submit"
+              variant="contained"
+              loading={loading}
+              startIcon={
+                <Iconify
+                  icon={
+                    promotion
+                      ? "solar:pen-bold-duotone"
+                      : "solar:add-circle-bold-duotone"
+                  }
+                />
+              }
+            >
+              {promotion ? "Cập nhật" : "Thêm mới"}
+            </LoadingButton>
+          </Box>
+        </Form>
+      </Box>
+    </motion.div>
+  );
+};
+
+export default CoachPromotionForm;

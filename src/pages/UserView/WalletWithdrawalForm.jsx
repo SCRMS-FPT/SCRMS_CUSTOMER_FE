@@ -280,16 +280,18 @@ const WalletWithdrawalForm = () => {
           Rút tiền
         </Typography>
       </Box>
-
       {error && (
         <Alert severity="error" sx={{ mb: 4 }}>
           {error}
         </Alert>
       )}
-
       <Grid container spacing={4}>
         {/* Balance card */}
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -350,7 +352,11 @@ const WalletWithdrawalForm = () => {
         </Grid>
 
         {/* Withdrawal form */}
-        <Grid item xs={12} md={8}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 8
+          }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -369,7 +375,7 @@ const WalletWithdrawalForm = () => {
 
               <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <TextField
                       fullWidth
                       label="Số tiền muốn rút"
@@ -402,7 +408,7 @@ const WalletWithdrawalForm = () => {
                     />
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Autocomplete
                       fullWidth
                       options={banks}
@@ -509,7 +515,7 @@ const WalletWithdrawalForm = () => {
                     />
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <TextField
                       fullWidth
                       label="Số tài khoản"
@@ -529,7 +535,7 @@ const WalletWithdrawalForm = () => {
                     />
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <TextField
                       fullWidth
                       label="Tên chủ tài khoản"
@@ -549,7 +555,7 @@ const WalletWithdrawalForm = () => {
                     />
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Alert severity="info" sx={{ mb: 2 }}>
                       <Typography variant="body2">
                         Lưu ý: Yêu cầu rút tiền sẽ được xử lý trong vòng 24-48
@@ -560,14 +566,12 @@ const WalletWithdrawalForm = () => {
                   </Grid>
 
                   <Grid
-                    item
-                    xs={12}
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
                       mt: 2,
                     }}
-                  >
+                    size={12}>
                     <Button
                       variant="outlined"
                       onClick={() => navigate("/wallet")}
@@ -602,7 +606,6 @@ const WalletWithdrawalForm = () => {
           </motion.div>
         </Grid>
       </Grid>
-
       {/* Success Dialog */}
       <Dialog
         open={successDialogOpen}

@@ -1497,6 +1497,58 @@ protected processGetActivePackages(response: Response): Promise<PackageResponse[
         }
         return Promise.resolve<void>(null as any);
     }
+
+     /**
+     * Block Coach Schedule
+     * @return Created
+     */
+     blockCoachSchedule(body: BlockCoachScheduleRequest): Promise<BlockCoachScheduleResult> {
+        let url_ = this.baseUrl + "/coaches/block-schedule";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processBlockCoachSchedule(_response);
+        });
+    }
+
+    protected processBlockCoachSchedule(response: Response): Promise<BlockCoachScheduleResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = BlockCoachScheduleResult.fromJS(resultData201);
+            return result201;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<BlockCoachScheduleResult>(null as any);
+    }
+
+
  /**
      * Get Public Coach Schedules
      * @param page (optional) 
@@ -3379,6 +3431,95 @@ export class CreateCoachPromotionResult implements ICreateCoachPromotionResult {
 export interface ICreateCoachPromotionResult {
     id?: string;
 }
+
+export class BlockCoachScheduleRequest implements IBlockCoachScheduleRequest {
+    sportId?: string;
+    blockDate?: Date;
+    startTime?: Date;
+    endTime?: Date;
+    notes?: string | undefined;
+
+    constructor(data?: IBlockCoachScheduleRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sportId = _data["sportId"];
+            this.blockDate = _data["blockDate"] ? new Date(_data["blockDate"].toString()) : <any>undefined;
+            this.startTime = _data["startTime"] ? new Date(_data["startTime"].toString()) : <any>undefined;
+            this.endTime = _data["endTime"] ? new Date(_data["endTime"].toString()) : <any>undefined;
+            this.notes = _data["notes"];
+        }
+    }
+
+    static fromJS(data: any): BlockCoachScheduleRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new BlockCoachScheduleRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sportId"] = this.sportId;
+        data["blockDate"] = this.blockDate ? this.blockDate.toISOString() : <any>undefined;
+        data["startTime"] = this.startTime ? this.startTime.toISOString() : <any>undefined;
+        data["endTime"] = this.endTime ? this.endTime.toISOString() : <any>undefined;
+        data["notes"] = this.notes;
+        return data;
+    }
+}
+
+export interface IBlockCoachScheduleRequest {
+    sportId?: string;
+    blockDate?: Date;
+    startTime?: Date;
+    endTime?: Date;
+    notes?: string | undefined;
+}
+
+export class BlockCoachScheduleResult implements IBlockCoachScheduleResult {
+    bookingId?: string;
+
+    constructor(data?: IBlockCoachScheduleResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.bookingId = _data["bookingId"];
+        }
+    }
+
+    static fromJS(data: any): BlockCoachScheduleResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new BlockCoachScheduleResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["bookingId"] = this.bookingId;
+        return data;
+    }
+}
+
+export interface IBlockCoachScheduleResult {
+    bookingId?: string;
+}
+
 export class PurchasePackageResult implements IPurchasePackageResult {
     id?: string;
     coachPackageId?: string;

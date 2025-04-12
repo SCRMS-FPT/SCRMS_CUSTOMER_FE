@@ -339,7 +339,6 @@ const SignUpView = () => {
           </Form>
         </Modal>
       </ConfigProvider>
-
       <Box
         sx={{
           minHeight: "100vh",

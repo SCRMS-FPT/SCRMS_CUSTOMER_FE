@@ -699,7 +699,7 @@ const ManageCourts = () => {
     <div>
       {selectedCourt ? (
         // Show Court Details View
-        <CourtDetailsReport court={selectedCourt} onBack={handleBack} />
+        (<CourtDetailsReport court={selectedCourt} onBack={handleBack} />)
       ) : (
         <div className="p-4">
           <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">

@@ -306,7 +306,12 @@ function PendingMatchesTab({ matchingClient }) {
           <AnimatePresence>
             <Grid container spacing={2}>
               {pendingWithDetails.map((match) => (
-                <Grid item xs={12} md={6} key={match.id}>
+                <Grid
+                  key={match.id}
+                  size={{
+                    xs: 12,
+                    md: 6
+                  }}>
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -470,7 +475,6 @@ function PendingMatchesTab({ matchingClient }) {
           </AnimatePresence>
         )}
       </StyledPaper>
-
       {/* Detailed User Profile Dialog */}
       <Dialog
         open={detailedViewOpen}
@@ -529,7 +533,11 @@ function PendingMatchesTab({ matchingClient }) {
 
             <DialogContent dividers>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 6
+                  }}>
                   <Typography
                     variant="subtitle1"
                     fontWeight="bold"
@@ -613,7 +621,11 @@ function PendingMatchesTab({ matchingClient }) {
                   </Box>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 6
+                  }}>
                   <Typography
                     variant="subtitle1"
                     fontWeight="bold"

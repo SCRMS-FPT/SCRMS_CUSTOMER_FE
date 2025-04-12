@@ -373,7 +373,11 @@ const CoachPackagesPage = () => {
 
         <Box sx={{ p: 3, bgcolor: "#f9f9f9" }}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 4
+              }}>
               <Search
                 placeholder="tìm theo tên hoặc mô tả"
                 value={searchTerm}
@@ -384,7 +388,11 @@ const CoachPackagesPage = () => {
               />
             </Grid>
 
-            <Grid item xs={12} md={3}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 3
+              }}>
               <Select
                 style={{ width: "100%" }}
                 placeholder="Lọc theo trạng thái"
@@ -399,7 +407,11 @@ const CoachPackagesPage = () => {
               </Select>
             </Grid>
 
-            <Grid item xs={12} md={3}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 3
+              }}>
               <Select
                 style={{ width: "100%" }}
                 placeholder="Sắp xếp theo"
@@ -415,7 +427,11 @@ const CoachPackagesPage = () => {
               </Select>
             </Grid>
 
-            <Grid item xs={12} md={2}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 2
+              }}>
               <Button
                 type="primary"
                 size="large"
@@ -429,7 +445,6 @@ const CoachPackagesPage = () => {
           </Grid>
         </Box>
       </Paper>
-
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
           <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
@@ -449,7 +464,13 @@ const CoachPackagesPage = () => {
         >
           <Grid container spacing={3}>
             {paginatedPackages.map((pkg) => (
-              <Grid item xs={12} sm={6} md={4} key={pkg.id}>
+              <Grid
+                key={pkg.id}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 4
+                }}>
                 <motion.div variants={itemVariants}>
                   <AntCard
                     hoverable
@@ -609,7 +630,6 @@ const CoachPackagesPage = () => {
           </Box>
         </motion.div>
       )}
-
       {/* Package Form Modal */}
       <Modal
         title={currentPackage ? "Cập nhật gói" : "Tạo gói mới"}
@@ -646,7 +666,11 @@ const CoachPackagesPage = () => {
             </Box>
 
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  md: 6
+                }}>
                 <Box sx={{ mb: 3 }}>
                   <Text strong>Giá tiền (VND)</Text>
                   <Input
@@ -665,7 +689,11 @@ const CoachPackagesPage = () => {
                 </Box>
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  md: 6
+                }}>
                 <Box sx={{ mb: 3 }}>
                   <Text strong>Số buổi</Text>
                   <Input

@@ -410,7 +410,6 @@ const CoachOnboarding = () => {
           {pattern.icon}
         </Box>
       ))}
-
       {/* Define keyframes as separate styles */}
       <style>
         {`
@@ -432,7 +431,6 @@ const CoachOnboarding = () => {
           }
         `}
       </style>
-
       <Container maxWidth="lg">
         <motion.div
           initial={{ y: -30, opacity: 0 }}
@@ -774,7 +772,11 @@ const CoachOnboarding = () => {
                     </Box>
                     <CardContent sx={{ p: 3 }}>
                       <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        <Grid
+                          size={{
+                            xs: 12,
+                            md: 6
+                          }}>
                           <motion.div
                             initial={{ y: 10, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
@@ -963,7 +965,11 @@ const CoachOnboarding = () => {
                           </motion.div>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid
+                          size={{
+                            xs: 12,
+                            md: 6
+                          }}>
                           <motion.div
                             initial={{ y: 10, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
@@ -1221,7 +1227,11 @@ const CoachOnboarding = () => {
                             Add New Schedule
                           </Typography>
                           <Grid container spacing={2} alignItems="center">
-                            <Grid item xs={12} sm={3}>
+                            <Grid
+                              size={{
+                                xs: 12,
+                                sm: 3
+                              }}>
                               <FormControl fullWidth>
                                 <InputLabel>Day</InputLabel>
                                 <Select
@@ -1253,7 +1263,11 @@ const CoachOnboarding = () => {
                                 </Select>
                               </FormControl>
                             </Grid>
-                            <Grid item xs={12} sm={3}>
+                            <Grid
+                              size={{
+                                xs: 12,
+                                sm: 3
+                              }}>
                               <TimePicker
                                 format="HH:mm"
                                 placeholder="Start Time"
@@ -1275,7 +1289,11 @@ const CoachOnboarding = () => {
                                 style={{ width: "100%" }}
                               />
                             </Grid>
-                            <Grid item xs={12} sm={3}>
+                            <Grid
+                              size={{
+                                xs: 12,
+                                sm: 3
+                              }}>
                               <TimePicker
                                 format="HH:mm"
                                 placeholder="End Time"
@@ -1295,7 +1313,11 @@ const CoachOnboarding = () => {
                                 style={{ width: "100%" }}
                               />
                             </Grid>
-                            <Grid item xs={12} sm={3}>
+                            <Grid
+                              size={{
+                                xs: 12,
+                                sm: 3
+                              }}>
                               <Button
                                 variant="contained"
                                 color="primary"

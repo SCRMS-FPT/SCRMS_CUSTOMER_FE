@@ -191,13 +191,11 @@ const WithdrawalsList = () => {
           Tạo yêu cầu mới
         </Button>
       </Box>
-
       {error && (
         <Alert severity="error" sx={{ mb: 4 }}>
           {error}
         </Alert>
       )}
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -334,7 +332,6 @@ const WithdrawalsList = () => {
           )}
         </Paper>
       </motion.div>
-
       {/* Withdrawal Details Dialog */}
       <Dialog
         open={detailsDialogOpen}
@@ -355,7 +352,7 @@ const WithdrawalsList = () => {
             <DialogContent>
               <Box sx={{ p: 1 }}>
                 <Grid container spacing={2}>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Paper
                       elevation={0}
                       sx={{
@@ -381,7 +378,11 @@ const WithdrawalsList = () => {
                     </Paper>
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      sm: 6
+                    }}>
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Ngày tạo
@@ -392,7 +393,11 @@ const WithdrawalsList = () => {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      sm: 6
+                    }}>
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Trạng thái
@@ -416,11 +421,11 @@ const WithdrawalsList = () => {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Divider sx={{ my: 1 }} />
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Số tiền rút
@@ -435,7 +440,11 @@ const WithdrawalsList = () => {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      sm: 6
+                    }}>
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Ngân hàng
@@ -446,7 +455,11 @@ const WithdrawalsList = () => {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      sm: 6
+                    }}>
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Số tài khoản
@@ -457,7 +470,7 @@ const WithdrawalsList = () => {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="subtitle2" color="text.secondary">
                         Chủ tài khoản
@@ -469,7 +482,7 @@ const WithdrawalsList = () => {
                   </Grid>
 
                   {selectedWithdrawal.status === "REJECTED" && (
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <Alert severity="error" sx={{ mt: 1 }}>
                         <Typography variant="subtitle2">
                           Lý do từ chối:
@@ -483,7 +496,7 @@ const WithdrawalsList = () => {
                   )}
 
                   {selectedWithdrawal.completedAt && (
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <Box sx={{ mb: 2 }}>
                         <Typography variant="subtitle2" color="text.secondary">
                           Ngày hoàn thành

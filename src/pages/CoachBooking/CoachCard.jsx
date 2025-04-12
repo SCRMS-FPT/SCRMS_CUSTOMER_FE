@@ -42,7 +42,11 @@ const CoachCard = ({ coach }) => {
       }}
     >
       <Grid container>
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           <Box
             component="img"
             src={coach.image}
@@ -54,7 +58,11 @@ const CoachCard = ({ coach }) => {
             }}
           />
         </Grid>
-        <Grid item xs={12} md={8}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 8
+          }}>
           <Box sx={{ p: 2, height: "100%", display: "flex", flexDirection: "column" }}>
             <Typography variant="h6" color="primary" gutterBottom>
               {coach.name}

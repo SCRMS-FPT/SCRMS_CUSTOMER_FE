@@ -364,7 +364,13 @@ const CoachDashboardView = () => {
         >
           <Grid container spacing={3} sx={{ mb: 4 }}>
             {getSummaryStats().map((stat, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
+              <Grid
+                key={index}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 3
+                }}>
                 <motion.div
                   variants={fadeIn}
                   transition={{ delay: index * 0.1 }}

@@ -210,12 +210,15 @@ const SportCenterDetails = () => {
       >
           Quay trở lại danh sách
       </Button>
-
       {/* Main Info Card - Improved layout */}
       <Paper elevation={3} sx={{ mb: 4, borderRadius: 2, overflow: "hidden" }}>
         <Grid container>
           {/* Left side - Image */}
-          <Grid item xs={12} md={4}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 4
+            }}>
             <CardMedia
               component="img"
               height="300"
@@ -228,7 +231,11 @@ const SportCenterDetails = () => {
             />
           </Grid>
           {/* Right side - Info */}
-          <Grid item xs={12} md={8}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 8
+            }}>
             <CardContent sx={{ p: 3, height: "100%" }}>
               <Typography
                 gutterBottom
@@ -274,10 +281,13 @@ const SportCenterDetails = () => {
           </Grid>
         </Grid>
       </Paper>
-
       <Grid container spacing={4}>
         {/* Left Column */}
-        <Grid item xs={12} md={8}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 8
+          }}>
           {/* Description */}
           <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
             <Typography
@@ -317,7 +327,11 @@ const SportCenterDetails = () => {
             {/* Filters */}
             <Box sx={{ mb: 3 }}>
               <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} sm={6}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    sm: 6
+                  }}>
                   <FormControl fullWidth size="small">
                     <InputLabel id="sport-select-label">Môn thể thao</InputLabel>
                     <Select
@@ -335,7 +349,11 @@ const SportCenterDetails = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    sm: 6
+                  }}>
                   <Tabs
                     value={courtType}
                     onChange={handleCourtTypeChange}
@@ -368,7 +386,12 @@ const SportCenterDetails = () => {
               <>
                 <Grid container spacing={3}>
                   {courts.map((court) => (
-                    <Grid item xs={12} sm={6} key={court.id}>
+                    <Grid
+                      key={court.id}
+                      size={{
+                        xs: 12,
+                        sm: 6
+                      }}>
                       <Card
                         sx={{
                           height: "100%",
@@ -534,7 +557,11 @@ const SportCenterDetails = () => {
         </Grid>
 
         {/* Right Column */}
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           {/* Map Location - Using OpenStreetMap Embed instead of Google Maps */}
           <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>

@@ -488,7 +488,13 @@ const FeaturedVenues = () => {
         {!isLoading && !error && (
           <Grid container spacing={3} sx={{ mb: 4 }}>
             {currentVenues.map((center, index) => (
-              <Grid item xs={12} sm={6} md={4} key={center.id}>
+              <Grid
+                key={center.id}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 4
+                }}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}

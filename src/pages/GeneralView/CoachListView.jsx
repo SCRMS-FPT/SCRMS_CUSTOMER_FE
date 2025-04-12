@@ -78,7 +78,6 @@ const CoachListView = () => {
           </Typography>
         </Box>
       </Box>
-
       <Container maxWidth="lg" sx={{ mb: 4, position: "relative", zIndex: 2 }}>
         {/* CoachFilter Component: encapsulates search field, sport filter, and location filter */}
         <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3, mb: 4 }}>
@@ -108,7 +107,12 @@ const CoachListView = () => {
           ) : (
             <Grid container spacing={3}>
               {paginatedCoaches.map((coach) => (
-                <Grid item xs={12} md={6} key={coach.id}>
+                <Grid
+                  key={coach.id}
+                  size={{
+                    xs: 12,
+                    md: 6
+                  }}>
                   <Fade in={true} timeout={600}>
                     <Box>
                       <CoachCard coach={coach} />

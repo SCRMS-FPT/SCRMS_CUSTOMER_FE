@@ -626,7 +626,11 @@ const BrowseCourtsView = () => {
           >
             <Grid container spacing={2} alignItems="center">
               {/* Name Search */}
-              <Grid item xs={12} md={5}>
+              <Grid
+                size={{
+                  xs: 12,
+                  md: 5
+                }}>
                 <TextField
                   fullWidth
                   variant="outlined"
@@ -656,7 +660,12 @@ const BrowseCourtsView = () => {
               </Grid>
 
               {/* City Filter */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 3
+                }}>
                 <FormControl fullWidth variant="outlined">
                   <InputLabel id="city-filter-label">Thành phố</InputLabel>
                   <Select
@@ -689,7 +698,12 @@ const BrowseCourtsView = () => {
               </Grid>
 
               {/* Date Picker */}
-              <Grid item xs={12} sm={6} md={2}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 2
+                }}>
                 <DatePicker
                   label="Ngày"
                   value={selectedDate}
@@ -712,7 +726,11 @@ const BrowseCourtsView = () => {
               </Grid>
 
               {/* Advanced Filter Toggle */}
-              <Grid item xs={12} md={2}>
+              <Grid
+                size={{
+                  xs: 12,
+                  md: 2
+                }}>
                 <Button
                   fullWidth
                   variant={filtersExpanded ? "contained" : "outlined"}
@@ -763,7 +781,11 @@ const BrowseCourtsView = () => {
                     {filterTab === 0 && (
                       <Grid container spacing={3}>
                         {/* Sport Type */}
-                        <Grid item xs={12} md={4}>
+                        <Grid
+                          size={{
+                            xs: 12,
+                            md: 4
+                          }}>
                           <FormControl fullWidth variant="outlined">
                             <InputLabel id="sport-filter-label">
                               Môn thể thao
@@ -859,7 +881,11 @@ const BrowseCourtsView = () => {
                         </Grid>
 
                         {/* Time Presets */}
-                        <Grid item xs={12} md={8}>
+                        <Grid
+                          size={{
+                            xs: 12,
+                            md: 8
+                          }}>
                           <Typography
                             variant="subtitle2"
                             gutterBottom
@@ -934,7 +960,7 @@ const BrowseCourtsView = () => {
                     {/* Price Tab */}
                     {filterTab === 1 && (
                       <Grid container spacing={3}>
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                           <Box>
                             <Typography
                               variant="subtitle2"
@@ -985,7 +1011,13 @@ const BrowseCourtsView = () => {
                     {filterTab === 2 && (
                       <Grid container spacing={2}>
                         {FACILITIES.map((facility) => (
-                          <Grid item xs={6} sm={4} md={3} key={facility.id}>
+                          <Grid
+                            key={facility.id}
+                            size={{
+                              xs: 6,
+                              sm: 4,
+                              md: 3
+                            }}>
                             <Paper
                               sx={{
                                 p: 1.5,
@@ -1156,7 +1188,13 @@ const BrowseCourtsView = () => {
 
               <Grid container spacing={3}>
                 {featuredCenters.map((center) => (
-                  <Grid item key={center.id} xs={12} sm={6} md={4}>
+                  <Grid
+                    key={center.id}
+                    size={{
+                      xs: 12,
+                      sm: 6,
+                      md: 4
+                    }}>
                     <FeaturedSportCenterCard
                       center={center}
                       onClick={handleSportCenterClick}
@@ -1252,12 +1290,12 @@ const BrowseCourtsView = () => {
             <Grid container spacing={3} sx={{ mb: 4 }}>
               {[...Array(6)].map((_, index) => (
                 <Grid
-                  item
-                  xs={12}
-                  sm={viewMode === "grid" ? 6 : 12}
-                  md={viewMode === "grid" ? 4 : 12}
                   key={index}
-                >
+                  size={{
+                    xs: 12,
+                    sm: viewMode === "grid" ? 6 : 12,
+                    md: viewMode === "grid" ? 4 : 12
+                  }}>
                   <Paper
                     sx={{
                       height: "100%",
@@ -1391,7 +1429,13 @@ const BrowseCourtsView = () => {
                     // Card for grid view
                     if (viewMode === "grid") {
                       return (
-                        <Grid item xs={12} sm={6} md={4} key={center.id}>
+                        <Grid
+                          key={center.id}
+                          size={{
+                            xs: 12,
+                            sm: 6,
+                            md: 4
+                          }}>
                           <Paper
                             sx={{
                               height: "100%",
@@ -1549,7 +1593,7 @@ const BrowseCourtsView = () => {
                     } else {
                       // Card for list view
                       return (
-                        <Grid item xs={12} key={center.id}>
+                        <Grid key={center.id} size={12}>
                           <Paper
                             sx={{
                               display: "flex",
@@ -1634,7 +1678,11 @@ const BrowseCourtsView = () => {
                                 </Typography>
 
                                 <Grid container spacing={2}>
-                                  <Grid item xs={12} md={7}>
+                                  <Grid
+                                    size={{
+                                      xs: 12,
+                                      md: 7
+                                    }}>
                                     <Box
                                       display="flex"
                                       alignItems="center"
@@ -1694,7 +1742,11 @@ const BrowseCourtsView = () => {
                                     )}
                                   </Grid>
 
-                                  <Grid item xs={12} md={5}>
+                                  <Grid
+                                    size={{
+                                      xs: 12,
+                                      md: 5
+                                    }}>
                                     <Typography
                                       variant="subtitle2"
                                       gutterBottom

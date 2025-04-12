@@ -317,7 +317,7 @@ const UserProfileMembershipView = () => {
                     </div>
                 ) : (
                     // If no membership, prompt subscription in the Renew tab as well.
-                    renderSubscriptionInvitation()
+                    (renderSubscriptionInvitation())
                 );
             case "membership":
                 return hasMembership ? renderMembershipDetails() : renderSubscriptionInvitation();

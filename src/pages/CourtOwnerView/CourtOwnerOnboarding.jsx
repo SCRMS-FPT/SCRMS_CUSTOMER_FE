@@ -752,7 +752,11 @@ const CourtOwnerOnboarding = () => {
               </Box>
 
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 6
+                  }}>
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -823,7 +827,7 @@ const CourtOwnerOnboarding = () => {
                   </motion.div>
 
                   <Grid container spacing={2}>
-                    <Grid item xs={4}>
+                    <Grid size={4}>
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -848,7 +852,7 @@ const CourtOwnerOnboarding = () => {
                         />
                       </motion.div>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid size={4}>
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -873,7 +877,7 @@ const CourtOwnerOnboarding = () => {
                         />
                       </motion.div>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid size={4}>
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -901,7 +905,11 @@ const CourtOwnerOnboarding = () => {
                   </Grid>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 6
+                  }}>
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1166,7 +1174,11 @@ const CourtOwnerOnboarding = () => {
 
               <Grid container spacing={3}>
                 {/* General court info - first column */}
-                <Grid item xs={12} md={6}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 6
+                  }}>
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1269,7 +1281,11 @@ const CourtOwnerOnboarding = () => {
                 </Grid>
 
                 {/* Second column */}
-                <Grid item xs={12} md={6}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 6
+                  }}>
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1312,7 +1328,7 @@ const CourtOwnerOnboarding = () => {
                     </Typography>
 
                     <Grid container spacing={2}>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <motion.div
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -1339,7 +1355,7 @@ const CourtOwnerOnboarding = () => {
                           />
                         </motion.div>
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <motion.div
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -1460,7 +1476,7 @@ const CourtOwnerOnboarding = () => {
                         }
                       >
                         <Grid container spacing={2}>
-                          <Grid item xs={12}>
+                          <Grid size={12}>
                             <Box
                               sx={{
                                 display: "flex",
@@ -1498,7 +1514,11 @@ const CourtOwnerOnboarding = () => {
                             </Box>
                           </Grid>
 
-                          <Grid item xs={12} sm={4}>
+                          <Grid
+                            size={{
+                              xs: 12,
+                              sm: 4
+                            }}>
                             <TextField
                               fullWidth
                               label="Thời gian bắt đầu (HH:MM)"
@@ -1515,7 +1535,11 @@ const CourtOwnerOnboarding = () => {
                             />
                           </Grid>
 
-                          <Grid item xs={12} sm={4}>
+                          <Grid
+                            size={{
+                              xs: 12,
+                              sm: 4
+                            }}>
                             <TextField
                               fullWidth
                               label="Thời giân kết thúc (HH:MM)"
@@ -1528,7 +1552,11 @@ const CourtOwnerOnboarding = () => {
                             />
                           </Grid>
 
-                          <Grid item xs={12} sm={4}>
+                          <Grid
+                            size={{
+                              xs: 12,
+                              sm: 4
+                            }}>
                             <TextField
                               fullWidth
                               label="Giá tiền theo giờ (₫)"
@@ -1750,7 +1778,11 @@ const CourtOwnerOnboarding = () => {
               }}
             >
               <Grid container spacing={3}>
-                <Grid item xs={12} md={4}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 4
+                  }}>
                   <motion.div
                     whileHover={{
                       y: -5,
@@ -1805,7 +1837,11 @@ const CourtOwnerOnboarding = () => {
                   </motion.div>
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 4
+                  }}>
                   <motion.div
                     whileHover={{
                       y: -5,
@@ -1860,7 +1896,11 @@ const CourtOwnerOnboarding = () => {
                   </motion.div>
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 4
+                  }}>
                   <motion.div
                     whileHover={{
                       y: -5,

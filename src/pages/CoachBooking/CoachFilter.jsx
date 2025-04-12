@@ -16,7 +16,11 @@ const CoachFilter = ({
     <Box>
       <Grid container spacing={2} alignItems="center">
         {/* Search Field */}
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -40,7 +44,11 @@ const CoachFilter = ({
           />
         </Grid>
         {/* Sport Filter (multi-select with checkboxes) */}
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           <SportFilterCheckbox
             selectedSports={selectedSports}
             setSelectedSports={setSelectedSports}
@@ -48,7 +56,11 @@ const CoachFilter = ({
           />
         </Grid>
         {/* Location Filter */}
-        <Grid item xs={12} md={3}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 3
+          }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -65,7 +77,11 @@ const CoachFilter = ({
           />
         </Grid>
         {/* Clear Button */}
-        <Grid item xs={12} md={1}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 1
+          }}>
           <Button fullWidth variant="outlined" onClick={handleClearFilters}>
             <Clear />
           </Button>

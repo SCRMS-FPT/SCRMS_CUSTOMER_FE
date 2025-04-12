@@ -169,7 +169,12 @@ const HomeView = () => {
 
               <Grid container spacing={4} className="mb-10">
                 {infoCardsData.map((section, index) => (
-                  <Grid item xs={12} md={6} key={index}>
+                  <Grid
+                    key={index}
+                    size={{
+                      xs: 12,
+                      md: 6
+                    }}>
                     <motion.div variants={fadeIn} className="h-full">
                       <Paper
                         elevation={0}
@@ -197,7 +202,7 @@ const HomeView = () => {
 
                         <Grid container spacing={2}>
                           {section.cards.map((card, cardIndex) => (
-                            <Grid item xs={6} key={cardIndex}>
+                            <Grid key={cardIndex} size={6}>
                               <Paper
                                 elevation={0}
                                 sx={{
@@ -280,7 +285,11 @@ const HomeView = () => {
         >
           <Container maxWidth="md">
             <Grid container spacing={3} alignItems="center">
-              <Grid item xs={12} md={7}>
+              <Grid
+                size={{
+                  xs: 12,
+                  md: 7
+                }}>
                 <Typography
                   variant="h3"
                   component="h2"
@@ -322,7 +331,11 @@ const HomeView = () => {
                   Đăng ký làm đối tác
                 </Button>
               </Grid>
-              <Grid item xs={12} md={5}>
+              <Grid
+                size={{
+                  xs: 12,
+                  md: 5
+                }}>
                 <img
                   src="https://images.unsplash.com/photo-1577412647305-991150c7d163?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="Sport center partners"
@@ -333,7 +346,6 @@ const HomeView = () => {
           </Container>
         </Box>
       </Box>
-
       {/* Footer */}
       <Box
         component="footer"
@@ -370,7 +382,11 @@ const HomeView = () => {
         <Container maxWidth="lg">
           <Grid container spacing={4}>
             {/* Logo and Company Info */}
-            <Grid item xs={12} md={4}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 4
+              }}>
               <Box sx={{ position: "relative", zIndex: 1 }}>
                 <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                   <img
@@ -467,9 +483,17 @@ const HomeView = () => {
             </Grid>
 
             {/* Quick Links */}
-            <Grid item xs={12} md={6}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 6
+              }}>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    sm: 4
+                  }}>
                   <Typography
                     variant="subtitle1"
                     fontWeight={600}
@@ -502,7 +526,11 @@ const HomeView = () => {
                   </List>
                 </Grid>
 
-                <Grid item xs={12} sm={4}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    sm: 4
+                  }}>
                   <Typography
                     variant="subtitle1"
                     fontWeight={600}
@@ -535,7 +563,11 @@ const HomeView = () => {
                   </List>
                 </Grid>
 
-                <Grid item xs={12} sm={4}>
+                <Grid
+                  size={{
+                    xs: 12,
+                    sm: 4
+                  }}>
                   <Typography
                     variant="subtitle1"
                     fontWeight={600}
@@ -571,7 +603,11 @@ const HomeView = () => {
             </Grid>
 
             {/* Newsletter */}
-            <Grid item xs={12} md={2}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 2
+              }}>
               <Typography
                 variant="subtitle1"
                 fontWeight={600}

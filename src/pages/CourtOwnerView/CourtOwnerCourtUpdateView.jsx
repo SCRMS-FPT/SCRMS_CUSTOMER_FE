@@ -881,7 +881,7 @@ const CourtOwnerCourtUpdateView = () => {
               >
                 <Grid container spacing={3}>
                   {/* Basic Information */}
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Box
                       sx={{
                         display: "flex",
@@ -902,7 +902,11 @@ const CourtOwnerCourtUpdateView = () => {
                     <Divider sx={{ my: 2 }} />
                   </Grid>
 
-                  <Grid item xs={12} md={6}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 6
+                    }}>
                     <TextField
                       fullWidth
                       label="Tên sân"
@@ -924,7 +928,11 @@ const CourtOwnerCourtUpdateView = () => {
                     />
                   </Grid>
 
-                  <Grid item xs={12} md={6}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 6
+                    }}>
                     <FormControl fullWidth error={!!errors.sportId} required>
                       <InputLabel>Môn thể thao</InputLabel>
                       <Select
@@ -946,7 +954,7 @@ const CourtOwnerCourtUpdateView = () => {
                     </FormControl>
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <TextField
                       fullWidth
                       label="Description"
@@ -968,7 +976,7 @@ const CourtOwnerCourtUpdateView = () => {
                   </Grid>
 
                   {/* Court Type and Settings */}
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Box
                       sx={{
                         display: "flex",
@@ -990,7 +998,11 @@ const CourtOwnerCourtUpdateView = () => {
                     <Divider sx={{ my: 2 }} />
                   </Grid>
 
-                  <Grid item xs={12} md={4}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 4
+                    }}>
                     <FormControl fullWidth>
                       <InputLabel>Loại sân</InputLabel>
                       <Select
@@ -1007,7 +1019,11 @@ const CourtOwnerCourtUpdateView = () => {
                     </FormControl>
                   </Grid>
 
-                  <Grid item xs={12} md={4}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 4
+                    }}>
                     <FormControl fullWidth>
                       <InputLabel>Trạng thái</InputLabel>
                       <Select
@@ -1024,7 +1040,11 @@ const CourtOwnerCourtUpdateView = () => {
                     </FormControl>
                   </Grid>
 
-                  <Grid item xs={12} md={4}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 4
+                    }}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <TimeField
                         label="Thời lượng slot (HH:mm:ss)"
@@ -1049,7 +1069,7 @@ const CourtOwnerCourtUpdateView = () => {
                   </Grid>
 
                   {/* Booking and Cancellation */}
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Box
                       sx={{
                         display: "flex",
@@ -1071,7 +1091,11 @@ const CourtOwnerCourtUpdateView = () => {
                     <Divider sx={{ my: 2 }} />
                   </Grid>
 
-                  <Grid item xs={12} md={4}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 4
+                    }}>
                     <TextField
                       fullWidth
                       label="Mức đặt cọc tối thiểu (%)"
@@ -1098,7 +1122,11 @@ const CourtOwnerCourtUpdateView = () => {
                     </FormHelperText>
                   </Grid>
 
-                  <Grid item xs={12} md={4}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 4
+                    }}>
                     <TextField
                       fullWidth
                       label="Khung thời gian hủy đặt sân (giờ)"
@@ -1125,7 +1153,11 @@ const CourtOwnerCourtUpdateView = () => {
                     </FormHelperText>
                   </Grid>
 
-                  <Grid item xs={12} md={4}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 4
+                    }}>
                     <TextField
                       fullWidth
                       label="Phần trăm hoàn tiền (%)"
@@ -1153,7 +1185,7 @@ const CourtOwnerCourtUpdateView = () => {
                   </Grid>
 
                   {/* Facilities */}
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Box
                       sx={{
                         display: "flex",
@@ -1175,7 +1207,11 @@ const CourtOwnerCourtUpdateView = () => {
                     <Divider sx={{ my: 2 }} />
                   </Grid>
 
-                  <Grid item xs={12} md={5}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 5
+                    }}>
                     <TextField
                       fullWidth
                       label="Tên cơ sở vật chất"
@@ -1192,7 +1228,11 @@ const CourtOwnerCourtUpdateView = () => {
                     />
                   </Grid>
 
-                  <Grid item xs={12} md={5}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 5
+                    }}>
                     <TextField
                       fullWidth
                       label="Thông tin mô tả cơ sở vật chất"
@@ -1207,7 +1247,11 @@ const CourtOwnerCourtUpdateView = () => {
                     />
                   </Grid>
 
-                  <Grid item xs={12} md={2}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 2
+                    }}>
                     <Button
                       fullWidth
                       variant="contained"
@@ -1233,7 +1277,7 @@ const CourtOwnerCourtUpdateView = () => {
                     </Button>
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     {court.facilities.length > 0 ? (
                       <Table
                         dataSource={court.facilities.map((facility, index) => ({
@@ -1283,7 +1327,7 @@ const CourtOwnerCourtUpdateView = () => {
                   </Grid>
 
                   {/* Save Court Button */}
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Box
                       sx={{
                         display: "flex",
@@ -1393,7 +1437,11 @@ const CourtOwnerCourtUpdateView = () => {
                   </Typography>
 
                   <Grid container spacing={3}>
-                    <Grid item xs={12} md={3}>
+                    <Grid
+                      size={{
+                        xs: 12,
+                        md: 3
+                      }}>
                       <FormControl fullWidth>
                         <InputLabel>Ngày trong tuần</InputLabel>
                         <Select
@@ -1433,7 +1481,11 @@ const CourtOwnerCourtUpdateView = () => {
                       </FormControl>
                     </Grid>
 
-                    <Grid item xs={12} md={2}>
+                    <Grid
+                      size={{
+                        xs: 12,
+                        md: 2
+                      }}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <TimeField
                           label="Thời gian bắt đầu"
@@ -1457,7 +1509,11 @@ const CourtOwnerCourtUpdateView = () => {
                       </LocalizationProvider>
                     </Grid>
 
-                    <Grid item xs={12} md={2}>
+                    <Grid
+                      size={{
+                        xs: 12,
+                        md: 2
+                      }}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <TimeField
                           label="Thời gian kết thúc"
@@ -1481,7 +1537,11 @@ const CourtOwnerCourtUpdateView = () => {
                       </LocalizationProvider>
                     </Grid>
 
-                    <Grid item xs={12} md={3}>
+                    <Grid
+                      size={{
+                        xs: 12,
+                        md: 3
+                      }}>
                       <TextField
                         fullWidth
                         label="Giá thuê mỗi ca (VND)"
@@ -1509,7 +1569,11 @@ const CourtOwnerCourtUpdateView = () => {
                       />
                     </Grid>
 
-                    <Grid item xs={12} md={2}>
+                    <Grid
+                      size={{
+                        xs: 12,
+                        md: 2
+                      }}>
                       <Button
                         fullWidth
                         variant="contained"
@@ -1730,7 +1794,7 @@ const CourtOwnerCourtUpdateView = () => {
           </DialogTitle>
           <DialogContent>
             <Grid container spacing={2} sx={{ mt: 0.5 }}>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   fullWidth
                   label="Thông tin mô tả"
@@ -1744,7 +1808,7 @@ const CourtOwnerCourtUpdateView = () => {
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <FormControl fullWidth sx={{ mb: 2 }}>
                   <InputLabel>Discount Type</InputLabel>
                   <Select
@@ -1760,7 +1824,7 @@ const CourtOwnerCourtUpdateView = () => {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <TextField
                   fullWidth
                   label={
@@ -1796,7 +1860,11 @@ const CourtOwnerCourtUpdateView = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="Có hiệu lực từ"
@@ -1809,7 +1877,11 @@ const CourtOwnerCourtUpdateView = () => {
                 </LocalizationProvider>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6
+                }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="Có hiệu lực đến"
@@ -1845,7 +1917,6 @@ const CourtOwnerCourtUpdateView = () => {
           </DialogActions>
         </Dialog>
       </motion.div>
-
       {/* Custom CSS for booked and maintenance rows */}
       <style jsx global>{`
         .ant-table-row-booked {

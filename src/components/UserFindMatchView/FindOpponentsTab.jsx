@@ -603,7 +603,6 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
           {alertMessage}
         </Alert>
       </Collapse>
-
       <Box
         sx={{
           display: "flex",
@@ -624,7 +623,6 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
           Bộ lọc
         </Button>
       </Box>
-
       <AnimatePresence>
         {filterOpen && (
           <motion.div
@@ -640,7 +638,11 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
 
               {selectedFilters.map((filter, index) => (
                 <Grid container spacing={2} key={index} sx={{ mb: 2 }}>
-                  <Grid item xs={12} sm={5}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      sm: 5
+                    }}>
                     <FormControl fullWidth size="small">
                       <InputLabel>Môn thể thao</InputLabel>
                       <Select
@@ -659,7 +661,11 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                     </FormControl>
                   </Grid>
 
-                  <Grid item xs={12} sm={5}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      sm: 5
+                    }}>
                     <FormControl fullWidth size="small">
                       <InputLabel>Trình độ</InputLabel>
                       <Select
@@ -683,11 +689,11 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                   </Grid>
 
                   <Grid
-                    item
-                    xs={12}
-                    sm={2}
                     sx={{ display: "flex", alignItems: "center" }}
-                  >
+                    size={{
+                      xs: 12,
+                      sm: 2
+                    }}>
                     <IconButton
                       color="error"
                       onClick={() => handleRemoveFilter(index)}
@@ -722,7 +728,6 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
           </motion.div>
         )}
       </AnimatePresence>
-
       {loading ? (
         <Box
           sx={{
@@ -1000,7 +1005,6 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
           </Box>
         </>
       )}
-
       {/* Profile Preview Dialog */}
       <Dialog
         open={!!previewProfile}
@@ -1055,7 +1059,11 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
 
               <DialogContent dividers>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 6
+                    }}>
                     <Typography
                       variant="subtitle1"
                       fontWeight="bold"
@@ -1138,7 +1146,11 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12} md={6}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 6
+                    }}>
                     <Typography
                       variant="subtitle1"
                       fontWeight="bold"
