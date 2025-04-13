@@ -110,6 +110,12 @@ const Navbar = () => {
   // Get user info from Redux
   const user = useSelector((state) => state.user.userProfile);
 
+  // Get user avatar
+  const userAvatar =
+    user?.imageUrls && user.imageUrls.length > 0
+      ? user.imageUrls[0]
+      : defaultAvatar;
+
   // Check if user has specific roles
   const isCoach = user?.roles?.includes("Coach");
   const isCourtOwner = user?.roles?.includes("CourtOwner");
@@ -129,12 +135,14 @@ const Navbar = () => {
       setTabValue(2);
     } else if (pathname.includes("/pricing")) {
       setTabValue(3);
-    } else if (pathname.includes("/find-match") || pathname.includes("/matches/list")) {
+    } else if (
+      pathname.includes("/find-match") ||
+      pathname.includes("/matches/list")
+    ) {
       setTabValue(4);
     } else if (pathname.includes("/support")) {
       setTabValue(5);
-    } 
-    else {
+    } else {
       setTabValue(false);
     }
   }, [location]);
@@ -850,7 +858,7 @@ const Navbar = () => {
                     }}
                     startIcon={
                       <Avatar
-                        src={user.profileImage || defaultAvatar}
+                        src={userAvatar}
                         alt={`${user.firstName} ${user.lastName}`}
                         sx={{
                           width: 32,
@@ -900,7 +908,7 @@ const Navbar = () => {
                         sx={{ display: "flex", alignItems: "center", mb: 1 }}
                       >
                         <Avatar
-                          src={user.profileImage || defaultAvatar}
+                          src={userAvatar}
                           alt={`${user.firstName} ${user.lastName}`}
                           sx={{
                             width: 42,
@@ -1002,7 +1010,9 @@ const Navbar = () => {
                           sx={{ color: "#2563eb" }}
                         />
                       </ListItemIcon>
-                      <Typography variant="body1">Bảng điều khiển của tôi</Typography>
+                      <Typography variant="body1">
+                        Bảng điều khiển của tôi
+                      </Typography>
                     </MenuItem>
 
                     {/* Wallet Menu Item */}
@@ -1046,7 +1056,9 @@ const Navbar = () => {
                             sx={{ color: "#2563eb" }}
                           />
                         </ListItemIcon>
-                        <Typography variant="body1">Bảng điều khiển huấn luyện viên</Typography>
+                        <Typography variant="body1">
+                          Bảng điều khiển huấn luyện viên
+                        </Typography>
                       </MenuItem>
                     )}
                     {isCourtOwner && (
@@ -1300,7 +1312,7 @@ const Navbar = () => {
               >
                 <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                   <Avatar
-                    src={user.profileImage || defaultAvatar}
+                    src={userAvatar}
                     alt={`${user.firstName} ${user.lastName}`}
                     sx={{
                       width: 42,

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
-  Avatar,
   Tabs,
   Tag,
   Button,
@@ -28,6 +27,7 @@ import {
   Radio,
   Pagination,
   Progress,
+  Carousel,
 } from "antd";
 import {
   CalendarOutlined,
@@ -68,6 +68,7 @@ import {
   Tooltip,
   Zoom,
   Fade,
+  Avatar,
 } from "@mui/material";
 import { styled, alpha, useTheme } from "@mui/material/styles";
 import {
@@ -456,6 +457,20 @@ const formatDiscount = (promotion) => {
   }
 };
 
+// Add this helper function for day name translation
+const translateDayName = (englishDayName) => {
+  const translations = {
+    Monday: "Thứ 2",
+    Tuesday: "Thứ 3",
+    Wednesday: "Thứ 4",
+    Thursday: "Thứ 5",
+    Friday: "Thứ 6",
+    Saturday: "Thứ 7",
+    Sunday: "Chủ nhật",
+  };
+  return translations[englishDayName] || englishDayName;
+};
+
 // Replace the existing tabs with consolidated views
 const CoachDetails = () => {
   const { id } = useParams();
@@ -543,6 +558,15 @@ const CoachDetails = () => {
 
         // Fetch coach details
         const coachData = await client.getCoachById(id);
+        // Translate day names to Vietnamese in weeklySchedule
+        if (coachData.weeklySchedule && coachData.weeklySchedule.length > 0) {
+          coachData.weeklySchedule = coachData.weeklySchedule.map(
+            (schedule) => ({
+              ...schedule,
+              dayName: translateDayName(schedule.dayName),
+            })
+          );
+        }
         setCoach(coachData);
 
         // Fetch coach schedules - using the current date range
@@ -1524,189 +1548,175 @@ const CoachDetails = () => {
         </Box>
 
         {/* Enhanced Hero Section */}
-        <EnhancedHeroSection
-          sx={{
-            backgroundImage: `url(${
-              coach.avatar ||
-              "https://source.unsplash.com/random/1200x400/?sport,coach"
-            })`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
+        <EnhancedHeroSection>
           <EnhancedHeroOverlay />
-          <HeroContent>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
+          {coach && coach.imageUrls && coach.imageUrls.length > 0 ? (
+            <div
+              style={{ width: "100%", height: "400px", position: "relative" }}
             >
-              <Grid container alignItems="flex-end" spacing={3}>
-                <Grid
-                  style={{ textAlign: "center" }}
-                  size={{
-                    xs: 12,
-                    md: 2,
-                  }}
-                >
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.5, duration: 0.5, type: "spring" }}
-                  >
+              <Carousel autoplay style={{ height: "100%" }}>
+                {coach.imageUrls.map((imageUrl, index) => (
+                  <div key={index} style={{ height: "400px" }}>
+                    <div
+                      style={{
+                        height: "400px",
+                        width: "100%",
+                        backgroundImage: `url(${imageUrl})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        position: "relative",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          height: "70%",
+                          background:
+                            "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)",
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </Carousel>
+              {/* Position coach info on top of the carousel */}
+              <div className="absolute bottom-8 left-0 w-full z-10 px-8">
+                <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
+                  <div className="text-center">
                     <Avatar
-                      src={coach.avatar}
-                      alt={coach.fullName}
+                      src={coach?.avatar}
+                      alt={coach?.fullName}
+                      className="border-4 border-white shadow-xl mx-auto"
                       sx={{
-                        width: { xs: 120, md: 140 },
-                        height: { xs: 120, md: 140 },
-                        border: "5px solid white",
-                        boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
-                        mx: "auto",
+                        width: { xs: 100, md: 120 },
+                        height: { xs: 100, md: 120 },
+                        border: "1px solid white",
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
                       }}
                     />
-                  </motion.div>
-                </Grid>
-                <Grid
-                  size={{
-                    xs: 12,
-                    md: 7,
-                  }}
-                >
-                  <Box>
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6, duration: 0.5 }}
+                  </div>
+                  <div className="text-white text-center md:text-left mt-4 md:mt-0">
+                    {" "}
+                    {/* Thêm margin-top cho mobile view */}
+                    <Typography
+                      variant="h2"
+                      fontWeight="bold"
+                      color="white"
+                      sx={{
+                        fontSize: { xs: "1.75rem", md: "2.5rem" },
+                        textShadow: "0 3px 10px rgba(0,0,0,0.5)",
+                        mb: 1,
+                      }}
                     >
-                      <Typography
-                        variant="h2"
-                        fontWeight="bold"
-                        color="white"
-                        sx={{
-                          fontSize: { xs: "1.75rem", md: "2.5rem" },
-                          textShadow: "0 3px 10px rgba(0,0,0,0.5)",
-                          mb: 1,
+                      {coach.fullName}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: { xs: "center", md: "flex-start" },
+                        mt: 1,
+                      }}
+                    >
+                      <Rate
+                        allowHalf
+                        defaultValue={coach.rating || averageRating || 0}
+                        disabled
+                      />
+                      <Text
+                        style={{
+                          color: "white",
+                          marginLeft: 8,
+                          fontWeight: "500",
+                          textShadow: "0 2px 5px rgba(0,0,0,0.5)",
                         }}
                       >
-                        {coach.fullName}
-                      </Typography>
-                    </motion.div>
-
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.7, duration: 0.5 }}
-                    >
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", mt: 1 }}
-                      >
-                        <Rate
-                          allowHalf
-                          defaultValue={coach.rating || averageRating || 0}
-                          disabled
-                        />
-                        <Text
-                          style={{
-                            color: "white",
-                            marginLeft: 8,
-                            fontWeight: "500",
-                            textShadow: "0 2px 5px rgba(0,0,0,0.5)",
-                          }}
-                        >
-                          ({reviewsTotalCount || 0} đánh giá)
-                        </Text>
-                      </Box>
-                    </motion.div>
-
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.8, duration: 0.5 }}
-                    >
-                      <Stack
-                        direction="row"
-                        spacing={1}
-                        sx={{ mt: 2, flexWrap: "wrap", gap: 1 }}
-                      >
-                        {coach.sportIds?.map((sportId, index) => (
-                          <Chip
-                            key={sportId}
-                            icon={<SportIcon sport={"pickleball"} />}
-                            label={"Pickleball"}
-                            sx={{
-                              bgcolor: alpha(theme.palette.primary.main, 0.9),
-                              color: "white",
-                              fontWeight: 500,
-                              boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
-                              "&:hover": {
-                                transform: "translateY(-3px)",
-                                boxShadow: "0 6px 12px rgba(0,0,0,0.3)",
-                              },
-                              transition: "all 0.3s ease",
-                            }}
-                          />
-                        ))}
-                        <Chip
-                          icon={<DollarOutlined />}
-                          label={formatPrice(coach.ratePerHour)}
-                          sx={{
-                            bgcolor: alpha(theme.palette.success.main, 0.9),
-                            color: "white",
-                            fontWeight: 500,
-                            boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
-                            "&:hover": {
-                              transform: "translateY(-3px)",
-                              boxShadow: "0 6px 12px rgba(0,0,0,0.3)",
-                            },
-                            transition: "all 0.3s ease",
-                          }}
-                        />
-                      </Stack>
-                    </motion.div>
-                  </Box>
-                </Grid>
-                <Grid
-                  size={{
-                    xs: 12,
-                    md: 3,
-                  }}
-                >
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.9, duration: 0.5 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<BookOutlined />}
-                      onClick={() => {
-                        const bookingSection =
-                          document.getElementById("booking-section");
-                        if (bookingSection) {
-                          bookingSection.scrollIntoView({ behavior: "smooth" });
-                        }
+                        ({reviewsTotalCount || 0} đánh giá)
+                      </Text>
+                    </Box>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{ width: "100%", height: "400px", position: "relative" }}
+            >
+              <div
+                style={{
+                  height: "400px",
+                  width: "100%",
+                  backgroundImage: `url(${
+                    coach?.avatar ||
+                    "https://source.unsplash.com/random/1200x400/?sport,coach"
+                  })`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              ></div>
+              {/* Position coach info on top of the image for the non-carousel case */}
+              <div className="absolute bottom-8 left-0 w-full z-10 px-8">
+                <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
+                  <div className="text-center">
+                    <Avatar
+                      src={coach?.avatar}
+                      alt={coach?.fullName}
+                      className="border-4 border-white shadow-xl mx-auto"
+                      sx={{
+                        width: { xs: 320, md: 350 }, // Tăng từ 160/180 lên 320/350
+                        height: { xs: 320, md: 350 }, // Tăng từ 160/180 lên 320/350
+                        border: "8px solid white", // Tăng độ dày của border
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.5)", // Tăng shadow cho nổi bật hơn
                       }}
-                      style={{
-                        height: "auto",
-                        padding: "12px 24px",
-                        borderRadius: 12,
-                        fontSize: "16px",
-                        boxShadow: "0 6px 20px rgba(24, 144, 255, 0.3)",
-                        fontWeight: 600,
+                    />
+                  </div>
+                  <div className="text-white text-center md:text-left mt-4 md:mt-0">
+                    {" "}
+                    {/* Thêm margin-top cho mobile view */}
+                    <Typography
+                      variant="h2"
+                      fontWeight="bold"
+                      color="white"
+                      sx={{
+                        fontSize: { xs: "1.75rem", md: "2.5rem" },
+                        textShadow: "0 3px 10px rgba(0,0,0,0.5)",
+                        mb: 1,
                       }}
-                      block
                     >
-                      Đặt lịch ngay
-                    </Button>
-                  </motion.div>
-                </Grid>
-              </Grid>
-            </motion.div>
-          </HeroContent>
+                      {coach.fullName}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: { xs: "center", md: "flex-start" },
+                        mt: 1,
+                      }}
+                    >
+                      <Rate
+                        allowHalf
+                        defaultValue={coach.rating || averageRating || 0}
+                        disabled
+                      />
+                      <Text
+                        style={{
+                          color: "white",
+                          marginLeft: 8,
+                          fontWeight: "500",
+                          textShadow: "0 2px 5px rgba(0,0,0,0.5)",
+                        }}
+                      >
+                        ({reviewsTotalCount || 0} đánh giá)
+                      </Text>
+                    </Box>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </EnhancedHeroSection>
 
         {/* Main Content - 2 Column Layout */}
