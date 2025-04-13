@@ -1666,9 +1666,9 @@ const CoachDetails = () => {
                       alt={coach?.fullName}
                       className="border-4 border-white shadow-xl mx-auto"
                       sx={{
-                        width: { xs: 320, md: 350 }, // Tăng từ 160/180 lên 320/350
-                        height: { xs: 320, md: 350 }, // Tăng từ 160/180 lên 320/350
-                        border: "8px solid white", // Tăng độ dày của border
+                        width: { xs: 100, md: 120 },
+                        height: { xs: 100, md: 120 },
+                        border: "1px solid white", // Tăng độ dày của border
                         boxShadow: "0 10px 30px rgba(0,0,0,0.5)", // Tăng shadow cho nổi bật hơn
                       }}
                     />
