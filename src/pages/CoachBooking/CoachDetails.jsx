@@ -66,6 +66,8 @@ import {
   Stack,
   useMediaQuery,
   Tooltip,
+  Zoom,
+  Fade,
 } from "@mui/material";
 import { styled, alpha, useTheme } from "@mui/material/styles";
 import {
@@ -234,6 +236,227 @@ const getDayName = (day) => {
   return days[(day - 1) % 7];
 };
 
+// New styled components for enhanced UI
+const ModernTabContainer = styled(Box)(({ theme }) => ({
+  position: "relative",
+  zIndex: 2,
+  marginBottom: 20,
+}));
+
+const ModernTab = styled(Box)(({ theme, active }) => ({
+  padding: "12px 18px",
+  borderRadius: "12px",
+  cursor: "pointer",
+  fontWeight: active ? 600 : 500,
+  backgroundColor: active
+    ? alpha(theme.palette.primary.main, 0.1)
+    : "transparent",
+  color: active ? theme.palette.primary.main : theme.palette.text.primary,
+  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  "&:hover": {
+    backgroundColor: active
+      ? alpha(theme.palette.primary.main, 0.15)
+      : alpha(theme.palette.primary.main, 0.05),
+    transform: "translateY(-3px)",
+    boxShadow: active ? "0 6px 20px rgba(0,0,0,0.1)" : "none",
+  },
+}));
+
+const TabIndicator = styled(Box)(({ theme, left, width }) => ({
+  position: "absolute",
+  height: "3px",
+  width: width,
+  left: left,
+  bottom: "-2px",
+  backgroundColor: theme.palette.primary.main,
+  borderRadius: "3px",
+  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+}));
+
+const ContentContainer = styled(Paper)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius * 1.5,
+  overflow: "hidden",
+  boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    boxShadow: "0 15px 50px rgba(0,0,0,0.1)",
+  },
+}));
+
+const AnimatedContent = styled(motion.div)(({ theme }) => ({
+  padding: theme.spacing(3),
+}));
+
+const TabContent = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(3),
+  minHeight: "500px",
+}));
+
+// Enhanced Hero section styles
+const EnhancedHeroSection = styled(Box)(({ theme }) => ({
+  position: "relative",
+  height: 350, // Increased height
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  borderRadius: theme.shape.borderRadius * 1.5, // More rounded corners
+  overflow: "hidden",
+  boxShadow: "0 20px 40px rgba(0,0,0,0.2)", // Enhanced shadow
+  marginBottom: theme.spacing(5),
+  display: "flex",
+  alignItems: "flex-end",
+  transition: "all 0.5s ease",
+  "&:hover": {
+    transform: "translateY(-5px)",
+    boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
+  },
+}));
+
+const EnhancedHeroOverlay = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: "linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.8))", // Better gradient
+  zIndex: 1,
+}));
+
+// New styled components for the redesigned layout
+const InfoTabContent = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(3),
+}));
+
+const ScheduleCalendar = styled(Box)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius,
+  overflow: "hidden",
+  backgroundColor: alpha(theme.palette.background.paper, 0.7),
+  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+  transition: "all 0.3s ease",
+}));
+
+const CalendarHeader = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  borderBottom: `1px solid ${alpha(theme.palette.divider, 0.7)}`,
+  background: `linear-gradient(145deg, ${alpha(
+    theme.palette.primary.light,
+    0.1
+  )} 0%, ${alpha(theme.palette.background.paper, 0.5)} 100%)`,
+}));
+
+const DateCell = styled("div")(
+  ({ theme, $isSelected, $isAvailable, $isPast }) => ({
+    padding: theme.spacing(1),
+    borderRadius: theme.shape.borderRadius,
+    border: $isSelected
+      ? `2px solid ${theme.palette.primary.main}`
+      : "1px solid transparent",
+    backgroundColor: $isPast
+      ? alpha(theme.palette.grey[200], 0.5)
+      : $isSelected
+      ? alpha(theme.palette.primary.main, 0.1)
+      : $isAvailable
+      ? alpha(theme.palette.success.light, 0.1)
+      : "transparent",
+    cursor: $isPast ? "default" : "pointer",
+    transition: "all 0.2s ease",
+    position: "relative",
+    "&:hover": {
+      backgroundColor: $isPast
+        ? alpha(theme.palette.grey[200], 0.5)
+        : $isSelected
+        ? alpha(theme.palette.primary.main, 0.15)
+        : alpha(theme.palette.primary.light, 0.05),
+      transform: $isPast ? "none" : "translateY(-2px)",
+      boxShadow: $isPast ? "none" : "0 4px 8px rgba(0,0,0,0.1)",
+    },
+  })
+);
+
+const TimeSlot = styled("div")(({ theme, $isAvailable, $isSelected }) => ({
+  margin: theme.spacing(0.5, 0),
+  padding: theme.spacing(1, 1.5),
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: $isSelected
+    ? alpha(theme.palette.primary.main, 0.15)
+    : $isAvailable
+    ? alpha(theme.palette.success.light, 0.1)
+    : alpha(theme.palette.grey[300], 0.3),
+  border: $isSelected
+    ? `1px solid ${theme.palette.primary.main}`
+    : $isAvailable
+    ? `1px solid ${alpha(theme.palette.success.main, 0.3)}`
+    : `1px solid ${alpha(theme.palette.grey[400], 0.2)}`,
+  cursor: $isAvailable ? "pointer" : "default",
+  transition: "all 0.2s",
+  "&:hover": {
+    transform: $isAvailable ? "translateY(-2px)" : "none",
+    boxShadow: $isAvailable ? "0 4px 8px rgba(0,0,0,0.1)" : "none",
+    backgroundColor: $isSelected
+      ? alpha(theme.palette.primary.main, 0.2)
+      : $isAvailable
+      ? alpha(theme.palette.success.light, 0.15)
+      : alpha(theme.palette.grey[300], 0.3),
+  },
+}));
+
+const InfoCard = styled(Paper)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius * 1.5,
+  padding: theme.spacing(3),
+  height: "100%",
+  position: "relative",
+  overflow: "hidden",
+  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+    transform: "translateY(-5px)",
+  },
+}));
+
+const PromotionBadge = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  top: 0,
+  right: 24,
+  backgroundColor: theme.palette.error.main,
+  color: theme.palette.error.contrastText,
+  padding: "4px 12px",
+  borderRadius: "0 0 12px 12px",
+  fontWeight: 600,
+  fontSize: "0.85rem",
+  boxShadow: "0 4px 8px rgba(0,0,0,0.15)",
+  zIndex: 1,
+}));
+
+// Helper function for calendar view
+const generateDateArray = (startDate, days = 14) => {
+  const dates = [];
+  const start = dayjs(startDate).startOf("day");
+
+  for (let i = 0; i < days; i++) {
+    dates.push(start.add(i, "day"));
+  }
+
+  return dates;
+};
+
+// Helper function to format promotion discount
+const formatDiscount = (promotion) => {
+  if (!promotion) return null;
+
+  if (promotion.discountType === "percentage") {
+    return `${promotion.discountValue}%`;
+  } else {
+    return formatPrice(promotion.discountValue);
+  }
+};
+
+// Replace the existing tabs with consolidated views
 const CoachDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -277,6 +500,41 @@ const CoachDetails = () => {
   const client = new Client();
   const paymentClient = new PaymentClient();
 
+  // New state for calendar view
+  const [calendarDates, setCalendarDates] = useState([]);
+  const [calendarStartDate, setCalendarStartDate] = useState(dayjs());
+  const [visibleSlots, setVisibleSlots] = useState([]);
+  const [availablePromotions, setAvailablePromotions] = useState([]);
+  const [appliedPromotion, setAppliedPromotion] = useState(null);
+
+  useEffect(() => {
+    // Generate 14 days for the calendar view
+    setCalendarDates(generateDateArray(calendarStartDate, 14));
+  }, [calendarStartDate]);
+
+  // Group available slots by date
+  useEffect(() => {
+    if (schedules.length > 0) {
+      setVisibleSlots(schedules);
+    }
+  }, [schedules]);
+
+  // Match promotions with packages
+  useEffect(() => {
+    if (promotions.length > 0 && packages.length > 0) {
+      // Find valid promotions with linked packages
+      const validPromos = promotions.filter((promo) => {
+        const now = dayjs();
+        const isValid =
+          dayjs(promo.validFrom).isBefore(now) &&
+          dayjs(promo.validTo).isAfter(now);
+        const hasPackage = packages.some((pkg) => pkg.id === promo.packageId);
+        return isValid && hasPackage;
+      });
+      setAvailablePromotions(validPromos);
+    }
+  }, [promotions, packages]);
+
   // Fetch coach data
   useEffect(() => {
     const fetchCoachData = async () => {
@@ -287,7 +545,7 @@ const CoachDetails = () => {
         const coachData = await client.getCoachById(id);
         setCoach(coachData);
 
-        // Fetch coach schedules
+        // Fetch coach schedules - using the current date range
         const startDate = dayjs().format("YYYY-MM-DD");
         const endDate = dayjs().add(30, "day").format("YYYY-MM-DD");
 
@@ -306,36 +564,31 @@ const CoachDetails = () => {
         const promotionsData = await client.getAllPromotion(id, 1, 20);
         setPromotions(promotionsData || []);
 
-        // Fetch reviews (mock data for now)
-        setReviews([
-          {
-            id: 1,
-            author: "John Smith",
-            avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-            rating: 5,
-            content:
-              "Excellent coach! Very professional and knowledgeable. Helped me improve my technique significantly.",
-            date: "2023-11-15",
-          },
-          {
-            id: 2,
-            author: "Sarah Johnson",
-            avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-            rating: 4.5,
-            content:
-              "Great coaching sessions. Very patient and attentive to details. I'd definitely recommend.",
-            date: "2023-10-28",
-          },
-          {
-            id: 3,
-            author: "Michael Chen",
-            avatar: "https://randomuser.me/api/portraits/men/67.jpg",
-            rating: 5,
-            content:
-              "Amazing experience! The coach is very skilled and creates personalized training plans.",
-            date: "2023-10-05",
-          },
-        ]);
+        // Fetch coach reviews
+        try {
+          const reviewResponse = await reviewClient.getReviews(
+            "coach",
+            id,
+            1,
+            5
+          );
+
+          if (reviewResponse && reviewResponse.data) {
+            setCoachReviews(reviewResponse.data || []);
+            setReviewsTotalCount(reviewResponse.totalCount || 0);
+
+            // Calculate average rating
+            if (reviewResponse.data.length > 0) {
+              const sum = reviewResponse.data.reduce(
+                (acc, review) => acc + review.rating,
+                0
+              );
+              setAverageRating(sum / reviewResponse.data.length);
+            }
+          }
+        } catch (reviewErr) {
+          console.error("Error fetching coach reviews:", reviewErr);
+        }
       } catch (err) {
         console.error("Error fetching coach data:", err);
         setError("Failed to load coach information. Please try again later.");
@@ -1148,6 +1401,50 @@ const CoachDetails = () => {
     return null;
   };
 
+  // Find promotion for a package
+  const getPromoForPackage = (packageId) => {
+    return availablePromotions.find((promo) => promo.packageId === packageId);
+  };
+
+  // Format calendar dates for display
+  const formatCalendarDate = (date) => {
+    return {
+      date: date,
+      dayName: date.format("ddd"),
+      dayNumber: date.format("D"),
+      monthName: date.format("MMM"),
+      isToday: date.isSame(dayjs(), "day"),
+      isPast: date.isBefore(dayjs(), "day"),
+    };
+  };
+
+  // Get slots for a specific date
+  const getSlotsForDate = (date) => {
+    return visibleSlots
+      .filter((slot) => slot.date === date.format("YYYY-MM-DD"))
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  };
+
+  // Navigate calendar dates
+  const moveCalendarDays = (direction) => {
+    const newStartDate =
+      direction === "next"
+        ? calendarStartDate.add(7, "day")
+        : calendarStartDate.subtract(7, "day");
+    setCalendarStartDate(newStartDate);
+  };
+
+  // Apply promotion to a package
+  const calculateDiscountedPrice = (basePrice, promotion) => {
+    if (!promotion) return basePrice;
+
+    if (promotion.discountType === "percentage") {
+      return basePrice * (1 - promotion.discountValue / 100);
+    } else {
+      return Math.max(0, basePrice - promotion.discountValue);
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -1209,1548 +1506,1470 @@ const CoachDetails = () => {
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Back button */}
         <Box sx={{ mb: 2 }}>
-          <Button icon={<LeftOutlined />} onClick={() => navigate("/coaches")}>
-            Quay trở lại danh sách
-          </Button>
+          <motion.div whileHover={{ x: -5 }} whileTap={{ scale: 0.98 }}>
+            <Button
+              icon={<LeftOutlined />}
+              onClick={() => navigate("/coaches")}
+              size="large"
+              style={{
+                boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
+                borderRadius: 12,
+                padding: "8px 16px",
+                height: "auto",
+              }}
+            >
+              Quay trở lại danh sách
+            </Button>
+          </motion.div>
         </Box>
 
-        {/* Hero Section */}
-        <HeroSection
+        {/* Enhanced Hero Section */}
+        <EnhancedHeroSection
           sx={{
             backgroundImage: `url(${
               coach.avatar ||
-              "https://source.unsplash.com/random/1200x400/?sport"
+              "https://source.unsplash.com/random/1200x400/?sport,coach"
             })`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
-          <HeroOverlay />
+          <EnhancedHeroOverlay />
           <HeroContent>
-            <Grid container alignItems="flex-end" spacing={2}>
-              <Grid>
-                <Avatar
-                  src={coach.avatar}
-                  alt={coach.fullName}
-                  sx={{
-                    width: 100,
-                    height: 100,
-                    border: "4px solid white",
-                    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
+              <Grid container alignItems="flex-end" spacing={3}>
+                <Grid
+                  style={{ textAlign: "center" }}
+                  size={{
+                    xs: 12,
+                    md: 2,
                   }}
-                />
-              </Grid>
-              <Grid size="grow">
-                <Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      flexWrap: "wrap",
-                      gap: 1,
-                    }}
+                >
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.5, type: "spring" }}
                   >
-                    <Typography variant="h4" fontWeight="bold" color="white">
-                      {coach.fullName}
-                    </Typography>
-                    {coach.isVerified && (
-                      <Verified
-                        sx={{
-                          color: "white",
-                          fontSize: 24,
-                          ml: 1,
-                        }}
-                      />
-                    )}
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                    <Rate
-                      allowHalf
-                      defaultValue={coach.rating || 4.5}
-                      disabled
-                    />
-                    <Text style={{ color: "white", marginLeft: 8 }}>
-                      ({coach.reviewCount || reviews.length} đánh giá)
-                    </Text>
-                  </Box>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    sx={{ mt: 2, flexWrap: "wrap", gap: 1 }}
-                  >
-                    {coach.sportIds?.map((sportId, index) => (
-                      <Chip
-                        key={sportId}
-                        icon={<SportIcon sport={coach.sportName} />}
-                        label={coach.sportName || `Sport ${index + 1}`}
-                        sx={{
-                          bgcolor: alpha(theme.palette.primary.main, 0.9),
-                          color: "white",
-                        }}
-                      />
-                    ))}
-                    <Chip
-                      icon={<DollarOutlined />}
-                      label={formatPrice(coach.ratePerHour)}
+                    <Avatar
+                      src={coach.avatar}
+                      alt={coach.fullName}
                       sx={{
-                        bgcolor: alpha(theme.palette.success.main, 0.9),
-                        color: "white",
+                        width: { xs: 120, md: 140 },
+                        height: { xs: 120, md: 140 },
+                        border: "5px solid white",
+                        boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
+                        mx: "auto",
                       }}
                     />
-                    {coach.experienceYears && (
-                      <Chip
-                        icon={<TeamOutlined />}
-                        label={`${coach.experienceYears} năm kinh nghiệm`}
-                        sx={{
-                          bgcolor: alpha(theme.palette.info.main, 0.9),
-                          color: "white",
-                        }}
-                      />
-                    )}
-                  </Stack>
-                </Box>
-              </Grid>
-              <Grid>
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<BookOutlined />}
-                  onClick={() => {
-                    setActiveTab("2");
-                    window.scrollTo({ top: 500, behavior: "smooth" });
+                  </motion.div>
+                </Grid>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 7,
                   }}
                 >
-                  Kiểm tra lịch trống
-                </Button>
-              </Grid>
-            </Grid>
-          </HeroContent>
-        </HeroSection>
-
-        {/* Main Content */}
-        <Grid container spacing={4}>
-          {/* Left Content - Tabs */}
-          <Grid
-            size={{
-              xs: 12,
-              md: 8
-            }}>
-            <Paper
-              elevation={0}
-              sx={{
-                borderRadius: theme.shape.borderRadius,
-                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                overflow: "hidden",
-              }}
-            >
-              <Tabs
-                activeKey={activeTab}
-                onChange={handleTabChange}
-                size="large"
-                centered={isMobile}
-                tabBarStyle={{
-                  padding: "0 16px",
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                  background: theme.palette.background.paper,
-                }}
-              >
-                <TabPane
-                  tab={
-                    <span>
-                      <UserOutlined /> Thông tin cơ bản
-                    </span>
-                  }
-                  key="1"
-                >
-                  <Box sx={{ p: 3 }}>
-                    <Title level={4}>Tiểu sử</Title>
-                    <Paragraph style={{ fontSize: 16, lineHeight: 1.6 }}>
-                      {coach.bio ||
-                        "Không có thông tin mô tả được cung cấp, huấn luyện này muốn để chuyên môn của mình thể hiện qua việc đào tạo."}
-                    </Paragraph>
-
-                    <Divider />
-
-                    {/* Coach's Gallery */}
-                    {coach.imageUrls && coach.imageUrls.length > 0 && (
-                      <Box sx={{ my: 3 }}>
-                        <Title level={4}>Ảnh</Title>
-                        <Image.PreviewGroup>
-                          <Space size={[16, 16]} wrap>
-                            {coach.imageUrls.map((img, index) => (
-                              <Image
-                                key={index}
-                                width={150}
-                                height={150}
-                                src={img}
-                                alt={`${coach.fullName} - Ảnh số ${index + 1}`}
-                                style={{ objectFit: "cover", borderRadius: 8 }}
-                              />
-                            ))}
-                          </Space>
-                        </Image.PreviewGroup>
-                      </Box>
-                    )}
-
-                    {/* Certifications & Experience */}
-                    <Box sx={{ my: 3 }}>
-                      <Title level={4}>Chứng chỉ và kinh nghiệm</Title>
-                      <List
-                        itemLayout="horizontal"
-                        dataSource={
-                          coach.certifications || [
-                            {
-                              title: "Chứng chỉ Huấn luyện Chuyên nghiệp",
-                              description: "Học viện Thể thao Quốc gia",
-                              year: 2020,
-                            },
-                            {
-                              title: "Phương pháp Huấn luyện Nâng cao",
-                              description: "Liên đoàn Thể thao Quốc tế",
-                              year: 2018,
-                            },
-                            {
-                              title: "Nền tảng Y học Thể thao",
-                              description: "Viện Khoa học Thể thao",
-                              year: 2019,
-                            },
-                          ]
-                        }
-                        renderItem={(item) => (
-                          <List.Item>
-                            <List.Item.Meta
-                              avatar={
-                                <TrophyOutlined
-                                  style={{
-                                    fontSize: 28,
-                                    color: theme.palette.warning.main,
-                                  }}
-                                />
-                              }
-                              title={item.title}
-                              description={`${item.description} (${item.year})`}
-                            />
-                          </List.Item>
-                        )}
-                      />
-                    </Box>
-
-                    {/* Contact Information */}
-                    <Box sx={{ my: 3 }}>
-                      <Title level={4}>Thông tin liên hệ</Title>
-                      <Grid container spacing={2}>
-                        {coach.email && (
-                          <Grid
-                            size={{
-                              xs: 12,
-                              sm: 6
-                            }}>
-                            <Card
-                              size="small"
-                              bordered={false}
-                              style={{
-                                background: alpha(
-                                  theme.palette.primary.light,
-                                  0.1
-                                ),
-                              }}
-                            >
-                              <Space>
-                                <MailOutlined
-                                  style={{
-                                    fontSize: 18,
-                                    color: theme.palette.primary.main,
-                                  }}
-                                />
-                                <Text copyable>{coach.email}</Text>
-                              </Space>
-                            </Card>
-                          </Grid>
-                        )}
-                        {coach.phone && (
-                          <Grid
-                            size={{
-                              xs: 12,
-                              sm: 6
-                            }}>
-                            <Card
-                              size="small"
-                              bordered={false}
-                              style={{
-                                background: alpha(
-                                  theme.palette.primary.light,
-                                  0.1
-                                ),
-                              }}
-                            >
-                              <Space>
-                                <PhoneOutlined
-                                  style={{
-                                    fontSize: 18,
-                                    color: theme.palette.primary.main,
-                                  }}
-                                />
-                                <Text copyable>{coach.phone}</Text>
-                              </Space>
-                            </Card>
-                          </Grid>
-                        )}
-                      </Grid>
-                    </Box>
-                  </Box>
-                </TabPane>
-
-                <TabPane
-                  tab={
-                    <span>
-                      <CalendarOutlined /> Đặt lịch
-                    </span>
-                  }
-                  key="2"
-                >
-                  <Box sx={{ p: { xs: 2, md: 3 } }}>
-                    {/* Improved layout with full-width container */}
-                    <Grid container spacing={3}>
-                      {/* Weekly Schedule Section - Expanded width */}
-                      <Grid size={12}>
-                        <Paper
-                          elevation={0}
-                          sx={{
-                            borderRadius: theme.shape.borderRadius,
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                            overflow: "hidden",
-                            mb: 3,
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              p: 3,
-                              borderBottom: `1px solid ${theme.palette.divider}`,
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              flexWrap: "wrap",
-                            }}
-                          >
-                            <Box>
-                              <Typography variant="h5" fontWeight="500">
-                                Khung giờ trống có sẵn
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                Lựa chọn một khung giờ trống để đặt lịch buổi
-                                tập của bạn.
-                              </Typography>
-                            </Box>
-                            <Button
-                              type="primary"
-                              icon={<CalendarOutlined />}
-                              onClick={() => setSelectedDate(dayjs())}
-                            >
-                              Hôm nay
-                            </Button>
-                          </Box>
-
-                          {/* Week Navigation */}
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              p: 2,
-                              borderBottom: `1px solid ${theme.palette.divider}`,
-                              bgcolor: alpha(theme.palette.primary.light, 0.05),
-                            }}
-                          >
-                            <Button
-                              startIcon={<LeftOutlined />}
-                              onClick={() => {
-                                const newDate = dayjs(selectedDate).subtract(
-                                  7,
-                                  "day"
-                                );
-                                setSelectedDate(newDate);
-                              }}
-                            >
-                              Tuần trước
-                            </Button>
-                            <Typography
-                              variant="h6"
-                              fontWeight="500"
-                              sx={{
-                                px: 2,
-                                py: 1,
-                                borderRadius: 1,
-                                backgroundColor: alpha(
-                                  theme.palette.primary.main,
-                                  0.1
-                                ),
-                              }}
-                            >
-                              {dayjs(selectedDate)
-                                .startOf("week")
-                                .format("MMM D")}{" "}
-                              -{" "}
-                              {dayjs(selectedDate)
-                                .endOf("week")
-                                .format("MMM D, YYYY")}
-                            </Typography>
-                            <Button
-                              endIcon={
-                                <LeftOutlined
-                                  style={{ transform: "rotate(180deg)" }}
-                                />
-                              }
-                              onClick={() => {
-                                const newDate = dayjs(selectedDate).add(
-                                  7,
-                                  "day"
-                                );
-                                setSelectedDate(newDate);
-                              }}
-                            >
-                              Tuần sau
-                            </Button>
-                          </Box>
-
-                          {/* Weekly Calendar View */}
-                          <Box sx={{ p: 2, overflowX: "auto" }}>
-                            {" "}
-                            {/* Đã thêm overflowX: 'auto' vào Box cha */}
-                            <Grid
-                              container
-                              spacing={1.5}
-                              sx={{ width: "max-content", maxWidth: "1800px" }}
-                            >
-                              {/* Day headers  */}
-                              {[
-                                "Thứ 2",
-                                "Thứ 3",
-                                "Thứ 4",
-                                "Thứ 5",
-                                "Thứ 6",
-                                "Thứ 7",
-                                "Chủ nhật",
-                              ].map((day, index) => (
-                                <Grid key={day} size={12 / 7}>
-                                  <Box
-                                    sx={{
-                                      p: 1.5,
-                                      textAlign: "center",
-                                      fontWeight: "bold",
-                                      bgcolor: "primary.main",
-                                      color: "primary.contrastText",
-                                      borderRadius: "8px 8px 0 0",
-                                      boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-                                      minWidth: "120px", // Đảm bảo mỗi header có chiều rộng tối thiểu
-                                      maxWidth: "300px",
-                                    }}
-                                  >
-                                    <Typography
-                                      variant="subtitle1"
-                                      fontWeight="bold"
-                                      noWrap
-                                    >
-                                      {day}
-                                    </Typography>
-                                    <Typography
-                                      variant="caption"
-                                      display="block"
-                                      sx={{ mt: 0.5 }}
-                                    >
-                                      {dayjs(selectedDate)
-                                        .day(index + 1)
-                                        .format("MMM D")}
-                                    </Typography>
-                                  </Box>
-                                </Grid>
-                              ))}
-
-                              {/* Daily slots */}
-                              {[
-                                "Monday",
-                                "Tuesday",
-                                "Wednesday",
-                                "Thursday",
-                                "Friday",
-                                "Saturday",
-                                "Sunday",
-                              ].map((day, index) => {
-                                const dayOfWeek = index + 1;
-                                // Calculate the actual date for this day in the displayed week
-                                const displayedDate = dayjs(selectedDate)
-                                  .startOf("week")
-                                  .add(index, "day")
-                                  .format("YYYY-MM-DD");
-
-                                // Filter schedules for this specific date (not just the day of week)
-                                const daySchedules = schedules.filter(
-                                  (schedule) => schedule.date === displayedDate
-                                );
-
-                                // Calculate if this is today
-                                const isToday =
-                                  dayjs().format("YYYY-MM-DD") ===
-                                  displayedDate;
-
-                                return (
-                                  <Grid key={`slots-${day}`} size={12 / 7}>
-                                    <Paper
-                                      elevation={0}
-                                      sx={{
-                                        height: 300,
-                                        p: 1,
-                                        overflowY: "auto",
-                                        border: `1px solid ${alpha(
-                                          theme.palette.primary.main,
-                                          0.2
-                                        )}`,
-                                        borderTop: "none",
-                                        bgcolor: isToday
-                                          ? alpha(
-                                              theme.palette.success.light,
-                                              0.15
-                                            )
-                                          : alpha(
-                                              theme.palette.background.paper,
-                                              0.8
-                                            ),
-                                        borderRadius: "0 0 8px 8px",
-                                        transition: "all 0.3s ease",
-                                        "&:hover": {
-                                          boxShadow:
-                                            "0 4px 12px rgba(0,0,0,0.08)",
-                                        },
-                                        minWidth: "250px", // Đảm bảo mỗi container slot có chiều rộng tối thiểu
-                                        maxWidth: "300px",
-                                      }}
-                                    >
-                                      {daySchedules.length === 0 ? (
-                                        <Box
-                                          sx={{
-                                            height: "100%",
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            color: "text.secondary",
-                                            textAlign: "center",
-                                            p: 1,
-                                          }}
-                                        >
-                                          <EventBusy
-                                            sx={{
-                                              fontSize: 30,
-                                              mb: 1,
-                                              opacity: 0.5,
-                                            }}
-                                          />
-                                          <Typography
-                                            variant="caption"
-                                            align="center"
-                                          >
-                                            Không có lịch trống phù hợp
-                                          </Typography>
-                                        </Box>
-                                      ) : (
-                                        daySchedules.map((slot, slotIndex) => {
-                                          const isSelected =
-                                            selectedSlot?.date === slot.date &&
-                                            selectedSlot?.startTime ===
-                                              slot.startTime;
-                                          const isAvailable =
-                                            slot.status === "available";
-
-                                          return (
-                                            <Box
-                                              key={`slot-${day}-${slotIndex}`}
-                                              sx={{
-                                                p: 1.5,
-                                                mb: 1.5,
-                                                borderRadius: 2,
-                                                cursor: isAvailable
-                                                  ? "pointer"
-                                                  : "default",
-                                                bgcolor: isSelected
-                                                  ? "primary.main"
-                                                  : isAvailable
-                                                  ? alpha(
-                                                      theme.palette.success
-                                                        .light,
-                                                      0.3
-                                                    )
-                                                  : alpha(
-                                                      theme.palette.grey[300],
-                                                      0.5
-                                                    ),
-                                                color: isSelected
-                                                  ? "white"
-                                                  : "text.primary",
-                                                border: isSelected
-                                                  ? `2px solid ${theme.palette.primary.dark}`
-                                                  : "1px solid transparent",
-                                                "&:hover": {
-                                                  transform: isAvailable
-                                                    ? "translateY(-3px)"
-                                                    : "none",
-                                                  boxShadow: isAvailable
-                                                    ? "0 6px 12px rgba(0,0,0,0.1)"
-                                                    : "none",
-                                                  bgcolor: isAvailable
-                                                    ? isSelected
-                                                      ? "primary.dark"
-                                                      : alpha(
-                                                          theme.palette.success
-                                                            .main,
-                                                          0.4
-                                                        )
-                                                    : alpha(
-                                                        theme.palette.grey[300],
-                                                        0.5
-                                                      ),
-                                                },
-                                                transition: "all 0.2s ease",
-
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                justifyContent: "space-between",
-                                                minHeight: "90px",
-                                              }}
-                                              onClick={() => {
-                                                if (isAvailable) {
-                                                  setSelectedSlot(slot);
-                                                }
-                                              }}
-                                            >
-                                              <Box
-                                                sx={{
-                                                  display: "flex",
-                                                  justifyContent:
-                                                    "space-between",
-                                                  alignItems: "center",
-                                                  width: "100%",
-                                                }}
-                                              >
-                                                <Typography
-                                                  variant="body2"
-                                                  fontWeight="bold"
-                                                  sx={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    gap: 0.5,
-                                                    whiteSpace: "nowrap",
-                                                  }}
-                                                >
-                                                  <ClockCircleOutlined
-                                                    style={{
-                                                      fontSize: "1rem",
-                                                      flexShrink: 0,
-                                                    }}
-                                                  />
-                                                  {`${formatTime(
-                                                    slot.startTime
-                                                  )}-${formatTime(
-                                                    slot.endTime
-                                                  )}`}
-                                                </Typography>
-                                                {slot.status && (
-                                                  <Tag
-                                                    color={
-                                                      isAvailable
-                                                        ? "success"
-                                                        : "default"
-                                                    }
-                                                    style={{
-                                                      marginLeft: "4px",
-                                                      flexShrink: 0,
-                                                    }}
-                                                  >
-                                                    {slot.status.length > 10
-                                                      ? slot.status.substring(
-                                                          0,
-                                                          10
-                                                        ) + "..."
-                                                      : slot.status}
-                                                  </Tag>
-                                                )}
-                                              </Box>
-
-                                              <Box
-                                                sx={{
-                                                  display: "flex",
-                                                  justifyContent:
-                                                    "space-between",
-                                                  alignItems: "center",
-                                                  width: "100%",
-                                                  mt: 1,
-                                                }}
-                                              >
-                                                <Box
-                                                  sx={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    gap: 0.5,
-                                                  }}
-                                                >
-                                                  <DollarOutlined
-                                                    style={{
-                                                      fontSize: "1rem",
-                                                      flexShrink: 0,
-                                                    }}
-                                                  />
-                                                  <Typography variant="body2">
-                                                    {formatPrice(
-                                                      coach.ratePerHour
-                                                    )}
-                                                  </Typography>
-                                                </Box>
-                                                {isAvailable && (
-                                                  <Button
-                                                    size="small"
-                                                    variant={
-                                                      isSelected
-                                                        ? "outlined"
-                                                        : "text"
-                                                    }
-                                                    color={
-                                                      isSelected
-                                                        ? "inherit"
-                                                        : "primary"
-                                                    }
-                                                    sx={{
-                                                      p: "2px 6px",
-                                                      minWidth: "auto",
-                                                      lineHeight: 1.2,
-                                                      flexShrink: 0,
-
-                                                      ...(isSelected && {
-                                                        color: "white",
-                                                        borderColor:
-                                                          "rgba(255,255,255,0.5)",
-                                                      }),
-                                                    }}
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setSelectedSlot(slot);
-                                                    }}
-                                                  >
-                                                    {isSelected
-                                                      ? "Đã chọn"
-                                                      : "Chọn"}
-                                                  </Button>
-                                                )}
-                                              </Box>
-                                            </Box>
-                                          );
-                                        })
-                                      )}
-                                    </Paper>
-                                  </Grid>
-                                );
-                              })}
-                            </Grid>
-                          </Box>
-                        </Paper>
-                      </Grid>
-
-                      {/* Booking Summary Section */}
-                      <Grid size={12}>
-                        <Paper
-                          elevation={0}
-                          sx={{
-                            borderRadius: theme.shape.borderRadius,
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                            p: 0,
-                            overflow: "hidden",
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              p: 3,
-                              borderBottom: `1px solid ${theme.palette.divider}`,
-                              bgcolor: alpha(theme.palette.primary.light, 0.05),
-                            }}
-                          >
-                            <Typography variant="h5" fontWeight="500">
-                              Thông tin đặt lịch
-                            </Typography>
-                          </Box>
-
-                          {selectedSlot ? (
-                            <Box sx={{ p: 3 }}>
-                              <Grid container spacing={3}>
-                                <Grid
-                                  size={{
-                                    xs: 12,
-                                    md: 8
-                                  }}>
-                                  <Box
-                                    sx={{
-                                      p: 3,
-                                      borderRadius: 2,
-                                      border: `1px solid ${theme.palette.divider}`,
-                                      bgcolor: alpha(
-                                        theme.palette.success.light,
-                                        0.05
-                                      ),
-                                    }}
-                                  >
-                                    <Grid container spacing={2}>
-                                      <Grid
-                                        size={{
-                                          xs: 12,
-                                          sm: 6
-                                        }}>
-                                        <Typography
-                                          variant="subtitle2"
-                                          color="text.secondary"
-                                          gutterBottom
-                                        >
-                                          Ngày
-                                        </Typography>
-                                        <Typography
-                                          variant="h6"
-                                          sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 1,
-                                          }}
-                                        >
-                                          <EventAvailable color="primary" />
-                                          {dayjs(selectedSlot.date).format(
-                                            "dddd, MMMM D, YYYY"
-                                          )}
-                                        </Typography>
-                                      </Grid>
-                                      <Grid
-                                        size={{
-                                          xs: 12,
-                                          sm: 6
-                                        }}>
-                                        <Typography
-                                          variant="subtitle2"
-                                          color="text.secondary"
-                                          gutterBottom
-                                        >
-                                          Thời gian
-                                        </Typography>
-                                        <Typography
-                                          variant="h6"
-                                          sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 1,
-                                          }}
-                                        >
-                                          <ClockCircleOutlined
-                                            style={{
-                                              color: theme.palette.primary.main,
-                                            }}
-                                          />
-                                          {formatTime(selectedSlot.startTime)} -{" "}
-                                          {formatTime(selectedSlot.endTime)}
-                                        </Typography>
-                                      </Grid>
-                                      <Grid
-                                        size={{
-                                          xs: 12,
-                                          sm: 6
-                                        }}>
-                                        <Typography
-                                          variant="subtitle2"
-                                          color="text.secondary"
-                                          gutterBottom
-                                        >
-                                          Giá tiền
-                                        </Typography>
-                                        <Typography
-                                          variant="h6"
-                                          sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 1,
-                                          }}
-                                        >
-                                          <DollarOutlined
-                                            style={{
-                                              color: theme.palette.success.main,
-                                            }}
-                                          />
-                                          {formatPrice(coach.ratePerHour)}
-                                        </Typography>
-                                      </Grid>
-                                      <Grid
-                                        size={{
-                                          xs: 12,
-                                          sm: 6
-                                        }}>
-                                        <Typography
-                                          variant="subtitle2"
-                                          color="text.secondary"
-                                          gutterBottom
-                                        >
-                                          Huấn luyện viên
-                                        </Typography>
-                                        <Typography
-                                          variant="h6"
-                                          sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 1,
-                                          }}
-                                        >
-                                          <UserOutlined
-                                            style={{
-                                              color: theme.palette.info.main,
-                                            }}
-                                          />
-                                          {coach.fullName}
-                                        </Typography>
-                                      </Grid>
-                                    </Grid>
-                                  </Box>
-                                </Grid>
-                                <Grid
-                                  size={{
-                                    xs: 12,
-                                    md: 4
-                                  }}>
-                                  <Box
-                                    sx={{
-                                      height: "100%",
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      justifyContent: "center",
-                                    }}
-                                  >
-                                    <Button
-                                      type="primary"
-                                      icon={<BookOutlined />}
-                                      size="large"
-                                      onClick={handleBookNow}
-                                      loading={bookingInProgress}
-                                      disabled={bookingInProgress}
-                                      block
-                                      style={{
-                                        height: "auto",
-                                        padding: "12px 16px",
-                                      }}
-                                    >
-                                      <Box
-                                        sx={{
-                                          fontSize: 16,
-                                          fontWeight: "bold",
-                                          py: 0.5,
-                                        }}
-                                      >
-                                        {bookingInProgress
-                                          ? "Đang xử lý..."
-                                          : "Đặt lịch ngay"}
-                                      </Box>
-                                    </Button>
-                                    <Typography
-                                      variant="caption"
-                                      align="center"
-                                      sx={{ mt: 1, color: "text.secondary" }}
-                                    >
-                                      Lịch của bạn sẽ được xác nhận sau khi đặt
-                                      thành công
-                                    </Typography>
-                                  </Box>
-                                </Grid>
-                              </Grid>
-                            </Box>
-                          ) : (
-                            <Box
-                              sx={{
-                                p: 5,
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            >
-                              <EventBusy
-                                sx={{
-                                  fontSize: 64,
-                                  color: "text.disabled",
-                                  mb: 2,
-                                }}
-                              />
-                              <Typography
-                                variant="h6"
-                                color="text.secondary"
-                                align="center"
-                              >
-                                Vui lòng chọn lựa một khung giờ trống trên lịch
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.disabled"
-                                align="center"
-                                sx={{ mt: 1 }}
-                              >
-                                Thông tin đặt lịch sẽ hiển thị tại đây sau khi
-                                bạn lựa chọn một khung giờ trống
-                              </Typography>
-                            </Box>
-                          )}
-                        </Paper>
-                      </Grid>
-                    </Grid>
-                  </Box>
-                </TabPane>
-
-                <TabPane
-                  tab={
-                    <span>
-                      <PercentageOutlined /> Ưu đãi
-                    </span>
-                  }
-                  key="3"
-                >
-                  {/* Content for promotions tab */}
-                </TabPane>
-
-                <TabPane
-                  tab={
-                    <span>
-                      <StarOutlined /> Đánh giá{" "}
-                      {reviewsTotalCount > 0 && `(${reviewsTotalCount})`}
-                    </span>
-                  }
-                  key="4"
-                >
-                  <Box sx={{ p: 3 }}>
-                    <Box sx={{ mb: 4, textAlign: "center" }}>
-                      <Typography variant="h4" fontWeight="bold" gutterBottom>
-                        {coach.rating
-                          ? coach.rating.toFixed(1)
-                          : averageRating.toFixed(1)}
-                      </Typography>
-                      <Box
+                  <Box>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6, duration: 0.5 }}
+                    >
+                      <Typography
+                        variant="h2"
+                        fontWeight="bold"
+                        color="white"
                         sx={{
-                          display: "flex",
-                          justifyContent: "center",
+                          fontSize: { xs: "1.75rem", md: "2.5rem" },
+                          textShadow: "0 3px 10px rgba(0,0,0,0.5)",
                           mb: 1,
                         }}
                       >
-                        <Rate
-                          disabled
-                          value={coach.rating || averageRating}
-                          allowHalf
-                        />
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Dựa trên {reviewsTotalCount} đánh giá
+                        {coach.fullName}
                       </Typography>
-                    </Box>
+                    </motion.div>
 
-                    <Box sx={{ mb: 4 }}>
-                      <RatingSummary
-                        coachReviews={coachReviews}
-                        totalCount={reviewsTotalCount}
-                      />
-                    </Box>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7, duration: 0.5 }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", mt: 1 }}
+                      >
+                        <Rate
+                          allowHalf
+                          defaultValue={coach.rating || averageRating || 0}
+                          disabled
+                        />
+                        <Text
+                          style={{
+                            color: "white",
+                            marginLeft: 8,
+                            fontWeight: "500",
+                            textShadow: "0 2px 5px rgba(0,0,0,0.5)",
+                          }}
+                        >
+                          ({reviewsTotalCount || 0} đánh giá)
+                        </Text>
+                      </Box>
+                    </motion.div>
 
-                    {reviewsLoading ? (
-                      <Box sx={{ py: 3 }}>
-                        <Skeleton active avatar paragraph={{ rows: 2 }} />
-                        <Skeleton
-                          active
-                          avatar
-                          paragraph={{ rows: 2 }}
-                          style={{ marginTop: 16 }}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.8, duration: 0.5 }}
+                    >
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{ mt: 2, flexWrap: "wrap", gap: 1 }}
+                      >
+                        {coach.sportIds?.map((sportId, index) => (
+                          <Chip
+                            key={sportId}
+                            icon={<SportIcon sport={"pickleball"} />}
+                            label={"Pickleball"}
+                            sx={{
+                              bgcolor: alpha(theme.palette.primary.main, 0.9),
+                              color: "white",
+                              fontWeight: 500,
+                              boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
+                              "&:hover": {
+                                transform: "translateY(-3px)",
+                                boxShadow: "0 6px 12px rgba(0,0,0,0.3)",
+                              },
+                              transition: "all 0.3s ease",
+                            }}
+                          />
+                        ))}
+                        <Chip
+                          icon={<DollarOutlined />}
+                          label={formatPrice(coach.ratePerHour)}
+                          sx={{
+                            bgcolor: alpha(theme.palette.success.main, 0.9),
+                            color: "white",
+                            fontWeight: 500,
+                            boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
+                            "&:hover": {
+                              transform: "translateY(-3px)",
+                              boxShadow: "0 6px 12px rgba(0,0,0,0.3)",
+                            },
+                            transition: "all 0.3s ease",
+                          }}
+                        />
+                      </Stack>
+                    </motion.div>
+                  </Box>
+                </Grid>
+                <Grid
+                  size={{
+                    xs: 12,
+                    md: 3,
+                  }}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.9, duration: 0.5 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      type="primary"
+                      size="large"
+                      icon={<BookOutlined />}
+                      onClick={() => {
+                        const bookingSection =
+                          document.getElementById("booking-section");
+                        if (bookingSection) {
+                          bookingSection.scrollIntoView({ behavior: "smooth" });
+                        }
+                      }}
+                      style={{
+                        height: "auto",
+                        padding: "12px 24px",
+                        borderRadius: 12,
+                        fontSize: "16px",
+                        boxShadow: "0 6px 20px rgba(24, 144, 255, 0.3)",
+                        fontWeight: 600,
+                      }}
+                      block
+                    >
+                      Đặt lịch ngay
+                    </Button>
+                  </motion.div>
+                </Grid>
+              </Grid>
+            </motion.div>
+          </HeroContent>
+        </EnhancedHeroSection>
+
+        {/* Main Content - 2 Column Layout */}
+        <Grid container spacing={4}>
+          {/* Left Column - Coach Info and Reviews */}
+          <Grid
+            size={{
+              xs: 12,
+              md: 4,
+            }}
+          >
+            {/* Basic Info Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <InfoCard sx={{ mb: 4 }}>
+                <Typography variant="h5" fontWeight="600" gutterBottom>
+                  Thông tin huấn luyện viên
+                </Typography>
+                <Divider sx={{ mb: 2 }} />
+
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                    Giới thiệu
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "text.secondary", mt: 1 }}
+                  >
+                    {coach.bio ||
+                      "Huấn luyện viên chưa cung cấp thông tin giới thiệu."}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                    Thông tin liên hệ
+                  </Typography>
+                  <Stack spacing={1.5} sx={{ mt: 1 }}>
+                    {coach.email && (
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                      >
+                        <MailOutlined
+                          style={{
+                            color: theme.palette.primary.main,
+                            fontSize: 18,
+                          }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          {coach.email}
+                        </Typography>
+                      </Box>
+                    )}
+                    {coach.phone && (
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                      >
+                        <PhoneOutlined
+                          style={{
+                            color: theme.palette.success.main,
+                            fontSize: 18,
+                          }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          {coach.phone}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Stack>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                    Lịch trình hàng tuần
+                  </Typography>
+                  {coach.weeklySchedule && coach.weeklySchedule.length > 0 ? (
+                    <List
+                      size="small"
+                      bordered
+                      dataSource={coach.weeklySchedule}
+                      renderItem={(schedule) => (
+                        <List.Item
+                          style={{
+                            padding: "8px 12px",
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            {schedule.dayName}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "text.secondary" }}
+                          >
+                            {formatTime(schedule.startTime)} -{" "}
+                            {formatTime(schedule.endTime)}
+                          </Typography>
+                        </List.Item>
+                      )}
+                    />
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.secondary", fontStyle: "italic" }}
+                    >
+                      Không có thông tin lịch trình.
+                    </Typography>
+                  )}
+                </Box>
+              </InfoCard>
+            </motion.div>
+
+            {/* Reviews Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              <InfoCard>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="h5" fontWeight="600">
+                    Đánh giá
+                  </Typography>
+                  <Badge
+                    count={reviewsTotalCount}
+                    overflowCount={999}
+                    color={theme.palette.warning.main}
+                  />
+                </Box>
+                <Divider sx={{ mb: 2 }} />
+
+                {reviewsLoading ? (
+                  <Skeleton active avatar paragraph={{ rows: 2 }} />
+                ) : coachReviews.length > 0 ? (
+                  <>
+                    {/* Rating summary */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mb: 3,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          mr: 3,
+                        }}
+                      >
+                        <Typography
+                          variant="h2"
+                          fontWeight="bold"
+                          sx={{
+                            color: theme.palette.warning.main,
+                            lineHeight: 1,
+                          }}
+                        >
+                          {averageRating.toFixed(1)}
+                        </Typography>
+                        <Rate
+                          value={averageRating}
+                          disabled
+                          allowHalf
+                          style={{ fontSize: 14 }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{ mt: 0.5, color: "text.secondary" }}
+                        >
+                          {reviewsTotalCount} đánh giá
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ flex: 1 }}>
+                        <RatingSummary
+                          coachReviews={coachReviews}
+                          totalCount={reviewsTotalCount}
                         />
                       </Box>
-                    ) : reviewsError ? (
-                      <Alert
-                        message="Error"
-                        description={reviewsError}
-                        type="error"
-                        showIcon
-                      />
-                    ) : coachReviews.length === 0 ? (
-                      <Empty
-                        description="Chưa có đánh giá nào cho huấn luyện viên này"
-                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      />
-                    ) : (
-                      <motion.div layout>
-                        <List
-                          itemLayout="vertical"
-                          dataSource={coachReviews}
-                          renderItem={(review, index) => (
-                            <motion.div
-                              initial={{ opacity: 0, y: 30 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{
-                                duration: 0.3,
-                                delay: index * 0.1,
-                                ease: "easeOut",
+                    </Box>
+
+                    {/* Recent reviews list */}
+                    <List
+                      itemLayout="horizontal"
+                      dataSource={coachReviews.slice(0, 2)}
+                      renderItem={(item, index) => (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            delay: 0.3 + index * 0.1,
+                            duration: 0.5,
+                          }}
+                        >
+                          <List.Item>
+                            <List.Item.Meta
+                              avatar={<Avatar src={item.userAvatar} />}
+                              title={
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                  }}
+                                >
+                                  <Typography variant="body2" fontWeight="500">
+                                    {item.userName}
+                                  </Typography>
+                                  <Rate
+                                    value={item.rating}
+                                    disabled
+                                    allowHalf
+                                    style={{ fontSize: 12 }}
+                                  />
+                                </Box>
+                              }
+                              description={
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "text.secondary", mt: 0.5 }}
+                                >
+                                  {item.comment && item.comment.length > 100
+                                    ? `${item.comment.substring(0, 100)}...`
+                                    : item.comment}
+                                </Typography>
+                              }
+                            />
+                          </List.Item>
+                        </motion.div>
+                      )}
+                    />
+
+                    {reviewsTotalCount > 2 && (
+                      <Box sx={{ textAlign: "center", mt: 2 }}>
+                        <Button
+                          type="text"
+                          icon={<UnorderedListOutlined />}
+                          onClick={() => {
+                            // Open reviews in modal
+                            Modal.info({
+                              title: "Tất cả đánh giá",
+                              width: 700,
+                              content: (
+                                <List
+                                  itemLayout="vertical"
+                                  dataSource={coachReviews}
+                                  renderItem={(item) => (
+                                    <List.Item>
+                                      <List.Item.Meta
+                                        avatar={
+                                          <Avatar
+                                            src={item.userAvatar}
+                                            size="large"
+                                          />
+                                        }
+                                        title={
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              justifyContent: "space-between",
+                                            }}
+                                          >
+                                            <Typography
+                                              variant="body1"
+                                              fontWeight="500"
+                                            >
+                                              {item.userName}
+                                            </Typography>
+                                            <Typography
+                                              variant="body2"
+                                              color="text.secondary"
+                                            >
+                                              {dayjs(item.createdAt).format(
+                                                "DD/MM/YYYY"
+                                              )}
+                                            </Typography>
+                                          </Box>
+                                        }
+                                        description={
+                                          <Rate
+                                            value={item.rating}
+                                            disabled
+                                            allowHalf
+                                            style={{ fontSize: 14 }}
+                                          />
+                                        }
+                                      />
+                                      <Typography
+                                        variant="body1"
+                                        sx={{ mt: 2 }}
+                                      >
+                                        {item.comment}
+                                      </Typography>
+
+                                      {item.reply && (
+                                        <Box
+                                          sx={{
+                                            mt: 2,
+                                            p: 2,
+                                            bgcolor: alpha(
+                                              theme.palette.primary.light,
+                                              0.1
+                                            ),
+                                            borderLeft: `4px solid ${theme.palette.primary.main}`,
+                                            borderRadius: 1,
+                                          }}
+                                        >
+                                          <Typography
+                                            variant="body2"
+                                            fontWeight="500"
+                                            sx={{
+                                              mb: 1,
+                                              display: "flex",
+                                              alignItems: "center",
+                                              gap: 1,
+                                            }}
+                                          >
+                                            <MessageOutlined /> Phản hồi từ huấn
+                                            luyện viên:
+                                          </Typography>
+                                          <Typography variant="body2">
+                                            {item.reply}
+                                          </Typography>
+                                        </Box>
+                                      )}
+                                    </List.Item>
+                                  )}
+                                  pagination={{
+                                    pageSize: 5,
+                                    total: reviewsTotalCount,
+                                    onChange: (page) => setReviewsPage(page),
+                                  }}
+                                />
+                              ),
+                              icon: (
+                                <StarOutlined
+                                  style={{ color: theme.palette.warning.main }}
+                                />
+                              ),
+                            });
+                          }}
+                        >
+                          Xem tất cả {reviewsTotalCount} đánh giá
+                        </Button>
+                      </Box>
+                    )}
+                  </>
+                ) : (
+                  <Empty
+                    description="Chưa có đánh giá nào"
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  />
+                )}
+              </InfoCard>
+            </motion.div>
+          </Grid>
+
+          {/* Right Column - Booking Calendar and Packages */}
+          <Grid
+            size={{
+              xs: 12,
+              md: 8,
+            }}
+          >
+            {/* Calendar and Booking Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              id="booking-section"
+            >
+              <InfoCard sx={{ mb: 4 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="h5" fontWeight="600">
+                    Đặt lịch buổi tập
+                  </Typography>
+                  <Box>
+                    <Button
+                      type="primary"
+                      icon={<CalendarOutlined />}
+                      onClick={() => setCalendarStartDate(dayjs())}
+                    >
+                      Hôm nay
+                    </Button>
+                  </Box>
+                </Box>
+                <Divider sx={{ mb: 2 }} />
+
+                {/* Calendar Navigation */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 2,
+                    p: 1,
+                    bgcolor: alpha(theme.palette.primary.light, 0.05),
+                    borderRadius: 2,
+                  }}
+                >
+                  <Button
+                    icon={<LeftOutlined />}
+                    onClick={() => moveCalendarDays("prev")}
+                  >
+                    Trước
+                  </Button>
+                  <Typography fontWeight="medium">
+                    {calendarStartDate.format("DD/MM/YYYY")} -{" "}
+                    {calendarStartDate.add(13, "days").format("DD/MM/YYYY")}
+                  </Typography>
+                  <Button
+                    onClick={() => moveCalendarDays("next")}
+                    icon={
+                      <LeftOutlined style={{ transform: "rotate(180deg)" }} />
+                    }
+                  >
+                    Tiếp
+                  </Button>
+                </Box>
+
+                {/* Calendar Grid - Redesigned for better usability */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  style={{ marginBottom: 24 }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="medium"
+                    gutterBottom
+                  >
+                    Chọn ngày:
+                  </Typography>
+
+                  {/* Horizontal scrollable date picker */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      overflowX: "auto",
+                      pb: 1,
+                      pt: 1,
+                      mb: 3,
+                      "::-webkit-scrollbar": {
+                        height: "8px",
+                      },
+                      "::-webkit-scrollbar-thumb": {
+                        backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                        borderRadius: "10px",
+                      },
+                    }}
+                  >
+                    {calendarDates.map((date, index) => {
+                      const formattedDate = formatCalendarDate(date);
+                      const isSelected =
+                        selectedDate && selectedDate.isSame(date, "day");
+                      const hasAvailableSlots = visibleSlots.some(
+                        (slot) =>
+                          slot.date === date.format("YYYY-MM-DD") &&
+                          slot.status === "available"
+                      );
+
+                      return (
+                        <Paper
+                          key={index}
+                          elevation={isSelected ? 3 : 0}
+                          onClick={() =>
+                            !formattedDate.isPast && setSelectedDate(date)
+                          }
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            minWidth: "80px",
+                            height: "90px",
+                            mr: 1,
+                            p: 1,
+                            borderRadius: "12px",
+                            cursor: formattedDate.isPast
+                              ? "default"
+                              : "pointer",
+                            border: isSelected
+                              ? `2px solid ${theme.palette.primary.main}`
+                              : "1px solid rgba(0,0,0,0.08)",
+                            backgroundColor: formattedDate.isPast
+                              ? alpha(theme.palette.grey[200], 0.5)
+                              : isSelected
+                              ? alpha(theme.palette.primary.main, 0.1)
+                              : hasAvailableSlots
+                              ? alpha(theme.palette.success.light, 0.1)
+                              : "white",
+                            opacity: formattedDate.isPast ? 0.5 : 1,
+                            transform: isSelected ? "scale(1.05)" : "scale(1)",
+                            transition: "all 0.2s ease",
+                            position: "relative",
+                            "&:hover": {
+                              transform: formattedDate.isPast
+                                ? "scale(1)"
+                                : "scale(1.05)",
+                              backgroundColor: formattedDate.isPast
+                                ? alpha(theme.palette.grey[200], 0.5)
+                                : isSelected
+                                ? alpha(theme.palette.primary.main, 0.1)
+                                : alpha(theme.palette.primary.light, 0.05),
+                              boxShadow: formattedDate.isPast
+                                ? "none"
+                                : "0 4px 12px rgba(0,0,0,0.1)",
+                            },
+                          }}
+                        >
+                          {formattedDate.isToday && (
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                top: -2,
+                                left: "50%",
+                                transform: "translateX(-50%)",
+                                backgroundColor: theme.palette.primary.main,
+                                color: "white",
+                                fontSize: "10px",
+                                py: 0.3,
+                                px: 1,
+                                borderRadius: "0 0 4px 4px",
+                                fontWeight: "bold",
                               }}
                             >
-                              <Card
-                                className="review-card"
-                                style={{
-                                  marginBottom: 16,
-                                  overflow: "hidden",
-                                  transition: "all 0.3s ease",
-                                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                                }}
-                                hoverable
-                              >
-                                <div className="flex items-start gap-4">
-                                  <Avatar
-                                    size={48}
-                                    src={review.userAvatar}
-                                    icon={
-                                      !review.userAvatar && <UserOutlined />
-                                    }
-                                    style={{
-                                      backgroundColor: alpha(
-                                        theme.palette.primary.main,
-                                        0.8
-                                      ),
-                                      flexShrink: 0,
-                                    }}
-                                  />
-                                  <div className="flex-1">
-                                    <div className="flex justify-between flex-wrap">
-                                      <div>
-                                        <Text strong className="text-lg">
-                                          {review.userName ||
-                                            "Người dùng ẩn danh"}
-                                        </Text>
-                                        <div className="text-gray-500 text-sm flex items-center gap-1 mt-1">
-                                          <CalendarOutlined
-                                            style={{ fontSize: 12 }}
-                                          />
-                                          {review.createdAt
-                                            ? dayjs(review.createdAt).format(
-                                                "DD/MM/YYYY"
-                                              )
-                                            : "Không có ngày"}
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <Rate
-                                          disabled
-                                          value={review.rating}
-                                          className="text-sm"
-                                        />
-                                      </div>
-                                    </div>
-
-                                    <div className="mt-3 text-gray-700">
-                                      {review.comment}
-                                    </div>
-
-                                    {review.reply && (
-                                      <div className="mt-3 p-3 bg-blue-50 rounded-md border-l-4 border-blue-400">
-                                        <div className="flex items-center text-blue-600 font-medium">
-                                          <MessageOutlined
-                                            style={{ marginRight: 8 }}
-                                          />
-                                          Phản hồi từ huấn luyện viên
-                                        </div>
-                                        <div className="mt-2 text-gray-600">
-                                          {review.reply}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </Card>
-                            </motion.div>
+                              TODAY
+                            </Box>
                           )}
-                        />
 
-                        {reviewsTotalCount > reviewsPageSize && (
-                          <Box
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ mb: 0.5, fontWeight: "500" }}
+                          >
+                            {formattedDate.dayName}
+                          </Typography>
+
+                          <Typography
+                            variant="h5"
                             sx={{
-                              mt: 4,
-                              display: "flex",
-                              justifyContent: "center",
+                              fontWeight: formattedDate.isToday ? "700" : "600",
+                              color: formattedDate.isToday
+                                ? "primary.main"
+                                : "text.primary",
+                              lineHeight: 1,
                             }}
                           >
-                            <Pagination
-                              current={reviewsPage}
-                              total={reviewsTotalCount}
-                              pageSize={reviewsPageSize}
-                              onChange={(page) => setReviewsPage(page)}
-                              showSizeChanger={false}
-                            />
-                          </Box>
-                        )}
-                      </motion.div>
-                    )}
-                  </Box>
-                </TabPane>
+                            {formattedDate.dayNumber}
+                          </Typography>
 
-                <TabPane
-                  tab={
-                    <span>
-                      <ShoppingCartOutlined /> Các gói
-                    </span>
-                  }
-                  key="5"
-                >
-                  <Box sx={{ p: 3 }}>
+                          <Typography variant="caption" color="text.secondary">
+                            {formattedDate.monthName}
+                          </Typography>
+
+                          {hasAvailableSlots && (
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                bottom: "6px",
+                                width: "6px",
+                                height: "6px",
+                                borderRadius: "50%",
+                                backgroundColor: theme.palette.success.main,
+                              }}
+                            />
+                          )}
+                        </Paper>
+                      );
+                    })}
+                  </Box>
+
+                  {/* Available times for selected date */}
+                  <Box>
                     <Box
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        mb: 3,
+                        mb: 2,
                       }}
                     >
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        Khung giờ trống ({selectedDate.format("DD/MM/YYYY")}):
+                      </Typography>
+
                       <Box>
-                        <Title level={4}>Gói huấn luyện</Title>
-                        <Text type="secondary">
-                          Mua gói để tiết kiệm nhiều buổi tập hơn
-                        </Text>
-                      </Box>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Text>Hiện gói của tôi</Text>
-                        <Switch
+                        <Button
+                          type="text"
                           size="small"
-                          checked={showPurchasedOnly}
-                          onChange={(checked) => setShowPurchasedOnly(checked)}
-                        />
+                          icon={<LeftOutlined />}
+                          onClick={() => moveCalendarDays("prev")}
+                          style={{ marginRight: 8 }}
+                        >
+                          Trước
+                        </Button>
+                        <Button
+                          type="text"
+                          size="small"
+                          onClick={() => moveCalendarDays("next")}
+                          icon={
+                            <LeftOutlined
+                              style={{ transform: "rotate(180deg)" }}
+                            />
+                          }
+                        >
+                          Sau
+                        </Button>
                       </Box>
                     </Box>
-
-                    {loadingPackages ? (
-                      <Grid container spacing={3}>
-                        {[1, 2, 3].map((item) => (
-                          <Grid
-                            key={`skeleton-${item}`}
-                            size={{
-                              xs: 12,
-                              md: 6,
-                              lg: 4
-                            }}>
-                            <Card>
-                              <Skeleton active avatar paragraph={{ rows: 4 }} />
-                            </Card>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    ) : packages.length === 0 ? (
-                      <Empty
-                        description="Không có gói nào khả dụng dành cho huấn luyện viên này"
-                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      />
-                    ) : (
-                      <motion.div layout>
-                        <Grid container spacing={3}>
-                          <AnimatePresence>
-                            {packages
-                              .filter(
-                                (pkg) =>
-                                  !showPurchasedOnly || hasUserPurchased(pkg.id)
-                              )
-                              .map((pkg) => {
-                                const purchased = hasUserPurchased(pkg.id);
-                                const remainingSessions =
-                                  getRemainingSessionsForPackage(pkg.id);
-                                const sessionsPerPrice =
-                                  Math.round(
-                                    (pkg.price / pkg.sessionCount) * 100
-                                  ) / 100;
-                                const savingsPercent = Math.round(
-                                  (1 - sessionsPerPrice / coach.ratePerHour) *
-                                    100
-                                );
-
-                                return (
-                                  <Grid
-                                    key={pkg.id}
-                                    size={{
-                                      xs: 12,
-                                      md: 6,
-                                      lg: 4
-                                    }}>
-                                    <PackageCard
-                                      initial={{ opacity: 0, y: 20 }}
-                                      animate={{
-                                        opacity: 1,
-                                        y: 0,
-                                        scale:
-                                          selectedPackage?.id === pkg.id
-                                            ? 1.02
-                                            : 1,
-                                        boxShadow:
-                                          selectedPackage?.id === pkg.id
-                                            ? "0 12px 28px rgba(0,0,0,0.2)"
-                                            : "0 8px 20px rgba(0,0,0,0.07)",
-                                      }}
-                                      exit={{ opacity: 0, scale: 0.9 }}
-                                      transition={{ duration: 0.3 }}
-                                      style={{
-                                        border:
-                                          selectedPackage?.id === pkg.id
-                                            ? `2px solid ${theme.palette.primary.main}`
-                                            : "1px solid rgba(0,0,0,0.06)",
-                                      }}
-                                    >
-                                      {savingsPercent > 0 && (
-                                        <Box
-                                          sx={{
-                                            position: "absolute",
-                                            top: 15,
-                                            right: 15,
-                                            zIndex: 10,
-                                          }}
-                                        >
-                                          <PackageBadge
-                                            count={`Save ${savingsPercent}%`}
-                                            bgColor={theme.palette.error.main}
-                                          />
-                                        </Box>
-                                      )}
-
-                                      <Box
-                                        sx={{
-                                          p: 3,
-                                          borderBottom: `1px solid ${theme.palette.divider}`,
-                                          position: "relative",
-                                        }}
-                                      >
-                                        <Typography
-                                          variant="h5"
-                                          gutterBottom
-                                          fontWeight="bold"
-                                          sx={{
-                                            color: theme.palette.primary.main,
-                                          }}
-                                        >
-                                          {pkg.name}
-                                        </Typography>
-                                        <Typography
-                                          variant="body2"
-                                          color="text.secondary"
-                                          sx={{ minHeight: 60 }}
-                                        >
-                                          {pkg.description ||
-                                            "Get multiple sessions at a discounted rate."}
-                                        </Typography>
-                                      </Box>
-
-                                      <Box
-                                        sx={{
-                                          p: 3,
-                                          flex: 1,
-                                          display: "flex",
-                                          flexDirection: "column",
-                                        }}
-                                      >
-                                        <Box sx={{ mb: 3 }}>
-                                          <Typography
-                                            variant="h4"
-                                            fontWeight="bold"
-                                            color="text.primary"
-                                          >
-                                            {formatPrice(pkg.price)}
-                                          </Typography>
-                                          <Box
-                                            sx={{
-                                              display: "flex",
-                                              alignItems: "center",
-                                              mt: 0.5,
-                                            }}
-                                          >
-                                            <Typography
-                                              variant="body2"
-                                              color="text.secondary"
-                                            >
-                                              {formatPrice(sessionsPerPrice)}{" "}
-                                              một buổi
-                                            </Typography>
-                                            {savingsPercent > 0 && (
-                                              <Chip
-                                                size="small"
-                                                label={`Tiết kiệm ${savingsPercent}%`}
-                                                color="error"
-                                                sx={{ ml: 1, height: 20 }}
-                                              />
-                                            )}
-                                          </Box>
-                                        </Box>
-
-                                        <Box sx={{ mb: 3 }}>
-                                          <FeatureItem>
-                                            <CheckCircleOutlined className="icon" />
-                                            <Typography className="text">
-                                              {pkg.sessionCount} buổi tập
-                                            </Typography>
-                                          </FeatureItem>
-                                          <FeatureItem>
-                                            <CheckCircleOutlined className="icon" />
-                                            <Typography className="text">
-                                              Hiệu lực trong 30 ngày
-                                            </Typography>
-                                          </FeatureItem>
-                                          <FeatureItem>
-                                            <CheckCircleOutlined className="icon" />
-                                            <Typography className="text">
-                                              Chương trình tập cá nhân hóa
-                                            </Typography>
-                                          </FeatureItem>
-                                          <FeatureItem>
-                                            <CheckCircleOutlined className="icon" />
-                                            <Typography className="text">
-                                              Đặt bất kì lúc nào khả dụng
-                                            </Typography>
-                                          </FeatureItem>
-                                        </Box>
-
-                                        <Box sx={{ mt: "auto" }}>
-                                          {purchased ? (
-                                            <Box>
-                                              <Alert
-                                                icon={<CheckCircleOutlined />}
-                                                type="success"
-                                                message={
-                                                  <Typography
-                                                    variant="body2"
-                                                    sx={{
-                                                      fontWeight: "medium",
-                                                    }}
-                                                  >
-                                                    Gói hoạt động
-                                                  </Typography>
-                                                }
-                                                description={
-                                                  <Typography variant="body2">
-                                                    Bạn còn {remainingSessions}{" "}
-                                                    buổi tập
-                                                    {remainingSessions !== 1
-                                                      ? "s"
-                                                      : ""}{" "}
-                                                  </Typography>
-                                                }
-                                                showIcon
-                                                sx={{ mb: 2 }}
-                                              />
-                                              <Button
-                                                type="primary"
-                                                block
-                                                icon={<CalendarOutlined />}
-                                                onClick={() => {
-                                                  setActiveTab("2");
-                                                  window.scrollTo({
-                                                    top: 500,
-                                                    behavior: "smooth",
-                                                  });
-                                                }}
-                                              >
-                                                Đặt lịch tập
-                                              </Button>
-                                            </Box>
-                                          ) : (
-                                            <Button
-                                              type="primary"
-                                              block
-                                              size="large"
-                                              icon={<ShoppingCartOutlined />}
-                                              onClick={(e) => {
-                                                e.preventDefault(); // Prevent event bubbling
-                                                e.stopPropagation(); // Stop propagation
-                                                handlePurchasePackage(pkg);
-                                              }}
-                                              loading={
-                                                purchasingPackage &&
-                                                selectedPackage?.id === pkg.id
-                                              }
-                                              disabled={purchasingPackage}
-                                              style={{
-                                                backgroundColor:
-                                                  selectedPackage?.id === pkg.id
-                                                    ? theme.palette.success.main
-                                                    : theme.palette.primary
-                                                        .main,
-                                                borderColor:
-                                                  selectedPackage?.id === pkg.id
-                                                    ? theme.palette.success.main
-                                                    : theme.palette.primary
-                                                        .main,
-                                              }}
-                                            >
-                                              {selectedPackage?.id === pkg.id
-                                                ? "Gói đã chọn lựa"
-                                                : "Mua gói"}
-                                            </Button>
-                                          )}
-                                        </Box>
-                                      </Box>
-                                    </PackageCard>
-                                  </Grid>
-                                );
-                              })}
-                          </AnimatePresence>
-                        </Grid>
-                      </motion.div>
-                    )}
 
                     <Box
                       sx={{
-                        mt: 4,
-                        p: 3,
-                        bgcolor: alpha(theme.palette.info.light, 0.1),
-                        borderRadius: 2,
+                        display: "grid",
+                        gridTemplateColumns: {
+                          xs: "1fr",
+                          sm: "1fr 1fr",
+                          md: "1fr 1fr 1fr",
+                        },
+                        gap: 2,
+                        mb: 2,
                       }}
                     >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          gap: 2,
-                        }}
-                      >
-                        <InfoCircleOutlined
-                          style={{
-                            color: theme.palette.info.main,
-                            fontSize: 24,
-                            marginTop: 4,
+                      {getSlotsForDate(selectedDate).length > 0 ? (
+                        getSlotsForDate(selectedDate).map((slot, slotIndex) => {
+                          const isSlotSelected =
+                            selectedSlot &&
+                            selectedSlot.date === slot.date &&
+                            selectedSlot.startTime === slot.startTime;
+                          const isAvailable = slot.status === "available";
+
+                          return (
+                            <Paper
+                              key={slotIndex}
+                              onClick={() =>
+                                isAvailable && setSelectedSlot(slot)
+                              }
+                              sx={{
+                                p: 2,
+                                borderRadius: "12px",
+                                cursor: isAvailable ? "pointer" : "default",
+                                border: isSlotSelected
+                                  ? `2px solid ${theme.palette.primary.main}`
+                                  : "1px solid rgba(0,0,0,0.08)",
+                                backgroundColor: isSlotSelected
+                                  ? alpha(theme.palette.primary.main, 0.1)
+                                  : isAvailable
+                                  ? "white"
+                                  : alpha(theme.palette.grey[100], 0.8),
+                                transition: "all 0.2s",
+                                position: "relative",
+                                overflow: "hidden",
+                                "&:hover": {
+                                  transform: isAvailable
+                                    ? "translateY(-3px)"
+                                    : "none",
+                                  boxShadow: isAvailable
+                                    ? "0 6px 16px rgba(0,0,0,0.1)"
+                                    : "none",
+                                },
+                                "&::before": isSlotSelected
+                                  ? {
+                                      content: '""',
+                                      position: "absolute",
+                                      top: 0,
+                                      left: 0,
+                                      width: "4px",
+                                      height: "100%",
+                                      backgroundColor:
+                                        theme.palette.primary.main,
+                                    }
+                                  : {},
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Box
+                                  sx={{ display: "flex", alignItems: "center" }}
+                                >
+                                  <ClockCircleOutlined
+                                    style={{
+                                      color: isAvailable
+                                        ? theme.palette.primary.main
+                                        : theme.palette.text.disabled,
+                                      marginRight: 8,
+                                      fontSize: 18,
+                                    }}
+                                  />
+                                  <Typography
+                                    variant="subtitle2"
+                                    sx={{
+                                      fontWeight: "500",
+                                      color: isAvailable
+                                        ? "text.primary"
+                                        : "text.disabled",
+                                    }}
+                                  >
+                                    {formatTime(slot.startTime)} -{" "}
+                                    {formatTime(slot.endTime)}
+                                  </Typography>
+                                </Box>
+
+                                <Tag
+                                  color={isAvailable ? "success" : "default"}
+                                >
+                                  {isAvailable ? "Trống" : "Đã đặt"}
+                                </Tag>
+                              </Box>
+
+                              {isAvailable && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    display: "block",
+                                    mt: 1,
+                                    color: "text.secondary",
+                                    fontStyle: "italic",
+                                  }}
+                                >
+                                  Nhấn vào để chọn khung giờ này
+                                </Typography>
+                              )}
+                            </Paper>
+                          );
+                        })
+                      ) : (
+                        <Box
+                          sx={{
+                            py: 4,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gridColumn: "1 / -1",
+                            color: "text.secondary",
                           }}
-                        />
-                        <Box>
-                          <Typography
-                            variant="subtitle1"
-                            fontWeight="medium"
-                            gutterBottom
+                        >
+                          <EventBusy
+                            sx={{ fontSize: 36, opacity: 0.4, mb: 1 }}
+                          />
+                          <Typography>
+                            Không có khung giờ trống cho ngày này
+                          </Typography>
+                          <Button
+                            type="text"
+                            onClick={() => setCalendarStartDate(dayjs())}
+                            icon={<CalendarOutlined />}
+                            style={{ marginTop: 16 }}
                           >
-                            Về gói huấn luyện viên
-                          </Typography>
-                          <Typography variant="body2">
-                            Mua một gói huấn luyện giúp bạn có quyền truy cập
-                            vào nhiều buổi tập với mức giá ưu đãi. Các gói có
-                            hiệu lực trong 30 ngày kể từ ngày mua và có thể được
-                            sử dụng để đặt bất kỳ khung giờ trống nào với huấn
-                            luyện viên này. Sau khi mua, bạn có thể chọn gói
-                            trong quá trình đặt lịch thay vì thanh toán cho từng
-                            buổi riêng lẻ.
-                          </Typography>
+                            Tìm ngày khác
+                          </Button>
                         </Box>
-                      </Box>
+                      )}
                     </Box>
                   </Box>
-                </TabPane>
-              </Tabs>
-            </Paper>
-          </Grid>
+                </motion.div>
 
-          {/* Right sidebar */}
-          <Grid
-            size={{
-              xs: 12,
-              md: 4
-            }}>
-            {/* Quick booking card and other sidebar content */}
+                {/* Booking Summary */}
+                {selectedSlot ? (
+                  <Box sx={{ mt: 3 }}>
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        border: `1px solid ${theme.palette.divider}`,
+                        bgcolor: alpha(theme.palette.success.light, 0.05),
+                      }}
+                    >
+                      <Typography variant="h6" gutterBottom fontWeight="medium">
+                        Tóm tắt lịch đặt
+                      </Typography>
+
+                      <Grid container spacing={2}>
+                        <Grid
+                          size={{
+                            xs: 12,
+                            sm: 6,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: 1.5,
+                            }}
+                          >
+                            <EventAvailable color="primary" sx={{ mt: 0.5 }} />
+                            <Box>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                Ngày
+                              </Typography>
+                              <Typography variant="body1">
+                                {dayjs(selectedSlot.date).format(
+                                  "dddd, DD/MM/YYYY"
+                                )}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Grid>
+
+                        <Grid
+                          size={{
+                            xs: 12,
+                            sm: 6,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: 1.5,
+                            }}
+                          >
+                            <ClockCircleOutlined
+                              style={{
+                                color: theme.palette.primary.main,
+                                fontSize: 20,
+                                marginTop: 4,
+                              }}
+                            />
+                            <Box>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                Thời gian
+                              </Typography>
+                              <Typography variant="body1">
+                                {formatTime(selectedSlot.startTime)} -{" "}
+                                {formatTime(selectedSlot.endTime)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Grid>
+
+                        <Grid
+                          size={{
+                            xs: 12,
+                            sm: 6,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: 1.5,
+                            }}
+                          >
+                            <DollarOutlined
+                              style={{
+                                color: theme.palette.success.main,
+                                fontSize: 20,
+                                marginTop: 4,
+                              }}
+                            />
+                            <Box>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                Giá buổi tập
+                              </Typography>
+                              <Typography variant="body1" fontWeight="500">
+                                {formatPrice(coach.ratePerHour)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Grid>
+
+                        {hasUserPurchased(coach.packages?.[0]?.id) && (
+                          <Grid
+                            size={{
+                              xs: 12,
+                              sm: 6,
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: 1.5,
+                              }}
+                            >
+                              <CheckCircleOutlined
+                                style={{
+                                  color: theme.palette.success.main,
+                                  fontSize: 20,
+                                  marginTop: 4,
+                                }}
+                              />
+                              <Box>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  Gói khả dụng
+                                </Typography>
+                                <Typography
+                                  variant="body1"
+                                  color="success.main"
+                                  fontWeight="500"
+                                >
+                                  {getRemainingSessionsForPackage(
+                                    coach.packages[0].id
+                                  )}{" "}
+                                  buổi còn lại
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Grid>
+                        )}
+                      </Grid>
+
+                      <Box
+                        sx={{
+                          mt: 3,
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <motion.div
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          <Button
+                            type="primary"
+                            size="large"
+                            icon={<BookOutlined />}
+                            onClick={handleBookNow}
+                            loading={bookingInProgress}
+                            style={{
+                              height: "auto",
+                              padding: "10px 24px",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Xác nhận đặt lịch
+                          </Button>
+                        </motion.div>
+                      </Box>
+                    </Paper>
+                  </Box>
+                ) : (
+                  <Empty
+                    description="Vui lòng chọn một khung giờ trên lịch để đặt lịch"
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  />
+                )}
+              </InfoCard>
+            </motion.div>
+
+            {/* Packages Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
+              <InfoCard>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="h5" fontWeight="600">
+                    Gói huấn luyện
+                  </Typography>
+                  <Box>
+                    <Button
+                      type={showPurchasedOnly ? "default" : "primary"}
+                      onClick={() => setShowPurchasedOnly(!showPurchasedOnly)}
+                      icon={
+                        showPurchasedOnly ? (
+                          <UnorderedListOutlined />
+                        ) : (
+                          <ShoppingCartOutlined />
+                        )
+                      }
+                    >
+                      {showPurchasedOnly ? "Tất cả gói" : "Gói đã mua"}
+                    </Button>
+                  </Box>
+                </Box>
+                <Divider sx={{ mb: 2 }} />
+
+                {loadingPackages ? (
+                  <Box sx={{ p: 4 }}>
+                    <Skeleton active avatar paragraph={{ rows: 4 }} />
+                  </Box>
+                ) : packages.length === 0 ? (
+                  <Empty description="Không có gói huấn luyện nào khả dụng" />
+                ) : (
+                  <Grid container spacing={3}>
+                    {packages
+                      .filter(
+                        (pkg) => !showPurchasedOnly || hasUserPurchased(pkg.id)
+                      )
+                      .map((pkg, index) => {
+                        const purchased = hasUserPurchased(pkg.id);
+                        const remainingSessions =
+                          getRemainingSessionsForPackage(pkg.id);
+                        const promotion = getPromoForPackage(pkg.id);
+                        const originalPrice = pkg.price;
+                        const discountedPrice = promotion
+                          ? calculateDiscountedPrice(originalPrice, promotion)
+                          : originalPrice;
+                        const discount = promotion
+                          ? originalPrice - discountedPrice
+                          : 0;
+                        const discountPercent =
+                          promotion && promotion.discountType === "percentage"
+                            ? promotion.discountValue
+                            : Math.round((discount / originalPrice) * 100);
+
+                        return (
+                          <Grid
+                            key={pkg.id}
+                            size={{
+                              xs: 12,
+                              md: 6,
+                            }}
+                          >
+                            <PackageCard
+                              whileHover={{ y: -8 }}
+                              transition={{ type: "spring", stiffness: 300 }}
+                              style={{
+                                border: purchased
+                                  ? `2px solid ${theme.palette.success.main}`
+                                  : "1px solid rgba(0,0,0,0.08)",
+                              }}
+                            >
+                              {/* Promotion badge if available */}
+                              {promotion && (
+                                <PromotionBadge>
+                                  Giảm {formatDiscount(promotion)}
+                                </PromotionBadge>
+                              )}
+
+                              <Box
+                                sx={{
+                                  p: 3,
+                                  borderBottom: `1px solid ${theme.palette.divider}`,
+                                }}
+                              >
+                                <Typography
+                                  variant="h6"
+                                  fontWeight="600"
+                                  gutterBottom
+                                >
+                                  {pkg.name}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{ minHeight: 40 }}
+                                >
+                                  {pkg.description ||
+                                    "Gói buổi tập với giá ưu đãi"}
+                                </Typography>
+                              </Box>
+
+                              <Box
+                                sx={{
+                                  p: 3,
+                                  flex: 1,
+                                  display: "flex",
+                                  flexDirection: "column",
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    mb: 2,
+                                  }}
+                                >
+                                  <Typography
+                                    variant="h4"
+                                    fontWeight="bold"
+                                    color={
+                                      promotion ? "error.main" : "text.primary"
+                                    }
+                                  >
+                                    {formatPrice(discountedPrice)}
+                                  </Typography>
+
+                                  {promotion && (
+                                    <Typography
+                                      variant="body1"
+                                      sx={{
+                                        ml: 1,
+                                        textDecoration: "line-through",
+                                        color: "text.disabled",
+                                      }}
+                                    >
+                                      {formatPrice(originalPrice)}
+                                    </Typography>
+                                  )}
+                                </Box>
+
+                                <Stack spacing={1.5} sx={{ mb: 3 }}>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 1.5,
+                                    }}
+                                  >
+                                    <CheckCircleOutlined
+                                      style={{
+                                        color: theme.palette.success.main,
+                                      }}
+                                    />
+                                    <Typography variant="body2">
+                                      {pkg.sessionCount} buổi tập
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 1.5,
+                                    }}
+                                  >
+                                    <CheckCircleOutlined
+                                      style={{
+                                        color: theme.palette.success.main,
+                                      }}
+                                    />
+                                    <Typography variant="body2">
+                                      Hiệu lực trong 30 ngày
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 1.5,
+                                    }}
+                                  >
+                                    <CheckCircleOutlined
+                                      style={{
+                                        color: theme.palette.success.main,
+                                      }}
+                                    />
+                                    <Typography variant="body2">
+                                      Tiết kiệm{" "}
+                                      {promotion
+                                        ? discountPercent
+                                        : Math.round(
+                                            ((pkg.sessionCount *
+                                              coach.ratePerHour -
+                                              pkg.price) /
+                                              (pkg.sessionCount *
+                                                coach.ratePerHour)) *
+                                              100
+                                          )}
+                                      %
+                                    </Typography>
+                                  </Box>
+                                </Stack>
+
+                                {purchased ? (
+                                  <Box sx={{ mt: "auto" }}>
+                                    <Alert
+                                      type="success"
+                                      icon={<CheckCircleOutlined />}
+                                      message={
+                                        <Box>
+                                          <Typography
+                                            variant="body2"
+                                            fontWeight="500"
+                                          >
+                                            Gói đã được mua
+                                          </Typography>
+                                          <Typography variant="body2">
+                                            Còn {remainingSessions} /{" "}
+                                            {pkg.sessionCount} buổi
+                                          </Typography>
+                                        </Box>
+                                      }
+                                      style={{ marginBottom: 16 }}
+                                    />
+                                    <Button
+                                      block
+                                      icon={<CalendarOutlined />}
+                                      onClick={() => {
+                                        const bookingSection =
+                                          document.getElementById(
+                                            "booking-section"
+                                          );
+                                        if (bookingSection) {
+                                          bookingSection.scrollIntoView({
+                                            behavior: "smooth",
+                                          });
+                                        }
+                                      }}
+                                    >
+                                      Đặt lịch ngay
+                                    </Button>
+                                  </Box>
+                                ) : (
+                                  <Button
+                                    type="primary"
+                                    block
+                                    size="large"
+                                    icon={<ShoppingCartOutlined />}
+                                    onClick={() => handlePurchasePackage(pkg)}
+                                    loading={
+                                      purchasingPackage &&
+                                      selectedPackage?.id === pkg.id
+                                    }
+                                  >
+                                    Mua gói
+                                  </Button>
+                                )}
+                              </Box>
+                            </PackageCard>
+                          </Grid>
+                        );
+                      })}
+                  </Grid>
+                )}
+              </InfoCard>
+            </motion.div>
           </Grid>
         </Grid>
       </Container>
@@ -2773,54 +2992,52 @@ const RatingSummary = ({ coachReviews, totalCount }) => {
   });
 
   return (
-    <Card className="rating-summary-card">
-      <div className="space-y-2 py-2">
-        {[5, 4, 3, 2, 1].map((rating) => {
-          const count = ratingCounts[rating] || 0;
-          const percent = totalCount
-            ? Math.round((count / totalCount) * 100)
-            : 0;
+    <Box>
+      {[5, 4, 3, 2, 1].map((rating) => {
+        const count = ratingCounts[rating] || 0;
+        const percent = totalCount ? Math.round((count / totalCount) * 100) : 0;
 
-          return (
-            <div key={rating} className="flex items-center gap-4">
-              <div className="w-10 flex items-center">
-                <span className="text-sm font-medium">{rating}</span>
-                <StarFilled
-                  style={{ color: "#faad14", marginLeft: 4, fontSize: "12px" }}
-                />
-              </div>
-              <div className="flex-grow">
-                <Progress
-                  percent={percent}
-                  size="small"
-                  showInfo={false}
-                  strokeColor={{
-                    "0%":
-                      rating >= 4
-                        ? "#52c41a"
-                        : rating >= 3
-                        ? "#faad14"
-                        : "#f5222d",
-                    "100%":
-                      rating >= 4
-                        ? "#95de64"
-                        : rating >= 3
-                        ? "#ffd666"
-                        : "#ff7875",
-                  }}
-                  trailColor="#f5f5f5"
-                />
-              </div>
-              <div className="w-16 text-right">
-                <Text type="secondary" style={{ fontSize: "12px" }}>
-                  {count} ({percent}%)
-                </Text>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </Card>
+        return (
+          <Box
+            key={rating}
+            sx={{ display: "flex", alignItems: "center", mb: 0.5, gap: 1 }}
+          >
+            <Box sx={{ width: 16, display: "flex", alignItems: "center" }}>
+              <Typography variant="caption" fontWeight="medium">
+                {rating}
+              </Typography>
+            </Box>
+            <Box sx={{ flex: 1, mx: 1 }}>
+              <Progress
+                percent={percent}
+                size="small"
+                showInfo={false}
+                strokeColor={{
+                  "0%":
+                    rating >= 4
+                      ? "#52c41a"
+                      : rating >= 3
+                      ? "#faad14"
+                      : "#f5222d",
+                  "100%":
+                    rating >= 4
+                      ? "#95de64"
+                      : rating >= 3
+                      ? "#ffd666"
+                      : "#ff7875",
+                }}
+                trailColor="#f5f5f5"
+              />
+            </Box>
+            <Box sx={{ width: 36, textAlign: "right" }}>
+              <Typography variant="caption" color="text.secondary">
+                {count}
+              </Typography>
+            </Box>
+          </Box>
+        );
+      })}
+    </Box>
   );
 };
 

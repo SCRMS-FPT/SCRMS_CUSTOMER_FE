@@ -115,18 +115,6 @@ const CoachRoutes = [
       </ProtectedCoachRoute>
     }
   />,
-
-  <Route
-    key="coach-profile"
-    path="/coach-profile/:id"
-    element={
-      <ProtectedCoachRoute>
-        <CoachSidebar>
-          <CoachProfile />
-        </CoachSidebar>
-      </ProtectedCoachRoute>
-    }
-  />,
   /////Lịch Làm Việc Coach
 
   <Route

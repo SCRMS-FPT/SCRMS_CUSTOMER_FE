@@ -137,7 +137,7 @@ const SportsCarousel = () => {
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
         <Box sx={{ textAlign: "center", mb: 6 }}>
           <Chip
-            label="Explore Sports"
+            label="Khám phá các môn thể thao"
             color="primary"
             variant="outlined"
             sx={{ mb: 2, fontWeight: "medium", px: 1.5 }}
@@ -155,7 +155,7 @@ const SportsCarousel = () => {
               mb: 1,
             }}
           >
-            Popular Sports
+            Các môn thể thao phổ biến
           </Typography>
           <Typography
             variant="body1"
@@ -166,8 +166,8 @@ const SportsCarousel = () => {
               lineHeight: 1.6,
             }}
           >
-            Discover and book courts for your favorite sports in just a few
-            clicks
+            Khám phá và đặt sân cho môn thể thao yêu thích của bạn chỉ với vài
+            cú nhấp chuột
           </Typography>
         </Box>
 
@@ -179,8 +179,9 @@ const SportsCarousel = () => {
                 size={{
                   xs: 12,
                   sm: 6,
-                  md: 4
-                }}>
+                  md: 4,
+                }}
+              >
                 <Card
                   elevation={0}
                   sx={{
@@ -227,8 +228,9 @@ const SportsCarousel = () => {
                     xs: 12,
                     sm: 6,
                     md: 4,
-                    lg: 3
-                  }}>
+                    lg: 3,
+                  }}
+                >
                   <motion.div variants={itemVariants}>
                     <Card
                       elevation={0}
@@ -295,20 +297,6 @@ const SportsCarousel = () => {
                           >
                             {sport.name}
                           </Typography>
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              height: "40px",
-                            }}
-                          >
-                            {sport.description}
-                          </Typography>
                           <Box
                             className="mt-3 inline-flex items-center font-medium text-blue-600"
                             sx={{
@@ -321,7 +309,7 @@ const SportsCarousel = () => {
                               mt: 2,
                             }}
                           >
-                            <span>Explore Courts</span>
+                            <span>Khám phá sân</span>
                             <Iconify
                               icon="solar:arrow-right-bold-duotone"
                               width={16}
@@ -353,7 +341,7 @@ const SportsCarousel = () => {
               sx={{ color: "text.secondary", opacity: 0.6, mb: 2 }}
             />
             <Typography variant="h6" color="text.secondary">
-              No sports available at the moment
+              Hiện tại không có môn thể thao nào
             </Typography>
           </Box>
         )}

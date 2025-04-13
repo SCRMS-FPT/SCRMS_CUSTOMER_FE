@@ -89,21 +89,21 @@ const footerLinks = {
 
 const infoCardsData = [
   {
-    title: "Pickleball Wave: All You Need To Know!",
+    title: "Pickleball: Tất cả những gì bạn cần biết!",
     cards: [
-      "Rules & Basics",
-      "Tips & Tricks",
-      "Pickleball vs. Badminton",
-      "Popular Courts",
+      "Luật chơi & Cơ bản",
+      "Mẹo & Thủ thuật",
+      "Pickleball vs. Cầu lông",
+      "Sân phổ biến",
     ],
   },
   {
-    title: "Stay Active, Stay Safe",
+    title: "Năng động, An toàn",
     cards: [
-      "Courtside Community",
-      "Create Positive Environment",
-      "Emergency Hotlines",
-      "Warm-up Before Game",
+      "Cộng đồng thể thao",
+      "Tạo môi trường tích cực",
+      "Đường dây nóng khẩn cấp",
+      "Khởi động trước khi chơi",
     ],
   },
 ];
@@ -173,8 +173,9 @@ const HomeView = () => {
                     key={index}
                     size={{
                       xs: 12,
-                      md: 6
-                    }}>
+                      md: 6,
+                    }}
+                  >
                     <motion.div variants={fadeIn} className="h-full">
                       <Paper
                         elevation={0}
@@ -288,8 +289,9 @@ const HomeView = () => {
               <Grid
                 size={{
                   xs: 12,
-                  md: 7
-                }}>
+                  md: 7,
+                }}
+              >
                 <Typography
                   variant="h3"
                   component="h2"
@@ -334,8 +336,9 @@ const HomeView = () => {
               <Grid
                 size={{
                   xs: 12,
-                  md: 5
-                }}>
+                  md: 5,
+                }}
+              >
                 <img
                   src="https://images.unsplash.com/photo-1577412647305-991150c7d163?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="Sport center partners"
@@ -385,8 +388,9 @@ const HomeView = () => {
             <Grid
               size={{
                 xs: 12,
-                md: 4
-              }}>
+                md: 4,
+              }}
+            >
               <Box sx={{ position: "relative", zIndex: 1 }}>
                 <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                   <img
@@ -486,14 +490,16 @@ const HomeView = () => {
             <Grid
               size={{
                 xs: 12,
-                md: 6
-              }}>
+                md: 6,
+              }}
+            >
               <Grid container spacing={2}>
                 <Grid
                   size={{
                     xs: 12,
-                    sm: 4
-                  }}>
+                    sm: 4,
+                  }}
+                >
                   <Typography
                     variant="subtitle1"
                     fontWeight={600}
@@ -529,8 +535,9 @@ const HomeView = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    sm: 4
-                  }}>
+                    sm: 4,
+                  }}
+                >
                   <Typography
                     variant="subtitle1"
                     fontWeight={600}
@@ -566,8 +573,9 @@ const HomeView = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    sm: 4
-                  }}>
+                    sm: 4,
+                  }}
+                >
                   <Typography
                     variant="subtitle1"
                     fontWeight={600}
@@ -606,8 +614,9 @@ const HomeView = () => {
             <Grid
               size={{
                 xs: 12,
-                md: 2
-              }}>
+                md: 2,
+              }}
+            >
               <Typography
                 variant="subtitle1"
                 fontWeight={600}

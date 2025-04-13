@@ -629,8 +629,9 @@ const BrowseCourtsView = () => {
               <Grid
                 size={{
                   xs: 12,
-                  md: 5
-                }}>
+                  md: 5,
+                }}
+              >
                 <TextField
                   fullWidth
                   variant="outlined"
@@ -664,8 +665,9 @@ const BrowseCourtsView = () => {
                 size={{
                   xs: 12,
                   sm: 6,
-                  md: 3
-                }}>
+                  md: 3,
+                }}
+              >
                 <FormControl fullWidth variant="outlined">
                   <InputLabel id="city-filter-label">Thành phố</InputLabel>
                   <Select
@@ -702,8 +704,9 @@ const BrowseCourtsView = () => {
                 size={{
                   xs: 12,
                   sm: 6,
-                  md: 2
-                }}>
+                  md: 2,
+                }}
+              >
                 <DatePicker
                   label="Ngày"
                   value={selectedDate}
@@ -729,8 +732,9 @@ const BrowseCourtsView = () => {
               <Grid
                 size={{
                   xs: 12,
-                  md: 2
-                }}>
+                  md: 2,
+                }}
+              >
                 <Button
                   fullWidth
                   variant={filtersExpanded ? "contained" : "outlined"}
@@ -762,7 +766,7 @@ const BrowseCourtsView = () => {
                         <Tab
                           icon={<SportsTennis fontSize="small" />}
                           iconPosition="start"
-                          label="Môn thể thaqo & Thời gian"
+                          label="Môn thể thao & Thời gian"
                         />
                         <Tab
                           icon={<AttachMoney fontSize="small" />}
@@ -784,8 +788,9 @@ const BrowseCourtsView = () => {
                         <Grid
                           size={{
                             xs: 12,
-                            md: 4
-                          }}>
+                            md: 4,
+                          }}
+                        >
                           <FormControl fullWidth variant="outlined">
                             <InputLabel id="sport-filter-label">
                               Môn thể thao
@@ -884,8 +889,9 @@ const BrowseCourtsView = () => {
                         <Grid
                           size={{
                             xs: 12,
-                            md: 8
-                          }}>
+                            md: 8,
+                          }}
+                        >
                           <Typography
                             variant="subtitle2"
                             gutterBottom
@@ -1016,8 +1022,9 @@ const BrowseCourtsView = () => {
                             size={{
                               xs: 6,
                               sm: 4,
-                              md: 3
-                            }}>
+                              md: 3,
+                            }}
+                          >
                             <Paper
                               sx={{
                                 p: 1.5,
@@ -1193,8 +1200,9 @@ const BrowseCourtsView = () => {
                     size={{
                       xs: 12,
                       sm: 6,
-                      md: 4
-                    }}>
+                      md: 4,
+                    }}
+                  >
                     <FeaturedSportCenterCard
                       center={center}
                       onClick={handleSportCenterClick}
@@ -1294,8 +1302,9 @@ const BrowseCourtsView = () => {
                   size={{
                     xs: 12,
                     sm: viewMode === "grid" ? 6 : 12,
-                    md: viewMode === "grid" ? 4 : 12
-                  }}>
+                    md: viewMode === "grid" ? 4 : 12,
+                  }}
+                >
                   <Paper
                     sx={{
                       height: "100%",
@@ -1434,8 +1443,9 @@ const BrowseCourtsView = () => {
                           size={{
                             xs: 12,
                             sm: 6,
-                            md: 4
-                          }}>
+                            md: 4,
+                          }}
+                        >
                           <Paper
                             sx={{
                               height: "100%",
@@ -1681,8 +1691,9 @@ const BrowseCourtsView = () => {
                                   <Grid
                                     size={{
                                       xs: 12,
-                                      md: 7
-                                    }}>
+                                      md: 7,
+                                    }}
+                                  >
                                     <Box
                                       display="flex"
                                       alignItems="center"
@@ -1745,8 +1756,9 @@ const BrowseCourtsView = () => {
                                   <Grid
                                     size={{
                                       xs: 12,
-                                      md: 5
-                                    }}>
+                                      md: 5,
+                                    }}
+                                  >
                                     <Typography
                                       variant="subtitle2"
                                       gutterBottom

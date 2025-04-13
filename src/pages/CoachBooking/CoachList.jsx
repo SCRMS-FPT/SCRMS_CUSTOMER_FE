@@ -163,8 +163,8 @@ const CoachList = () => {
       }
     } catch (err) {
       console.error("Error fetching coaches:", err);
-      setError("Failed to load coaches. Please try again later.");
-      message.error("Failed to load coaches");
+      setError("Không thể tải dữ liệu huấn luyện viên. Vui lòng thử lại sau.");
+      message.error("Không thể tải dữ liệu huấn luyện viên");
     } finally {
       setLoading(false);
     }
@@ -257,8 +257,9 @@ const CoachList = () => {
           size={{
             xs: 12,
             sm: 6,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <Paper sx={{ p: 2, height: "100%" }}>
             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
               <Skeleton variant="circular" width={64} height={64} />
@@ -287,11 +288,11 @@ const CoachList = () => {
     <Box sx={{ py: 4, px: 3 }}>
       <Box sx={{ mb: 4, display: "flex", flexDirection: "column" }}>
         <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-          Find Your Perfect Coach
+          Tìm Huấn Luyện Viên Phù Hợp
         </Typography>
         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          Browse our selection of professional coaches and find the perfect
-          match for your training needs
+          Duyệt qua các huấn luyện viên chuyên nghiệp và tìm người phù hợp cho
+          nhu cầu tập luyện của bạn
         </Typography>
       </Box>
       {/* Search & Filter Panel */}
@@ -311,10 +312,11 @@ const CoachList = () => {
           <Grid
             size={{
               xs: 12,
-              md: 4
-            }}>
+              md: 4,
+            }}
+          >
             <Search
-              placeholder="Search coaches by name"
+              placeholder="Tìm huấn luyện viên theo tên"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onSearch={handleSearch}
@@ -326,11 +328,12 @@ const CoachList = () => {
           <Grid
             size={{
               xs: 12,
-              md: 3
-            }}>
+              md: 3,
+            }}
+          >
             <FormControl fullWidth>
               <Select
-                placeholder="Filter by Sport"
+                placeholder="Lọc theo môn thể thao"
                 value={selectedSport}
                 onChange={handleSportChange}
                 allowClear
@@ -351,10 +354,11 @@ const CoachList = () => {
           <Grid
             size={{
               xs: 12,
-              md: 3
-            }}>
+              md: 3,
+            }}
+          >
             <Select
-              placeholder="Sort By"
+              placeholder="Sắp xếp theo"
               value={sortOrder}
               onChange={handleSortChange}
               style={{ width: "100%" }}
@@ -362,13 +366,13 @@ const CoachList = () => {
               <Option value="rating">
                 <Space>
                   <StarOutlined />
-                  Highest Rating
+                  Đánh giá cao nhất
                 </Space>
               </Option>
               <Option value="priceAsc">
                 <Space>
                   <SortAscendingOutlined />
-                  Price: Low to High
+                  Giá: Thấp đến cao
                 </Space>
               </Option>
               <Option value="priceDesc">
@@ -376,7 +380,7 @@ const CoachList = () => {
                   <SortAscendingOutlined
                     style={{ transform: "rotateX(180deg)" }}
                   />
-                  Price: High to Low
+                  Giá: Cao đến thấp
                 </Space>
               </Option>
             </Select>
@@ -385,20 +389,21 @@ const CoachList = () => {
           <Grid
             size={{
               xs: 12,
-              md: 2
-            }}>
+              md: 2,
+            }}
+          >
             <Button
               icon={<FilterOutlined />}
               onClick={resetFilters}
               style={{ width: "100%" }}
             >
-              Reset Filters
+              Đặt lại bộ lọc
             </Button>
           </Grid>
 
           <Grid size={12}>
             <Typography id="price-range-slider" gutterBottom>
-              Price Range: {formatPrice(priceRange[0])} -{" "}
+              Khoảng giá: {formatPrice(priceRange[0])} -{" "}
               {formatPrice(priceRange[1])}
             </Typography>
             <Slider
@@ -429,7 +434,7 @@ const CoachList = () => {
             {error}
           </Typography>
           <Button variant="contained" onClick={fetchCoaches} sx={{ mt: 2 }}>
-            Try Again
+            Thử lại
           </Button>
         </Box>
       )}
@@ -440,8 +445,8 @@ const CoachList = () => {
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
               <Typography variant="body1">
-                No coaches found matching your criteria. Try adjusting your
-                filters.
+                Không tìm thấy huấn luyện viên phù hợp với tiêu chí của bạn. Hãy
+                điều chỉnh bộ lọc.
               </Typography>
             }
           />
@@ -450,7 +455,7 @@ const CoachList = () => {
             onClick={resetFilters}
             style={{ marginTop: 16 }}
           >
-            Reset Filters
+            Đặt lại bộ lọc
           </Button>
         </Box>
       )}
@@ -464,8 +469,9 @@ const CoachList = () => {
                 size={{
                   xs: 12,
                   sm: 6,
-                  md: 4
-                }}>
+                  md: 4,
+                }}
+              >
                 <StyledCard
                   hoverable
                   cover={
@@ -481,7 +487,7 @@ const CoachList = () => {
                         alt={coach.fullName}
                         src={
                           coach.avatar ||
-                          "https://via.placeholder.com/300x200?text=Coach"
+                          "https://via.placeholder.com/300x200?text=HLV"
                         }
                         style={{
                           width: "100%",
@@ -542,7 +548,7 @@ const CoachList = () => {
                           {coach.fullName}
                         </Typography>
                         {coach.isVerified && (
-                          <Tooltip title="Verified Coach">
+                          <Tooltip title="Huấn luyện viên đã xác thực">
                             <Verified
                               sx={{
                                 ml: 0.5,
@@ -567,7 +573,9 @@ const CoachList = () => {
                           size="small"
                           variant="outlined"
                           icon={<TeamOutlined />}
-                          label={`${coach.experienceYears || 1}+ yrs exp.`}
+                          label={`${
+                            coach.experienceYears || 1
+                          }+ năm kinh nghiệm`}
                         />
                       </Box>
                     </Box>
@@ -578,7 +586,7 @@ const CoachList = () => {
                     sx={{ mb: 2, height: 60, overflow: "hidden" }}
                   >
                     {coach.bio ||
-                      "No bio provided. This coach prefers to let their expertise speak through training."}
+                      "Chưa có thông tin giới thiệu. Huấn luyện viên này muốn để kỹ năng của họ tự nói lên qua khóa huấn luyện."}
                   </Typography>
 
                   <Box
@@ -593,14 +601,14 @@ const CoachList = () => {
                       icon={<CalendarOutlined />}
                       onClick={() => navigate(`/coaches/${coach.id}`)}
                     >
-                      View Details
+                      Xem chi tiết
                     </Button>
                     <Button
                       type="primary"
                       icon={<BookOnline />}
                       onClick={() => navigate(`/coaches/${coach.id}/book`)}
                     >
-                      Book Now
+                      Đặt lịch ngay
                     </Button>
                   </Box>
                 </StyledCard>
@@ -616,7 +624,7 @@ const CoachList = () => {
               total={pagination.total}
               onChange={handlePageChange}
               showSizeChanger={false}
-              showTotal={(total) => `Total ${total} coaches`}
+              showTotal={(total) => `Tổng cộng ${total} huấn luyện viên`}
             />
           </Box>
         </>
