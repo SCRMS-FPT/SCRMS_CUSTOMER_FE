@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Client } from "../../API/CoachApi";
+import { Client as CoachClient } from "../../API/CoachApi";
+import { Client as CourtClient } from "../../API/CourtApi";
 import { motion, AnimatePresence } from "framer-motion";
 import { Icon } from "@iconify/react";
 import { toast, Toaster } from "react-hot-toast";
@@ -17,33 +18,34 @@ import {
   CircularProgress,
   Card,
   CardContent,
+  CardMedia,
   Chip,
   Divider,
+  Grid,
   IconButton,
-  Rating,
   Paper,
   Badge,
   Tooltip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  OutlinedInput,
 } from "@mui/material";
 
 // Ant Design imports
-import { Tabs, Tag, Skeleton, Statistic, Progress } from "antd";
+import { Tabs, Tag, Spin, Empty, message } from "antd";
 import {
   UserOutlined,
   MailOutlined,
   PhoneOutlined,
   DollarOutlined,
-  TrophyOutlined,
   EditOutlined,
   SaveOutlined,
   CloseOutlined,
-  CheckCircleOutlined,
-  CalendarOutlined,
-  StarOutlined,
-  HeartOutlined,
-  MessageOutlined,
-  FileTextOutlined,
-  TeamOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+  PictureOutlined,
 } from "@ant-design/icons";
 
 const { TabPane } = Tabs;
@@ -68,9 +70,19 @@ const itemVariants = {
   },
 };
 
+const fadeInVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.6 },
+  },
+};
+
 export default function CoachProfile() {
   const navigate = useNavigate();
-  const coachClient = new Client();
+  const coachClient = new CoachClient();
+  const courtClient = new CourtClient();
+  const fileInputRef = useRef(null);
 
   // State for coach data
   const [coachData, setCoachData] = useState(null);
@@ -79,42 +91,56 @@ export default function CoachProfile() {
   const [editedData, setEditedData] = useState({});
   const [avatarFile, setAvatarFile] = useState(null);
   const [activeTab, setActiveTab] = useState("1");
-  const [skills, setSkills] = useState([
-    { name: "Fitness", level: 95 },
-    { name: "Yoga", level: 85 },
-    { name: "Nutrition", level: 80 },
-    { name: "Cardio", level: 90 },
-  ]);
+  const [sports, setSports] = useState([]);
+  const [sportsLoading, setSportsLoading] = useState(false);
+  const [profileUpdating, setProfileUpdating] = useState(false);
+  const [galleryFiles, setGalleryFiles] = useState([]);
+  const [previewImages, setPreviewImages] = useState([]);
+  const [imagesToDelete, setImagesToDelete] = useState([]);
 
-  // Mock stats
-  const stats = {
-    sessions: 127,
-    clients: 48,
-    reviews: 38,
-    rating: 4.8,
-  };
+  // Fetch sports data
+  useEffect(() => {
+    const fetchSports = async () => {
+      try {
+        setSportsLoading(true);
+        const response = await courtClient.getSports();
+        setSports(response.sports || []);
+      } catch (error) {
+        console.error("Error fetching sports:", error);
+        toast.error("Không thể tải danh sách môn thể thao");
+      } finally {
+        setSportsLoading(false);
+      }
+    };
+
+    fetchSports();
+  }, []);
 
   // Fetch coach data on component mount
   useEffect(() => {
     const fetchCoachData = async () => {
       try {
+        setIsLoading(true);
         const data = await coachClient.getMyCoachProfile();
-        setCoachData({
-          ...data,
-          yearsExperience: data.yearsExperience || 5,
-          certificates: data.certificates || [
-            "Certified Personal Trainer",
-            "Nutrition Specialist",
-          ],
-        });
+
+        setCoachData(data);
         setEditedData({
           ...data,
-          yearsExperience: data.yearsExperience || 5,
-          certificates: data.certificates || [
-            "Certified Personal Trainer",
-            "Nutrition Specialist",
-          ],
         });
+
+        // Set preview images from existing imageUrls
+        if (data.imageUrls && data.imageUrls.length > 0) {
+          setPreviewImages(
+            data.imageUrls.map((url) => ({
+              uid: `existing-${Math.random().toString(36).substring(2, 9)}`,
+              name: url.split("/").pop(),
+              status: "done",
+              url: url,
+              isExisting: true,
+              originalUrl: url,
+            }))
+          );
+        }
       } catch (error) {
         console.error(error);
         toast.error("Không thể tải thông tin hồ sơ. Vui lòng thử lại sau.");
@@ -126,35 +152,102 @@ export default function CoachProfile() {
     fetchCoachData();
   }, []);
 
+  // Get sport name by sportId
+  const getSportName = (sportId) => {
+    const sport = sports.find((s) => s.id === sportId);
+    return sport ? sport.name : "Không xác định";
+  };
+
   // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditedData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle sports selection
+  const handleSportsChange = (event) => {
+    const { value } = event.target;
+    setEditedData((prev) => ({ ...prev, sportIds: value }));
+  };
+
   // Handle avatar change
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Kích thước ảnh không được vượt quá 5MB");
+        return;
+      }
+
       const fileUrl = URL.createObjectURL(file);
       setEditedData((prev) => ({ ...prev, avatar: fileUrl }));
       setAvatarFile(file);
     }
   };
 
+  // Handle gallery image upload
+  const handleGalleryUpload = (fileList) => {
+    const newFiles = Array.from(fileList);
+
+    // Validate file size
+    const oversizeFiles = newFiles.filter(
+      (file) => file.size > 5 * 1024 * 1024
+    );
+    if (oversizeFiles.length > 0) {
+      toast.error("Kích thước ảnh không được vượt quá 5MB");
+      return;
+    }
+
+    setGalleryFiles((prev) => [...prev, ...newFiles]);
+
+    // Create preview URLs for new files
+    const newPreviews = newFiles.map((file) => ({
+      uid: `new-${Math.random().toString(36).substring(2, 9)}`,
+      name: file.name,
+      status: "done",
+      url: URL.createObjectURL(file),
+      file: file,
+      isNew: true,
+    }));
+
+    setPreviewImages((prev) => [...prev, ...newPreviews]);
+  };
+
+  // Remove gallery image
+  const handleRemoveGalleryImage = (image) => {
+    if (image.isExisting) {
+      // Add to list of images to delete on the server
+      setImagesToDelete((prev) => [...prev, image.originalUrl]);
+    }
+
+    // Remove from preview images
+    setPreviewImages((prev) => prev.filter((img) => img.uid !== image.uid));
+
+    // Remove from gallery files if it's a new file
+    if (image.isNew) {
+      setGalleryFiles((prev) =>
+        prev.filter((file) => {
+          // Find by comparing file name since the File object reference might be different
+          return file.name !== image.name;
+        })
+      );
+    }
+  };
+
   // Save changes
   const handleSaveChanges = async () => {
     try {
+      setProfileUpdating(true);
       const formData = new FormData();
 
-      // Add text fields
+      // Add basic information
       formData.append("fullName", editedData.fullName || "");
       formData.append("email", editedData.email || "");
       formData.append("phone", editedData.phone || "");
       formData.append("bio", editedData.bio || "");
       formData.append("ratePerHour", editedData.ratePerHour?.toString() || "0");
 
-      // Handle sports if needed
+      // Handle sports
       if (editedData.sportIds && editedData.sportIds.length > 0) {
         editedData.sportIds.forEach((sportId) => {
           formData.append("listSport", sportId);
@@ -166,20 +259,97 @@ export default function CoachProfile() {
         formData.append("newAvatar", avatarFile);
       }
 
-      // Keep existing image URLs if any
-      if (editedData.imageUrls && editedData.imageUrls.length > 0) {
-        editedData.imageUrls.forEach((url) => {
+      // Add new gallery images
+      if (galleryFiles.length > 0) {
+        galleryFiles.forEach((file, index) => {
+          formData.append(`newImages`, file);
+        });
+      }
+
+      // Add existing images that should be kept
+      const existingImages = previewImages
+        .filter((img) => img.isExisting)
+        .map((img) => img.originalUrl);
+
+      if (existingImages.length > 0) {
+        existingImages.forEach((url) => {
           formData.append("existingImageUrls", url);
         });
       }
 
+      // Add images to delete
+      if (imagesToDelete.length > 0) {
+        imagesToDelete.forEach((url) => {
+          formData.append("imagesToDelete", url);
+        });
+      }
+
       await coachClient.updateMyProfile(formData);
-      setCoachData(editedData);
+
+      // Update the coach data with the edited data
+      setCoachData({
+        ...editedData,
+        imageUrls: [
+          // Keep existing images that weren't deleted
+          ...existingImages,
+          // We'll need to fetch the new URLs from the server in a real app
+          // For now, we'll just use the local URLs
+          ...previewImages.filter((img) => img.isNew).map((img) => img.url),
+        ],
+      });
+
+      // Reset edit state
       setIsEditing(false);
+      setGalleryFiles([]);
+      setImagesToDelete([]);
+      setAvatarFile(null);
+
       toast.success("Thông tin đã được cập nhật thành công!");
+
+      // In a real app, we should refetch the coach data to get the new URLs for uploaded images
+      const refreshedData = await coachClient.getMyCoachProfile();
+      setCoachData(refreshedData);
+      setEditedData(refreshedData);
+      setPreviewImages(
+        refreshedData.imageUrls?.map((url) => ({
+          uid: `existing-${Math.random().toString(36).substring(2, 9)}`,
+          name: url.split("/").pop(),
+          status: "done",
+          url: url,
+          isExisting: true,
+          originalUrl: url,
+        })) || []
+      );
     } catch (error) {
       console.error(error);
       toast.error("Không thể cập nhật thông tin. Vui lòng thử lại sau.");
+    } finally {
+      setProfileUpdating(false);
+    }
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditedData(coachData);
+    setIsEditing(false);
+    setAvatarFile(null);
+    setGalleryFiles([]);
+    setImagesToDelete([]);
+
+    // Reset preview images to original state
+    if (coachData.imageUrls && coachData.imageUrls.length > 0) {
+      setPreviewImages(
+        coachData.imageUrls.map((url) => ({
+          uid: `existing-${Math.random().toString(36).substring(2, 9)}`,
+          name: url.split("/").pop(),
+          status: "done",
+          url: url,
+          isExisting: true,
+          originalUrl: url,
+        }))
+      );
+    } else {
+      setPreviewImages([]);
     }
   };
 
@@ -191,6 +361,7 @@ export default function CoachProfile() {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
+          className="text-center"
         >
           <CircularProgress size={60} className="text-indigo-600" />
           <Typography variant="h6" className="mt-4 text-gray-700">
@@ -204,7 +375,6 @@ export default function CoachProfile() {
   return (
     <Box className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-8 px-4 sm:px-6">
       <Toaster position="top-right" />
-
       {/* Header with back button */}
       <motion.div
         initial={{ y: -20, opacity: 0 }}
@@ -227,7 +397,6 @@ export default function CoachProfile() {
           Quay lại
         </Button>
       </motion.div>
-
       <Box className="max-w-7xl mx-auto">
         {/* Profile main card */}
         <motion.div
@@ -291,6 +460,7 @@ export default function CoachProfile() {
                             type="file"
                             hidden
                             onChange={handleAvatarChange}
+                            accept="image/*"
                           />
                           <Icon
                             icon="mdi:camera"
@@ -313,7 +483,7 @@ export default function CoachProfile() {
                     />
                   </Badge>
 
-                  <Box className="mt-4 sm:mt-0 sm:ml-6 flex-1" style={{ marginTop: "" }}>            
+                  <Box className="mt-4 sm:mt-0 sm:ml-6 flex-1">
                     {isEditing ? (
                       <TextField
                         name="fullName"
@@ -324,9 +494,8 @@ export default function CoachProfile() {
                         variant="outlined"
                         sx={{ mb: 1 }}
                         InputProps={{
-                          sx: { borderRadius: "10px", },
+                          sx: { borderRadius: "10px" },
                         }}
-                        style={{ marginTop: "" }}
                       />
                     ) : (
                       <Typography
@@ -339,18 +508,70 @@ export default function CoachProfile() {
                     )}
 
                     <Box className="flex flex-wrap items-center gap-2 mt-2">
-                      <Tag color="blue" icon={<TrophyOutlined />}>
-                        {editedData.yearsExperience || 5} năm kinh nghiệm
-                      </Tag>
-                      <Tag color="gold" icon={<StarOutlined />}>
-                        {stats.rating} sao ({stats.reviews} đánh giá)
-                      </Tag>
-                      <Tag color="green" icon={<TeamOutlined />}>
-                        {stats.clients} học viên
-                      </Tag>
-                      <Tag color="purple" icon={<CalendarOutlined />}>
-                        {stats.sessions} buổi học
-                      </Tag>
+                      {isEditing ? (
+                        <FormControl
+                          sx={{ mt: 1, width: "100%" }}
+                          variant="outlined"
+                          size="small"
+                        >
+                          <InputLabel
+                            id="sports-select-label"
+                            sx={{ backgroundColor: "white", px: 1 }}
+                          >
+                            Môn thể thao
+                          </InputLabel>
+                          <Select
+                            labelId="sports-select-label"
+                            multiple
+                            value={editedData.sportIds || []}
+                            onChange={handleSportsChange}
+                            input={<OutlinedInput label="Môn thể thao" />}
+                            renderValue={(selected) => (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 0.5,
+                                }}
+                              >
+                                {selected.map((value) => (
+                                  <Chip
+                                    key={value}
+                                    label={getSportName(value)}
+                                    size="small"
+                                    sx={{
+                                      bgcolor: "rgba(79, 70, 229, 0.1)",
+                                      color: "rgb(79, 70, 229)",
+                                    }}
+                                  />
+                                ))}
+                              </Box>
+                            )}
+                          >
+                            {sportsLoading ? (
+                              <MenuItem disabled>
+                                <CircularProgress size={20} />
+                                <Typography variant="body2" sx={{ ml: 2 }}>
+                                  Đang tải dữ liệu...
+                                </Typography>
+                              </MenuItem>
+                            ) : (
+                              sports.map((sport) => (
+                                <MenuItem key={sport.id} value={sport.id}>
+                                  {sport.name}
+                                </MenuItem>
+                              ))
+                            )}
+                          </Select>
+                        </FormControl>
+                      ) : (
+                        editedData.sportIds &&
+                        editedData.sportIds.map((sportId) => (
+                          <Tag key={sportId} color="blue">
+                            {getSportName(sportId)}
+                          </Tag>
+                        ))
+                      )}
                     </Box>
                   </Box>
 
@@ -362,22 +583,25 @@ export default function CoachProfile() {
                           <IconButton
                             color="primary"
                             onClick={handleSaveChanges}
+                            disabled={profileUpdating}
                             className="hover:scale-110 transition-transform"
                             sx={{
                               bgcolor: "indigo.50",
                               boxShadow: "0 2px 10px rgba(99, 102, 241, 0.2)",
                             }}
                           >
-                            <SaveOutlined />
+                            {profileUpdating ? (
+                              <Spin size="small" />
+                            ) : (
+                              <SaveOutlined />
+                            )}
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Hủy">
                           <IconButton
                             color="error"
-                            onClick={() => {
-                              setEditedData(coachData);
-                              setIsEditing(false);
-                            }}
+                            onClick={handleCancelEdit}
+                            disabled={profileUpdating}
                             className="hover:scale-110 transition-transform"
                             sx={{ bgcolor: "red.50" }}
                           >
@@ -507,281 +731,166 @@ export default function CoachProfile() {
             </Paper>
           </motion.div>
 
-          {/* Tabs section */}
+          {/* Content section */}
           <motion.div variants={itemVariants}>
-            <Tabs
-              activeKey={activeTab}
-              onChange={setActiveTab}
-              centered
-              type="card"
-              className="bg-white rounded-xl shadow-sm mb-6"
-              tabBarStyle={{
-                margin: 0,
-                padding: "8px",
-                background: "white",
-                borderRadius: "12px",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+            <Paper
+              className="p-6 mt-6 rounded-xl"
+              sx={{
+                boxShadow: "0 5px 20px rgba(0,0,0,0.05)",
+                borderRadius: "16px",
               }}
             >
-              <TabPane
-                tab={
-                  <span className="flex items-center gap-2">
-                    <UserOutlined />
-                    Thông tin cá nhân
-                  </span>
-                }
-                key="1"
-              >
-                <Paper
-                  className="p-6 mt-6 rounded-xl"
-                  sx={{
-                    boxShadow: "0 5px 20px rgba(0,0,0,0.05)",
-                    borderRadius: "16px",
-                  }}
+              <Box className="mb-6">
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  className="text-gray-800 font-bold mb-4 flex items-center gap-2"
                 >
-                  <Box className="mb-6">
-                    <Typography
-                      variant="h6"
-                      component="h2"
-                      className="text-gray-800 font-bold mb-4 flex items-center gap-2"
-                    >
-                      <Icon
-                        icon="mdi:account-details"
-                        className="text-indigo-600"
-                        width={24}
-                      />
-                      Giới thiệu bản thân
-                    </Typography>
+                  <Icon
+                    icon="mdi:account-details"
+                    className="text-indigo-600"
+                    width={24}
+                  />
+                  Giới thiệu bản thân
+                </Typography>
 
-                    {isEditing ? (
-                      <TextField
-                        name="bio"
-                        value={editedData.bio || ""}
-                        onChange={handleInputChange}
-                        fullWidth
-                        multiline
-                        rows={4}
-                        variant="outlined"
-                        placeholder="Viết một đoạn giới thiệu về bản thân..."
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            borderRadius: "12px",
-                          },
-                        }}
-                      />
-                    ) : (
-                      <Typography
-                        variant="body1"
-                        className="text-gray-600 leading-relaxed"
+                {isEditing ? (
+                  <TextField
+                    name="bio"
+                    value={editedData.bio || ""}
+                    onChange={handleInputChange}
+                    fullWidth
+                    multiline
+                    rows={4}
+                    variant="outlined"
+                    placeholder="Viết một đoạn giới thiệu về bản thân..."
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                      },
+                    }}
+                  />
+                ) : (
+                  <Typography
+                    variant="body1"
+                    className="text-gray-600 leading-relaxed"
+                  >
+                    {coachData.bio || "Chưa có thông tin giới thiệu."}
+                  </Typography>
+                )}
+              </Box>
+
+              <Divider className="my-6" />
+
+              {/* Photo gallery section */}
+              <Box className="mb-6">
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  className="text-gray-800 font-bold mb-4 flex items-center gap-2"
+                >
+                  <Icon
+                    icon="mdi:image-multiple"
+                    className="text-indigo-600"
+                    width={24}
+                  />
+                  Thư viện ảnh
+                  {isEditing && (
+                    <Tooltip title="Thêm ảnh">
+                      <IconButton
+                        color="primary"
+                        component="label"
+                        sx={{ ml: 1 }}
                       >
-                        {coachData.bio || "Chưa có thông tin giới thiệu."}
-                      </Typography>
-                    )}
-                  </Box>
-
-                  <Divider className="my-6" />
-
-                  <Box className="mb-6">
-                    <Typography
-                      variant="h6"
-                      component="h2"
-                      className="text-gray-800 font-bold mb-4 flex items-center gap-2"
-                    >
-                      <Icon
-                        icon="mdi:certificate"
-                        className="text-indigo-600"
-                        width={24}
-                      />
-                      Chứng chỉ & Bằng cấp
-                    </Typography>
-
-                    <Box className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {(
-                        coachData.certificates || [
-                          "Certified Personal Trainer",
-                          "Nutrition Specialist",
-                        ]
-                      ).map((cert, index) => (
-                        <Box
-                          key={index}
-                          className="flex items-center gap-3 p-4 rounded-lg border border-gray-100 hover:shadow-md transition-all duration-300"
-                        >
-                          <Box className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100">
-                            <CheckCircleOutlined className="text-green-600" />
-                          </Box>
-                          <Typography
-                            variant="body2"
-                            className="text-gray-700 font-medium"
-                          >
-                            {cert}
-                          </Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </Box>
-                </Paper>
-              </TabPane>
-
-              <TabPane
-                tab={
-                  <span className="flex items-center gap-2">
-                    <Icon icon="mdi:graph" width={16} />
-                    Kỹ năng
-                  </span>
-                }
-                key="2"
-              >
-                <Paper
-                  className="p-6 mt-6 rounded-xl"
-                  sx={{
-                    boxShadow: "0 5px 20px rgba(0,0,0,0.05)",
-                    borderRadius: "16px",
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    component="h2"
-                    className="text-gray-800 font-bold mb-6 flex items-center gap-2"
-                  >
-                    <Icon
-                      icon="mdi:lightbulb"
-                      className="text-indigo-600"
-                      width={24}
-                    />
-                    Kỹ năng & Chuyên môn
-                  </Typography>
-
-                  <Box className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                    {skills.map((skill, index) => (
-                      <Box key={index} className="mb-2">
-                        <Box className="flex justify-between mb-1">
-                          <Typography
-                            variant="body2"
-                            className="font-medium text-gray-700"
-                          >
-                            {skill.name}
-                          </Typography>
-                          <Typography variant="body2" className="text-gray-500">
-                            {skill.level}%
-                          </Typography>
-                        </Box>
-                        <Progress
-                          percent={skill.level}
-                          showInfo={false}
-                          strokeColor={{
-                            "0%": "#818cf8",
-                            "100%": "#4f46e5",
-                          }}
-                          trailColor="#e2e8f0"
-                          size="small"
+                        <input
+                          type="file"
+                          hidden
+                          multiple
+                          accept="image/*"
+                          onChange={(e) => handleGalleryUpload(e.target.files)}
                         />
-                      </Box>
-                    ))}
-                  </Box>
-                </Paper>
-              </TabPane>
+                        <PlusOutlined />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Typography>
 
-              <TabPane
-                tab={
-                  <span className="flex items-center gap-2">
-                    <Icon icon="mdi:chart-bar" width={16} />
-                    Số liệu thống kê
-                  </span>
-                }
-                key="3"
-              >
-                <Paper
-                  className="p-6 mt-6 rounded-xl"
-                  sx={{
-                    boxShadow: "0 5px 20px rgba(0,0,0,0.05)",
-                    borderRadius: "16px",
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    component="h2"
-                    className="text-gray-800 font-bold mb-6 flex items-center gap-2"
-                  >
-                    <Icon
-                      icon="mdi:chart-donut"
-                      className="text-indigo-600"
-                      width={24}
-                    />
-                    Số liệu hoạt động
-                  </Typography>
-
-                  <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                    <Box className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-5 text-white hover:shadow-lg transition-shadow">
-                      <Box className="mb-2">
-                        <Icon icon="mdi:calendar-check" width={28} />
-                      </Box>
-                      <Statistic
-                        title={
-                          <span className="text-blue-100">
-                            Buổi tập đã hoàn thành
-                          </span>
-                        }
-                        value={stats.sessions}
-                        valueStyle={{ color: "white", fontSize: "28px" }}
-                      />
-                    </Box>
-
-                    <Box className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-5 text-white hover:shadow-lg transition-shadow">
-                      <Box className="mb-2">
-                        <Icon icon="mdi:account-group" width={28} />
-                      </Box>
-                      <Statistic
-                        title={
-                          <span className="text-purple-100">Học viên</span>
-                        }
-                        value={stats.clients}
-                        valueStyle={{ color: "white", fontSize: "28px" }}
-                      />
-                    </Box>
-
-                    <Box className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl p-5 text-white hover:shadow-lg transition-shadow">
-                      <Box className="mb-2">
-                        <Icon icon="mdi:star" width={28} />
-                      </Box>
-                      <Statistic
-                        title={<span className="text-amber-100">Đánh giá</span>}
-                        value={stats.reviews}
-                        valueStyle={{ color: "white", fontSize: "28px" }}
-                      />
-                    </Box>
-
-                    <Box className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl p-5 text-white hover:shadow-lg transition-shadow">
-                      <Box className="mb-2">
-                        <Icon icon="mdi:thumb-up" width={28} />
-                      </Box>
-                      <Box className="mt-1">
-                        <Typography
-                          variant="body2"
-                          className="text-emerald-100"
+                {previewImages.length > 0 ? (
+                  <Grid container spacing={2}>
+                    {previewImages.map((image) => (
+                      <Grid
+                        key={image.uid}
+                        size={{
+                          xs: 6,
+                          sm: 4,
+                          md: 3,
+                        }}
+                      >
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.3 }}
                         >
-                          Đánh giá trung bình
-                        </Typography>
-                        <Box className="flex items-center mt-1">
-                          <Typography
-                            variant="h4"
-                            component="span"
-                            className="font-bold mr-2"
+                          <Card
+                            sx={{
+                              position: "relative",
+                              borderRadius: "12px",
+                              overflow: "hidden",
+                              height: "180px",
+                            }}
+                            elevation={2}
+                            className="hover:shadow-lg transition-shadow duration-300"
                           >
-                            {stats.rating}
-                          </Typography>
-                          <Rating
-                            value={stats.rating}
-                            precision={0.5}
-                            readOnly
-                            size="small"
-                          />
-                        </Box>
-                      </Box>
-                    </Box>
+                            <CardMedia
+                              component="img"
+                              image={image.url}
+                              alt={image.name}
+                              sx={{
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                            {isEditing && (
+                              <IconButton
+                                sx={{
+                                  position: "absolute",
+                                  top: 8,
+                                  right: 8,
+                                  bgcolor: "rgba(0, 0, 0, 0.5)",
+                                  color: "white",
+                                  "&:hover": {
+                                    bgcolor: "rgba(211, 47, 47, 0.8)",
+                                  },
+                                }}
+                                size="small"
+                                onClick={() => handleRemoveGalleryImage(image)}
+                              >
+                                <DeleteOutlined />
+                              </IconButton>
+                            )}
+                          </Card>
+                        </motion.div>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  <Box className="bg-gray-50 rounded-lg p-6 text-center">
+                    <Empty
+                      image={
+                        <PictureOutlined
+                          style={{ fontSize: 64, color: "#d9d9d9" }}
+                        />
+                      }
+                      description={
+                        <Typography variant="body2" color="textSecondary">
+                          Chưa có ảnh nào trong thư viện
+                        </Typography>
+                      }
+                    />
                   </Box>
-                </Paper>
-              </TabPane>
-            </Tabs>
+                )}
+              </Box>
+            </Paper>
           </motion.div>
         </motion.div>
       </Box>
