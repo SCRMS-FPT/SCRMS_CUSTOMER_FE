@@ -366,7 +366,7 @@ const SignUpView = () => {
             </Avatar>
 
             <Title level={3} style={{ margin: "0 0 8px 0" }}>
-              Courtsite
+              Courtify
             </Title>
 
             <Title level={4} style={{ margin: "0 0 16px 0" }}>

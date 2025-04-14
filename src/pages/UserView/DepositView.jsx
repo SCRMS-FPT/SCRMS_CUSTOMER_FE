@@ -240,7 +240,7 @@ const DepositView = () => {
                 <strong>{parseFloat(amount).toLocaleString()} VND</strong>
               </Typography>
               <Typography variant="body2" gutterBottom>
-                Nội dung: <strong>Nap tien vi Courtsite</strong>
+                Nội dung: <strong>Nap tien vi Courtify</strong>
               </Typography>
             </Box>
             <CircularProgress sx={{ mt: 2 }} />

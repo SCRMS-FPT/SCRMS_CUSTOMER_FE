@@ -331,7 +331,7 @@ const LoginView = () => {
         <div className="relative bg-white p-8 rounded-lg shadow-lg max-w-md w-full z-10">
           <h2 className="text-2xl font-semibold text-center">Đăng Nhập</h2>
           <p className="text-center text-gray-500 mt-2">
-            Chưa có tài khoản Courtsite?{" "}
+            Chưa có tài khoản Courtify?{" "}
             <Link to="/signup" className="text-blue-600 font-medium">
               Đăng Ký
             </Link>
@@ -390,7 +390,7 @@ const LoginView = () => {
             Khi đăng nhập, tôi đồng ý với{" "}
             <span className="text-blue-500">Điều khoản sử dụng</span> và{" "}
             <span className="text-blue-500">Chính sách bảo mật</span> của
-            Courtsite.
+            Courtify.
           </p>
 
           <div className="flex items-center my-4">

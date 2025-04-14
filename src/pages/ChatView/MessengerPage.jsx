@@ -155,6 +155,7 @@ const UserDetailsContainer = styled(Paper)(({ theme }) => ({
 
 const SearchBar = styled(TextField)(({ theme }) => ({
   margin: theme.spacing(2),
+  marginBottom: theme.spacing(1),
   ".MuiOutlinedInput-root": {
     borderRadius: 20,
     backgroundColor: alpha(theme.palette.background.paper, 0.7),
@@ -167,6 +168,7 @@ const SearchBar = styled(TextField)(({ theme }) => ({
       boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
     },
   },
+  width: "calc(100% - 32px)", // Ensure it doesn't overflow
 }));
 
 const UsersList = styled(Box)(({ theme }) => ({
@@ -621,7 +623,7 @@ const UserListItem = ({
               fontWeight: unreadCount > 0 ? 500 : 400,
             }}
           >
-            {lastMessage?.messageText || "No messages yet"}
+            {lastMessage?.messageText || "Chưa có tin nhắn"}
           </Typography>
 
           {unreadCount > 0 && (
@@ -1311,11 +1313,11 @@ const MessengerPage = () => {
     const yesterday = today.subtract(1, "day");
 
     if (date.isSame(today, "day")) {
-      return "Today";
+      return "Hôm nay";
     } else if (date.isSame(yesterday, "day")) {
-      return "Yesterday";
+      return "Hôm qua";
     } else {
-      return date.format("MMMM D, YYYY");
+      return date.format("D MMMM, YYYY");
     }
   };
 
@@ -1348,7 +1350,7 @@ const MessengerPage = () => {
             alignItems: "center",
           }}
         >
-          <Typography variant="h6">Profile</Typography>
+          <Typography variant="h6">Hồ sơ</Typography>
 
           {isMobile && (
             <IconButton onClick={() => setUserDetailsMobileOpen(false)}>
@@ -1377,7 +1379,7 @@ const MessengerPage = () => {
           </Typography>
 
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-            <Tooltip title="Audio call">
+            <Tooltip title="Gọi thoại">
               <IconButton
                 color="primary"
                 sx={{
@@ -1393,7 +1395,7 @@ const MessengerPage = () => {
                 <PhoneOutlined />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Video call">
+            <Tooltip title="Gọi video">
               <IconButton
                 color="secondary"
                 sx={{
@@ -1524,21 +1526,21 @@ const MessengerPage = () => {
           {connectionStatus === "connecting" && (
             <>
               <SyncOutlined spin style={{ marginRight: 8 }} />
-              Connecting to chat server...
+              Đang kết nối đến máy chủ...
             </>
           )}
 
           {connectionStatus === "reconnecting" && (
             <>
               <SyncOutlined spin style={{ marginRight: 8 }} />
-              Reconnecting to chat server...
+              Đang kết nối lại...
               <Button
                 size="small"
                 variant="outlined"
                 sx={{ ml: 2, color: "white", borderColor: "white" }}
                 onClick={handleReconnect}
               >
-                Retry Now
+                Thử lại ngay
               </Button>
             </>
           )}
@@ -1546,14 +1548,14 @@ const MessengerPage = () => {
           {connectionStatus === "disconnected" && (
             <>
               <WarningOutlined style={{ marginRight: 8 }} />
-              Disconnected from chat server
+              Mất kết nối đến máy chủ
               <Button
                 size="small"
                 variant="outlined"
                 sx={{ ml: 2, color: "white", borderColor: "white" }}
                 onClick={handleReconnect}
               >
-                Reconnect
+                Kết nối lại
               </Button>
             </>
           )}
@@ -1623,7 +1625,7 @@ const MessengerPage = () => {
                     {activeUser.fullName}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {activeUser.online ? "Online" : "Last seen recently"}
+                    {activeUser.online ? "Đang trực tuyến" : "Vừa truy cập"}
                   </Typography>
                 </Box>
 
@@ -1666,7 +1668,7 @@ const MessengerPage = () => {
                         }
                       }}
                     >
-                      Retry
+                      Thử lại
                     </Button>
                   }
                 >
@@ -1681,10 +1683,10 @@ const MessengerPage = () => {
                     style={{ width: 200, height: 200 }}
                   />
                   <Typography variant="h6" gutterBottom>
-                    No messages yet
+                    Chưa có tin nhắn nào
                   </Typography>
                   <Typography variant="body2">
-                    Start the conversation by sending a message
+                    Hãy bắt đầu cuộc trò chuyện bằng cách gửi tin nhắn
                   </Typography>
                 </EmptyState>
               ) : (
@@ -1742,7 +1744,7 @@ const MessengerPage = () => {
                 >
                   <Typography variant="caption">
                     <EditOutlined style={{ marginRight: 8 }} />
-                    Editing message
+                    Đang sửa tin nhắn
                   </Typography>
                   <IconButton
                     size="small"
@@ -1772,8 +1774,8 @@ const MessengerPage = () => {
                   fullWidth
                   placeholder={
                     connectionStatus !== "connected"
-                      ? "Connecting to chat server..."
-                      : "Type a message..."
+                      ? "Đang kết nối đến máy chủ..."
+                      : "Nhập tin nhắn..."
                   }
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
@@ -1859,14 +1861,14 @@ const MessengerPage = () => {
                   onClick={() => window.location.reload()}
                   sx={{ mt: 2 }}
                 >
-                  Reload Page
+                  Tải lại trang
                 </Button>
               </>
             ) : loading.users ? (
               <>
                 <CircularProgress size={50} sx={{ mb: 3 }} />
                 <Typography variant="h6" gutterBottom>
-                  Loading your matches...
+                  Đang tải danh sách người chơi...
                 </Typography>
               </>
             ) : filteredUsers.length === 0 ? (
@@ -1875,17 +1877,17 @@ const MessengerPage = () => {
                   style={{ fontSize: 64, opacity: 0.3, marginBottom: 16 }}
                 />
                 <Typography variant="h6" gutterBottom>
-                  No matched players yet
+                  Chưa có người chơi nào được ghép
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 3 }}>
-                  Match with players to start chatting with them
+                  Hãy ghép trận với người chơi khác để bắt đầu trò chuyện
                 </Typography>
                 <Button
                   variant="contained"
                   color="primary"
                   onClick={() => navigate("/find-match")}
                 >
-                  Find Players to Match
+                  Tìm người chơi để ghép trận
                 </Button>
               </>
             ) : (
@@ -1894,10 +1896,10 @@ const MessengerPage = () => {
                   style={{ fontSize: 64, opacity: 0.3, marginBottom: 16 }}
                 />
                 <Typography variant="h6" gutterBottom>
-                  Select a conversation
+                  Chọn một cuộc trò chuyện
                 </Typography>
                 <Typography variant="body2">
-                  Choose a player to start chatting
+                  Chọn một người chơi để bắt đầu trò chuyện
                 </Typography>
 
                 {isMobile && (
@@ -1906,7 +1908,7 @@ const MessengerPage = () => {
                     sx={{ mt: 2 }}
                     onClick={() => setUsersListMobileOpen(true)}
                   >
-                    Show Matched Players
+                    Hiển thị danh sách người chơi
                   </Button>
                 )}
               </>
@@ -1949,7 +1951,7 @@ const MessengerPage = () => {
           action={
             snackbar.action && (
               <Button color="inherit" size="small" onClick={snackbar.action}>
-                Reconnect
+                Kết nối lại
               </Button>
             )
           }
@@ -1994,15 +1996,15 @@ const UsersListContent = ({
           sx={{ display: "flex", alignItems: "center" }}
         >
           <MessageOutlined style={{ marginRight: 8 }} />
-          Messages
+          Tin nhắn
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Chat with your matched players
+          Trò chuyện với người chơi đã ghép trận
         </Typography>
       </Box>
 
       <SearchBar
-        placeholder="Search players..."
+        placeholder="Tìm kiếm người chơi..."
         variant="outlined"
         fullWidth
         size="small"
@@ -2052,7 +2054,9 @@ const UsersListContent = ({
         ) : (
           <Box sx={{ p: 3, textAlign: "center", color: "text.secondary" }}>
             <Typography variant="body2">
-              {searchTerm ? "No matches found" : "No matched players yet"}
+              {searchTerm
+                ? "Không tìm thấy kết quả"
+                : "Chưa có người chơi nào được ghép"}
             </Typography>
 
             {!searchTerm && (
@@ -2062,7 +2066,7 @@ const UsersListContent = ({
                 sx={{ mt: 2 }}
                 onClick={() => navigate("/find-match")}
               >
-                Find Players
+                Tìm người chơi
               </Button>
             )}
           </Box>
