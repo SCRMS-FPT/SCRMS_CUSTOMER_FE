@@ -320,7 +320,6 @@ const UserSubscriptionsView = () => {
           Quản lý các gói dịch vụ bạn đã đăng ký và gia hạn khi cần thiết.
         </Paragraph>
       </div>
-
       {/* No subscriptions message */}
       {subscriptions.length === 0 ? (
         <Empty
@@ -347,7 +346,7 @@ const UserSubscriptionsView = () => {
         />
       ) : (
         /* Subscriptions list */
-        <motion.div
+        (<motion.div
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           variants={containerVariants}
           initial="hidden"
@@ -558,9 +557,8 @@ const UserSubscriptionsView = () => {
               );
             })}
           </AnimatePresence>
-        </motion.div>
+        </motion.div>)
       )}
-
       {/* Renewal confirmation modal */}
       <Modal
         title={
@@ -660,7 +658,6 @@ const UserSubscriptionsView = () => {
           </div>
         )}
       </Modal>
-
       {/* Custom CSS */}
       <style jsx>{`
         .subscription-container {
