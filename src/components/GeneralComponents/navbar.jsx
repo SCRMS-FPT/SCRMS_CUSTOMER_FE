@@ -4,8 +4,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/userSlice";
 import logonav from "../../assets/logonav.png";
 import defaultAvatar from "../../assets/default_avatar.jpg";
-import { Client } from "../../API/PaymentApi";
+
+import { Client as PaymentClient } from "../../API/PaymentApi";
+import { Client as NotificationClient } from "@/API/NotificationApi";
+import { formatDistanceToNow, isToday } from "date-fns";
 import { motion } from "framer-motion";
+
 // Import MUI components
 import {
   AppBar,
@@ -59,6 +63,14 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 // Scroll to top button component
 import PropTypes from "prop-types";
+import { SignalRService } from "@/hooks/signalRService";
+import { API_GATEWAY_URL } from "@/API/config";
+import { notification } from "antd";
+import {
+  addNotification,
+  fetchNavbarNotifications,
+  fetchNotifications,
+} from "@/store/notificationSlice";
 
 function ScrollTop(props) {
   const { children } = props;
@@ -163,7 +175,7 @@ const Navbar = () => {
 
     try {
       setLoadingBalance(true);
-      const apiClient = new Client();
+      const apiClient = new PaymentClient();
       const response = await apiClient.getWalletBalance();
       setWalletBalance(response);
     } catch (error) {
@@ -219,6 +231,7 @@ const Navbar = () => {
   // Notification handlers
   const handleNotificationOpen = (event) => {
     setNotificationAnchorEl(event.currentTarget);
+    // TODO: Refresh the time
   };
 
   const handleNotificationClose = () => {
@@ -239,22 +252,85 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
-  // Mock notifications data
-  const notifications = [
-    {
-      id: 1,
-      message: "Your court reservation is confirmed",
-      time: "10 mins ago",
-      isNew: true,
-    },
-    {
-      id: 2,
-      message: "New coach schedule available",
-      time: "2 hours ago",
-      isNew: true,
-    },
-    { id: 3, message: "Payment successful", time: "Yesterday", isNew: false },
-  ];
+  const playNotificationSound = () => {
+    const audio = new Audio("/sounds/notification.m4a");
+    audio.play();
+  };
+
+  // const [notifications, setNotifications] = useState([]);
+  const { navbarNotifications, unreadCount } = useSelector(
+    (state) => state.notifications
+  );
+
+  const [isNewNotification, setIsNewNotification] = useState(false);
+
+  const signalRService = new SignalRService();
+  // const notificationClient = new NotificationClient();
+  // const fetchNotifications = async () => {
+  // try {
+  // const fetchData = await notificationClient.getNotifications(
+  //   undefined,
+  //   undefined,
+  //   1,
+  //   10
+  // );
+  // setNotifications(fetchData.data);
+
+  // } catch (error) {
+  //   console.log(error);
+  // }
+  // };
+
+  const authKey = localStorage.getItem("token");
+
+  const handleReadAllNotification = async () => {
+    // try {
+    //   await notificationClient.readAllNotifications();
+    //   setNotifications((prev) => {
+    //     const updated = [...prev];
+    //     updated.forEach((n) => {
+    //       n.isRead = true;
+    //     });
+    //     return updated;
+    //   });
+    // } catch (error) {
+    //   notification.error({
+    //     description: "Không thể thực hiện hành động",
+    //     message: "Lỗi",
+    //   });
+    // }
+    // dispatch(markAllAsRead());
+  };
+
+  const handleNavigateToNotificationPage = () => {
+    handleNotificationClose();
+    navigate("/notifications");
+  };
+
+  useEffect(() => {
+    if (authKey) {
+      // fetchNotifications();
+      signalRService.startConnection(authKey).then(() => {
+        signalRService.onReceiveNotification((notification) => {
+          // setNotifications((prev) => [notification, ...prev].slice(0, 10));
+          dispatch(addNotification(notification));
+
+          playNotificationSound();
+          setIsNewNotification(true);
+          setTimeout(() => setIsNewNotification(false), 1000);
+          // console.log(`${notification.title}: ${notification.content}`);
+        });
+      });
+    }
+
+    return () => {
+      signalR.stopConnection();
+    };
+  }, [authKey]);
+
+  useEffect(() => {
+    dispatch(fetchNavbarNotifications());
+  }, [dispatch]);
 
   return (
     <>
@@ -751,6 +827,9 @@ const Navbar = () => {
                       onClick={handleNotificationOpen}
                       sx={{
                         transition: "all 0.3s",
+                        animation: isNewNotification
+                          ? "shake 0.5s ease"
+                          : "none",
                         "&:hover": {
                           backgroundColor: alpha("#2563eb", 0.08),
                         },
@@ -761,7 +840,8 @@ const Navbar = () => {
                     >
                       <Badge
                         badgeContent={
-                          notifications.filter((n) => n.isNew).length
+                          // notifications.filter((n) => !n.isRead).length
+                          unreadCount
                         }
                         color="error"
                         overlap="circular"
@@ -779,7 +859,6 @@ const Navbar = () => {
                     </IconButton>
                   </Tooltip>
 
-                  {/* Notifications Menu */}
                   <Menu
                     anchorEl={notificationAnchorEl}
                     open={Boolean(notificationAnchorEl)}
@@ -792,7 +871,8 @@ const Navbar = () => {
                         mt: 1.5,
                         width: 360,
                         maxHeight: 400,
-                        overflow: "auto",
+                        display: "flex",
+                        flexDirection: "column",
                         boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
                         "&::before": {
                           content: '""',
@@ -809,71 +889,138 @@ const Navbar = () => {
                       },
                     }}
                   >
+                    {/* Header */}
                     <Box
-                      sx={{ p: 2, borderBottom: "1px solid rgba(0,0,0,0.06)" }}
+                      sx={{
+                        p: 2,
+                        borderBottom: "1px solid rgba(0,0,0,0.06)",
+                        position: "sticky",
+                        top: 0,
+                        backgroundColor: "background.paper", // Important for sticky behavior
+                        zIndex: 1, // Ensure it's above the scrollable content
+                      }}
                     >
                       <Typography variant="subtitle1" fontWeight={600}>
                         Thông báo
                       </Typography>
                     </Box>
-                    {notifications.map((notification) => (
-                      <MenuItem
-                        key={notification.id}
-                        onClick={handleNotificationClose}
-                        sx={{
-                          py: 2,
-                          position: "relative",
-                          backgroundColor: notification.isNew
-                            ? alpha("#2563eb", 0.04)
-                            : "transparent",
-                          "&:hover": {
-                            backgroundColor: alpha("#2563eb", 0.08),
-                          },
-                        }}
-                      >
-                        <Box sx={{ width: "100%" }}>
-                          <Box
+
+                    {/* Scrollable Notification List */}
+                    <Box sx={{ flex: 1, overflowY: "auto" }}>
+                      {navbarNotifications.map((notification, index) => {
+                        const { isRead, title, content, type, createdAt } =
+                          notification;
+                        const createdAtDate = new Date(createdAt);
+
+                        const timeDisplay = isToday(createdAtDate)
+                          ? `${formatDistanceToNow(createdAtDate, {
+                              addSuffix: true,
+                            })}`
+                          : createdAtDate.toLocaleDateString(undefined, {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            });
+
+                        return (
+                          <MenuItem
+                            key={index}
+                            onClick={handleNotificationClose}
                             sx={{
-                              display: "flex",
-                              justifyContent: "space-between",
+                              py: 2,
+                              backgroundColor: !isRead
+                                ? alpha("#2563eb", 0.04)
+                                : "transparent",
+                              "&:hover": {
+                                backgroundColor: alpha("#2563eb", 0.08),
+                              },
                             }}
                           >
-                            <Typography variant="body1">
-                              {notification.message}
-                            </Typography>
-                            {notification.isNew && (
+                            <Box sx={{ width: "100%" }}>
                               <Box
                                 sx={{
-                                  width: 8,
-                                  height: 8,
-                                  borderRadius: "50%",
-                                  bgcolor: "error.main",
-                                  ml: 1,
-                                  mt: 1,
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
                                 }}
-                              />
-                            )}
-                          </Box>
-                          <Typography variant="caption" color="text.secondary">
-                            {notification.time}
-                          </Typography>
-                        </Box>
-                      </MenuItem>
-                    ))}
+                              >
+                                <Typography variant="body1">{title}</Typography>
+                                {!isRead && (
+                                  <Box
+                                    sx={{
+                                      width: 8,
+                                      height: 8,
+                                      borderRadius: "50%",
+                                      bgcolor: "error.main",
+                                      ml: 1,
+                                      mt: 1,
+                                    }}
+                                  />
+                                )}
+                              </Box>
+
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#2563eb",
+                                  fontWeight: 500,
+                                  mt: 0.3,
+                                  textTransform: "uppercase",
+                                  letterSpacing: 0.5,
+                                }}
+                              >
+                                {type}
+                              </Typography>
+
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mt: 0.5 }}
+                              >
+                                {content}
+                              </Typography>
+
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ mt: 0.5 }}
+                              >
+                                {timeDisplay}
+                              </Typography>
+                            </Box>
+                          </MenuItem>
+                        );
+                      })}
+                    </Box>
+
+                    {/* Fixed Footer */}
                     <Box
                       sx={{
                         p: 1,
                         borderTop: "1px solid rgba(0,0,0,0.06)",
-                        textAlign: "center",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: 1.5,
+                        backgroundColor: "background.paper",
+                        position: "sticky",
+                        bottom: 0,
+                        zIndex: 1,
                       }}
                     >
                       <Button
                         color="primary"
+                        variant="text"
                         size="small"
-                        onClick={handleNotificationClose}
+                        onClick={handleNavigateToNotificationPage}
                         sx={{
                           textTransform: "none",
                           fontSize: "0.85rem",
+                          padding: "6px 12px",
+                          color: "#2563eb",
+                          "&:hover": {
+                            backgroundColor: alpha("#2563eb", 0.05),
+                          },
                         }}
                       >
                         Xem tất cả thông báo

@@ -24,6 +24,7 @@ import UserCoachBookingDetailView from "../pages/UserView/UserCoachBookingDetail
 import MessengerPage from "../pages/ChatView/MessengerPage";
 import WalletWithdrawalForm from "@/pages/UserView/WalletWithdrawalForm";
 import WithdrawalsList from "@/pages/UserView/WithdrawalsList";
+import NotificationPage from "@/pages/UserView/UserNotification";
 
 const UserRoutes = [
   <Route
@@ -193,6 +194,15 @@ const UserRoutes = [
     element={
       <Layout>
         <ChangePasswordPage />
+      </Layout>
+    }
+  />,
+  <Route
+    key="notifications"
+    path="/notifications"
+    element={
+      <Layout>
+        <NotificationPage />
       </Layout>
     }
   />,
