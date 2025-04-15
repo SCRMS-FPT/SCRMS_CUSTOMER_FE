@@ -118,6 +118,51 @@ export class Client {
     return Promise.resolve<void>(null as any);
   }
 
+/**
+     * @return OK
+     */
+getUserDashboard(): Promise<UserDashboardDto> {
+  let url_ = this.baseUrl + "/api/service-packages/dashboard";
+  url_ = url_.replace(/[?&]$/, "");
+
+  let options_: RequestInit = {
+      method: "GET",
+      headers: {
+        ...this.getAuthHeaders(),
+          "Accept": "application/json"
+      }
+  };
+
+  return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processGetUserDashboard(_response);
+  });
+}
+
+protected processGetUserDashboard(response: Response): Promise<UserDashboardDto> {
+  const status = response.status;
+  let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+  if (status === 200) {
+      return response.text().then((_responseText) => {
+      let result200: any = null;
+      let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+      result200 = UserDashboardDto.fromJS(resultData200);
+      return result200;
+      });
+  } else if (status === 401) {
+      return response.text().then((_responseText) => {
+      let result401: any = null;
+      let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+      result401 = ProblemDetails.fromJS(resultData401);
+      return throwException("Unauthorized", status, _responseText, _headers, result401);
+      });
+  } else if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+      return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+      });
+  }
+  return Promise.resolve<UserDashboardDto>(null as any);
+}
+
   /**
    * @return OK
    */
@@ -1605,7 +1650,69 @@ export interface IChangePasswordRequest {
   oldPassword?: string | undefined;
   newPassword?: string | undefined;
 }
+export class ProblemDetails implements IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
 
+    [key: string]: any;
+
+    constructor(data?: IProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.type = _data["type"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+        }
+    }
+
+    static fromJS(data: any): ProblemDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProblemDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["type"] = this.type;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        return data;
+    }
+}
+
+export interface IProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+
+    [key: string]: any;
+}
 export class CreateServicePackageRequest
   implements ICreateServicePackageRequest
 {
@@ -1878,6 +1985,150 @@ export class LoginWithGoogleRequest implements ILoginWithGoogleRequest {
 
 export interface ILoginWithGoogleRequest {
   token: string | undefined;
+}
+
+export class UserDashboardDto implements IUserDashboardDto {
+  userId?: string;
+  roles?: string[] | undefined;
+  subscriptions?: UserSubscriptionInfoDto[] | undefined;
+
+  constructor(data?: IUserDashboardDto) {
+      if (data) {
+          for (var property in data) {
+              if (data.hasOwnProperty(property))
+                  (<any>this)[property] = (<any>data)[property];
+          }
+      }
+  }
+
+  init(_data?: any) {
+      if (_data) {
+          this.userId = _data["userId"];
+          if (Array.isArray(_data["roles"])) {
+              this.roles = [] as any;
+              for (let item of _data["roles"])
+                  this.roles!.push(item);
+          }
+          if (Array.isArray(_data["subscriptions"])) {
+              this.subscriptions = [] as any;
+              for (let item of _data["subscriptions"])
+                  this.subscriptions!.push(UserSubscriptionInfoDto.fromJS(item));
+          }
+      }
+  }
+
+  static fromJS(data: any): UserDashboardDto {
+      data = typeof data === 'object' ? data : {};
+      let result = new UserDashboardDto();
+      result.init(data);
+      return result;
+  }
+
+  toJSON(data?: any) {
+      data = typeof data === 'object' ? data : {};
+      data["userId"] = this.userId;
+      if (Array.isArray(this.roles)) {
+          data["roles"] = [];
+          for (let item of this.roles)
+              data["roles"].push(item);
+      }
+      if (Array.isArray(this.subscriptions)) {
+          data["subscriptions"] = [];
+          for (let item of this.subscriptions)
+              data["subscriptions"].push(item.toJSON());
+      }
+      return data;
+  }
+}
+
+export interface IUserDashboardDto {
+  userId?: string;
+  roles?: string[] | undefined;
+  subscriptions?: UserSubscriptionInfoDto[] | undefined;
+}
+
+export class UserSubscriptionInfoDto implements IUserSubscriptionInfoDto {
+  id?: string;
+  packageId?: string;
+  packageName?: string | undefined;
+  description?: string | undefined;
+  price?: number;
+  durationDays?: number;
+  associatedRole?: string | undefined;
+  startDate?: Date;
+  endDate?: Date;
+  status?: string | undefined;
+  daysRemaining?: number;
+  isExpired?: boolean;
+  createdAt?: Date;
+
+  constructor(data?: IUserSubscriptionInfoDto) {
+      if (data) {
+          for (var property in data) {
+              if (data.hasOwnProperty(property))
+                  (<any>this)[property] = (<any>data)[property];
+          }
+      }
+  }
+
+  init(_data?: any) {
+      if (_data) {
+          this.id = _data["id"];
+          this.packageId = _data["packageId"];
+          this.packageName = _data["packageName"];
+          this.description = _data["description"];
+          this.price = _data["price"];
+          this.durationDays = _data["durationDays"];
+          this.associatedRole = _data["associatedRole"];
+          this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+          this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+          this.status = _data["status"];
+          this.daysRemaining = _data["daysRemaining"];
+          this.isExpired = _data["isExpired"];
+          this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+      }
+  }
+
+  static fromJS(data: any): UserSubscriptionInfoDto {
+      data = typeof data === 'object' ? data : {};
+      let result = new UserSubscriptionInfoDto();
+      result.init(data);
+      return result;
+  }
+
+  toJSON(data?: any) {
+      data = typeof data === 'object' ? data : {};
+      data["id"] = this.id;
+      data["packageId"] = this.packageId;
+      data["packageName"] = this.packageName;
+      data["description"] = this.description;
+      data["price"] = this.price;
+      data["durationDays"] = this.durationDays;
+      data["associatedRole"] = this.associatedRole;
+      data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+      data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+      data["status"] = this.status;
+      data["daysRemaining"] = this.daysRemaining;
+      data["isExpired"] = this.isExpired;
+      data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+      return data;
+  }
+}
+
+export interface IUserSubscriptionInfoDto {
+  id?: string;
+  packageId?: string;
+  packageName?: string | undefined;
+  description?: string | undefined;
+  price?: number;
+  durationDays?: number;
+  associatedRole?: string | undefined;
+  startDate?: Date;
+  endDate?: Date;
+  status?: string | undefined;
+  daysRemaining?: number;
+  isExpired?: boolean;
+  createdAt?: Date;
 }
 
 export class RegisterWithGoogleRequest implements IRegisterWithGoogleRequest {
