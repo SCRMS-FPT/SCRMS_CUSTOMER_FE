@@ -308,25 +308,45 @@ const Navbar = () => {
   };
 
   useEffect(() => {
+    let connection = null;
+
     if (authKey) {
       // fetchNotifications();
-      signalRService.startConnection(authKey).then(() => {
-        signalRService.onReceiveNotification((notification) => {
-          // setNotifications((prev) => [notification, ...prev].slice(0, 10));
-          dispatch(addNotification(notification));
+      try {
+        signalRService.startConnection(authKey)
+          .then(() => {
+            connection = signalRService; // Save the connection reference
+            signalRService.onReceiveNotification((notification) => {
+              // setNotifications((prev) => [notification, ...prev].slice(0, 10));
+              dispatch(addNotification(notification));
 
-          playNotificationSound();
-          setIsNewNotification(true);
-          setTimeout(() => setIsNewNotification(false), 1000);
-          // console.log(`${notification.title}: ${notification.content}`);
-        });
-      });
+              playNotificationSound();
+              setIsNewNotification(true);
+              setTimeout(() => setIsNewNotification(false), 1000);
+              // console.log(`${notification.title}: ${notification.content}`);
+            });
+          })
+          .catch((error) => {
+            console.error("SignalR connection error:", error);
+            // Continue with the app even if SignalR fails to connect
+          });
+      } catch (error) {
+        console.error("SignalR initialization error:", error);
+        // Continue with the app even if SignalR fails to initialize
+      }
     }
 
     return () => {
-      signalR.stopConnection();
+      // Properly stop the connection if it was established
+      if (connection) {
+        try {
+          connection.stopConnection();
+        } catch (error) {
+          console.error("Error stopping SignalR connection:", error);
+        }
+      }
     };
-  }, [authKey]);
+  }, [authKey, dispatch]);
 
   useEffect(() => {
     dispatch(fetchNavbarNotifications());
