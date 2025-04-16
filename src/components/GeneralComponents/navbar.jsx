@@ -313,7 +313,8 @@ const Navbar = () => {
     if (authKey) {
       // fetchNotifications();
       try {
-        signalRService.startConnection(authKey)
+        signalRService
+          .startConnection(authKey)
           .then(() => {
             connection = signalRService; // Save the connection reference
             signalRService.onReceiveNotification((notification) => {

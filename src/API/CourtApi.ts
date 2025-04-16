@@ -1765,54 +1765,17 @@ protected processGetCourtOwnerDashboard(response: Response): Promise<GetCourtOwn
      * Create Sport Center
      * @return Created
      */
-    createSportCenter(model: CreateSportCenterFormModel | undefined): Promise<CreateSportCenterResponse> {
+    createSportCenter(model: FormData | undefined): Promise<CreateSportCenterResponse> {
         let url_ = this.baseUrl + "/api/sportcenters";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = new FormData();
-        if (model === null || model === undefined)
-            throw new Error("The parameter 'model' cannot be null.");
-        else {
-            // Validate required fields
-            if (!model.name) throw new Error("Name is required");
-            if (!model.phoneNumber) throw new Error("PhoneNumber is required");
-
-            // Append each field individually
-            content_.append("Name", model.name);
-            content_.append("PhoneNumber", model.phoneNumber);
-            if (model.addressLine) content_.append("AddressLine", model.addressLine);
-            if (model.city) content_.append("City", model.city);
-            if (model.district) content_.append("District", model.district);
-            if (model.commune) content_.append("Commune", model.commune);
-            if (model.latitude !== undefined) content_.append("Latitude", model.latitude.toString());
-            if (model.longitude !== undefined) content_.append("Longitude", model.longitude.toString());
-            if (model.description) content_.append("Description", model.description);
-            
-            // Handle files correctly
-            if (model.avatarImage) content_.append("AvatarImage", model.avatarImage);
-            
-            // Append each gallery image separately
-            if (model.galleryImages && model.galleryImages.length) {
-                model.galleryImages.forEach(image => {
-                    content_.append("GalleryImages", image);
-                });
-            }
-        }
-        
-        // const xsrfToken = (() => {
-        //     const match = document.cookie.match('(^|;)\\s*XSRF-TOKEN\\s*=\\s*([^;]+)');
-        //     if (!match) throw new Error("CSRF token not found");
-        //     return decodeURIComponent(match[2]);
-        // })();
-
         let options_: RequestInit = {
-            body: content_,
+            body: model,
             method: "POST",
             
             headers: {
                 ...this.getAuthHeaders(),
                 "Accept": "application/json",
-                // "X-XSRF-TOKEN": xsrfToken // ✅ Đảm bảo token luôn có giá trị
             }
         };
 
