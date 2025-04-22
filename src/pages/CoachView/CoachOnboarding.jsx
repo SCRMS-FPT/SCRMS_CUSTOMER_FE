@@ -33,6 +33,7 @@ import {
   useTheme,
   alpha,
   Avatar,
+  Alert,
 } from "@mui/material";
 import {
   Upload,
@@ -55,6 +56,10 @@ import {
   SportsBasketballOutlined,
   DirectionsRunOutlined,
   EmojiEventsOutlined,
+  InfoOutlined,
+  Close,
+  EventAvailable,
+  AccessTime,
 } from "@mui/icons-material";
 import { PlusOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
@@ -70,13 +75,13 @@ const { Option } = AntSelect;
 
 // Day options for schedule selection
 const dayOptions = [
-  { label: "Monday", value: 1 },
-  { label: "Tuesday", value: 2 },
-  { label: "Wednesday", value: 3 },
-  { label: "Thursday", value: 4 },
-  { label: "Friday", value: 5 },
-  { label: "Saturday", value: 6 },
-  { label: "Sunday", value: 7 },
+  { label: "Thứ hai", value: 1 },
+  { label: "Thứ ba", value: 2 },
+  { label: "Thứ tư", value: 3 },
+  { label: "Thứ năm", value: 4 },
+  { label: "Thứ sáu", value: 5 },
+  { label: "Thứ bảy", value: 6 },
+  { label: "Chủ nhật", value: 7 },
 ];
 
 // Define background patterns outside of the component
@@ -140,6 +145,9 @@ const CoachOnboarding = () => {
   // Progress indicator
   const progress = ((activeStep + 1) / 4) * 100;
 
+  // Add state for showing/hiding schedule notice
+  const [showScheduleNotice, setShowScheduleNotice] = useState(true);
+
   useEffect(() => {
     const fetchSports = async () => {
       try {
@@ -153,12 +161,13 @@ const CoachOnboarding = () => {
         if (response && response.sports) {
           setSports(response.sports);
         } else {
-          message.warning("No sports data available");
+          message.warning("Không có dữ liệu thể thao");
         }
       } catch (error) {
         console.error("Error fetching sports:", error);
         message.error(
-          "Failed to load sports: " + (error.message || "Unknown error")
+          "Không thể tải dữ liệu thể thao: " +
+            (error.message || "Lỗi không xác định")
         );
       } finally {
         setLoading(false);
@@ -187,7 +196,7 @@ const CoachOnboarding = () => {
       }, 500);
     } catch (error) {
       console.error("Error uploading avatar:", error);
-      message.error("Failed to upload avatar");
+      message.error("Không thể tải lên ảnh đại diện");
     }
   };
 
@@ -202,7 +211,7 @@ const CoachOnboarding = () => {
       }, 500);
     } catch (error) {
       console.error("Error uploading image:", error);
-      message.error("Failed to upload image");
+      message.error("Không thể tải lên hình ảnh");
     }
   };
 
@@ -213,13 +222,13 @@ const CoachOnboarding = () => {
       !newSchedule.startTime ||
       !newSchedule.endTime
     ) {
-      message.error("Please fill all schedule fields");
+      message.error("Vui lòng điền đầy đủ thông tin lịch trình");
       return;
     }
 
     // Validate time slots
     if (newSchedule.startTime >= newSchedule.endTime) {
-      message.error("End time must be after start time");
+      message.error("Thời gian kết thúc phải sau thời gian bắt đầu");
       return;
     }
 
@@ -238,7 +247,7 @@ const CoachOnboarding = () => {
     );
 
     if (overlapping) {
-      message.error("Schedule overlaps with existing time slot");
+      message.error("Lịch trình trùng với khoảng thời gian đã có");
       return;
     }
 
@@ -251,7 +260,7 @@ const CoachOnboarding = () => {
       endTime: "17:00:00",
     });
 
-    message.success("Schedule added");
+    message.success("Đã thêm lịch trình");
   };
 
   // Remove schedule from list
@@ -259,7 +268,7 @@ const CoachOnboarding = () => {
     const updatedSchedules = [...schedules];
     updatedSchedules.splice(index, 1);
     setSchedules(updatedSchedules);
-    message.success("Schedule removed");
+    message.success("Đã xóa lịch trình");
   };
 
   // Handle creating coach profile
@@ -274,14 +283,14 @@ const CoachOnboarding = () => {
         !coach.phone ||
         !coach.sportIds.length
       ) {
-        message.error("Please fill all required fields");
+        message.error("Vui lòng điền đầy đủ các trường bắt buộc");
         setLoading(false);
         return;
       }
 
       // Validate avatar
       if (!avatarFile) {
-        message.error("Please upload a profile photo");
+        message.error("Vui lòng tải lên ảnh đại diện");
         setLoading(false);
         return;
       }
@@ -308,11 +317,11 @@ const CoachOnboarding = () => {
       // Save the coach ID for future steps
       setCoachId(response.id);
 
-      message.success("Coach profile created successfully!");
+      message.success("Hồ sơ huấn luyện viên đã được tạo thành công!");
       handleNext();
     } catch (error) {
       console.error("Error creating coach profile:", error);
-      message.error("Failed to create coach profile: " + error.message);
+      message.error("Không thể tạo hồ sơ huấn luyện viên: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -325,7 +334,7 @@ const CoachOnboarding = () => {
 
       // Validate schedules
       if (schedules.length === 0) {
-        message.error("Please add at least one schedule");
+        message.error("Vui lòng thêm ít nhất một lịch trình");
         setLoading(false);
         return;
       }
@@ -343,11 +352,11 @@ const CoachOnboarding = () => {
         await client.createCoachSchedule(createScheduleRequest);
       }
 
-      message.success("Schedules created successfully!");
+      message.success("Lịch trình đã được tạo thành công!");
       handleNext();
     } catch (error) {
       console.error("Error creating coach schedules:", error);
-      message.error("Failed to create schedules: " + error.message);
+      message.error("Không thể tạo lịch trình: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -451,14 +460,14 @@ const CoachOnboarding = () => {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Coach Onboarding
+              Thiết Lập Hồ Sơ Huấn Luyện Viên
             </Typography>
             <Typography
               variant="h6"
               color="text.secondary"
               sx={{ fontWeight: 400 }}
             >
-              Start your coaching journey and connect with students
+              Bắt đầu hành trình huấn luyện và kết nối với học viên
             </Typography>
 
             {/* Progress indicator */}
@@ -491,7 +500,7 @@ const CoachOnboarding = () => {
               variant="body2"
               sx={{ mt: 1, color: theme.palette.text.secondary }}
             >
-              Step {activeStep + 1} of 4
+              Bước {activeStep + 1} của 4
             </Typography>
           </Box>
         </motion.div>
@@ -536,7 +545,7 @@ const CoachOnboarding = () => {
             {/* Welcome Step */}
             <Step>
               <StepLabel>
-                <StepTitle title="Welcome" />
+                <StepTitle title="Chào Mừng" />
               </StepLabel>
               <StepContent>
                 <motion.div
@@ -582,19 +591,20 @@ const CoachOnboarding = () => {
                         </Avatar>
                         <Box>
                           <Typography variant="h5" fontWeight={600}>
-                            Welcome to the Coaching Platform!
+                            Chào mừng đến với Nền tảng Huấn luyện!
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            Your journey to becoming a professional coach starts
-                            here
+                            Hành trình trở thành huấn luyện viên chuyên nghiệp
+                            bắt đầu từ đây
                           </Typography>
                         </Box>
                       </Box>
 
                       <Typography variant="body1" paragraph>
-                        Congratulations on taking the first step to becoming a
-                        coach on our platform. We're excited to have you join
-                        our community of sports educators!
+                        Chúc mừng bạn đã thực hiện bước đầu tiên để trở thành
+                        huấn luyện viên trên nền tảng của chúng tôi. Chúng tôi
+                        rất vui mừng khi bạn tham gia vào cộng đồng giáo dục thể
+                        thao!
                       </Typography>
 
                       <Box
@@ -606,7 +616,7 @@ const CoachOnboarding = () => {
                         }}
                       >
                         <Typography variant="body1" paragraph>
-                          <strong>Here's what we'll do:</strong>
+                          <strong>Những gì chúng ta sẽ làm:</strong>
                         </Typography>
                         <List sx={{ pl: 0 }}>
                           <ListItem
@@ -633,10 +643,10 @@ const CoachOnboarding = () => {
                             <ListItemText
                               primary={
                                 <Typography variant="body1" fontWeight={500}>
-                                  Create your coaching profile
+                                  Tạo hồ sơ huấn luyện của bạn
                                 </Typography>
                               }
-                              secondary="Share your expertise, experience, and coaching style"
+                              secondary="Chia sẻ chuyên môn, kinh nghiệm và phong cách huấn luyện của bạn"
                             />
                           </ListItem>
                           <ListItem
@@ -663,10 +673,10 @@ const CoachOnboarding = () => {
                             <ListItemText
                               primary={
                                 <Typography variant="body1" fontWeight={500}>
-                                  Set up your availability
+                                  Thiết lập lịch trình sẵn có của bạn
                                 </Typography>
                               }
-                              secondary="Let students know when you're available for coaching"
+                              secondary="Cho học viên biết khi nào bạn có thể huấn luyện"
                             />
                           </ListItem>
                           <ListItem
@@ -692,19 +702,19 @@ const CoachOnboarding = () => {
                             <ListItemText
                               primary={
                                 <Typography variant="body1" fontWeight={500}>
-                                  Get ready to coach
+                                  Sẵn sàng để huấn luyện
                                 </Typography>
                               }
-                              secondary="Start accepting bookings and sharing your knowledge"
+                              secondary="Bắt đầu chấp nhận đặt lịch và chia sẻ kiến thức của bạn"
                             />
                           </ListItem>
                         </List>
                       </Box>
 
                       <Typography variant="body1">
-                        This quick onboarding process will help you set up your
-                        coaching profile and availability so students can find
-                        and book sessions with you.
+                        Quy trình thiết lập nhanh chóng này sẽ giúp bạn tạo hồ
+                        sơ huấn luyện và lịch trình sẵn có để học viên có thể
+                        tìm và đặt lịch học với bạn.
                       </Typography>
                     </CardContent>
                   </Card>
@@ -727,7 +737,7 @@ const CoachOnboarding = () => {
                       }}
                       endIcon={<ArrowForwardIos />}
                     >
-                      Let's Start
+                      Bắt Đầu
                     </Button>
                   </Box>
                 </motion.div>
@@ -737,7 +747,7 @@ const CoachOnboarding = () => {
             {/* Create Profile Step */}
             <Step>
               <StepLabel>
-                <StepTitle title="Create Your Profile" />
+                <StepTitle title="Tạo Hồ Sơ Của Bạn" />
               </StepLabel>
               <StepContent>
                 <motion.div
@@ -764,10 +774,11 @@ const CoachOnboarding = () => {
                       }}
                     >
                       <Typography variant="h6" fontWeight={600}>
-                        Profile Information
+                        Thông Tin Hồ Sơ
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Tell us about yourself so students can get to know you
+                        Hãy cho chúng tôi biết về bạn để học viên có thể hiểu
+                        bạn hơn
                       </Typography>
                     </Box>
                     <CardContent sx={{ p: 3 }}>
@@ -775,8 +786,9 @@ const CoachOnboarding = () => {
                         <Grid
                           size={{
                             xs: 12,
-                            md: 6
-                          }}>
+                            md: 6,
+                          }}
+                        >
                           <motion.div
                             initial={{ y: 10, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
@@ -784,7 +796,7 @@ const CoachOnboarding = () => {
                           >
                             <TextField
                               fullWidth
-                              label="Full Name"
+                              label="Họ Và Tên"
                               variant="outlined"
                               required
                               value={coach.fullName}
@@ -810,7 +822,7 @@ const CoachOnboarding = () => {
                           >
                             <TextField
                               fullWidth
-                              label="Email Address"
+                              label="Địa Chỉ Email"
                               variant="outlined"
                               type="email"
                               required
@@ -837,7 +849,7 @@ const CoachOnboarding = () => {
                           >
                             <TextField
                               fullWidth
-                              label="Phone Number"
+                              label="Số Điện Thoại"
                               variant="outlined"
                               required
                               value={coach.phone}
@@ -874,7 +886,7 @@ const CoachOnboarding = () => {
                                 },
                               }}
                             >
-                              <InputLabel>Sports</InputLabel>
+                              <InputLabel>Môn Thể Thao</InputLabel>
                               <Select
                                 multiple
                                 required
@@ -885,7 +897,7 @@ const CoachOnboarding = () => {
                                     sportIds: e.target.value,
                                   })
                                 }
-                                label="Sports"
+                                label="Môn Thể Thao"
                                 renderValue={(selected) => (
                                   <Box
                                     sx={{
@@ -934,7 +946,7 @@ const CoachOnboarding = () => {
                           >
                             <TextField
                               fullWidth
-                              label="Hourly Rate (VND)"
+                              label="Phí Theo Giờ (VND)"
                               variant="outlined"
                               type="number"
                               required
@@ -968,8 +980,9 @@ const CoachOnboarding = () => {
                         <Grid
                           size={{
                             xs: 12,
-                            md: 6
-                          }}>
+                            md: 6,
+                          }}
+                        >
                           <motion.div
                             initial={{ y: 10, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
@@ -980,7 +993,7 @@ const CoachOnboarding = () => {
                               fontWeight={500}
                               gutterBottom
                             >
-                              Profile Photo (Required)
+                              Ảnh Đại Diện (Bắt buộc)
                             </Typography>
                             <Upload
                               listType="picture-card"
@@ -1006,7 +1019,7 @@ const CoachOnboarding = () => {
                               {!avatarFile && (
                                 <div>
                                   <PlusOutlined />
-                                  <div style={{ marginTop: 8 }}>Upload</div>
+                                  <div style={{ marginTop: 8 }}>Tải lên</div>
                                 </div>
                               )}
                             </Upload>
@@ -1023,7 +1036,7 @@ const CoachOnboarding = () => {
                               gutterBottom
                               sx={{ mt: 2 }}
                             >
-                              Gallery Images (Optional)
+                              Hình Ảnh Thư Viện (Tùy chọn)
                             </Typography>
                             <Upload
                               listType="picture-card"
@@ -1047,7 +1060,7 @@ const CoachOnboarding = () => {
                               {galleryFiles.length >= 5 ? null : (
                                 <div>
                                   <PlusOutlined />
-                                  <div style={{ marginTop: 8 }}>Upload</div>
+                                  <div style={{ marginTop: 8 }}>Tải lên</div>
                                 </div>
                               )}
                             </Upload>
@@ -1060,7 +1073,7 @@ const CoachOnboarding = () => {
                           >
                             <TextField
                               fullWidth
-                              label="Bio/Description*"
+                              label="Tiểu sử/Mô tả*"
                               variant="outlined"
                               multiline
                               rows={4}
@@ -1068,7 +1081,7 @@ const CoachOnboarding = () => {
                               onChange={(e) =>
                                 setCoach({ ...coach, bio: e.target.value })
                               }
-                              placeholder="Tell potential students about your experience, coaching style, and expertise..."
+                              placeholder="Hãy kể cho học viên tiềm năng về kinh nghiệm, phong cách huấn luyện và chuyên môn của bạn..."
                               sx={{
                                 mt: 2,
                                 "& .MuiOutlinedInput-root": {
@@ -1107,7 +1120,7 @@ const CoachOnboarding = () => {
                         },
                       }}
                     >
-                      Back
+                      Quay Lại
                     </Button>
                     <Button
                       variant="contained"
@@ -1132,7 +1145,7 @@ const CoachOnboarding = () => {
                         },
                       }}
                     >
-                      {loading ? "Creating..." : "Continue"}
+                      {loading ? "Đang Tạo..." : "Tiếp Tục"}
                     </Button>
                   </Box>
                 </motion.div>
@@ -1142,7 +1155,7 @@ const CoachOnboarding = () => {
             {/* Create Schedule Step */}
             <Step>
               <StepLabel>
-                <StepTitle title="Set Your Availability" />
+                <StepTitle title="Thiết Lập Lịch Trình" />
               </StepLabel>
               <StepContent>
                 <motion.div
@@ -1169,13 +1182,97 @@ const CoachOnboarding = () => {
                       }}
                     >
                       <Typography variant="h6" fontWeight={600}>
-                        Your Availability
+                        Lịch Trình Của Bạn
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Set when you're available to coach students
+                        Thiết lập thời gian bạn có thể huấn luyện học viên
                       </Typography>
                     </Box>
                     <CardContent sx={{ p: 3 }}>
+                      {/* Schedule Notice Alert */}
+                      {showScheduleNotice && (
+                        <motion.div
+                          initial={{ y: -10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Alert
+                            severity="info"
+                            icon={<InfoOutlined />}
+                            sx={{
+                              mb: 3,
+                              borderRadius: 2,
+                              boxShadow: `0 4px 12px ${alpha(
+                                theme.palette.info.main,
+                                0.15
+                              )}`,
+                              position: "relative",
+                              "& .MuiAlert-message": {
+                                color: theme.palette.text.primary,
+                              },
+                            }}
+                            action={
+                              <Button
+                                color="info"
+                                size="small"
+                                onClick={() => setShowScheduleNotice(false)}
+                                endIcon={<Close fontSize="small" />}
+                              >
+                                Đã hiểu
+                              </Button>
+                            }
+                          >
+                            <Typography
+                              variant="subtitle1"
+                              fontWeight={600}
+                              sx={{ mb: 0.5 }}
+                            >
+                              Lưu ý về lịch trình huấn luyện
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 1 }}>
+                              Các buổi tập mà bạn thiết lập ở đây sẽ được hiển
+                              thị cho khách hàng đặt lịch học với bạn. Mỗi khung
+                              giờ bạn tạo sẽ là thời gian bạn cam kết có thể
+                              tham gia huấn luyện hàng tuần.
+                            </Typography>
+                            <Box
+                              sx={{
+                                mt: 1,
+                                display: "flex",
+                                gap: 2,
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              <Box
+                                sx={{ display: "flex", alignItems: "center" }}
+                              >
+                                <EventAvailable
+                                  fontSize="small"
+                                  color="primary"
+                                  sx={{ mr: 0.5 }}
+                                />
+                                <Typography variant="body2">
+                                  Các buổi tập được lặp lại hàng tuần
+                                </Typography>
+                              </Box>
+                              <Box
+                                sx={{ display: "flex", alignItems: "center" }}
+                              >
+                                <AccessTime
+                                  fontSize="small"
+                                  color="primary"
+                                  sx={{ mr: 0.5 }}
+                                />
+                                <Typography variant="body2">
+                                  Học viên có thể đặt lịch trong các khung giờ
+                                  này
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Alert>
+                        </motion.div>
+                      )}
+
                       <Box
                         sx={{
                           p: 2,
@@ -1189,8 +1286,8 @@ const CoachOnboarding = () => {
                         }}
                       >
                         <Typography variant="body2" sx={{ mb: 0 }}>
-                          Add your regular weekly availability below. Students
-                          will be able to book sessions during these time slots.
+                          Thêm lịch trình hàng tuần của bạn bên dưới. Học viên
+                          sẽ có thể đặt buổi học trong các khung giờ này.
                         </Typography>
                       </Box>
 
@@ -1224,16 +1321,17 @@ const CoachOnboarding = () => {
                             fontWeight={600}
                             sx={{ mb: 2 }}
                           >
-                            Add New Schedule
+                            Thêm Buổi Tập Mới
                           </Typography>
                           <Grid container spacing={2} alignItems="center">
                             <Grid
                               size={{
                                 xs: 12,
-                                sm: 3
-                              }}>
+                                sm: 3,
+                              }}
+                            >
                               <FormControl fullWidth>
-                                <InputLabel>Day</InputLabel>
+                                <InputLabel>Thứ</InputLabel>
                                 <Select
                                   value={newSchedule.dayOfWeek}
                                   onChange={(e) =>
@@ -1242,7 +1340,7 @@ const CoachOnboarding = () => {
                                       dayOfWeek: e.target.value,
                                     })
                                   }
-                                  label="Day"
+                                  label="Thứ"
                                   sx={{
                                     "& .MuiOutlinedInput-root": {
                                       transition: "all 0.2s",
@@ -1266,11 +1364,12 @@ const CoachOnboarding = () => {
                             <Grid
                               size={{
                                 xs: 12,
-                                sm: 3
-                              }}>
+                                sm: 3,
+                              }}
+                            >
                               <TimePicker
                                 format="HH:mm"
-                                placeholder="Start Time"
+                                placeholder="Thời Gian Bắt Đầu"
                                 value={
                                   newSchedule.startTime
                                     ? dayjs(
@@ -1292,11 +1391,12 @@ const CoachOnboarding = () => {
                             <Grid
                               size={{
                                 xs: 12,
-                                sm: 3
-                              }}>
+                                sm: 3,
+                              }}
+                            >
                               <TimePicker
                                 format="HH:mm"
-                                placeholder="End Time"
+                                placeholder="Thời Gian Kết Thúc"
                                 value={
                                   newSchedule.endTime
                                     ? dayjs(`2023-01-01T${newSchedule.endTime}`)
@@ -1316,8 +1416,9 @@ const CoachOnboarding = () => {
                             <Grid
                               size={{
                                 xs: 12,
-                                sm: 3
-                              }}>
+                                sm: 3,
+                              }}
+                            >
                               <Button
                                 variant="contained"
                                 color="primary"
@@ -1337,7 +1438,7 @@ const CoachOnboarding = () => {
                                   },
                                 }}
                               >
-                                Add
+                                Thêm
                               </Button>
                             </Grid>
                           </Grid>
@@ -1351,7 +1452,7 @@ const CoachOnboarding = () => {
                         transition={{ duration: 0.3, delay: 0.2 }}
                       >
                         <Typography variant="h6" fontWeight={600} gutterBottom>
-                          Your Schedules
+                          Lịch Trình Của Bạn
                         </Typography>
 
                         {schedules.length === 0 ? (
@@ -1367,8 +1468,8 @@ const CoachOnboarding = () => {
                             }}
                           >
                             <Typography variant="body1" color="text.secondary">
-                              No schedules added yet. Add your first schedule
-                              above.
+                              Chưa có lịch trình nào. Hãy thêm lịch trình đầu
+                              tiên ở trên.
                             </Typography>
                           </Box>
                         ) : (
@@ -1395,19 +1496,19 @@ const CoachOnboarding = () => {
                                   }}
                                 >
                                   <TableCell sx={{ fontWeight: 600 }}>
-                                    Day
+                                    Thứ
                                   </TableCell>
                                   <TableCell sx={{ fontWeight: 600 }}>
-                                    Start Time
+                                    Thời Gian Bắt Đầu
                                   </TableCell>
                                   <TableCell sx={{ fontWeight: 600 }}>
-                                    End Time
+                                    Thời Gian Kết Thúc
                                   </TableCell>
                                   <TableCell
                                     align="right"
                                     sx={{ fontWeight: 600 }}
                                   >
-                                    Actions
+                                    Thao Tác
                                   </TableCell>
                                 </TableRow>
                               </TableHead>
@@ -1497,7 +1598,7 @@ const CoachOnboarding = () => {
                         transition: "all 0.2s",
                       }}
                     >
-                      Back
+                      Quay Lại
                     </Button>
                     <Button
                       variant="contained"
@@ -1522,7 +1623,7 @@ const CoachOnboarding = () => {
                         },
                       }}
                     >
-                      {loading ? "Saving..." : "Continue"}
+                      {loading ? "Đang Lưu..." : "Tiếp Tục"}
                     </Button>
                   </Box>
                 </motion.div>
@@ -1532,7 +1633,7 @@ const CoachOnboarding = () => {
             {/* Completion Step */}
             <Step>
               <StepLabel>
-                <StepTitle title="All Set!" />
+                <StepTitle title="Hoàn Thành!" />
               </StepLabel>
               <StepContent>
                 <motion.div
@@ -1596,7 +1697,7 @@ const CoachOnboarding = () => {
                               WebkitTextFillColor: "transparent",
                             }}
                           >
-                            Congratulations!
+                            Chúc Mừng!
                           </Typography>
                         </motion.div>
 
@@ -1610,7 +1711,7 @@ const CoachOnboarding = () => {
                             color="text.secondary"
                             gutterBottom
                           >
-                            Your coach profile is now complete
+                            Hồ sơ huấn luyện viên của bạn đã được hoàn tất
                           </Typography>
                         </motion.div>
 
@@ -1622,9 +1723,9 @@ const CoachOnboarding = () => {
                           transition={{ duration: 0.5, delay: 0.4 }}
                         >
                           <Typography variant="body1" paragraph>
-                            You're all set to start your coaching journey.
-                            Students can now find your profile and book sessions
-                            with you.
+                            Bạn đã sẵn sàng để bắt đầu hành trình huấn luyện của
+                            mình. Học viên giờ đây có thể tìm thấy hồ sơ của bạn
+                            và đặt lịch học với bạn.
                           </Typography>
                         </motion.div>
 
@@ -1647,7 +1748,7 @@ const CoachOnboarding = () => {
                             fontWeight={600}
                             sx={{ mb: 2 }}
                           >
-                            Your next steps:
+                            Các bước tiếp theo của bạn:
                           </Typography>
                           <List>
                             <ListItem
@@ -1675,10 +1776,10 @@ const CoachOnboarding = () => {
                               <ListItemText
                                 primary={
                                   <Typography fontWeight={500}>
-                                    Create training packages
+                                    Tạo các gói đào tạo
                                   </Typography>
                                 }
-                                secondary="Offer package deals for multiple sessions"
+                                secondary="Cung cấp các gói ưu đãi cho nhiều buổi học"
                               />
                             </ListItem>
                             <ListItem
@@ -1706,10 +1807,10 @@ const CoachOnboarding = () => {
                               <ListItemText
                                 primary={
                                   <Typography fontWeight={500}>
-                                    Add promotions
+                                    Thêm khuyến mãi
                                   </Typography>
                                 }
-                                secondary="Attract new students with promotional offers"
+                                secondary="Thu hút học viên mới với các ưu đãi khuyến mãi"
                               />
                             </ListItem>
                             <ListItem
@@ -1736,10 +1837,10 @@ const CoachOnboarding = () => {
                               <ListItemText
                                 primary={
                                   <Typography fontWeight={500}>
-                                    Manage your bookings
+                                    Quản lý lịch đặt của bạn
                                   </Typography>
                                 }
-                                secondary="Track and manage your upcoming sessions"
+                                secondary="Theo dõi và quản lý các buổi học sắp tới của bạn"
                               />
                             </ListItem>
                           </List>
@@ -1768,7 +1869,7 @@ const CoachOnboarding = () => {
                         },
                       }}
                     >
-                      Go to Dashboard
+                      Đến Trang Tổng Quan
                     </Button>
                   </Box>
                 </motion.div>

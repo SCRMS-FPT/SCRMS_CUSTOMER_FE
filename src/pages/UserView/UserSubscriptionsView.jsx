@@ -346,7 +346,7 @@ const UserSubscriptionsView = () => {
         />
       ) : (
         /* Subscriptions list */
-        (<motion.div
+        <motion.div
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           variants={containerVariants}
           initial="hidden"
@@ -557,7 +557,7 @@ const UserSubscriptionsView = () => {
               );
             })}
           </AnimatePresence>
-        </motion.div>)
+        </motion.div>
       )}
       {/* Renewal confirmation modal */}
       <Modal

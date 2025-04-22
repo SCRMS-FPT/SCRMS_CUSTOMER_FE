@@ -7,3 +7,13 @@ export const API_PAYMENT_URL = "https://localhost:7107";
 export const API_COURT_BOOKING_URL = "https://localhost:7158";
 export const API_GATEWAY_URL = "http://localhost:5002";
 export const API_COURT_URL = "https://localhost:7158";
+
+// export const API_IDENTITY_URL = "http://localhost:6001";
+// export const API_COACH_URL = "http://localhost:6004";
+// export const API_MATCHING_URL = "http://localhost:6005";
+// export const API_REVIEW_URL = "http://localhost:6008";
+// export const API_CHAT_URL = "http://localhost:6002";
+// export const API_PAYMENT_URL = "http://localhost:6007";
+// export const API_COURT_BOOKING_URL = "http://localhost:6003";
+// export const API_GATEWAY_URL = "http://localhost:5002";
+// export const API_COURT_URL = "http://localhost:6003"; // Same as COURT_BOOKING

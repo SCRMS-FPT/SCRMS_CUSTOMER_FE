@@ -22,6 +22,7 @@ import {
   Zoom,
   Divider,
   LinearProgress,
+  CircularProgress,
 } from "@mui/material";
 import {
   Spin,
@@ -47,11 +48,14 @@ import {
   AddCircleOutlined,
   PlayArrowRounded,
   DeleteOutlined,
+  InfoOutlined,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Client } from "@/API/CourtApi";
+import { LocationApi } from "@/API/LocationApi";
+import LocationPicker from "@/components/GeneralComponents/LocationPicker";
 
 const { Panel } = Collapse;
 const { Title, Text } = AntTypography;
@@ -146,6 +150,8 @@ const CourtOwnerOnboarding = () => {
     description: "",
     imageUrls: [],
     avatar: "",
+    latitude: 0,
+    longitude: 0,
   });
   const [schedules, setSchedules] = useState(defaultSchedules);
   // Add these new state variables for tracking actual files
@@ -155,6 +161,22 @@ const CourtOwnerOnboarding = () => {
   // Add state for tracking previews
   const [avatarPreview, setAvatarPreview] = useState("");
   const [galleryPreviews, setGalleryPreviews] = useState([]);
+
+  // Estados para la API de ubicaciones
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [communes, setCommunes] = useState([]);
+  const [locationLoading, setLocationLoading] = useState({
+    provinces: false,
+    districts: false,
+    communes: false,
+  });
+  const [selectedLocationIds, setSelectedLocationIds] = useState({
+    provinceId: "",
+    districtId: "",
+    communeId: "",
+  });
+
   const [court, setCourt] = useState({
     courtName: "",
     sportId: "",
@@ -202,7 +224,130 @@ const CourtOwnerOnboarding = () => {
     };
 
     fetchSports();
+
+    // Cargar provincias cuando el componente se monta
+    loadProvinces();
   }, []);
+
+  // Cargar las provincias desde la API
+  const loadProvinces = async () => {
+    try {
+      setLocationLoading((prev) => ({ ...prev, provinces: true }));
+      const provincesData = await LocationApi.getProvinces();
+      setProvinces(provincesData);
+    } catch (error) {
+      console.error("Error al cargar provincias:", error);
+      notification.error({
+        message: "Lỗi",
+        description:
+          "Không thể tải dữ liệu tỉnh/thành phố. Vui lòng thử lại sau.",
+      });
+    } finally {
+      setLocationLoading((prev) => ({ ...prev, provinces: false }));
+    }
+  };
+
+  // Cargar los distritos según la provincia seleccionada
+  const loadDistricts = async (provinceId) => {
+    if (!provinceId) {
+      setDistricts([]);
+      return;
+    }
+
+    try {
+      setLocationLoading((prev) => ({ ...prev, districts: true }));
+      const districtsData = await LocationApi.getDistricts(provinceId);
+      setDistricts(districtsData);
+    } catch (error) {
+      console.error("Error al cargar distritos:", error);
+      notification.error({
+        message: "Lỗi",
+        description: "Không thể tải dữ liệu quận/huyện. Vui lòng thử lại sau.",
+      });
+    } finally {
+      setLocationLoading((prev) => ({ ...prev, districts: false }));
+    }
+  };
+
+  // Cargar las comunas según el distrito seleccionado
+  const loadCommunes = async (districtId) => {
+    if (!districtId) {
+      setCommunes([]);
+      return;
+    }
+
+    try {
+      setLocationLoading((prev) => ({ ...prev, communes: true }));
+      const communesData = await LocationApi.getCommunes(districtId);
+      setCommunes(communesData);
+    } catch (error) {
+      console.error("Error al cargar comunas:", error);
+      notification.error({
+        message: "Lỗi",
+        description: "Không thể tải dữ liệu xã/phường. Vui lòng thử lại sau.",
+      });
+    } finally {
+      setLocationLoading((prev) => ({ ...prev, communes: false }));
+    }
+  };
+
+  // Manejar el cambio de provincia
+  const handleProvinceChange = (provinceId, provinceName) => {
+    setSelectedLocationIds((prev) => ({
+      ...prev,
+      provinceId,
+      districtId: "",
+      communeId: "",
+    }));
+
+    setSportCenter((prev) => ({
+      ...prev,
+      city: provinceName,
+      district: "",
+      commune: "",
+    }));
+
+    loadDistricts(provinceId);
+    setCommunes([]);
+  };
+
+  // Manejar el cambio de distrito
+  const handleDistrictChange = (districtId, districtName) => {
+    setSelectedLocationIds((prev) => ({
+      ...prev,
+      districtId,
+      communeId: "",
+    }));
+
+    setSportCenter((prev) => ({
+      ...prev,
+      district: districtName,
+      commune: "",
+    }));
+
+    loadCommunes(districtId);
+  };
+
+  // Manejar el cambio de comuna
+  const handleCommuneChange = (communeId, communeName) => {
+    setSelectedLocationIds((prev) => ({
+      ...prev,
+      communeId,
+    }));
+
+    setSportCenter((prev) => ({
+      ...prev,
+      commune: communeName,
+    }));
+  };
+
+  const handleLocationChange = (lat, lng) => {
+    setSportCenter((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
+    }));
+  };
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -245,7 +390,7 @@ const CourtOwnerOnboarding = () => {
       startTime: "08:00",
       endTime: "17:00",
       priceSlot: 150000,
-      name: `Schedule ${schedules.length + 1}`,
+      name: `Lịch số ${schedules.length + 1}`,
     };
     setSchedules([...schedules, newSchedule]);
   };
@@ -303,7 +448,7 @@ const CourtOwnerOnboarding = () => {
       if (galleryFiles.length >= 5) {
         notification.warning({
           message: "Vượt giới hạn tải lên",
-          description: "You can only upload up to 5 images",
+          description: "Bạn chỉ có thể tải lên tối đa 5 ảnh",
         });
         return;
       }
@@ -350,22 +495,34 @@ const CourtOwnerOnboarding = () => {
         return;
       }
 
-      // Create the model object expected by the API
-      const sportCenterModel = {
-        name: sportCenter.name,
-        phoneNumber: sportCenter.phoneNumber,
-        addressLine: sportCenter.addressLine,
-        city: sportCenter.city,
-        district: sportCenter.district,
-        commune: sportCenter.commune,
-        description: sportCenter.description,
-        // Pass the actual File objects, not the data URLs
-        avatarImage: avatarFile,
-        galleryImages: galleryFiles,
-      };
+      // Create FormData object for file uploads
+      const formData = new FormData();
+
+      // Add all the text fields
+      formData.append("name", sportCenter.name);
+      formData.append("phoneNumber", sportCenter.phoneNumber);
+      formData.append("addressLine", sportCenter.addressLine);
+      formData.append("city", sportCenter.city);
+      formData.append("district", sportCenter.district);
+      formData.append("commune", sportCenter.commune);
+      formData.append("description", sportCenter.description);
+      formData.append("latitude", sportCenter.latitude);
+      formData.append("longitude", sportCenter.longitude);
+
+      // Add avatar file if it exists
+      if (avatarFile) {
+        formData.append("avatarImage", avatarFile);
+      }
+
+      // Add gallery files if they exist
+      if (galleryFiles.length > 0) {
+        galleryFiles.forEach((file) => {
+          formData.append("galleryImages", file);
+        });
+      }
 
       const client = new Client();
-      const response = await client.createSportCenter(sportCenterModel);
+      const response = await client.createSportCenter(formData);
 
       if (response.id) {
         setSportCenterId(response.id);
@@ -440,7 +597,7 @@ const CourtOwnerOnboarding = () => {
   const addFacility = () => {
     if (!newFacility.name) {
       notification.warning({
-        message: "Validation Error",
+        message: "Lỗi xác thực",
         description: "Tên cơ sở vật chất là yêu cầu bắt buộc",
       });
       return;
@@ -734,12 +891,6 @@ const CourtOwnerOnboarding = () => {
 
             <CardContent sx={{ p: 4 }}>
               <Box sx={{ mb: 3 }}>
-                {/* <Progress
-                  percent={33}
-                  steps={3}
-                  strokeColor="#1976d2"
-                  size="small"
-                /> */}
                 <LinearProgress
                   variant="determinate"
                   value={33} // Giá trị tiến độ (0 - 100)
@@ -755,8 +906,9 @@ const CourtOwnerOnboarding = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    md: 6
-                  }}>
+                    md: 6,
+                  }}
+                >
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -833,23 +985,43 @@ const CourtOwnerOnboarding = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4, duration: 0.4 }}
                       >
-                        <TextField
-                          fullWidth
-                          label="Tỉnh/Thành phố"
-                          variant="outlined"
-                          value={sportCenter.city}
-                          onChange={(e) =>
-                            setSportCenter({
-                              ...sportCenter,
-                              city: e.target.value,
-                            })
-                          }
-                          required
-                          margin="normal"
-                          InputProps={{
-                            sx: { borderRadius: 2 },
-                          }}
-                        />
+                        <FormControl fullWidth margin="normal" required>
+                          <InputLabel id="province-label">
+                            Tỉnh/Thành phố
+                          </InputLabel>
+                          <Select
+                            labelId="province-label"
+                            value={selectedLocationIds.provinceId}
+                            label="Tỉnh/Thành phố"
+                            onChange={(e) => {
+                              const selectedProvince = provinces.find(
+                                (p) => p.id === e.target.value
+                              );
+                              if (selectedProvince) {
+                                handleProvinceChange(
+                                  selectedProvince.id,
+                                  selectedProvince.name
+                                );
+                              }
+                            }}
+                            sx={{ borderRadius: 2 }}
+                          >
+                            {locationLoading.provinces ? (
+                              <MenuItem disabled>
+                                <CircularProgress size={20} /> Đang tải dữ
+                                liệu...
+                              </MenuItem>
+                            ) : provinces.length > 0 ? (
+                              provinces.map((province) => (
+                                <MenuItem key={province.id} value={province.id}>
+                                  {province.name}
+                                </MenuItem>
+                              ))
+                            ) : (
+                              <MenuItem disabled>Không có dữ liệu</MenuItem>
+                            )}
+                          </Select>
+                        </FormControl>
                       </motion.div>
                     </Grid>
                     <Grid size={4}>
@@ -858,23 +1030,48 @@ const CourtOwnerOnboarding = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.45, duration: 0.4 }}
                       >
-                        <TextField
-                          fullWidth
-                          label="Quận/Huyện"
-                          variant="outlined"
-                          value={sportCenter.district}
-                          onChange={(e) =>
-                            setSportCenter({
-                              ...sportCenter,
-                              district: e.target.value,
-                            })
-                          }
-                          required
-                          margin="normal"
-                          InputProps={{
-                            sx: { borderRadius: 2 },
-                          }}
-                        />
+                        <FormControl fullWidth margin="normal" required>
+                          <InputLabel id="district-label">
+                            Quận/Huyện
+                          </InputLabel>
+                          <Select
+                            labelId="district-label"
+                            value={selectedLocationIds.districtId}
+                            label="Quận/Huyện"
+                            onChange={(e) => {
+                              const selectedDistrict = districts.find(
+                                (d) => d.id === e.target.value
+                              );
+                              if (selectedDistrict) {
+                                handleDistrictChange(
+                                  selectedDistrict.id,
+                                  selectedDistrict.name
+                                );
+                              }
+                            }}
+                            disabled={!selectedLocationIds.provinceId}
+                            sx={{ borderRadius: 2 }}
+                          >
+                            {locationLoading.districts ? (
+                              <MenuItem disabled>
+                                <CircularProgress size={20} /> Đang tải dữ
+                                liệu...
+                              </MenuItem>
+                            ) : districts.length > 0 ? (
+                              districts.map((district) => (
+                                <MenuItem key={district.id} value={district.id}>
+                                  {district.name}
+                                </MenuItem>
+                              ))
+                            ) : (
+                              <MenuItem disabled>
+                                {selectedLocationIds.provinceId
+                                  ? "Không có dữ liệu"
+                                  : "Vui lòng chọn Tỉnh/Thành phố trước"}
+                              </MenuItem>
+                            )}
+                          </Select>
+                        </FormControl>
                       </motion.div>
                     </Grid>
                     <Grid size={4}>
@@ -883,23 +1080,46 @@ const CourtOwnerOnboarding = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5, duration: 0.4 }}
                       >
-                        <TextField
-                          fullWidth
-                          label="Xã/Phường"
-                          variant="outlined"
-                          value={sportCenter.commune}
-                          onChange={(e) =>
-                            setSportCenter({
-                              ...sportCenter,
-                              commune: e.target.value,
-                            })
-                          }
-                          required
-                          margin="normal"
-                          InputProps={{
-                            sx: { borderRadius: 2 },
-                          }}
-                        />
+                        <FormControl fullWidth margin="normal" required>
+                          <InputLabel id="commune-label">Xã/Phường</InputLabel>
+                          <Select
+                            labelId="commune-label"
+                            value={selectedLocationIds.communeId}
+                            label="Xã/Phường"
+                            onChange={(e) => {
+                              const selectedCommune = communes.find(
+                                (c) => c.id === e.target.value
+                              );
+                              if (selectedCommune) {
+                                handleCommuneChange(
+                                  selectedCommune.id,
+                                  selectedCommune.name
+                                );
+                              }
+                            }}
+                            disabled={!selectedLocationIds.districtId}
+                            sx={{ borderRadius: 2 }}
+                          >
+                            {locationLoading.communes ? (
+                              <MenuItem disabled>
+                                <CircularProgress size={20} /> Đang tải dữ
+                                liệu...
+                              </MenuItem>
+                            ) : communes.length > 0 ? (
+                              communes.map((commune) => (
+                                <MenuItem key={commune.id} value={commune.id}>
+                                  {commune.name}
+                                </MenuItem>
+                              ))
+                            ) : (
+                              <MenuItem disabled>
+                                {selectedLocationIds.districtId
+                                  ? "Không có dữ liệu"
+                                  : "Vui lòng chọn Quận/Huyện trước"}
+                              </MenuItem>
+                            )}
+                          </Select>
+                        </FormControl>
                       </motion.div>
                     </Grid>
                   </Grid>
@@ -908,8 +1128,9 @@ const CourtOwnerOnboarding = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    md: 6
-                  }}>
+                    md: 6,
+                  }}
+                >
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1075,6 +1296,62 @@ const CourtOwnerOnboarding = () => {
                   </motion.div>
                 </Grid>
               </Grid>
+
+              <Divider sx={{ my: 3 }} />
+
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  mb: 2,
+                  borderRadius: 2,
+                  bgcolor: "rgba(25, 118, 210, 0.08)",
+                  border: "1px solid rgba(25, 118, 210, 0.2)",
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  gutterBottom
+                  fontWeight="500"
+                  color="primary.dark"
+                >
+                  <InfoOutlined sx={{ mr: 1, verticalAlign: "middle" }} />
+                  Chọn vị trí trên bản đồ
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                  Chọn chính xác vị trí của trung tâm thể thao trên bản đồ để
+                  giúp người dùng tìm kiếm dễ dàng hơn. Bạn có thể di chuyển
+                  ghim để chọn vị trí chính xác.
+                </Typography>
+              </Paper>
+
+              <Box
+                sx={{
+                  height: "400px",
+                  mb: 3,
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  border: "1px solid rgba(0,0,0,0.1)",
+                }}
+              >
+                <LocationPicker
+                  latitude={sportCenter.latitude}
+                  longitude={sportCenter.longitude}
+                  onLocationChange={handleLocationChange}
+                  address={`${sportCenter.addressLine}, ${sportCenter.district}, ${sportCenter.commune}, ${sportCenter.city}`}
+                />
+              </Box>
+
+              <input
+                type="hidden"
+                name="latitude"
+                value={sportCenter.latitude}
+              />
+              <input
+                type="hidden"
+                name="longitude"
+                value={sportCenter.longitude}
+              />
             </CardContent>
 
             <Divider />
@@ -1146,21 +1423,15 @@ const CourtOwnerOnboarding = () => {
             <Box sx={{ p: 3, bgcolor: "primary.main", color: "white" }}>
               <Typography variant="h5" fontWeight={600}>
                 <SportsTennisOutlined sx={{ mr: 1, verticalAlign: "middle" }} />
-                Court Information
+                Thông tin sân
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9, mt: 0.5 }}>
-                Set up your first court
+                Thiết lập sân đầu tiên của bạn
               </Typography>
             </Box>
 
             <CardContent sx={{ p: 4 }}>
               <Box sx={{ mb: 3 }}>
-                {/* <Progress
-                  percent={67}
-                  steps={3}
-                  strokeColor="#1976d2"
-                  size="small"
-                /> */}
                 <LinearProgress
                   variant="determinate"
                   value={67} // Giá trị tiến độ (0 - 100)
@@ -1177,8 +1448,9 @@ const CourtOwnerOnboarding = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    md: 6
-                  }}>
+                    md: 6,
+                  }}
+                >
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1284,8 +1556,9 @@ const CourtOwnerOnboarding = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    md: 6
-                  }}>
+                    md: 6,
+                  }}
+                >
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1517,8 +1790,9 @@ const CourtOwnerOnboarding = () => {
                           <Grid
                             size={{
                               xs: 12,
-                              sm: 4
-                            }}>
+                              sm: 4,
+                            }}
+                          >
                             <TextField
                               fullWidth
                               label="Thời gian bắt đầu (HH:MM)"
@@ -1538,8 +1812,9 @@ const CourtOwnerOnboarding = () => {
                           <Grid
                             size={{
                               xs: 12,
-                              sm: 4
-                            }}>
+                              sm: 4,
+                            }}
+                          >
                             <TextField
                               fullWidth
                               label="Thời giân kết thúc (HH:MM)"
@@ -1555,8 +1830,9 @@ const CourtOwnerOnboarding = () => {
                           <Grid
                             size={{
                               xs: 12,
-                              sm: 4
-                            }}>
+                              sm: 4,
+                            }}
+                          >
                             <TextField
                               fullWidth
                               label="Giá tiền theo giờ (₫)"
@@ -1663,12 +1939,6 @@ const CourtOwnerOnboarding = () => {
 
             <CardContent sx={{ p: 4, textAlign: "center" }}>
               <Box sx={{ mb: 3 }}>
-                {/* <Progress
-                  percent={100}
-                  steps={3}
-                  strokeColor="#52c41a"
-                  size="small"
-                /> */}
                 <LinearProgress
                   variant="determinate"
                   value={100} // Giá trị tiến độ (0 - 100)
@@ -1781,8 +2051,9 @@ const CourtOwnerOnboarding = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    md: 4
-                  }}>
+                    md: 4,
+                  }}
+                >
                   <motion.div
                     whileHover={{
                       y: -5,
@@ -1828,7 +2099,9 @@ const CourtOwnerOnboarding = () => {
                         <Button
                           variant="outlined"
                           sx={{ mt: 2, borderRadius: 2 }}
-                          onClick={() => navigate("/court-owner/schedule")}
+                          onClick={() =>
+                            (window.location.href = "/court-owner/schedule")
+                          }
                         >
                           Tạo lịch đặt sân
                         </Button>
@@ -1840,8 +2113,9 @@ const CourtOwnerOnboarding = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    md: 4
-                  }}>
+                    md: 4,
+                  }}
+                >
                   <motion.div
                     whileHover={{
                       y: -5,
@@ -1887,7 +2161,9 @@ const CourtOwnerOnboarding = () => {
                         <Button
                           variant="outlined"
                           sx={{ mt: 2, borderRadius: 2 }}
-                          onClick={() => navigate("/court-owner/promotions")}
+                          onClick={() =>
+                            (window.location.href = "/court-owner/promotions")
+                          }
                         >
                           Tạo gói khuyến mãi
                         </Button>
@@ -1899,8 +2175,9 @@ const CourtOwnerOnboarding = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    md: 4
-                  }}>
+                    md: 4,
+                  }}
+                >
                   <motion.div
                     whileHover={{
                       y: -5,
@@ -1946,7 +2223,10 @@ const CourtOwnerOnboarding = () => {
                         <Button
                           variant="outlined"
                           sx={{ mt: 2, borderRadius: 2 }}
-                          onClick={() => navigate("/court-owner/courts/create")}
+                          onClick={() =>
+                            (window.location.href =
+                              "/court-owner/courts/create")
+                          }
                         >
                           Tạo sân
                         </Button>

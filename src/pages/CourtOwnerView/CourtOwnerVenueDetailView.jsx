@@ -13,6 +13,9 @@ import {
   Typography,
   Image,
   Space,
+  Dropdown,
+  Menu,
+  Modal,
 } from "antd";
 import {
   LeftOutlined,
@@ -22,6 +25,10 @@ import {
   PhoneOutlined,
   TagOutlined,
   InfoCircleOutlined,
+  StopOutlined,
+  DeleteOutlined,
+  MoreOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { Client } from "@/API/CourtApi";
 
@@ -42,6 +49,9 @@ const CourtOwnerVenueDetailView = () => {
   const [courts, setCourts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteType, setDeleteType] = useState("soft"); // 'soft' or 'permanent'
 
   useEffect(() => {
     const fetchVenueData = async () => {
@@ -67,7 +77,9 @@ const CourtOwnerVenueDetailView = () => {
       } catch (err) {
         console.error("Error fetching venue data:", err);
         setError("Failed to load venue data. Please try again.");
-        message.error("Không thể tải thông tin trung tâm thể thao. Vui lòng thử lại sau!");
+        message.error(
+          "Không thể tải thông tin trung tâm thể thao. Vui lòng thử lại sau!"
+        );
       } finally {
         setLoading(false);
       }
@@ -77,6 +89,43 @@ const CourtOwnerVenueDetailView = () => {
       fetchVenueData();
     }
   }, [venueId]);
+
+  const handleDeleteVenue = async () => {
+    try {
+      setDeleteLoading(true);
+
+      let response;
+      if (deleteType === "soft") {
+        response = await client.softDeleteSportCenter(venueId);
+      } else {
+        response = await client.deleteSportCenter(venueId);
+      }
+
+      if (response && response.success) {
+        message.success(
+          deleteType === "soft"
+            ? "Đã ẩn trung tâm thể thao thành công"
+            : "Đã xóa trung tâm thể thao vĩnh viễn"
+        );
+        setDeleteModalVisible(false);
+        navigate("/court-owner/venues");
+      } else {
+        throw new Error(response?.message || "Delete operation failed");
+      }
+    } catch (error) {
+      console.error("Error deleting venue:", error);
+      message.error(
+        `Lỗi: ${error.message || "Không thể xóa trung tâm thể thao"}`
+      );
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const showDeleteConfirm = (type) => {
+    setDeleteType(type);
+    setDeleteModalVisible(true);
+  };
 
   if (loading) {
     return (
@@ -149,13 +198,29 @@ const CourtOwnerVenueDetailView = () => {
             >
               Cập nhật thông tin
             </Button>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => navigate(`/court-owner/venues/create`)}
+            <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item
+                    key="soft"
+                    onClick={() => showDeleteConfirm("soft")}
+                    icon={<StopOutlined style={{ color: "orange" }} />}
+                  >
+                    Ẩn trung tâm thể thao
+                  </Menu.Item>
+                  <Menu.Item
+                    key="permanent"
+                    onClick={() => showDeleteConfirm("permanent")}
+                    danger
+                    icon={<DeleteOutlined />}
+                  >
+                    Xóa vĩnh viễn
+                  </Menu.Item>
+                </Menu>
+              }
             >
-              Tạo mới
-            </Button>
+              <Button icon={<MoreOutlined />}>Thao tác</Button>
+            </Dropdown>
           </Space>
         </div>
       }
@@ -195,7 +260,9 @@ const CourtOwnerVenueDetailView = () => {
                   </Text>
                   <Text>
                     <PhoneOutlined style={{ marginRight: 8 }} />
-                    {venue.phoneNumber ? venue.phoneNumber : "Số điện thoại không khả dụng"}
+                    {venue.phoneNumber
+                      ? venue.phoneNumber
+                      : "Số điện thoại không khả dụng"}
                   </Text>
 
                   <div style={{ marginTop: 12 }}>
@@ -211,7 +278,9 @@ const CourtOwnerVenueDetailView = () => {
                           </Tag>
                         ))
                       ) : (
-                        <Text type="secondary">Không có môn thể thao nào khả dụng</Text>
+                        <Text type="secondary">
+                          Không có môn thể thao nào khả dụng
+                        </Text>
                       )}
                     </Space>
                   </div>
@@ -229,7 +298,9 @@ const CourtOwnerVenueDetailView = () => {
                           </Tag>
                         ))
                       ) : (
-                        <Text type="secondary">Chưa có tiện ích nào khả dụng</Text>
+                        <Text type="secondary">
+                          Chưa có tiện ích nào khả dụng
+                        </Text>
                       )}
                     </Space>
                   </div>
@@ -326,6 +397,49 @@ const CourtOwnerVenueDetailView = () => {
       </Row>
 
       <VenueCourtsList courts={courts} />
+
+      <Modal
+        title={
+          deleteType === "soft"
+            ? "Xác nhận ẩn trung tâm thể thao"
+            : "Xác nhận xóa vĩnh viễn"
+        }
+        open={deleteModalVisible}
+        onCancel={() => setDeleteModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
+            Hủy bỏ
+          </Button>,
+          <Button
+            key="delete"
+            type="primary"
+            danger
+            loading={deleteLoading}
+            onClick={handleDeleteVenue}
+          >
+            {deleteType === "soft" ? "Ẩn trung tâm thể thao" : "Xóa vĩnh viễn"}
+          </Button>,
+        ]}
+      >
+        <div>
+          <ExclamationCircleOutlined
+            style={{ color: "red", fontSize: 24, marginRight: 16 }}
+          />
+          {deleteType === "soft" ? (
+            <Text>
+              Bạn có chắc chắn muốn ẩn trung tâm thể thao này? Trung tâm thể
+              thao sẽ không hiển thị với khách hàng, nhưng bạn vẫn có thể khôi
+              phục nó sau này.
+            </Text>
+          ) : (
+            <Text type="danger">
+              <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác. Trung
+              tâm thể thao và tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn. Bạn
+              có chắc chắn muốn tiếp tục?
+            </Text>
+          )}
+        </div>
+      </Modal>
     </Card>
   );
 };

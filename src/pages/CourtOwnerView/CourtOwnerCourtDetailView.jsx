@@ -45,6 +45,9 @@ import {
   SendOutlined,
   CommentOutlined,
   ShopOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import {
   BookingCreateDTO,
@@ -207,6 +210,8 @@ const CourtOwnerCourtDetailView = () => {
   const [ownerBookingNote, setOwnerBookingNote] = useState("");
   const [submittingBooking, setSubmittingBooking] = useState(false);
   const [availableSlotsForDay, setAvailableSlotsForDay] = useState([]);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Fetch court data when component mounts
   useEffect(() => {
@@ -557,6 +562,33 @@ const CourtOwnerCourtDetailView = () => {
     }
   };
 
+  // Add function to handle court deletion
+  const handleDeleteCourt = async () => {
+    try {
+      setDeleteLoading(true);
+
+      const response = await new Client().deleteCourt(courtId);
+
+      if (response && response.isSuccess) {
+        message.success("Đã xóa sân thành công");
+        setDeleteModalVisible(false);
+        navigate("/court-owner/courts");
+      } else {
+        throw new Error(response?.message || "Delete operation failed");
+      }
+    } catch (error) {
+      console.error("Error deleting court:", error);
+      message.error(`Lỗi: ${error.message || "Không thể xóa sân"}`);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Show delete confirmation modal
+  const showDeleteConfirm = () => {
+    setDeleteModalVisible(true);
+  };
+
   // If loading, show skeleton
   if (loading) {
     return (
@@ -704,6 +736,14 @@ const CourtOwnerCourtDetailView = () => {
                 }
               >
                 Chỉnh sửa thông tin
+              </Button>
+
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                onClick={showDeleteConfirm}
+              >
+                Xóa sân
               </Button>
 
               <Button
@@ -1463,6 +1503,47 @@ const CourtOwnerCourtDetailView = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Delete confirmation modal */}
+      <AntdModal
+        title="Xác nhận xóa sân"
+        open={deleteModalVisible}
+        onCancel={() => setDeleteModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
+            Hủy bỏ
+          </Button>,
+          <Button
+            key="delete"
+            type="primary"
+            danger
+            loading={deleteLoading}
+            onClick={handleDeleteCourt}
+          >
+            Xóa sân
+          </Button>,
+        ]}
+      >
+        <div>
+          <ExclamationCircleOutlined
+            style={{ color: "red", fontSize: 24, marginRight: 16 }}
+          />
+          <Text type="danger">
+            <strong>Cảnh báo:</strong> Xóa sân sẽ xóa tất cả dữ liệu liên quan,
+            bao gồm lịch hoạt động, đánh giá và khuyến mãi. Hành động này không
+            thể hoàn tác. Bạn có chắc chắn muốn xóa sân này?
+          </Text>
+          <Paragraph style={{ marginTop: 16 }}>
+            <Text strong>Tên sân:</Text> {court.courtName}
+          </Paragraph>
+          <Paragraph>
+            <Text strong>Loại sân:</Text> {courtTypeDisplay.text}
+          </Paragraph>
+          <Paragraph>
+            <Text strong>Trạng thái hiện tại:</Text> {statusDisplay.text}
+          </Paragraph>
+        </div>
+      </AntdModal>
     </>
   );
 };

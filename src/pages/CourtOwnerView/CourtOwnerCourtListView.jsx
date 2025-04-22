@@ -111,9 +111,9 @@ const CourtOwnerCourtListView = () => {
   // Map court status to user-friendly string and color
   const getStatusTag = (statusValue) => {
     switch (statusValue) {
-      case 0:
-        return <Tag color="red">Không hoạt động</Tag>;
       case 1:
+        return <Tag color="red">Không hoạt động</Tag>;
+      case 0:
         return <Tag color="green">Hoạt động</Tag>;
       case 2:
         return <Tag color="orange">Đang bảo trì</Tag>;
@@ -222,8 +222,8 @@ const CourtOwnerCourtListView = () => {
       key: "status",
       render: (status) => getStatusTag(status),
       filters: [
-        { text: "Hoạt động", value: 1 },
-        { text: "Không hoạt động", value: 0 },
+        { text: "Hoạt động", value: 0 },
+        { text: "Không hoạt động", value: 1 },
         { text: "Đang bảo trì", value: 2 },
       ],
       onFilter: (value, record) => record.status === value,

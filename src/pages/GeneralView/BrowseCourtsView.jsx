@@ -108,6 +108,64 @@ const TIME_PRESETS = [
   },
 ];
 
+// Common facilities for filtering
+const FACILITIES = [
+  {
+    id: "locker",
+    name: "Tủ đồ",
+    icon: <Whatshot />,
+    color: "#1976d2",
+  },
+  {
+    id: "bathroom",
+    name: "Nhà tắm",
+    icon: <FitnessCenter />,
+    color: "#2e7d32",
+  },
+  {
+    id: "parking",
+    name: "Bãi đậu xe",
+    icon: <LocalOffer />,
+    color: "#ed6c02",
+  },
+  {
+    id: "spectator",
+    name: "Ghế khán giả",
+    icon: <EventAvailable />,
+    color: "#9c27b0",
+  },
+  {
+    id: "artificial_turf",
+    name: "Thảm cỏ nhân tạo",
+    icon: <SportsHandball />,
+    color: "#00796b",
+  },
+  {
+    id: "lighting",
+    name: "Đèn chiếu sáng",
+    icon: <AccessTime />,
+    color: "#d32f2f",
+  },
+  {
+    id: "cooling",
+    name: "Quạt làm mát",
+    icon: <Info />,
+    color: "#0288d1",
+  },
+  {
+    id: "wifi",
+    name: "Wifi",
+    icon: <Phone />,
+    color: "#7b1fa2",
+  },
+  {
+    id: "refreshment",
+    name: "Quầy đồ uống",
+    icon: <AttachMoney />,
+    color: "#689f38",
+  },
+];
+
 // Sport center hero banner component
 const HeroBanner = () => (
   <Box
@@ -160,111 +218,6 @@ const HeroBanner = () => (
   </Box>
 );
 
-// Featured sport center card component
-const FeaturedSportCenterCard = ({ center, onClick }) => {
-  return (
-    <Card
-      sx={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        position: "relative",
-        transition: "transform 0.25s, box-shadow 0.25s",
-        "&:hover": {
-          transform: "translateY(-8px)",
-          boxShadow: 8,
-        },
-        cursor: "pointer",
-      }}
-      onClick={() => onClick(center.id)}
-      elevation={3}
-    >
-      <Badge
-        badgeContent="Featured"
-        color="error"
-        sx={{
-          position: "absolute",
-          top: 16,
-          right: 16,
-          "& .MuiBadge-badge": {
-            fontSize: "0.8rem",
-            height: 22,
-            p: "0 8px",
-          },
-        }}
-      />
-      <CardMedia
-        component="img"
-        image={
-          center.avatar ||
-          "https://via.placeholder.com/300x200?text=Sports+Center"
-        }
-        alt={center.name}
-        sx={{
-          height: 200,
-          objectFit: "cover",
-          width: "100%",
-        }}
-      />
-      <CardContent sx={{ flexGrow: 1, pb: 1 }}>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="flex-start"
-          mb={1}
-        >
-          <Typography variant="h6" component="h2" fontWeight={600}>
-            {center.name}
-          </Typography>
-          <Box display="flex" alignItems="center">
-            <Rating value={4.5} precision={0.5} size="small" readOnly />
-            <Typography variant="body2" sx={{ ml: 0.5 }}>
-              (4.5)
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box display="flex" alignItems="center" mb={1}>
-          <LocationOn fontSize="small" color="primary" sx={{ mr: 0.5 }} />
-          <Typography variant="body2" color="text.secondary" noWrap>
-            {center.address}
-          </Typography>
-        </Box>
-
-        <Box display="flex" flexWrap="wrap" gap={0.5} mb={1}>
-          {center.sportNames?.slice(0, 3).map((sport, idx) => (
-            <Chip
-              key={idx}
-              label={sport}
-              size="small"
-              color="primary"
-              variant="outlined"
-              sx={{ height: 24 }}
-            />
-          ))}
-          {center.sportNames?.length > 3 && (
-            <Chip
-              label={`+${center.sportNames.length - 3}`}
-              size="small"
-              sx={{ height: 24 }}
-            />
-          )}
-        </Box>
-      </CardContent>
-      <Box sx={{ p: 2, pt: 0 }}>
-        <Button
-          fullWidth
-          variant="contained"
-          color="primary"
-          endIcon={<ArrowForward />}
-        >
-          Xem chi tiết
-        </Button>
-      </Box>
-    </Card>
-  );
-};
-
 const BrowseCourtsView = () => {
   // Theme for responsive design
   const theme = useTheme();
@@ -274,7 +227,6 @@ const BrowseCourtsView = () => {
   const [searchParams] = useSearchParams();
   // State management
   const [sportCenters, setSportCenters] = useState([]);
-  const [featuredCenters, setFeaturedCenters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [nameQuery, setNameQuery] = useState("");
@@ -346,14 +298,6 @@ const BrowseCourtsView = () => {
       setFiltersExpanded(true);
     }
   }, [searchParams]);
-  // Extract featured centers when data is loaded
-  useEffect(() => {
-    if (sportCenters.length > 0 && !loading) {
-      // For now, just use the first 3 centers as "featured"
-      // In a real app, this would come from the API with a featured flag
-      setFeaturedCenters(sportCenters.slice(0, 3));
-    }
-  }, [sportCenters, loading]);
 
   // Fetch cities from API
   useEffect(() => {
@@ -1173,45 +1117,6 @@ const BrowseCourtsView = () => {
               )}
             </Box>
           </Paper>
-
-          {/* Featured Sport Centers */}
-          {featuredCenters.length > 0 && !loading && (
-            <Box mb={6}>
-              <Box
-                display="flex"
-                alignItems="center"
-                mb={3}
-                sx={{
-                  borderBottom: "2px solid",
-                  borderColor: "primary.main",
-                  pb: 1,
-                }}
-              >
-                <Whatshot color="error" sx={{ mr: 1 }} />
-                <Typography variant="h5" component="h2" fontWeight={600}>
-                  Các trung tâm thể thao nổi tiếng
-                </Typography>
-              </Box>
-
-              <Grid container spacing={3}>
-                {featuredCenters.map((center) => (
-                  <Grid
-                    key={center.id}
-                    size={{
-                      xs: 12,
-                      sm: 6,
-                      md: 4,
-                    }}
-                  >
-                    <FeaturedSportCenterCard
-                      center={center}
-                      onClick={handleSportCenterClick}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          )}
 
           {/* Results Info */}
           <Box

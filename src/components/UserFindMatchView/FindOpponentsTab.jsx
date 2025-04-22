@@ -356,6 +356,8 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
   const [dragDirection, setDragDirection] = useState(null);
   const [dragAmount, setDragAmount] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1); // Add state for pagination
+  const [hasMore, setHasMore] = useState(true); // Track if more suggestions exist
 
   const identityClient = new IdentityClient();
   const courtClient = new CourtClient();
@@ -363,7 +365,8 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
   // Initial load of suggestions
   useEffect(() => {
     if (userSkills !== undefined) {
-      loadSuggestions();
+      setCurrentPage(1);
+      loadSuggestions(1, false);
     }
   }, [userSkills]);
 
@@ -383,7 +386,9 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
   }, [sports]);
 
   // Load suggestions based on filters
-  const loadSuggestions = async () => {
+  const loadSuggestions = async (page = currentPage, append = false) => {
+    if (!hasMore && append) return; // Don't fetch if we know there are no more results
+
     setLoading(true);
     try {
       // Create filter string for API - default to undefined
@@ -393,20 +398,29 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
         filterStr = JSON.stringify(selectedFilters);
       }
 
-      console.log("Applying filter:", filterStr);
+      console.log("Applying filter:", filterStr, "Page:", page);
 
-      // Get user suggestions
+      // Get user suggestions with pagination
       const suggestionResponse = await matchingClient.suggestions(
-        1,
+        page,
         10,
         filterStr
       );
 
       if (!suggestionResponse || suggestionResponse.length === 0) {
-        setSuggestions([]);
+        if (!append) {
+          setSuggestions([]);
+        }
+        setHasMore(false);
         setLoading(false);
         return;
       }
+
+      // Set hasMore based on whether we got a full page of results
+      setHasMore(suggestionResponse.length === 10);
+
+      // Update current page for next fetch
+      setCurrentPage(page + 1);
 
       // Fetch detailed information for each user
       const enhancedSuggestions = await Promise.all(
@@ -464,7 +478,12 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
 
       // Filter out any failed fetches
       const validSuggestions = enhancedSuggestions.filter((s) => s !== null);
-      setSuggestions(validSuggestions);
+
+      // Append or replace based on the append parameter
+      setSuggestions((prevSuggestions) =>
+        append ? [...prevSuggestions, ...validSuggestions] : validSuggestions
+      );
+
       console.log("Loaded suggestions:", validSuggestions);
     } catch (error) {
       console.error("Error loading suggestions:", error);
@@ -495,9 +514,16 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
         setAlertMessage(`Đã gửi yêu cầu ghép trận tới ${player.fullName}`);
       }
 
+      // Keep activeIndex at 0 since we're removing items from the array
+      // This ensures we're always showing the first card in the remaining deck
+      setActiveIndex(0);
+
       // If we're running low on suggestions, load more
-      if (updatedSuggestions.length < 3) {
-        loadSuggestions();
+      if (updatedSuggestions.length < 3 && hasMore) {
+        loadSuggestions(currentPage, true); // Load more and append
+      } else if (updatedSuggestions.length === 0) {
+        // Reset to first page if we've run out completely
+        setActiveIndex(0);
       }
     } catch (error) {
       console.error("Error processing swipe:", error);
@@ -545,9 +571,11 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
     setSelectedFilters(updatedFilters);
   };
 
-  // Apply filters
+  // Apply filters - Reset pagination when applying new filters
   const handleApplyFilters = () => {
-    loadSuggestions();
+    setCurrentPage(1);
+    setHasMore(true);
+    loadSuggestions(1, false);
     setFilterOpen(false);
   };
 
@@ -641,8 +669,9 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 5
-                    }}>
+                      sm: 5,
+                    }}
+                  >
                     <FormControl fullWidth size="small">
                       <InputLabel>Môn thể thao</InputLabel>
                       <Select
@@ -664,8 +693,9 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                   <Grid
                     size={{
                       xs: 12,
-                      sm: 5
-                    }}>
+                      sm: 5,
+                    }}
+                  >
                     <FormControl fullWidth size="small">
                       <InputLabel>Trình độ</InputLabel>
                       <Select
@@ -692,8 +722,9 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                     sx={{ display: "flex", alignItems: "center" }}
                     size={{
                       xs: 12,
-                      sm: 2
-                    }}>
+                      sm: 2,
+                    }}
+                  >
                     <IconButton
                       color="error"
                       onClick={() => handleRemoveFilter(index)}
@@ -781,9 +812,6 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                           } else {
                             handleSwipe("left", player, activeIndex);
                           }
-                          setActiveIndex((prev) =>
-                            Math.min(prev + 1, suggestions.length - 1)
-                          );
                         }
                         setDragDirection(null);
                         setDragAmount(0);
@@ -979,9 +1007,6 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                 if (suggestions.length > activeIndex) {
                   // Manually trigger swipe left
                   handleSwipe("left", suggestions[activeIndex], activeIndex);
-                  setActiveIndex((prev) =>
-                    Math.min(prev + 1, suggestions.length - 1)
-                  );
                 }
               }}
             >
@@ -994,9 +1019,6 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                 if (suggestions.length > activeIndex) {
                   // Manually trigger swipe right
                   handleSwipe("right", suggestions[activeIndex], activeIndex);
-                  setActiveIndex((prev) =>
-                    Math.min(prev + 1, suggestions.length - 1)
-                  );
                 }
               }}
             >
@@ -1062,8 +1084,9 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                   <Grid
                     size={{
                       xs: 12,
-                      md: 6
-                    }}>
+                      md: 6,
+                    }}
+                  >
                     <Typography
                       variant="subtitle1"
                       fontWeight="bold"
@@ -1149,8 +1172,9 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                   <Grid
                     size={{
                       xs: 12,
-                      md: 6
-                    }}>
+                      md: 6,
+                    }}
+                  >
                     <Typography
                       variant="subtitle1"
                       fontWeight="bold"
@@ -1223,14 +1247,16 @@ function FindOpponentsTab({ userSkills, sports, matchingClient }) {
                   startIcon={<HeartFilled />}
                   onClick={() => {
                     handleClosePreview();
-                    handleSwipe(
-                      "right",
-                      suggestions.find((p) => p.id === previewProfile.id),
-                      activeIndex
+                    const playerIndex = suggestions.findIndex(
+                      (p) => p.id === previewProfile.id
                     );
-                    setActiveIndex((prev) =>
-                      Math.min(prev + 1, suggestions.length - 1)
-                    );
+                    if (playerIndex !== -1) {
+                      handleSwipe(
+                        "right",
+                        suggestions[playerIndex],
+                        playerIndex
+                      );
+                    }
                   }}
                   sx={{
                     borderRadius: "20px",

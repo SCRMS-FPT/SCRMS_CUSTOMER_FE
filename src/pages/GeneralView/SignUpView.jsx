@@ -44,7 +44,7 @@ dayjs.locale("vi");
 const GOOGLE_CLIENT_ID =
   "698950573891-c4q4ig6r5pm95tj2tro79j4ktnsbh7fj.apps.googleusercontent.com";
 
-const client = new Client(API_GATEWAY_URL, null);
+const client = new Client();
 
 const SignUpView = () => {
   const [form] = Form.useForm();

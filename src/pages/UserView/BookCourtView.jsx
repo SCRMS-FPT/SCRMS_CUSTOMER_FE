@@ -72,7 +72,7 @@ const paymentClient = new PaymentClient();
 
 // Helper function to format date
 const formatDate = (date) => {
-  return dayjs(date).format("MMMM D, YYYY");
+  return dayjs(date).format("DD/MM/YYYY");
 };
 
 // Format address
@@ -129,15 +129,15 @@ const BookCourtView = () => {
   const [current, setCurrent] = useState(0);
   const steps = [
     {
-      title: "Select Time",
+      title: "Chọn thời gian",
       icon: <CalendarOutlined />,
     },
     {
-      title: "Your Info",
+      title: "Thông tin của bạn",
       icon: <UserOutlined />,
     },
     {
-      title: "Payment",
+      title: "Thanh toán",
       icon: <CreditCardOutlined />,
     },
   ];
@@ -181,7 +181,7 @@ const BookCourtView = () => {
         }
       } catch (error) {
         console.error("Error fetching court reviews:", error);
-        setReviewsError("Failed to load reviews. Please try again later.");
+        setReviewsError("Không thể tải đánh giá. Vui lòng thử lại sau.");
         setCourtReviews([]);
         setReviewsTotalCount(0);
         setAverageRating(0);
@@ -583,7 +583,7 @@ const BookCourtView = () => {
       try {
         // Show loading first
         message.loading({
-          content: "Checking wallet balance...",
+          content: "Đang kiểm tra số dư ví...",
           key: "walletCheck",
         });
 
@@ -601,7 +601,7 @@ const BookCourtView = () => {
         if (balanceData.balance < minimumDeposit) {
           // Not enough for deposit - show modal
           message.error({
-            content: "Insufficient funds in your wallet for the deposit",
+            content: "Số dư ví không đủ. Vui lòng nạp thêm tiền.",
             key: "walletCheck",
           });
 
@@ -630,13 +630,13 @@ const BookCourtView = () => {
 
         // Enough for deposit - proceed to step 3
         message.success({
-          content: "Wallet check successful",
+          content: "Kiểm tra ví thành công",
           key: "walletCheck",
         });
         setCurrent(current + 1);
       } catch (error) {
         message.error({
-          content: "Error checking wallet balance. Please try again.",
+          content: "Lỗi khi kiểm tra số dư ví.",
           key: "walletCheck",
         });
         console.error("Error in wallet balance check:", error);
@@ -653,14 +653,14 @@ const BookCourtView = () => {
   // Handle booking submission
   const handleBooking = async () => {
     if (Object.keys(selectedTimeSlots).length === 0) {
-      message.error("Please select at least one time slot");
+      message.error("Vui lòng chọn ít nhất một khung giờ");
       return;
     }
 
     try {
       // Show loading
       message.loading({
-        content: "Processing your booking...",
+        content: "Đang xử lý đặt sân...",
         key: "bookingMessage",
       });
 
@@ -673,8 +673,7 @@ const BookCourtView = () => {
 
       if (balanceData.balance < paymentAmount) {
         message.error({
-          content:
-            "Insufficient wallet balance. Please top up your wallet first.",
+          content: "Số dư ví không đủ. Vui lòng nạp thêm tiền.",
           key: "bookingMessage",
         });
         return;
@@ -735,9 +734,9 @@ const BookCourtView = () => {
         // Process payment
         const paymentRequest = new ProcessPaymentRequest({
           amount: paymentAmount,
-          description: `Court booking at ${
+          description: `Đặt sân tại ${
             sportCenter?.name
-          } on ${selectedDate.format("YYYY-MM-DD")}`,
+          } vào ngày ${selectedDate.format("YYYY-MM-DD")}`,
           paymentType: "CourtBooking",
           referenceId: bookingResponse.id,
           bookingId: bookingResponse.id,
@@ -750,7 +749,7 @@ const BookCourtView = () => {
 
         // Show success message
         message.success({
-          content: "Booking successful! Your court is now reserved.",
+          content: "Đặt sân thành công! Sân của bạn đã được giữ chỗ.",
           key: "bookingMessage",
           duration: 5,
         });
@@ -759,14 +758,14 @@ const BookCourtView = () => {
         navigate("/user/bookings", { replace: true });
       } else {
         message.error({
-          content: "Failed to create booking. Please try again.",
+          content: "Lỗi khi xử lý đặt sân.",
           key: "bookingMessage",
         });
       }
     } catch (error) {
       console.error("Error processing booking:", error);
       message.error({
-        content: "An error occurred while processing your booking.",
+        content: "Đã xảy ra lỗi khi xử lý đặt sân.",
         key: "bookingMessage",
       });
     }
@@ -776,13 +775,13 @@ const BookCourtView = () => {
   const formatCourtType = (type) => {
     switch (type) {
       case 1:
-        return "Indoor";
+        return "Trong nhà";
       case 2:
-        return "Outdoor";
+        return "Ngoài trời";
       case 3:
-        return "Hybrid";
+        return "Kết hợp";
       default:
-        return "Standard";
+        return "Tiêu chuẩn";
     }
   };
 
@@ -790,13 +789,13 @@ const BookCourtView = () => {
   const getCourtStatusBadge = (status) => {
     switch (status) {
       case 0:
-        return <Badge status="success" text="Available" />;
+        return <Badge status="success" text="Khả dụng" />;
       case 1:
-        return <Badge status="warning" text="Busy" />;
+        return <Badge status="warning" text="Bận" />;
       case 2:
-        return <Badge status="error" text="Maintenance" />;
+        return <Badge status="error" text="Bảo trì" />;
       default:
-        return <Badge status="default" text="Unknown" />;
+        return <Badge status="default" text="Không xác định" />;
     }
   };
 
@@ -823,10 +822,10 @@ const BookCourtView = () => {
       >
         <div className="flex items-center justify-between mb-3">
           <Text strong className="text-gray-700">
-            Rating Summary
+            Tóm tắt đánh giá
           </Text>
           <Badge
-            count={`${courtReviews.length} reviews`}
+            count={`${courtReviews.length} đánh giá`}
             style={{ backgroundColor: "#1890ff" }}
           />
         </div>
@@ -898,7 +897,7 @@ const BookCourtView = () => {
               }}
             />
             <Title level={5} style={{ margin: 0 }}>
-              Court Reviews
+              Đánh giá sân
             </Title>
           </div>
 
@@ -965,15 +964,15 @@ const BookCourtView = () => {
                         <div className="flex justify-between">
                           <div>
                             <Text strong className="text-gray-800">
-                              {review.userName || "Anonymous User"}
+                              {review.userName || "Người dùng ẩn danh"}
                             </Text>
                             <div className="text-xs text-gray-500 mt-1">
                               {review.createdAt
                                 ? format(
                                     new Date(review.createdAt),
-                                    "MMM dd, yyyy"
+                                    "dd/MM/yyyy"
                                   )
-                                : "No date"}
+                                : "Không có ngày"}
                             </div>
                           </div>
                           <div>
@@ -998,7 +997,7 @@ const BookCourtView = () => {
                           <div className="mt-4 bg-blue-50 p-3 rounded-md border-l-4 border-blue-400">
                             <div className="flex items-center text-blue-700 font-medium text-sm">
                               <MessageOutlined className="mr-2" />
-                              Response from management
+                              Phản hồi từ quản lý
                             </div>
                             <div className="mt-2 text-sm text-gray-600">
                               {review.reply}
@@ -1028,10 +1027,10 @@ const BookCourtView = () => {
           >
             <StarOutlined style={{ fontSize: "24px", color: "#bfbfbf" }} />
             <div className="mt-3 text-gray-500">
-              No reviews for this court yet
+              Chưa có đánh giá nào cho sân này
             </div>
             <div className="mt-1 text-xs text-gray-400">
-              Be the first to share your experience!
+              Hãy là người đầu tiên chia sẻ trải nghiệm!
             </div>
           </motion.div>
         )}
@@ -1068,7 +1067,7 @@ const BookCourtView = () => {
             style={{ padding: "50px", textAlign: "center" }}
           >
             <div style={{ marginTop: "20px" }}>
-              Loading sport center details...
+              Đang tải thông tin trung tâm thể thao...
             </div>
           </div>
         </Spin>
@@ -1080,7 +1079,7 @@ const BookCourtView = () => {
     return (
       <Result
         status="error"
-        title="Failed to Load"
+        title="Không thể tải"
         subTitle={error}
         extra={[
           <Button
@@ -1089,7 +1088,7 @@ const BookCourtView = () => {
             onClick={() => navigate(-1)}
             icon={<ArrowLeftOutlined />}
           >
-            Go Back
+            Quay lại
           </Button>,
         ]}
       />
@@ -1114,12 +1113,12 @@ const BookCourtView = () => {
                   onClick={() => navigate(-1)}
                   style={{ marginRight: 16 }}
                 >
-                  Back
+                  Quay lại
                 </Button>
                 <Title level={3} style={{ margin: 0 }}>
                   {location.state?.courtName
-                    ? `Book ${location.state.courtName} at ${sportCenter?.name}`
-                    : `Book a Court at ${sportCenter?.name}`}
+                    ? `Đặt ${location.state.courtName} tại ${sportCenter?.name}`
+                    : `Đặt sân tại ${sportCenter?.name}`}
                 </Title>
               </div>
             </Card>
@@ -1151,7 +1150,7 @@ const BookCourtView = () => {
                 title={
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <CalendarOutlined style={{ marginRight: 8 }} />
-                    <span>Select Date & Time</span>
+                    <span>Chọn ngày và giờ</span>
                   </div>
                 }
                 variant={false}
@@ -1159,35 +1158,36 @@ const BookCourtView = () => {
               >
                 {/* Date Selection */}
                 <div style={{ marginBottom: 24 }}>
-                  <Title level={5}>Select Date</Title>
+                  <Title level={5}>Chọn ngày</Title>
                   <DatePicker
                     value={selectedDate}
                     onChange={(date) =>
                       date ? setSelectedDate(date) : setSelectedDate(dayjs())
                     }
                     style={{ width: "100%" }}
-                    format="YYYY-MM-DD"
+                    format="DD/MM/YYYY"
                     disabledDate={(current) => {
                       // Can't select days before today
                       return current && current < dayjs().startOf("day");
                     }}
                     size="large"
+                    placeholder="Chọn ngày đặt sân"
                   />
                 </div>
 
                 {/* Court Selection with Promotions - Updated for multiple selection */}
                 <div id="court-selection-area" style={{ marginBottom: 24 }}>
-                  <Title level={5}>Select Courts</Title>
+                  <Title level={5}>Chọn sân</Title>
                   <Text
                     type="secondary"
                     style={{ marginBottom: 12, display: "block" }}
                   >
                     <InfoCircleOutlined style={{ marginRight: 8 }} />
-                    You can select multiple courts for booking
+                    Bạn có thể chọn nhiều sân để đặt
                   </Text>
 
                   {courts.length === 0 ? (
-                    <Empty description="No courts available" />
+                    <Empty description="Không có sân khả dụng" />
                   ) : (
                     <Row gutter={[16, 16]}>
                       {courts.map((court) => {
@@ -1211,8 +1211,8 @@ const BookCourtView = () => {
                                     }}
                                   >
                                     {promotion.discountType === "Percentage"
-                                      ? `SALE ${promotion.discountValue}%`
-                                      : `SAVE ${new Intl.NumberFormat(
+                                      ? `GIẢM ${promotion.discountValue}%`
+                                      : `GIẢM ${new Intl.NumberFormat(
                                           "vi-VN"
                                         ).format(promotion.discountValue)}₫`}
                                   </span>
@@ -1247,7 +1247,9 @@ const BookCourtView = () => {
                                     title={court.courtName}
                                     description={
                                       <div>
-                                        <div>{court.sportName || "Sport"}</div>
+                                        <div>
+                                          {court.sportName || "Thể thao"}
+                                        </div>
                                         {hasPromotions && (
                                           <div style={{ marginTop: 8 }}>
                                             <Tag
@@ -1305,7 +1307,7 @@ const BookCourtView = () => {
                                 <Meta
                                   title={court.courtName}
                                   description={
-                                    <div>{court.sportName || "Sport"}</div>
+                                    <div>{court.sportName || "Thể thao"}</div>
                                   }
                                 />
                                 {isSelected && (
@@ -1339,16 +1341,16 @@ const BookCourtView = () => {
 
                 {/* Time Slot Selection - Updated for multiple courts */}
                 <div style={{ marginBottom: 24 }}>
-                  <Title level={5}>Available Time Slots</Title>
+                  <Title level={5}>Khung giờ khả dụng</Title>
                   <Alert
                     message={
                       <span>
                         <InfoCircleOutlined style={{ marginRight: 8 }} />
-                        Selected Date:{" "}
+                        Ngày đã chọn:{" "}
                         {selectedDate.isSame(dayjs(), "day") && (
                           <Alert
-                            message="Booking for Today"
-                            description="Time slots that have already passed are unavailable for booking."
+                            message="Đặt sân cho hôm nay"
+                            description="Các khung giờ đã qua không khả dụng để đặt sân."
                             type="info"
                             showIcon
                             style={{ marginBottom: 16 }}
@@ -1364,7 +1366,7 @@ const BookCourtView = () => {
 
                   {selectedCourtIds.length === 0 ? (
                     <Alert
-                      message="Please select at least one court to see available time slots"
+                      message="Vui lòng chọn ít nhất một sân để xem khung giờ khả dụng"
                       type="warning"
                       showIcon
                       style={{ marginBottom: 16 }}
@@ -1374,7 +1376,7 @@ const BookCourtView = () => {
                       <div style={{ marginBottom: 16 }}>
                         <Text type="secondary">
                           <InfoCircleOutlined style={{ marginRight: 8 }} />
-                          Select multiple slots for longer booking durations
+                          Chọn nhiều khung giờ để đặt với thời lượng dài hơn
                         </Text>
                       </div>
 
@@ -1383,14 +1385,14 @@ const BookCourtView = () => {
                           <Spin size="default">
                             <div style={{ padding: "20px" }}>
                               <div style={{ marginTop: 8 }}>
-                                Loading available slots...
+                                Đang tải khung giờ khả dụng...
                               </div>
                             </div>
                           </Spin>
                         </div>
                       ) : (
                         // Show time slots for each selected court
-                        (selectedCourtIds.map((courtId) => {
+                        selectedCourtIds.map((courtId) => {
                           const court = courts.find((c) => c.id === courtId);
                           const courtSlots = availableSlotsMap[courtId] || [];
 
@@ -1403,12 +1405,12 @@ const BookCourtView = () => {
                                     fontSize: "15px",
                                   }}
                                 >
-                                  {court?.courtName || "Court"}
+                                  {court?.courtName || "Sân"}
                                 </span>
                               </Divider>
 
                               {courtSlots.length === 0 ? (
-                                <Empty description="No time slots available for this court" />
+                                <Empty description="Không có khung giờ khả dụng cho sân này" />
                               ) : (
                                 <Row gutter={[8, 8]}>
                                   {courtSlots.map((slot, index) => {
@@ -1428,9 +1430,9 @@ const BookCourtView = () => {
                                         <Tooltip
                                           title={
                                             isPastSlot
-                                              ? "This time slot has already passed"
+                                              ? "Khung giờ này đã qua"
                                               : !slot.isAvailable
-                                              ? "This time slot is not available"
+                                              ? "Khung giờ này không khả dụng"
                                               : null
                                           }
                                         >
@@ -1500,7 +1502,7 @@ const BookCourtView = () => {
                               )}
                             </div>
                           );
-                        }))
+                        })
                       )}
                     </>
                   )}
@@ -1509,7 +1511,7 @@ const BookCourtView = () => {
                     <div style={{ marginTop: 24 }}>
                       <Alert
                         type="success"
-                        message="Selected Time Slots"
+                        message="Khung giờ đã chọn"
                         description={
                           <div>
                             {Object.entries(selectedTimeSlots).map(
@@ -1566,7 +1568,7 @@ const BookCourtView = () => {
                     onClick={next}
                     disabled={Object.keys(selectedTimeSlots).length === 0}
                   >
-                    Continue
+                    Tiếp tục
                   </Button>
                 </div>
               </Card>
@@ -1578,21 +1580,20 @@ const BookCourtView = () => {
                 title={
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <InfoCircleOutlined style={{ marginRight: 8 }} />
-                    <span>Booking Summary</span>
+                    <span>Tóm tắt đặt sân</span>
                   </div>
                 }
                 variant={false}
                 className="step-card"
               >
                 <Alert
-                  message="Booking Details"
+                  message="Chi tiết đặt sân"
                   description={
                     <div>
-                      You&#39;re about to book{" "}
-                      {Object.keys(selectedTimeSlots).length} court(s) at{" "}
-                      <strong>{sportCenter?.name}</strong> on{" "}
-                      <strong>{formatDate(selectedDate)}</strong>. Total
-                      duration is{" "}
+                      Bạn sắp đặt {Object.keys(selectedTimeSlots).length} sân
+                      tại <strong>{sportCenter?.name}</strong> vào ngày{" "}
+                      <strong>{formatDate(selectedDate)}</strong>. Tổng thời
+                      gian là{" "}
                       <strong>
                         {Object.values(selectedTimeSlots).reduce(
                           (total, slots) => {
@@ -1609,7 +1610,7 @@ const BookCourtView = () => {
                           0
                         )}
                       </strong>{" "}
-                      minutes.
+                      phút.
                     </div>
                   }
                   type="info"
@@ -1629,7 +1630,7 @@ const BookCourtView = () => {
                           <CalendarOutlined
                             style={{ marginRight: 8, color: "#1890ff" }}
                           />
-                          <Text strong>Date:</Text>
+                          <Text strong>Ngày:</Text>
                         </div>
                         <div className="info-value">
                           {formatDate(selectedDate)}
@@ -1643,7 +1644,7 @@ const BookCourtView = () => {
                           <TeamOutlined
                             style={{ marginRight: 8, color: "#1890ff" }}
                           />
-                          <Text strong>Sport Center:</Text>
+                          <Text strong>Trung tâm thể thao:</Text>
                         </div>
                         <div className="info-value">{sportCenter?.name}</div>
                       </div>
@@ -1655,7 +1656,7 @@ const BookCourtView = () => {
                           <EnvironmentOutlined
                             style={{ marginRight: 8, color: "#1890ff" }}
                           />
-                          <Text strong>Location:</Text>
+                          <Text strong>Địa điểm:</Text>
                         </div>
                         <div className="info-value">
                           {formatAddress(sportCenter)}
@@ -1669,7 +1670,7 @@ const BookCourtView = () => {
                           <ClockCircleOutlined
                             style={{ marginRight: 8, color: "#1890ff" }}
                           />
-                          <Text strong>Total Duration:</Text>
+                          <Text strong>Tổng thời gian:</Text>
                         </div>
                         <div className="info-value">
                           {Object.values(selectedTimeSlots).reduce(
@@ -1686,7 +1687,7 @@ const BookCourtView = () => {
                             },
                             0
                           )}{" "}
-                          minutes
+                          phút
                         </div>
                       </div>
                     </Col>
@@ -1697,7 +1698,7 @@ const BookCourtView = () => {
                           <AppstoreOutlined
                             style={{ marginRight: 8, color: "#1890ff" }}
                           />
-                          <Text strong>Total Courts:</Text>
+                          <Text strong>Tổng số sân:</Text>
                         </div>
                         <div className="info-value">
                           {Object.keys(selectedTimeSlots).length}
@@ -1708,10 +1709,10 @@ const BookCourtView = () => {
                 </div>
                 {/* Note input - Add this in Step 2, before the navigation buttons */}
                 <div style={{ marginTop: 24 }}>
-                  <Title level={5}>Special Requests or Notes</Title>
+                  <Title level={5}>Yêu cầu đặc biệt hoặc ghi chú</Title>
                   <Form.Item>
                     <Input.TextArea
-                      placeholder="Add any special requests or notes for your booking (optional)"
+                      placeholder="Thêm yêu cầu đặc biệt hoặc ghi chú cho việc đặt sân của bạn (tùy chọn)"
                       autoSize={{ minRows: 3, maxRows: 6 }}
                       value={bookingNote}
                       onChange={(e) => setBookingNote(e.target.value)}
@@ -1723,9 +1724,7 @@ const BookCourtView = () => {
                 </div>
                 <List
                   header={
-                    <div style={{ fontWeight: "bold" }}>
-                      Selected Time Slots
-                    </div>
+                    <div style={{ fontWeight: "bold" }}>Khung giờ đã chọn</div>
                   }
                   bordered
                   dataSource={Object.entries(selectedTimeSlots)}
@@ -1765,7 +1764,7 @@ const BookCourtView = () => {
                                     );
                                     return total + end.diff(start, "minute");
                                   }, 0)}{" "}
-                                  minutes
+                                  phút
                                 </Text>
                               </div>
                             </div>
@@ -1789,12 +1788,12 @@ const BookCourtView = () => {
                   {priceLoading ? (
                     <div style={{ textAlign: "center", padding: "16px" }}>
                       <Spin size="small" />
-                      <div style={{ marginTop: 8 }}>Calculating price...</div>
+                      <div style={{ marginTop: 8 }}>Đang tính giá...</div>
                     </div>
                   ) : priceDetails ? (
                     <>
                       <Row justify="space-between" style={{ marginBottom: 8 }}>
-                        <Col>Subtotal:</Col>
+                        <Col>Tạm tính:</Col>
                         <Col>
                           {new Intl.NumberFormat("vi-VN").format(
                             priceDetails.totalPrice
@@ -1803,7 +1802,7 @@ const BookCourtView = () => {
                         </Col>
                       </Row>
                       <Row justify="space-between" style={{ marginBottom: 8 }}>
-                        <Col>Minimum Deposit (30%):</Col>
+                        <Col>Đặt cọc tối thiểu (30%):</Col>
                         <Col>
                           {new Intl.NumberFormat("vi-VN").format(
                             priceDetails.minimumDeposit
@@ -1816,7 +1815,7 @@ const BookCourtView = () => {
                         justify="space-between"
                         style={{ fontWeight: "bold", fontSize: "16px" }}
                       >
-                        <Col>Total:</Col>
+                        <Col>Tổng cộng:</Col>
                         <Col>
                           {new Intl.NumberFormat("vi-VN").format(
                             priceDetails.totalPrice
@@ -1828,7 +1827,7 @@ const BookCourtView = () => {
                   ) : (
                     <div style={{ textAlign: "center", padding: "16px" }}>
                       <InfoCircleOutlined style={{ marginRight: 8 }} />
-                      Select time slots to see pricing
+                      Chọn khung giờ để xem giá
                     </div>
                   )}
                 </div>
@@ -1840,9 +1839,9 @@ const BookCourtView = () => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Button onClick={prev}>Back</Button>
+                  <Button onClick={prev}>Quay lại</Button>
                   <Button type="primary" onClick={next}>
-                    Continue to Payment
+                    Tiếp tục thanh toán
                   </Button>
                 </div>
               </Card>
@@ -1851,7 +1850,7 @@ const BookCourtView = () => {
             {priceDetails?.courtPrices &&
               priceDetails.courtPrices.length > 0 && (
                 <div style={{ marginTop: 24 }}>
-                  <Card title="Detailed Price Breakdown" variant={false}>
+                  <Card title="Chi tiết giá" variant={false}>
                     <List
                       dataSource={priceDetails.courtPrices}
                       renderItem={(item) => (
@@ -1884,10 +1883,10 @@ const BookCourtView = () => {
                                   <Tag color="volcano" style={{ marginTop: 4 }}>
                                     {item.promotionName}:{" "}
                                     {item.discountType === "Percentage"
-                                      ? `${item.discountValue}% off`
-                                      : `${new Intl.NumberFormat(
+                                      ? `Giảm ${item.discountValue}%`
+                                      : `Giảm ${new Intl.NumberFormat(
                                           "vi-VN"
-                                        ).format(item.discountValue)} VND off`}
+                                        ).format(item.discountValue)} VND`}
                                   </Tag>
                                 )}
                               </>
@@ -1898,7 +1897,7 @@ const BookCourtView = () => {
                     />
                     <Divider />
                     <Row justify="space-between" style={{ fontWeight: "bold" }}>
-                      <Col>Total:</Col>
+                      <Col>Tổng cộng:</Col>
                       <Col>
                         {new Intl.NumberFormat("vi-VN").format(
                           priceDetails.totalPrice
@@ -1915,15 +1914,15 @@ const BookCourtView = () => {
                 title={
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <CreditCardOutlined style={{ marginRight: 8 }} />
-                    <span>Payment Details</span>
+                    <span>Chi tiết thanh toán</span>
                   </div>
                 }
                 bordered={false}
                 className="step-card"
               >
                 <Alert
-                  message="Payment Information"
-                  description="Payment will be processed at the venue. This booking reserves your spot."
+                  message="Thông tin thanh toán"
+                  description="Thanh toán sẽ được xử lý tại địa điểm. Đặt sân này giữ chỗ cho bạn."
                   type="info"
                   showIcon
                   style={{ marginBottom: 24 }}
@@ -1940,7 +1939,7 @@ const BookCourtView = () => {
                       style={{ fontSize: 18, marginRight: 8, color: "#1890ff" }}
                     />
                     <Title level={5} style={{ margin: 0 }}>
-                      Booking Summary
+                      Tóm tắt đặt sân
                     </Title>
                   </div>
 
@@ -1956,28 +1955,28 @@ const BookCourtView = () => {
                     <Row gutter={[0, 12]}>
                       <Col span={24}>
                         <div className="summary-item">
-                          <Text strong>Date:</Text>
+                          <Text strong>Ngày:</Text>
                           <Text>{formatDate(selectedDate)}</Text>
                         </div>
                       </Col>
 
                       <Col span={24}>
                         <div className="summary-item">
-                          <Text strong>Sport Center:</Text>
+                          <Text strong>Trung tâm thể thao:</Text>
                           <Text>{sportCenter?.name}</Text>
                         </div>
                       </Col>
 
                       <Col span={24}>
                         <div className="summary-item">
-                          <Text strong>Location:</Text>
+                          <Text strong>Địa điểm:</Text>
                           <Text>{formatAddress(sportCenter)}</Text>
                         </div>
                       </Col>
 
                       <Col span={24}>
                         <div className="summary-item">
-                          <Text strong>Total Duration:</Text>
+                          <Text strong>Tổng thời gian:</Text>
                           <Text>
                             {Object.values(selectedTimeSlots).reduce(
                               (total, slots) => {
@@ -1995,14 +1994,14 @@ const BookCourtView = () => {
                               },
                               0
                             )}{" "}
-                            minutes
+                            phút
                           </Text>
                         </div>
                       </Col>
 
                       <Col span={24}>
                         <div className="summary-item">
-                          <Text strong>Total Courts:</Text>
+                          <Text strong>Tổng số sân:</Text>
                           <Text>{Object.keys(selectedTimeSlots).length}</Text>
                         </div>
                       </Col>
@@ -2011,9 +2010,7 @@ const BookCourtView = () => {
                 </div>
                 <List
                   header={
-                    <div style={{ fontWeight: "bold" }}>
-                      Selected Time Slots
-                    </div>
+                    <div style={{ fontWeight: "bold" }}>Khung giờ đã chọn</div>
                   }
                   bordered
                   dataSource={Object.entries(selectedTimeSlots)}
@@ -2053,7 +2050,7 @@ const BookCourtView = () => {
                                     );
                                     return total + end.diff(start, "minute");
                                   }, 0)}{" "}
-                                  minutes
+                                  phút
                                 </Text>
                               </div>
                             </div>
@@ -2065,9 +2062,9 @@ const BookCourtView = () => {
                 />
                 {bookingNote && (
                   <div style={{ marginTop: 16, marginBottom: 16 }}>
-                    <Divider>Your Note</Divider>
+                    <Divider>Ghi chú của bạn</Divider>
                     <Alert
-                      message="Your Note"
+                      message="Ghi chú của bạn"
                       description={bookingNote}
                       type="info"
                       showIcon
@@ -2075,7 +2072,7 @@ const BookCourtView = () => {
                   </div>
                 )}
                 {/* Payment amount selection - New feature */}
-                <Divider>Payment Amount</Divider>
+                <Divider>Số tiền thanh toán</Divider>
                 <Radio.Group
                   value={paymentChoice}
                   onChange={(e) => setPaymentChoice(e.target.value)}
@@ -2092,7 +2089,7 @@ const BookCourtView = () => {
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <div>
                             <div style={{ fontWeight: "bold" }}>
-                              Pay Deposit Only (
+                              Chỉ thanh toán đặt cọc (
                               {priceDetails?.minimumDeposit
                                 ? new Intl.NumberFormat("vi-VN").format(
                                     priceDetails.minimumDeposit
@@ -2106,8 +2103,8 @@ const BookCourtView = () => {
                                 fontSize: "12px",
                               }}
                             >
-                              Pay the minimum required amount to secure your
-                              booking
+                              Chỉ thanh toán số tiền tối thiểu để đảm bảo đặt
+                              sân
                             </div>
                           </div>
                         </div>
@@ -2124,7 +2121,7 @@ const BookCourtView = () => {
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <div>
                             <div style={{ fontWeight: "bold" }}>
-                              Pay Full Amount (
+                              Thanh toán toàn bộ (
                               {priceDetails?.totalPrice
                                 ? new Intl.NumberFormat("vi-VN").format(
                                     priceDetails.totalPrice
@@ -2138,7 +2135,8 @@ const BookCourtView = () => {
                                 fontSize: "12px",
                               }}
                             >
-                              Pay the entire amount now (recommended)
+                              Thanh toán toàn bộ số tiền ngay bây giờ (khuyến
+                              nghị)
                             </div>
                           </div>
                         </div>
@@ -2157,7 +2155,7 @@ const BookCourtView = () => {
                   }}
                 >
                   <Row justify="space-between" style={{ marginBottom: 8 }}>
-                    <Col>Subtotal:</Col>
+                    <Col>Tạm tính:</Col>
                     <Col>
                       {new Intl.NumberFormat("vi-VN").format(
                         calculateSubtotal()
@@ -2166,7 +2164,7 @@ const BookCourtView = () => {
                     </Col>
                   </Row>
                   <Row justify="space-between" style={{ marginBottom: 8 }}>
-                    <Col>Tax (10%):</Col>
+                    <Col>Thuế (10%):</Col>
                     <Col>
                       {new Intl.NumberFormat("vi-VN").format(calculateTaxes())}{" "}
                       VND
@@ -2177,7 +2175,7 @@ const BookCourtView = () => {
                     justify="space-between"
                     style={{ fontWeight: "bold", fontSize: "16px" }}
                   >
-                    <Col>Total:</Col>
+                    <Col>Tổng cộng:</Col>
                     <Col>
                       {new Intl.NumberFormat("vi-VN").format(calculateTotal())}{" "}
                       VND
@@ -2198,8 +2196,8 @@ const BookCourtView = () => {
                           }}
                         >
                           <span>
-                            <WalletOutlined style={{ marginRight: 8 }} /> Your
-                            Wallet Balance
+                            <WalletOutlined style={{ marginRight: 8 }} /> Số dư
+                            ví của bạn
                           </span>
                           {walletLoading ? (
                             <Spin size="small" />
@@ -2209,7 +2207,7 @@ const BookCourtView = () => {
                                 ? new Intl.NumberFormat("vi-VN").format(
                                     walletBalance.balance
                                   ) + " VND"
-                                : "Not available"}
+                                : "Không khả dụng"}
                               <Button
                                 type="link"
                                 size="small"
@@ -2217,7 +2215,7 @@ const BookCourtView = () => {
                                 onClick={fetchWalletBalance}
                                 style={{ marginLeft: 8 }}
                               >
-                                Refresh
+                                Làm mới
                               </Button>
                             </span>
                           )}
@@ -2234,7 +2232,7 @@ const BookCourtView = () => {
                                   marginTop: 8,
                                 }}
                               >
-                                <span>Required for deposit:</span>
+                                <span>Yêu cầu cho đặt cọc:</span>
                                 <span>
                                   {new Intl.NumberFormat("vi-VN").format(
                                     priceDetails.minimumDeposit
@@ -2246,7 +2244,7 @@ const BookCourtView = () => {
                                       color="error"
                                       style={{ marginLeft: 8 }}
                                     >
-                                      Insufficient
+                                      Không đủ
                                     </Tag>
                                   )}
                                   {walletBalance.balance >=
@@ -2255,7 +2253,7 @@ const BookCourtView = () => {
                                       color="success"
                                       style={{ marginLeft: 8 }}
                                     >
-                                      Available
+                                      Khả dụng
                                     </Tag>
                                   )}
                                 </span>
@@ -2267,7 +2265,7 @@ const BookCourtView = () => {
                                   marginTop: 4,
                                 }}
                               >
-                                <span>Required for full payment:</span>
+                                <span>Yêu cầu cho thanh toán toàn bộ:</span>
                                 <span>
                                   {new Intl.NumberFormat("vi-VN").format(
                                     priceDetails.totalPrice
@@ -2279,7 +2277,7 @@ const BookCourtView = () => {
                                       color="warning"
                                       style={{ marginLeft: 8 }}
                                     >
-                                      Insufficient
+                                      Không đủ
                                     </Tag>
                                   )}
                                   {walletBalance.balance >=
@@ -2288,7 +2286,7 @@ const BookCourtView = () => {
                                       color="success"
                                       style={{ marginLeft: 8 }}
                                     >
-                                      Available
+                                      Khả dụng
                                     </Tag>
                                   )}
                                 </span>
@@ -2308,7 +2306,7 @@ const BookCourtView = () => {
                             style={{ marginTop: 12 }}
                             onClick={() => navigate("/user/wallet")}
                           >
-                            Go to Wallet
+                            Đi tới ví
                           </Button>
                         </div>
                       }
@@ -2316,7 +2314,7 @@ const BookCourtView = () => {
                   </div>
                 )}
                 {/* Payment method selection - Pay Online disabled */}
-                <Divider>Payment Amount</Divider>
+                <Divider>Số tiền thanh toán</Divider>
                 <Radio.Group
                   value={paymentChoice}
                   onChange={(e) => setPaymentChoice(e.target.value)}
@@ -2333,7 +2331,7 @@ const BookCourtView = () => {
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <div>
                             <div style={{ fontWeight: "bold" }}>
-                              Pay Deposit Only (
+                              Chỉ thanh toán đặt cọc (
                               {priceDetails?.minimumDeposit
                                 ? new Intl.NumberFormat("vi-VN").format(
                                     priceDetails.minimumDeposit
@@ -2347,8 +2345,8 @@ const BookCourtView = () => {
                                 fontSize: "12px",
                               }}
                             >
-                              Pay the minimum required amount to secure your
-                              booking
+                              Chỉ thanh toán số tiền tối thiểu để đảm bảo đặt
+                              sân
                             </div>
                           </div>
                         </div>
@@ -2377,30 +2375,30 @@ const BookCourtView = () => {
 
                         // Show modal for insufficient funds for full payment
                         Modal.info({
-                          title: "Insufficient Wallet Balance for Full Payment",
+                          title: "Số dư ví không đủ cho thanh toán toàn bộ",
                           icon: <WalletOutlined style={{ color: "#faad14" }} />,
                           content: (
                             <div>
                               <p>
-                                Your wallet balance (
+                                Số dư ví của bạn (
                                 {new Intl.NumberFormat("vi-VN").format(
                                   walletBalance?.balance || 0
                                 )}{" "}
-                                VND) is not enough for full payment (
+                                VND) không đủ cho thanh toán toàn bộ (
                                 {new Intl.NumberFormat("vi-VN").format(
                                   priceDetails?.totalPrice || 0
                                 )}{" "}
                                 VND).
                               </p>
-                              <p>You can either:</p>
+                              <p>Bạn có thể:</p>
                               <ul>
-                                <li>Pay the deposit only</li>
-                                <li>Add funds to your wallet</li>
+                                <li>Chỉ thanh toán tiền đặt cọc</li>
+                                <li>Nạp thêm tiền vào ví</li>
                               </ul>
                             </div>
                           ),
-                          okText: "Add Funds",
-                          cancelText: "Use Deposit",
+                          okText: "Nạp tiền",
+                          cancelText: "Dùng cọc",
                           onOk() {
                             navigate("/user/wallet");
                           },
@@ -2427,7 +2425,7 @@ const BookCourtView = () => {
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <div>
                             <div style={{ fontWeight: "bold" }}>
-                              Pay Full Amount (
+                              Thanh toán toàn bộ (
                               {priceDetails?.totalPrice
                                 ? new Intl.NumberFormat("vi-VN").format(
                                     priceDetails.totalPrice
@@ -2441,7 +2439,8 @@ const BookCourtView = () => {
                                 fontSize: "12px",
                               }}
                             >
-                              Pay the entire amount now (recommended)
+                              Thanh toán toàn bộ số tiền ngay bây giờ (khuyến
+                              nghị)
                             </div>
                             {walletBalance &&
                               priceDetails &&
@@ -2457,7 +2456,7 @@ const BookCourtView = () => {
                                   <InfoCircleOutlined
                                     style={{ marginRight: "4px" }}
                                   />
-                                  Insufficient funds in wallet
+                                  Số dư trong ví không đủ
                                 </div>
                               )}
                           </div>
@@ -2477,15 +2476,15 @@ const BookCourtView = () => {
                           ? Promise.resolve()
                           : Promise.reject(
                               new Error(
-                                "Please accept the terms and conditions"
+                                "Vui lòng chấp nhận điều khoản và điều kiện"
                               )
                             ),
                     },
                   ]}
                 >
                   <Checkbox>
-                    I agree to the <a href="#terms">terms and conditions</a> and{" "}
-                    <a href="#privacy">privacy policy</a>
+                    Tôi đồng ý với <a href="#terms">điều khoản và điều kiện</a>{" "}
+                    và <a href="#privacy">chính sách bảo mật</a>
                   </Checkbox>
                 </Form.Item>
                 {/* Action Buttons */}
@@ -2496,14 +2495,14 @@ const BookCourtView = () => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Button onClick={prev}>Back</Button>
+                  <Button onClick={prev}>Quay lại</Button>
                   <Button
                     type="primary"
                     onClick={handleBooking}
                     size="large"
                     icon={<CheckCircleOutlined />}
                   >
-                    Complete Booking
+                    Hoàn tất đặt sân
                   </Button>
                 </div>
               </Card>
@@ -2519,8 +2518,8 @@ const BookCourtView = () => {
                   <TeamOutlined style={{ marginRight: 8 }} />
                   <span>
                     {getSelectedCourt()
-                      ? "Court Information"
-                      : "Sport Center Information"}
+                      ? "Thông tin sân"
+                      : "Thông tin trung tâm thể thao"}
                   </span>
                 </div>
               }
@@ -2530,7 +2529,7 @@ const BookCourtView = () => {
             >
               {getSelectedCourt() ? (
                 // Court Information
-                (<>
+                <>
                   <div style={{ textAlign: "center", marginBottom: 16 }}>
                     <Avatar
                       size={80}
@@ -2555,25 +2554,25 @@ const BookCourtView = () => {
                     itemLayout="horizontal"
                     dataSource={[
                       {
-                        title: "Court Type",
+                        title: "Loại sân",
                         description: formatCourtType(
                           getSelectedCourt().courtType
                         ),
                         icon: <AppstoreOutlined style={{ color: "#1890ff" }} />,
                       },
                       {
-                        title: "Duration",
+                        title: "Thời lượng",
                         description:
                           getSelectedCourt().slotDuration?.replace(
                             "00:00:00",
                             ""
-                          ) || "1 hour",
+                          ) || "1 giờ",
                         icon: (
                           <ClockCircleOutlined style={{ color: "#52c41a" }} />
                         ),
                       },
                       {
-                        title: "Status",
+                        title: "Trạng thái",
                         description: getCourtStatusBadge(
                           getSelectedCourt().status
                         ),
@@ -2582,7 +2581,7 @@ const BookCourtView = () => {
                         ),
                       },
                       {
-                        title: "Sport Center",
+                        title: "Trung tâm thể thao",
                         description: sportCenter?.name,
                         icon: <TeamOutlined style={{ color: "#722ed1" }} />,
                       },
@@ -2610,7 +2609,7 @@ const BookCourtView = () => {
                           plain
                           style={{ fontSize: 14 }}
                         >
-                          Facilities
+                          Tiện ích
                         </Divider>
                         <div
                           style={{ display: "flex", flexWrap: "wrap", gap: 8 }}
@@ -2630,79 +2629,81 @@ const BookCourtView = () => {
                       </>
                     )}
                   <CourtReviewsSection />
-                </>)
+                </>
               ) : (
                 // Sport Center Information
-                (sportCenter && (<>
-                  <div style={{ textAlign: "center", marginBottom: 16 }}>
-                    <Avatar
-                      size={80}
-                      src={sportCenter.avatar}
-                      style={{
-                        backgroundColor: "#f0f5ff",
-                        marginBottom: 12,
-                      }}
-                    >
-                      {sportCenter.name?.charAt(0)}
-                    </Avatar>
-                    <Title level={4} style={{ margin: 0 }}>
-                      {sportCenter.name}
-                    </Title>
-                    <Text type="secondary">{formatAddress(sportCenter)}</Text>
-                  </div>
-                  <Divider style={{ margin: "16px 0" }} />
-                  <List
-                    itemLayout="horizontal"
-                    dataSource={[
-                      {
-                        title: "Address",
-                        description: formatAddress(sportCenter),
-                        icon: (
-                          <EnvironmentOutlined style={{ color: "#1890ff" }} />
-                        ),
-                      },
-                      {
-                        title: "Phone",
-                        description:
-                          sportCenter.phoneNumber || "Not available",
-                        icon: <PhoneOutlined style={{ color: "#52c41a" }} />,
-                      },
-                      {
-                        title: "Available Courts",
-                        description: `${courts.length} courts`,
-                        icon: (
-                          <AppstoreOutlined style={{ color: "#faad14" }} />
-                        ),
-                      },
-                    ]}
-                    renderItem={(item) => (
-                      <List.Item>
-                        <List.Item.Meta
-                          avatar={
-                            <Avatar
-                              icon={item.icon}
-                              style={{ backgroundColor: "transparent" }}
-                            />
-                          }
-                          title={item.title}
-                          description={item.description}
-                        />
-                      </List.Item>
-                    )}
-                  />
-                  {sportCenter.description && (
-                    <>
-                      <Divider
-                        orientation="left"
-                        plain
-                        style={{ fontSize: 14 }}
+                sportCenter && (
+                  <>
+                    <div style={{ textAlign: "center", marginBottom: 16 }}>
+                      <Avatar
+                        size={80}
+                        src={sportCenter.avatar}
+                        style={{
+                          backgroundColor: "#f0f5ff",
+                          marginBottom: 12,
+                        }}
                       >
-                        Description
-                      </Divider>
-                      <Paragraph>{sportCenter.description}</Paragraph>
-                    </>
-                  )}
-                </>))
+                        {sportCenter.name?.charAt(0)}
+                      </Avatar>
+                      <Title level={4} style={{ margin: 0 }}>
+                        {sportCenter.name}
+                      </Title>
+                      <Text type="secondary">{formatAddress(sportCenter)}</Text>
+                    </div>
+                    <Divider style={{ margin: "16px 0" }} />
+                    <List
+                      itemLayout="horizontal"
+                      dataSource={[
+                        {
+                          title: "Địa chỉ",
+                          description: formatAddress(sportCenter),
+                          icon: (
+                            <EnvironmentOutlined style={{ color: "#1890ff" }} />
+                          ),
+                        },
+                        {
+                          title: "Số điện thoại",
+                          description:
+                            sportCenter.phoneNumber || "Không khả dụng",
+                          icon: <PhoneOutlined style={{ color: "#52c41a" }} />,
+                        },
+                        {
+                          title: "Sân khả dụng",
+                          description: `${courts.length} sân`,
+                          icon: (
+                            <AppstoreOutlined style={{ color: "#faad14" }} />
+                          ),
+                        },
+                      ]}
+                      renderItem={(item) => (
+                        <List.Item>
+                          <List.Item.Meta
+                            avatar={
+                              <Avatar
+                                icon={item.icon}
+                                style={{ backgroundColor: "transparent" }}
+                              />
+                            }
+                            title={item.title}
+                            description={item.description}
+                          />
+                        </List.Item>
+                      )}
+                    />
+                    {sportCenter.description && (
+                      <>
+                        <Divider
+                          orientation="left"
+                          plain
+                          style={{ fontSize: 14 }}
+                        >
+                          Mô tả
+                        </Divider>
+                        <Paragraph>{sportCenter.description}</Paragraph>
+                      </>
+                    )}
+                  </>
+                )
               )}
             </Card>
 
@@ -2712,7 +2713,7 @@ const BookCourtView = () => {
                 title={
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <CalendarOutlined style={{ marginRight: 8 }} />
-                    <span>Your Booking</span>
+                    <span>Đặt sân của bạn</span>
                   </div>
                 }
                 className="summary-card"
@@ -2722,19 +2723,19 @@ const BookCourtView = () => {
                   itemLayout="horizontal"
                   dataSource={[
                     {
-                      title: "Date",
+                      title: "Ngày",
                       description: formatDate(selectedDate),
                       icon: <CalendarOutlined style={{ color: "#1890ff" }} />,
                     },
                     {
-                      title: "Courts",
+                      title: "Sân",
                       description: `${
                         Object.keys(selectedTimeSlots).length
-                      } selected`,
+                      } đã chọn`,
                       icon: <AppstoreOutlined style={{ color: "#1890ff" }} />,
                     },
                     {
-                      title: "Total Duration",
+                      title: "Tổng thời gian",
                       description: `${Object.values(selectedTimeSlots).reduce(
                         (total, slots) => {
                           let minutes = 0;
@@ -2746,7 +2747,7 @@ const BookCourtView = () => {
                           return total + minutes;
                         },
                         0
-                      )} minutes`,
+                      )} phút`,
                       icon: (
                         <ClockCircleOutlined style={{ color: "#1890ff" }} />
                       ),
@@ -2771,7 +2772,7 @@ const BookCourtView = () => {
                 {Object.keys(selectedTimeSlots).length > 0 && (
                   <>
                     <Divider orientation="left" plain style={{ fontSize: 14 }}>
-                      Time Slots
+                      Khung giờ
                     </Divider>
                     {Object.entries(selectedTimeSlots).map(
                       ([courtId, slots]) => {
@@ -2803,8 +2804,8 @@ const BookCourtView = () => {
                         <Statistic
                           title={
                             paymentChoice === "deposit"
-                              ? "Payment Amount (Deposit)"
-                              : "Payment Amount (Full)"
+                              ? "Số tiền thanh toán (Đặt cọc)"
+                              : "Số tiền thanh toán (Toàn bộ)"
                           }
                           value={
                             paymentChoice === "deposit"
@@ -2817,7 +2818,7 @@ const BookCourtView = () => {
                         {paymentChoice === "deposit" && (
                           <div style={{ marginTop: 8 }}>
                             <Text type="secondary">
-                              Remaining balance:{" "}
+                              Số dư còn lại:{" "}
                               {new Intl.NumberFormat("vi-VN").format(
                                 (priceDetails?.totalPrice || 0) -
                                   (priceDetails?.minimumDeposit || 0)
@@ -2829,7 +2830,7 @@ const BookCourtView = () => {
                       </>
                     ) : (
                       <Statistic
-                        title="Total Price"
+                        title="Tổng giá"
                         value={priceDetails?.totalPrice || calculateTotal()}
                         suffix="VND"
                         valueStyle={{ color: "#1890ff", fontWeight: "bold" }}

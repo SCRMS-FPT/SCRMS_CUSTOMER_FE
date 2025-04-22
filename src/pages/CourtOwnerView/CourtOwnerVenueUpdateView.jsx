@@ -30,7 +30,9 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { Client } from "@/API/CourtApi";
+import { LocationApi } from "@/API/LocationApi";
 import { motion } from "framer-motion";
+import LocationPicker from "@/components/GeneralComponents/LocationPicker";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -52,6 +54,20 @@ const CourtOwnerVenueUpdateView = () => {
   const [fileList, setFileList] = useState([]);
 
   const client = new Client();
+
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [communes, setCommunes] = useState([]);
+  const [locationLoading, setLocationLoading] = useState({
+    provinces: false,
+    districts: false,
+    communes: false,
+  });
+  const [selectedLocationIds, setSelectedLocationIds] = useState({
+    provinceId: "",
+    districtId: "",
+    communeId: "",
+  });
 
   useEffect(() => {
     const fetchVenueData = async () => {
@@ -75,8 +91,8 @@ const CourtOwnerVenueUpdateView = () => {
         });
 
         // Set existing gallery files for display
-        if (venueData.imageUrl && venueData.imageUrl.length > 0) {
-          const fileList = venueData.imageUrl.map((url, index) => ({
+        if (venueData.imageUrls && venueData.imageUrls.length > 0) {
+          const fileList = venueData.imageUrls.map((url, index) => ({
             uid: `-${index + 1}`,
             name: `Image ${index + 1}`,
             status: "done",
@@ -86,6 +102,9 @@ const CourtOwnerVenueUpdateView = () => {
           }));
           setFileList(fileList);
         }
+
+        // Load provinces for location selectors
+        loadProvinces();
       } catch (error) {
         console.error("Error fetching sport center data:", error);
         message.error("Truy xuất thông tin trung tâm thể thao thất bại");
@@ -98,6 +117,86 @@ const CourtOwnerVenueUpdateView = () => {
       fetchVenueData();
     }
   }, [venueId, form]);
+
+  const loadProvinces = async () => {
+    try {
+      setLocationLoading((prev) => ({ ...prev, provinces: true }));
+      const provincesData = await LocationApi.getProvinces();
+      setProvinces(provincesData);
+    } catch (error) {
+      console.error("Error loading provinces:", error);
+    } finally {
+      setLocationLoading((prev) => ({ ...prev, provinces: false }));
+    }
+  };
+
+  const loadDistricts = async (provinceId) => {
+    if (!provinceId) {
+      setDistricts([]);
+      return;
+    }
+    try {
+      setLocationLoading((prev) => ({ ...prev, districts: true }));
+      const districtsData = await LocationApi.getDistricts(provinceId);
+      setDistricts(districtsData);
+    } catch (error) {
+      console.error("Error loading districts:", error);
+    } finally {
+      setLocationLoading((prev) => ({ ...prev, districts: false }));
+    }
+  };
+
+  const loadCommunes = async (districtId) => {
+    if (!districtId) {
+      setCommunes([]);
+      return;
+    }
+    try {
+      setLocationLoading((prev) => ({ ...prev, communes: true }));
+      const communesData = await LocationApi.getCommunes(districtId);
+      setCommunes(communesData);
+    } catch (error) {
+      console.error("Error loading communes:", error);
+    } finally {
+      setLocationLoading((prev) => ({ ...prev, communes: false }));
+    }
+  };
+
+  const handleProvinceChange = (provinceId, provinceName) => {
+    setSelectedLocationIds((prev) => ({
+      ...prev,
+      provinceId,
+      districtId: "",
+      communeId: "",
+    }));
+    form.setFieldsValue({ city: provinceName, district: "", commune: "" });
+    loadDistricts(provinceId);
+  };
+
+  const handleDistrictChange = (districtId, districtName) => {
+    setSelectedLocationIds((prev) => ({
+      ...prev,
+      districtId,
+      communeId: "",
+    }));
+    form.setFieldsValue({ district: districtName, commune: "" });
+    loadCommunes(districtId);
+  };
+
+  const handleCommuneChange = (communeId, communeName) => {
+    setSelectedLocationIds((prev) => ({
+      ...prev,
+      communeId,
+    }));
+    form.setFieldsValue({ commune: communeName });
+  };
+
+  const handleLocationChange = (lat, lng) => {
+    form.setFieldsValue({
+      latitude: lat,
+      longitude: lng,
+    });
+  };
 
   const onFinish = async (values) => {
     try {
@@ -128,14 +227,33 @@ const CourtOwnerVenueUpdateView = () => {
 
       // Add gallery handling
       formData.append("KeepExistingGallery", keepExistingGallery);
-      if (venue.imageUrl && venue.imageUrl.length > 0) {
-        venue.imageUrl.forEach((url) => {
+
+      // If we're not keeping all existing gallery images as-is, include only the ones we want to keep
+      if (!keepExistingGallery) {
+        // Find existing images that are still in the file list
+        const keptExistingImages = fileList
+          .filter((file) => file.isExisting && file.url)
+          .map((file) => file.url);
+
+        // Add each kept existing image URL
+        if (keptExistingImages.length > 0) {
+          keptExistingImages.forEach((url) => {
+            formData.append("ExistingGalleryUrls", url);
+          });
+        } else {
+          // If all existing images were removed, send an empty array indicator
+          formData.append("ExistingGalleryUrls", "");
+        }
+      }
+      // If keeping all existing gallery
+      else if (venue.imageUrls && venue.imageUrls.length > 0) {
+        venue.imageUrls.forEach((url) => {
           formData.append("ExistingGalleryUrls", url);
         });
       }
 
       // Add new gallery files if any
-      if (!keepExistingGallery && galleryFiles.length > 0) {
+      if (galleryFiles.length > 0) {
         galleryFiles.forEach((file) => {
           formData.append("GalleryImages", file);
         });
@@ -145,7 +263,9 @@ const CourtOwnerVenueUpdateView = () => {
       const response = await client.updateSportCenter(venueId, formData);
 
       if (response) {
-        message.success("Thông tin trung tâm thể thao được cập nhật thành công!");
+        message.success(
+          "Thông tin trung tâm thể thao được cập nhật thành công!"
+        );
         navigate(`/court-owner/venues/${venueId}`);
       } else {
         throw new Error("Failed to update sport center");
@@ -153,21 +273,19 @@ const CourtOwnerVenueUpdateView = () => {
     } catch (error) {
       console.error("Error updating sport center:", error);
       message.error(
-        "Gặp lỗi trong quá trình cập nhật thông tin trung tâm thể thao: " + (error.message || "Unknown error")
+        "Gặp lỗi trong quá trình cập nhật thông tin trung tâm thể thao: " +
+          (error.message || "Unknown error")
       );
     } finally {
       setSubmitLoading(false);
     }
   };
 
-  // Custom upload handler for avatar
   const customAvatarUpload = async ({ file, onSuccess }) => {
     try {
-      // Store the file in state
       setAvatarFile(file);
       setKeepExistingAvatar(false);
 
-      // Simulate success
       setTimeout(() => {
         onSuccess("ok");
       }, 500);
@@ -177,19 +295,26 @@ const CourtOwnerVenueUpdateView = () => {
     }
   };
 
-  // Handle gallery uploads
   const handleGalleryChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
 
-    // Extract only new files for upload (not existing URLs)
     const newFiles = newFileList
       .filter((file) => file.originFileObj)
       .map((file) => file.originFileObj);
 
     setGalleryFiles(newFiles);
 
-    if (newFiles.length > 0 || newFileList.length !== venue?.imageUrl?.length) {
-      setKeepExistingGallery(false);
+    // When a user removes or adds images, we need to track changes
+    // Check if the original set of images has changed
+    if (venue.imageUrls && venue.imageUrls.length > 0) {
+      const keepingAllOriginal = venue.imageUrls.every((url) =>
+        newFileList.some((file) => file.url === url && file.isExisting)
+      );
+
+      // If not keeping all original images, set keepExistingGallery to false
+      if (!keepingAllOriginal) {
+        setKeepExistingGallery(false);
+      }
     }
   };
 
@@ -356,7 +481,9 @@ const CourtOwnerVenueUpdateView = () => {
                     <Form.Item
                       name="city"
                       label="Tỉnh/Thành phố"
-                      rules={[{ required: true, message: "Nhập tên tỉnh/thành phố" }]}
+                      rules={[
+                        { required: true, message: "Nhập tên tỉnh/thành phố" },
+                      ]}
                     >
                       <Input placeholder="City" />
                     </Form.Item>
@@ -410,6 +537,19 @@ const CourtOwnerVenueUpdateView = () => {
             </Col>
 
             <Col span={24} style={{ marginTop: 24 }}>
+              <LocationPicker
+                latitude={form.getFieldValue("latitude")}
+                longitude={form.getFieldValue("longitude")}
+                onLocationChange={handleLocationChange}
+                address={`${form.getFieldValue(
+                  "addressLine"
+                )}, ${form.getFieldValue("district")}, ${form.getFieldValue(
+                  "commune"
+                )}, ${form.getFieldValue("city")}`}
+              />
+            </Col>
+
+            <Col span={24} style={{ marginTop: 24 }}>
               <Card
                 title={
                   <span>
@@ -453,13 +593,13 @@ const CourtOwnerVenueUpdateView = () => {
                       fileList={
                         !keepExistingAvatar && avatarFile
                           ? [
-                            {
-                              uid: "-1",
-                              name: avatarFile.name,
-                              status: "done",
-                              url: URL.createObjectURL(avatarFile),
-                            },
-                          ]
+                              {
+                                uid: "-1",
+                                name: avatarFile.name,
+                                status: "done",
+                                url: URL.createObjectURL(avatarFile),
+                              },
+                            ]
                           : []
                       }
                       customRequest={customAvatarUpload}
@@ -487,7 +627,7 @@ const CourtOwnerVenueUpdateView = () => {
                   <Col span={24} md={12}>
                     <Title level={5}>Hình ảnh</Title>
 
-                    {venue.imageUrl && venue.imageUrl.length > 0 && (
+                    {venue.imageUrls && venue.imageUrls.length > 0 && (
                       <div style={{ marginBottom: 16 }}>
                         <div style={{ marginTop: 8 }}>
                           <Text type="secondary">Hình ảnh hiện tại</Text>
@@ -498,7 +638,7 @@ const CourtOwnerVenueUpdateView = () => {
                               if (checked) {
                                 // Reset to original gallery
                                 setFileList(
-                                  venue.imageUrl.map((url, index) => ({
+                                  venue.imageUrls.map((url, index) => ({
                                     uid: `-${index + 1}`,
                                     name: `Image ${index + 1}`,
                                     status: "done",
@@ -508,14 +648,12 @@ const CourtOwnerVenueUpdateView = () => {
                                   }))
                                 );
                                 setGalleryFiles([]);
-                              } else {
-                                // Start with empty gallery if not keeping existing
-                                setFileList([]);
-                                setGalleryFiles([]);
                               }
+                              // Don't clear the file list when unchecked
+                              // This allows the user to selectively remove images
                             }}
-                            checkedChildren="Keep All"
-                            unCheckedChildren="Modify"
+                            checkedChildren="Giữ tất cả"
+                            unCheckedChildren="Chỉnh sửa"
                             style={{ marginLeft: 16 }}
                           />
                         </div>
@@ -528,22 +666,32 @@ const CourtOwnerVenueUpdateView = () => {
                       onPreview={handlePreview}
                       onChange={handleGalleryChange}
                       beforeUpload={() => false}
-                      disabled={
-                        keepExistingGallery &&
-                        venue.imageUrl &&
-                        venue.imageUrl.length > 0
-                      }
+                      disabled={keepExistingGallery}
                       multiple
+                      onRemove={(file) => {
+                        // Allow removal of images even if they're existing ones
+                        const newFileList = fileList.filter(
+                          (item) => item.uid !== file.uid
+                        );
+                        setFileList(newFileList);
+
+                        // If we've removed an existing image, we're not keeping all existing gallery
+                        if (file.isExisting) {
+                          setKeepExistingGallery(false);
+                        }
+
+                        // Update galleryFiles array for new files
+                        const newGalleryFiles = galleryFiles.filter(
+                          (item) =>
+                            !newFileList.some((f) => f.originFileObj === item)
+                        );
+                        setGalleryFiles(newGalleryFiles);
+
+                        return true; // Allow the removal
+                      }}
                     >
-                      {keepExistingGallery &&
-                        venue.imageUrl &&
-                        venue.imageUrl.length > 0 ? (
-                        <div>
-                          <div style={{ marginTop: 8 }}>
-                            Gallery Upload (Disabled)
-                          </div>
-                        </div>
-                      ) : fileList.length >= 5 ? null : (
+                      {keepExistingGallery ? null : fileList.length >=
+                        5 ? null : (
                         <div>
                           <PlusOutlined />
                           <div style={{ marginTop: 8 }}>Tải lên</div>
@@ -551,7 +699,9 @@ const CourtOwnerVenueUpdateView = () => {
                       )}
                     </Upload>
                     <Text type="secondary">
-                      Tải lên nhiều ảnh của trung tâm thể thao của bạn (tối đa 5 ảnh)
+                      Tải lên nhiều ảnh của trung tâm thể thao của bạn (tối đa 5
+                      ảnh). Bạn có thể xóa ảnh đã có bằng cách nhấp vào nút xóa
+                      trên ảnh.
                     </Text>
                   </Col>
                 </Row>

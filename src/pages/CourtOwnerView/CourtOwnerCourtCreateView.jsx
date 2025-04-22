@@ -21,6 +21,8 @@ import {
   Switch,
   Collapse,
   InputNumber,
+  Table,
+  Alert,
 } from "antd";
 import {
   UploadOutlined,
@@ -33,7 +35,6 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { Client } from "@/API/CourtApi";
-import { Alert } from "@mui/material";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -132,17 +133,30 @@ const CourtOwnerCourtCreateView = () => {
   const [schedules, setSchedules] = useState(defaultSchedules);
   const [scheduleErrors, setScheduleErrors] = useState([]);
   const [slotDurationError, setSlotDurationError] = useState("");
+  const [facilities, setFacilities] = useState([]);
+  const [facilityName, setFacilityName] = useState("");
+  const [facilityDesc, setFacilityDesc] = useState("");
+  const [facilityNameError, setFacilityNameError] = useState("");
 
-  // Fetch initial data: sports list and venue details if venueId is provided
+  const predefinedFacilities = [
+    { name: "Tủ đồ", description: "Tủ đồ dành cho khách hàng" },
+    { name: "Nhà tắm", description: "Nhà tắm riêng tại sân" },
+    { name: "Bãi đậu xe", description: "Bãi đậu xe rộng rãi" },
+    { name: "Ghế khán giả", description: "Khu vực ngồi dành cho người xem" },
+    { name: "Thảm cỏ nhân tạo", description: "Sân được lát thảm cỏ nhân tạo" },
+    { name: "Đèn chiếu sáng", description: "Hệ thống đèn chiếu sáng ban đêm" },
+    { name: "Quạt mát", description: "Hệ thống quạt làm mát trong sân" },
+    { name: "Wifi", description: "Kết nối internet không dây miễn phí" },
+    { name: "Quầy đồ uống", description: "Quầy bán đồ uống giải khát" },
+  ];
+
   useEffect(() => {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        // Get sports list
         const sportsResponse = await client.getSports();
         setSports(sportsResponse.sports || []);
 
-        // If venue ID is provided, fetch that venue's details
         if (venueId) {
           const venueData = await client.getSportCenterById(venueId);
           setCurrentVenue(venueData);
@@ -151,18 +165,15 @@ const CourtOwnerCourtCreateView = () => {
             venue_name: venueData.name,
           });
         } else {
-          // Otherwise fetch all venues owned by the current user
           const venuesResponse = await client.getOwnedSportCenters(1, 100);
           setVenues(venuesResponse.sportCenters?.data || []);
         }
 
-        // If we're in edit mode (courtId exists), fetch court details
         if (courtId) {
           setIsEditMode(true);
           const courtResponse = await client.getCourtDetails(courtId);
           const court = courtResponse.court;
 
-          // Extract schedules from the court data
           if (court.courtSchedules && court.courtSchedules.length > 0) {
             setSchedules(
               court.courtSchedules.map((schedule, index) => ({
@@ -176,7 +187,6 @@ const CourtOwnerCourtCreateView = () => {
             );
           }
 
-          // Map API response to form fields
           const formData = {
             name: court.courtName,
             sport_type: court.sportId,
@@ -189,17 +199,8 @@ const CourtOwnerCourtCreateView = () => {
             refundPercentage: court.refundPercentage,
           };
 
-          // Map facilities to form structure
           if (court.facilities && court.facilities.length > 0) {
-            const features = {};
-            court.facilities.forEach((facility) => {
-              if (facility.name === "surface_type") {
-                features.surface_type = facility.description;
-              } else {
-                features[facility.name] = true;
-              }
-            });
-            formData.features = features;
+            setFacilities(court.facilities);
           }
 
           form.setFieldsValue(formData);
@@ -216,6 +217,40 @@ const CourtOwnerCourtCreateView = () => {
 
     fetchInitialData();
   }, [venueId, courtId, form]);
+
+  const handleAddPredefinedFacility = (facility) => {
+    if (!facilities.some((f) => f.name === facility.name)) {
+      setFacilities([...facilities, { ...facility }]);
+    } else {
+      message.warning("Tiện ích này đã được thêm vào sân!");
+    }
+  };
+
+  const handleAddFacility = () => {
+    if (!facilityName.trim()) {
+      setFacilityNameError("Vui lòng nhập tên tiện ích");
+      return;
+    }
+
+    if (facilities.some((f) => f.name === facilityName)) {
+      setFacilityNameError("Tiện ích này đã tồn tại");
+      return;
+    }
+
+    const newFacility = {
+      name: facilityName,
+      description: facilityDesc || `Sân có ${facilityName}`,
+    };
+
+    setFacilities([...facilities, newFacility]);
+    setFacilityName("");
+    setFacilityDesc("");
+    setFacilityNameError("");
+  };
+
+  const handleRemoveFacility = (index) => {
+    setFacilities(facilities.filter((_, i) => i !== index));
+  };
 
   const addSchedule = () => {
     const newSchedule = {
@@ -243,7 +278,6 @@ const CourtOwnerCourtCreateView = () => {
 
     const slotDuration = form.getFieldValue("slotDuration") || "01:00:00";
 
-    // If updating startTime or endTime, check if divisible by slotDuration
     if (field === "startTime" || field === "endTime") {
       if (!isDivisibleBySlotDuration(`${value}:00`, slotDuration)) {
         newErrors[index][
@@ -254,7 +288,6 @@ const CourtOwnerCourtCreateView = () => {
       }
     }
 
-    // Check for schedule overlap
     const currentSchedule = { ...schedules[index] };
     currentSchedule[field] = value;
 
@@ -273,7 +306,6 @@ const CourtOwnerCourtCreateView = () => {
     newSchedules[index][field] = value;
     setSchedules(newSchedules);
 
-    // Validate the schedule after update
     validateScheduleTimes(index, field, value);
   };
 
@@ -281,7 +313,6 @@ const CourtOwnerCourtCreateView = () => {
     const newSlotDuration = e.target.value;
     form.setFieldsValue({ slotDuration: newSlotDuration });
 
-    // Revalidate all schedules when slot duration changes
     schedules.forEach((schedule, index) => {
       validateScheduleTimes(index, "startTime", schedule.startTime);
       validateScheduleTimes(index, "endTime", schedule.endTime);
@@ -290,7 +321,6 @@ const CourtOwnerCourtCreateView = () => {
 
   const handleSubmit = async (values) => {
     try {
-      // Check for schedule validation errors before submitting
       let hasScheduleErrors = false;
       scheduleErrors.forEach((errors) => {
         if (errors && Object.keys(errors).length > 0) {
@@ -307,29 +337,6 @@ const CourtOwnerCourtCreateView = () => {
 
       setSubmitting(true);
 
-      // Transform form values to match the API request structure
-      const facilities = [];
-      if (values.features) {
-        // Convert feature checkboxes to facility objects
-        Object.entries(values.features)
-          .filter(([key, value]) => value === true)
-          .forEach(([key]) => {
-            facilities.push({
-              name: key,
-              description: `Has ${key}`,
-            });
-          });
-      }
-
-      // Handle specific feature types
-      if (values.features?.surface_type) {
-        facilities.push({
-          name: "surface_type",
-          description: values.features.surface_type,
-        });
-      }
-
-      // Add seating capacity if provided
       if (values.seating_capacity) {
         facilities.push({
           name: "seating_capacity",
@@ -337,15 +344,13 @@ const CourtOwnerCourtCreateView = () => {
         });
       }
 
-      // Prepare court schedules from the schedules state
       const courtSchedules = schedules.map((schedule) => ({
-        dayOfWeek: schedule.days.map((day) => (day === 0 ? 7 : day)), // Replace 0 with 7
-        startTime: `${schedule.startTime}:00`, // Add seconds to match API format
-        endTime: `${schedule.endTime}:00`, // Add seconds to match API format
+        dayOfWeek: schedule.days.map((day) => (day === 0 ? 7 : day)),
+        startTime: `${schedule.startTime}:00`,
+        endTime: `${schedule.endTime}:00`,
         priceSlot: schedule.priceSlot,
       }));
 
-      // Create the request payload
       const requestData = {
         court: {
           courtName: values.name,
@@ -353,7 +358,7 @@ const CourtOwnerCourtCreateView = () => {
           sportCenterId: venueId || values.venue_id,
           description: values.description || "",
           facilities: facilities,
-          slotDuration: values.slotDuration, // Use the form's slotDuration value
+          slotDuration: values.slotDuration,
           minDepositPercentage: values.minDepositPercentage || 0,
           courtType: values.courtType || 1,
           courtSchedules: courtSchedules,
@@ -364,7 +369,6 @@ const CourtOwnerCourtCreateView = () => {
 
       console.log("Sending court data to API:", requestData);
 
-      // Call the API to create the court
       const response = await client.createCourt(requestData);
       console.log("API response:", response);
 
@@ -374,7 +378,6 @@ const CourtOwnerCourtCreateView = () => {
           : "Sân mới được tạo thành công!"
       );
 
-      // Navigate back to the venue details page or courts list
       if (venueId) {
         navigate(`/court-owner/venues/${venueId}`);
       } else {
@@ -594,136 +597,101 @@ const CourtOwnerCourtCreateView = () => {
             },
             {
               key: "2",
-              label: "Tính năng & Tiện ích",
+              label: "Tiện ích",
               children: (
                 <>
-                  <Title level={5}>Các tính năng của sân</Title>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Form.Item
-                        name={["features", "surface_type"]}
-                        label="Bề mặt sân"
-                      >
-                        <Select placeholder="Chọn một loại bề mặt sân">
-                          <Option value="Grass">Cỏ</Option>
-                          <Option value="Clay">Đất nện</Option>
-                          <Option value="Hardcourt">Sân cứng</Option>
-                          <Option value="Astroturf">Cỏ nhân tạo</Option>
-                          <Option value="Concrete">Bê tông</Option>
-                          <Option value="Wood">Gỗ</Option>
-                          <Option value="Synthetic">Tổng hợp</Option>
-                          <Option value="N/A">Không áp dụng (N/A)</Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item name="seating_capacity" label="Sức chứa">
+                  <Title level={4}>Tiện ích của sân</Title>
+                  <div className="predefined-facilities">
+                    <Typography.Text strong>Tiện ích phổ biến:</Typography.Text>
+                    <div className="predefined-facilities-list">
+                      {predefinedFacilities.map((facility, index) => (
+                        <Tag
+                          key={index}
+                          className="facility-tag"
+                          onClick={() => handleAddPredefinedFacility(facility)}
+                          color="blue"
+                          style={{ cursor: "pointer", margin: "4px" }}
+                        >
+                          + {facility.name}
+                        </Tag>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div
+                    className="custom-facility-input"
+                    style={{ marginTop: "16px" }}
+                  >
+                    <Row gutter={16}>
+                      <Col span={8}>
+                        <Form.Item
+                          validateStatus={facilityNameError ? "error" : ""}
+                          help={facilityNameError}
+                        >
+                          <Input
+                            placeholder="Tên tiện ích"
+                            value={facilityName}
+                            onChange={(e) => setFacilityName(e.target.value)}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
                         <Input
-                          type="number"
-                          min={0}
-                          placeholder="Nhập sức chứa của sân"
+                          placeholder="Mô tả tiện ích (tùy chọn)"
+                          value={facilityDesc}
+                          onChange={(e) => setFacilityDesc(e.target.value)}
                         />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Form.Item label="Các tính năng khác">
-                    <Checkbox.Group>
-                      <Row gutter={[16, 8]}>
-                        <Col span={12}>
-                          <Form.Item
-                            name={["features", "indoor"]}
-                            valuePropName="checked"
-                            noStyle
-                          >
-                            <Checkbox>Trong nhà</Checkbox>
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name={["features", "lighting"]}
-                            valuePropName="checked"
-                            noStyle
-                          >
-                            <Checkbox>Hệ thống chiếu sáng</Checkbox>
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name={["features", "has_parking"]}
-                            valuePropName="checked"
-                            noStyle
-                          >
-                            <Checkbox>Bãi đỗ xe</Checkbox>
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name={["features", "has_showers"]}
-                            valuePropName="checked"
-                            noStyle
-                          >
-                            <Checkbox>Khu tắm rửa</Checkbox>
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name={["features", "floodlights"]}
-                            valuePropName="checked"
-                            noStyle
-                          >
-                            <Checkbox>Đèn pha chiếu sáng</Checkbox>
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name={["features", "scoreboard"]}
-                            valuePropName="checked"
-                            noStyle
-                          >
-                            <Checkbox>Bảng điểm</Checkbox>
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name={["features", "audience_stands"]}
-                            valuePropName="checked"
-                            noStyle
-                          >
-                            <Checkbox>Khán đài</Checkbox>
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name={["features", "climate_control"]}
-                            valuePropName="checked"
-                            noStyle
-                          >
-                            <Checkbox>
-                              Hệ thống điều hòa không khí (máy lạnh/sưởi)
-                            </Checkbox>
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name={["features", "water_fountains"]}
-                            valuePropName="checked"
-                            noStyle
-                          >
-                            <Checkbox>Vòi uống nước</Checkbox>
-                          </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                          <Form.Item
-                            name={["features", "wheelchair_accessible"]}
-                            valuePropName="checked"
-                            noStyle
-                          >
-                            <Checkbox>Hỗ trợ cho người dùng xe lăn</Checkbox>
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                    </Checkbox.Group>
-                  </Form.Item>
+                      </Col>
+                      <Col span={4}>
+                        <Button
+                          type="primary"
+                          onClick={handleAddFacility}
+                          icon={<PlusOutlined />}
+                        >
+                          Thêm
+                        </Button>
+                      </Col>
+                    </Row>
+                  </div>
+
+                  <div
+                    className="facilities-list"
+                    style={{ marginTop: "16px" }}
+                  >
+                    {facilities.length > 0 ? (
+                      <Table
+                        dataSource={facilities.map((f, i) => ({
+                          ...f,
+                          key: i,
+                        }))}
+                        columns={[
+                          { title: "Tên tiện ích", dataIndex: "name" },
+                          { title: "Mô tả", dataIndex: "description" },
+                          {
+                            title: "Hành động",
+                            render: (_, record, index) => (
+                              <Button
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={() => handleRemoveFacility(index)}
+                              >
+                                Xóa
+                              </Button>
+                            ),
+                          },
+                        ]}
+                        pagination={false}
+                        size="small"
+                      />
+                    ) : (
+                      <Alert
+                        message="Chưa có tiện ích nào được thêm"
+                        description="Vui lòng thêm các tiện ích của sân để người dùng có thể biết thêm về sân của bạn."
+                        type="info"
+                        showIcon
+                      />
+                    )}
+                  </div>
                 </>
               ),
             },
@@ -872,7 +840,7 @@ const CourtOwnerCourtCreateView = () => {
 
                   <Alert
                     type="info"
-                    message="Schedule Tips"
+                    message="Mẹo thiết lập lịch"
                     description={
                       <ul>
                         <li>
@@ -949,7 +917,7 @@ const CourtOwnerCourtCreateView = () => {
                       listType="picture-card"
                       fileList={imageList}
                       onChange={({ fileList }) => setImageList(fileList)}
-                      beforeUpload={() => false} // Prevent auto-upload
+                      beforeUpload={() => false}
                     >
                       {imageList.length < 5 && <PlusOutlined />}
                     </Upload>

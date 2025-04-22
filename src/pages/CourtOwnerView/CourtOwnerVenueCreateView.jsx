@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Form,
@@ -10,10 +10,13 @@ import {
   Col,
   Spin,
   Divider,
+  Select,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { LeftOutlined, UploadOutlined, PlusOutlined } from "@ant-design/icons";
 import { Client } from "@/API/CourtApi";
+import { LocationApi } from "@/API/LocationApi";
+import LocationPicker from "@/components/GeneralComponents/LocationPicker";
 
 import VenueBasicForm from "@/components/CourtOwnerVenueCreateView/VenueBasicForm";
 import VenueSportsAmenitiesForm from "@/components/CourtOwnerVenueCreateView/VenueSportsAmenitiesForm";
@@ -42,7 +45,115 @@ const CourtOwnerVenueCreateView = () => {
     description: "",
     imageUrls: [],
     avatar: "",
+    latitude: 0,
+    longitude: 0,
   });
+
+  // State for location data
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [communes, setCommunes] = useState([]);
+  const [locationLoading, setLocationLoading] = useState({
+    provinces: false,
+    districts: false,
+    communes: false,
+  });
+  const [selectedLocationIds, setSelectedLocationIds] = useState({
+    provinceId: "",
+    districtId: "",
+    communeId: "",
+  });
+
+  useEffect(() => {
+    const loadProvinces = async () => {
+      try {
+        setLocationLoading((prev) => ({ ...prev, provinces: true }));
+        const provincesData = await LocationApi.getProvinces();
+        setProvinces(provincesData);
+      } catch (error) {
+        console.error("Error loading provinces:", error);
+      } finally {
+        setLocationLoading((prev) => ({ ...prev, provinces: false }));
+      }
+    };
+
+    loadProvinces();
+  }, []);
+
+  const loadDistricts = async (provinceId) => {
+    if (!provinceId) {
+      setDistricts([]);
+      return;
+    }
+    try {
+      setLocationLoading((prev) => ({ ...prev, districts: true }));
+      const districtsData = await LocationApi.getDistricts(provinceId);
+      setDistricts(districtsData);
+    } catch (error) {
+      console.error("Error loading districts:", error);
+    } finally {
+      setLocationLoading((prev) => ({ ...prev, districts: false }));
+    }
+  };
+
+  const loadCommunes = async (districtId) => {
+    if (!districtId) {
+      setCommunes([]);
+      return;
+    }
+    try {
+      setLocationLoading((prev) => ({ ...prev, communes: true }));
+      const communesData = await LocationApi.getCommunes(districtId);
+      setCommunes(communesData);
+    } catch (error) {
+      console.error("Error loading communes:", error);
+    } finally {
+      setLocationLoading((prev) => ({ ...prev, communes: false }));
+    }
+  };
+
+  const handleProvinceChange = (provinceId, provinceName) => {
+    setSelectedLocationIds((prev) => ({
+      ...prev,
+      provinceId,
+      districtId: "",
+      communeId: "",
+    }));
+    handleFieldChange("city", provinceName);
+    loadDistricts(provinceId);
+    setCommunes([]);
+  };
+
+  const handleDistrictChange = (districtId, districtName) => {
+    setSelectedLocationIds((prev) => ({
+      ...prev,
+      districtId,
+      communeId: "",
+    }));
+    handleFieldChange("district", districtName);
+    loadCommunes(districtId);
+  };
+
+  const handleCommuneChange = (communeId, communeName) => {
+    setSelectedLocationIds((prev) => ({
+      ...prev,
+      communeId,
+    }));
+    handleFieldChange("commune", communeName);
+  };
+
+  const handleLocationChange = (lat, lng) => {
+    setSportCenter((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
+    }));
+
+    form.setFieldsValue({
+      latitude: lat,
+      longitude: lng,
+    });
+  };
 
   // Custom upload handler for avatar
   const customAvatarUpload = async ({ file, onSuccess }) => {
@@ -111,6 +222,9 @@ const CourtOwnerVenueCreateView = () => {
         values.description || sportCenter.description
       );
 
+      formData.append("latitude", values.latitude || sportCenter.latitude);
+      formData.append("longitude", values.longitude || sportCenter.longitude);
+
       // Add avatar file if it exists
       if (avatarFile) {
         formData.append("avatarImage", avatarFile);
@@ -119,7 +233,7 @@ const CourtOwnerVenueCreateView = () => {
       // Add gallery files if they exist
       if (galleryFiles.length > 0) {
         galleryFiles.forEach((file) => {
-          formData.append("galleryImages", file);
+          formData.append("GalleryImages", file);
         });
       }
 
@@ -134,7 +248,9 @@ const CourtOwnerVenueCreateView = () => {
       navigate("/court-owner/venues");
     } catch (error) {
       console.error("Error creating sport center:", error);
-      message.error("Gặp lỗi trong quá trình tạo trung tâm thể thao. Vui lòng thử lại.");
+      message.error(
+        "Gặp lỗi trong quá trình tạo trung tâm thể thao. Vui lòng thử lại."
+      );
     } finally {
       setLoading(false);
     }
@@ -155,7 +271,9 @@ const CourtOwnerVenueCreateView = () => {
         </div>
       }
     >
-      <div className="font-semibold text-2xl mb-4">Thiết lập trung tâm thể thao mới</div>
+      <div className="font-semibold text-2xl mb-4">
+        Thiết lập trung tâm thể thao mới
+      </div>
 
       <Form
         layout="vertical"
@@ -168,7 +286,12 @@ const CourtOwnerVenueCreateView = () => {
             <Form.Item
               label="Tên trung tâm thể thao"
               name="name"
-              rules={[{ required: true, message: "Vui lòng nhập tên trung tâm thể thao" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập tên trung tâm thể thao",
+                },
+              ]}
             >
               <Input
                 placeholder="Nhập tên trung tâm thể thao"
@@ -179,7 +302,9 @@ const CourtOwnerVenueCreateView = () => {
             <Form.Item
               label="Số điện thoại"
               name="phoneNumber"
-              rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
+              rules={[
+                { required: true, message: "Vui lòng nhập số điện thoại" },
+              ]}
             >
               <Input
                 placeholder="Nhập số điện thoại"
@@ -207,40 +332,98 @@ const CourtOwnerVenueCreateView = () => {
                 <Form.Item
                   label="Tỉnh/Thành phố"
                   name="city"
-                  rules={[{ required: true, message: "Required" }]}
+                  rules={[
+                    { required: true, message: "Vui lòng chọn Tỉnh/Thành phố" },
+                  ]}
                 >
-                  <Input
-                    placeholder="Tỉnh/Thành phố"
-                    onChange={(e) => handleFieldChange("city", e.target.value)}
-                  />
+                  <Select
+                    placeholder="Chọn Tỉnh/Thành phố"
+                    value={selectedLocationIds.provinceId}
+                    onChange={(value) => {
+                      const selectedProvince = provinces.find(
+                        (p) => p.id === value
+                      );
+                      if (selectedProvince) {
+                        handleProvinceChange(
+                          selectedProvince.id,
+                          selectedProvince.name
+                        );
+                      }
+                    }}
+                    loading={locationLoading.provinces}
+                  >
+                    {provinces.map((province) => (
+                      <Select.Option key={province.id} value={province.id}>
+                        {province.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </Form.Item>
               </Col>
               <Col span={8}>
                 <Form.Item
                   label="Quận/Huyện"
                   name="district"
-                  rules={[{ required: true, message: "Required" }]}
+                  rules={[
+                    { required: true, message: "Vui lòng chọn Quận/Huyện" },
+                  ]}
                 >
-                  <Input
-                    placeholder="Quận/Huyện"
-                    onChange={(e) =>
-                      handleFieldChange("district", e.target.value)
-                    }
-                  />
+                  <Select
+                    placeholder="Chọn Quận/Huyện"
+                    value={selectedLocationIds.districtId}
+                    onChange={(value) => {
+                      const selectedDistrict = districts.find(
+                        (d) => d.id === value
+                      );
+                      if (selectedDistrict) {
+                        handleDistrictChange(
+                          selectedDistrict.id,
+                          selectedDistrict.name
+                        );
+                      }
+                    }}
+                    loading={locationLoading.districts}
+                    disabled={!selectedLocationIds.provinceId}
+                  >
+                    {districts.map((district) => (
+                      <Select.Option key={district.id} value={district.id}>
+                        {district.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </Form.Item>
               </Col>
               <Col span={8}>
                 <Form.Item
                   label="Xã/Phường"
                   name="commune"
-                  rules={[{ required: true, message: "Required" }]}
+                  rules={[
+                    { required: true, message: "Vui lòng chọn Xã/Phường" },
+                  ]}
                 >
-                  <Input
-                    placeholder="Xã/Phường"
-                    onChange={(e) =>
-                      handleFieldChange("commune", e.target.value)
-                    }
-                  />
+                  <Select
+                    placeholder="Chọn Xã/Phường"
+                    value={selectedLocationIds.communeId}
+                    onChange={(value) => {
+                      const selectedCommune = communes.find(
+                        (c) => c.id === value
+                      );
+                      if (selectedCommune) {
+                        handleCommuneChange(
+                          selectedCommune.id,
+                          selectedCommune.name
+                        );
+                      }
+                    }}
+                    loading={locationLoading.communes}
+                    disabled={!selectedLocationIds.districtId}
+                  >
+                    {communes.map((commune) => (
+                      <Select.Option key={commune.id} value={commune.id}>
+                        {commune.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </Form.Item>
               </Col>
             </Row>
@@ -258,10 +441,18 @@ const CourtOwnerVenueCreateView = () => {
             </Form.Item>
 
             <Form.Item
-              label={<span>Logo trung tâm thể thao <span style={{color: "red"}}>(Bắt buộc)</span></span>}
+              label={
+                <span>
+                  Logo trung tâm thể thao{" "}
+                  <span style={{ color: "red" }}>(Bắt buộc)</span>
+                </span>
+              }
               name="avatarImage"
               rules={[
-                { required: true, message: "Vui lòng tải lên logo trung tâm thể thao" },
+                {
+                  required: true,
+                  message: "Vui lòng tải lên logo trung tâm thể thao",
+                },
               ]}
             >
               <Upload
@@ -291,7 +482,10 @@ const CourtOwnerVenueCreateView = () => {
               </Upload>
             </Form.Item>
 
-            <Form.Item label="Hình ảnh trung tâm thể thao (Tối đa 5 ảnh)" name="galleryImages">
+            <Form.Item
+              label="Hình ảnh trung tâm thể thao (Tối đa 5 ảnh)"
+              name="galleryImages"
+            >
               <Upload
                 listType="picture-card"
                 fileList={galleryFiles.map((file, index) => ({
@@ -322,6 +516,39 @@ const CourtOwnerVenueCreateView = () => {
         </Row>
 
         <Divider />
+
+        {/* Bản đồ chọn vị trí */}
+        <Row>
+          <Col span={24}>
+            <LocationPicker
+              latitude={sportCenter.latitude}
+              longitude={sportCenter.longitude}
+              onLocationChange={handleLocationChange}
+              address={`${form.getFieldValue(
+                "addressLine"
+              )}, ${form.getFieldValue("district")}, ${form.getFieldValue(
+                "commune"
+              )}, ${form.getFieldValue("city")}`}
+            />
+          </Col>
+        </Row>
+
+        <Divider />
+
+        <Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="latitude" label="Vĩ độ" hidden={true}>
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="longitude" label="Kinh độ" hidden={true}>
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form.Item>
 
         {/* You can keep these existing components if needed */}
         {/* <VenueSportsAmenitiesForm />

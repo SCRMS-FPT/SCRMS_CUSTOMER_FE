@@ -990,6 +990,57 @@ protected processCalculateBookingPrice(response: Response): Promise<CalculateBoo
         }
         return Promise.resolve<DeleteCourtResponse>(null as any);
     }
+
+    
+    /**
+     * Soft Delete Sport Center
+     * @return OK
+     */
+    softDeleteSportCenter(centerId: string): Promise<SoftDeleteSportCenterResult> {
+        let url_ = this.baseUrl + "/api/sportcenters/{centerId}/soft";
+        if (centerId === undefined || centerId === null)
+            throw new Error("The parameter 'centerId' must be defined.");
+        url_ = url_.replace("{centerId}", encodeURIComponent("" + centerId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSoftDeleteSportCenter(_response);
+        });
+    }
+
+    protected processSoftDeleteSportCenter(response: Response): Promise<SoftDeleteSportCenterResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SoftDeleteSportCenterResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<SoftDeleteSportCenterResult>(null as any);
+    }
+
 /**
      * Get Court Owner Dashboard
      * @return OK
@@ -1991,6 +2042,54 @@ protected processGetCourtOwnerDashboard(response: Response): Promise<GetCourtOwn
         }
         return Promise.resolve<GetAllCourtsOfSportCenterResponse>(null as any);
     }
+ /**
+     * Delete Sport Center
+     * @return OK
+     */
+ deleteSportCenter(centerId: string): Promise<DeleteSportCenterResult> {
+    let url_ = this.baseUrl + "/api/sportcenters/{centerId}";
+    if (centerId === undefined || centerId === null)
+        throw new Error("The parameter 'centerId' must be defined.");
+    url_ = url_.replace("{centerId}", encodeURIComponent("" + centerId));
+    url_ = url_.replace(/[?&]$/, "");
+
+    let options_: RequestInit = {
+        method: "DELETE",
+        headers: {
+            ...this.getAuthHeaders(),
+            "Accept": "application/json"
+        }
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+        return this.processDeleteSportCenter(_response);
+    });
+}
+
+protected processDeleteSportCenter(response: Response): Promise<DeleteSportCenterResult> {
+    const status = response.status;
+    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+    if (status === 200) {
+        return response.text().then((_responseText) => {
+        let result200: any = null;
+        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result200 = DeleteSportCenterResult.fromJS(resultData200);
+        return result200;
+        });
+    } else if (status === 404) {
+        return response.text().then((_responseText) => {
+        let result404: any = null;
+        let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+        result404 = ProblemDetails.fromJS(resultData404);
+        return throwException("Not Found", status, _responseText, _headers, result404);
+        });
+    } else if (status !== 200 && status !== 204) {
+        return response.text().then((_responseText) => {
+        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        });
+    }
+    return Promise.resolve<DeleteSportCenterResult>(null as any);
+}
 
     /**
      * Update Sport Center
@@ -5133,6 +5232,42 @@ export interface IPromotionInfo {
     discountValue?: number;
 }
 
+export class SoftDeleteSportCenterResult implements ISoftDeleteSportCenterResult {
+    success?: boolean;
+
+    constructor(data?: ISoftDeleteSportCenterResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+        }
+    }
+
+    static fromJS(data: any): SoftDeleteSportCenterResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new SoftDeleteSportCenterResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        return data;
+    }
+}
+
+export interface ISoftDeleteSportCenterResult {
+    success?: boolean;
+}
+
 export class CreateOwnerBookingRequest implements ICreateOwnerBookingRequest {
     booking?: BookingCreateDTO;
     note?: string | undefined;
@@ -5295,6 +5430,42 @@ export interface ISportCenterListDTO {
     description?: string | undefined;
     avatar?: string | undefined;
     imageUrl?: string[] | undefined;
+}
+
+export class DeleteSportCenterResult implements IDeleteSportCenterResult {
+    success?: boolean;
+
+    constructor(data?: IDeleteSportCenterResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+        }
+    }
+
+    static fromJS(data: any): DeleteSportCenterResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteSportCenterResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        return data;
+    }
+}
+
+export interface IDeleteSportCenterResult {
+    success?: boolean;
 }
 
 export class SportCenterListDTOPaginatedResult implements ISportCenterListDTOPaginatedResult {
