@@ -24,7 +24,7 @@ export class Client {
     private getAuthHeaders(): HeadersInit {
         // Get token from localStorage (which is synced with Redux store)
         const token = localStorage.getItem("token");
-        
+
         // Return headers with Authorization if token exists
         return token ? {
             "Authorization": `Bearer ${token}`,
@@ -32,6 +32,126 @@ export class Client {
         } : {
             "Accept": "application/json"
         };
+    }
+
+    /**
+     * @param start_date (optional) 
+     * @param end_date (optional) 
+     * @param select_by (optional) 
+     * @return OK
+     */
+    getCoachRevenueReport(start_date: string | undefined, end_date: string | undefined, select_by: string | undefined): Promise<CoachRevenueReportDto> {
+        let url_ = this.baseUrl + "/api/coach/reports/revenue?";
+        if (start_date === null)
+            throw new Error("The parameter 'start_date' cannot be null.");
+        else if (start_date !== undefined)
+            url_ += "start_date=" + encodeURIComponent("" + start_date) + "&";
+        if (end_date === null)
+            throw new Error("The parameter 'end_date' cannot be null.");
+        else if (end_date !== undefined)
+            url_ += "end_date=" + encodeURIComponent("" + end_date) + "&";
+        if (select_by === null)
+            throw new Error("The parameter 'select_by' cannot be null.");
+        else if (select_by !== undefined)
+            url_ += "select_by=" + encodeURIComponent("" + select_by) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCoachRevenueReport(_response);
+        });
+    }
+
+    protected processGetCoachRevenueReport(response: Response): Promise<CoachRevenueReportDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+                let result200: any = null;
+                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = CoachRevenueReportDto.fromJS(resultData200);
+                return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+                let result401: any = null;
+                let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result401 = ProblemDetails.fromJS(resultData401);
+                return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CoachRevenueReportDto>(null as any);
+    }
+
+    /**
+     * @param start_date (optional) 
+     * @param end_date (optional) 
+     * @param select_by (optional) 
+     * @return OK
+     */
+    getCourtRevenueReport(start_date: string | undefined, end_date: string | undefined, select_by: string | undefined): Promise<CourtRevenueReportDto> {
+        let url_ = this.baseUrl + "/api/court/reports/revenue?";
+        if (start_date === null)
+            throw new Error("The parameter 'start_date' cannot be null.");
+        else if (start_date !== undefined)
+            url_ += "start_date=" + encodeURIComponent("" + start_date) + "&";
+        if (end_date === null)
+            throw new Error("The parameter 'end_date' cannot be null.");
+        else if (end_date !== undefined)
+            url_ += "end_date=" + encodeURIComponent("" + end_date) + "&";
+        if (select_by === null)
+            throw new Error("The parameter 'select_by' cannot be null.");
+        else if (select_by !== undefined)
+            url_ += "select_by=" + encodeURIComponent("" + select_by) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCourtRevenueReport(_response);
+        });
+    }
+
+    protected processGetCourtRevenueReport(response: Response): Promise<CourtRevenueReportDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+                let result200: any = null;
+                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = CourtRevenueReportDto.fromJS(resultData200);
+                return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+                let result401: any = null;
+                let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result401 = ProblemDetails.fromJS(resultData401);
+                return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CourtRevenueReportDto>(null as any);
     }
 
     /**
@@ -66,11 +186,135 @@ export class Client {
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+                return;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    processWithdrawalRequest(requestId: string, body: ProcessWithdrawalRequestDto): Promise<void> {
+        let url_ = this.baseUrl + "/api/admin/payments/withdrawal-requests/{requestId}";
+        if (requestId === undefined || requestId === null)
+            throw new Error("The parameter 'requestId' must be defined.");
+        url_ = url_.replace("{requestId}", encodeURIComponent("" + requestId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processProcessWithdrawalRequest(_response);
+        });
+    }
+
+    protected processProcessWithdrawalRequest(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+                return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+    /**
+         * Check the status of a deposit transaction by its ID
+         * @param id Deposit transaction GUID
+         * @return OK
+         */
+    getDepositStatus(id: string): Promise<DepositStatusDto> {
+        let url_ = this.baseUrl + "/api/payments/wallet/deposit/" + encodeURIComponent(id) + "/status";
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetDepositStatus(_response);
+        });
+    }
+
+    protected processGetDepositStatus(response: Response): Promise<DepositStatusDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && response.headers.forEach) {
+            response.headers.forEach((v: any, k: any) => _headers[k] = v);
+        }
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+                let result200: any = null;
+                let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = DepositStatusDto.fromJS(resultData200);
+                return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+                let result401: any = null;
+                let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result401 = ProblemDetails.fromJS(resultData401);
+                return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+                return throwException("Deposit not found", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<DepositStatusDto>(null as any);
+    }
+    /**
+     * @return OK
+     */
+    processOutbox(): Promise<void> {
+        let url_ = this.baseUrl + "/api/debug/process-outbox";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: this.getAuthHeaders()
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processProcessOutbox(_response);
+        });
+    }
+
+    protected processProcessOutbox(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+                return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
@@ -106,12 +350,11 @@ export class Client {
             return response.json();
         } else if (status !== 200 && status !== 201 && status !== 204) {
             return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
     }
-
 
     /**
      * @return OK
@@ -137,166 +380,7 @@ export class Client {
             return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-/**
-     * @param start_date (optional) 
-     * @param end_date (optional) 
-     * @param select_by (optional) 
-     * @return OK
-     */
-getCoachRevenueReport(start_date: string | undefined, end_date: string | undefined, select_by: string | undefined): Promise<CoachRevenueReportDto> {
-    let url_ = this.baseUrl + "/api/coach/reports/revenue?";
-    if (start_date === null)
-        throw new Error("The parameter 'start_date' cannot be null.");
-    else if (start_date !== undefined)
-        url_ += "start_date=" + encodeURIComponent("" + start_date) + "&";
-    if (end_date === null)
-        throw new Error("The parameter 'end_date' cannot be null.");
-    else if (end_date !== undefined)
-        url_ += "end_date=" + encodeURIComponent("" + end_date) + "&";
-    if (select_by === null)
-        throw new Error("The parameter 'select_by' cannot be null.");
-    else if (select_by !== undefined)
-        url_ += "select_by=" + encodeURIComponent("" + select_by) + "&";
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: RequestInit = {
-        method: "GET",
-        headers: {
-            ...this.getAuthHeaders(), // Add auth headers
-            "Accept": "application/json"
-        }
-    };
-
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-        return this.processGetCoachRevenueReport(_response);
-    });
-}
-
-protected processGetCoachRevenueReport(response: Response): Promise<CoachRevenueReportDto> {
-    const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-    if (status === 200) {
-        return response.text().then((_responseText) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = CoachRevenueReportDto.fromJS(resultData200);
-        return result200;
-        });
-    } else if (status === 401) {
-        return response.text().then((_responseText) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-        });
-    } else if (status !== 200 && status !== 204) {
-        return response.text().then((_responseText) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        });
-    }
-    return Promise.resolve<CoachRevenueReportDto>(null as any);
-}
-
-/**
- * @param start_date (optional) 
- * @param end_date (optional) 
- * @param select_by (optional) 
- * @return OK
- */
-getCourtRevenueReport(start_date: string | undefined, end_date: string | undefined, select_by: string | undefined): Promise<CourtRevenueReportDto> {
-    let url_ = this.baseUrl + "/api/court/reports/revenue?";
-    if (start_date === null)
-        throw new Error("The parameter 'start_date' cannot be null.");
-    else if (start_date !== undefined)
-        url_ += "start_date=" + encodeURIComponent("" + start_date) + "&";
-    if (end_date === null)
-        throw new Error("The parameter 'end_date' cannot be null.");
-    else if (end_date !== undefined)
-        url_ += "end_date=" + encodeURIComponent("" + end_date) + "&";
-    if (select_by === null)
-        throw new Error("The parameter 'select_by' cannot be null.");
-    else if (select_by !== undefined)
-        url_ += "select_by=" + encodeURIComponent("" + select_by) + "&";
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: RequestInit = {
-        method: "GET",
-        headers: {
-                ...this.getAuthHeaders(), // Add auth headers
-            "Accept": "application/json"
-        }
-    };
-
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-        return this.processGetCourtRevenueReport(_response);
-    });
-}
-
-protected processGetCourtRevenueReport(response: Response): Promise<CourtRevenueReportDto> {
-    const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-    if (status === 200) {
-        return response.text().then((_responseText) => {
-        let result200: any = null;
-        let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result200 = CourtRevenueReportDto.fromJS(resultData200);
-        return result200;
-        });
-    } else if (status === 401) {
-        return response.text().then((_responseText) => {
-        let result401: any = null;
-        let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-        result401 = ProblemDetails.fromJS(resultData401);
-        return throwException("Unauthorized", status, _responseText, _headers, result401);
-        });
-    } else if (status !== 200 && status !== 204) {
-        return response.text().then((_responseText) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        });
-    }
-    return Promise.resolve<CourtRevenueReportDto>(null as any);
-}
-
-    /**
-     * @param page (optional) 
-     * @param limit (optional) 
-     * @return OK
-     */
-    getPendingWithdrawalRequests(page: number | undefined, limit: number | undefined): Promise<void> {
-        let url_ = this.baseUrl + "/api/admin/payments/withdrawal-requests?";
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
-            url_ += "page=" + encodeURIComponent("" + page) + "&";
-        if (limit === null)
-            throw new Error("The parameter 'limit' cannot be null.");
-        else if (limit !== undefined)
-            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: this.getAuthHeaders()
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetPendingWithdrawalRequests(_response);
-        });
-    }
-
-    protected processGetPendingWithdrawalRequests(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.json();
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
@@ -326,7 +410,7 @@ protected processGetCourtRevenueReport(response: Response): Promise<CourtRevenue
             return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
@@ -335,190 +419,35 @@ protected processGetCourtRevenueReport(response: Response): Promise<CourtRevenue
     /**
      * @return OK
      */
-    adminDeleteReview(reviewId: string): Promise<void> {
-        let url_ = this.baseUrl + "/api/admin/reviews/{reviewId}";
-        if (reviewId === undefined || reviewId === null)
-            throw new Error("The parameter 'reviewId' must be defined.");
-        url_ = url_.replace("{reviewId}", encodeURIComponent("" + reviewId));
+    getUserWalletBalance(userId: string): Promise<void> {
+        let url_ = this.baseUrl + "/api/admin/payments/wallet/{userId}";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
-            method: "DELETE",
-            headers: this.getAuthHeaders() // Add auth headers
+            method: "GET",
+            headers: this.getAuthHeaders()
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAdminDeleteReview(_response);
+            return this.processGetUserWalletBalance(_response);
         });
     }
 
-    protected processAdminDeleteReview(response: Response): Promise<void> {
+    protected processGetUserWalletBalance(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
- /**
-     * @param page (optional) 
-     * @param limit (optional) 
-     * @return OK
-     */
- getFlaggedReviews(page: number | undefined, limit: number | undefined): Promise<void> {
-    let url_ = this.baseUrl + "/api/admin/reviews/flagged?";
-    if (page === null)
-        throw new Error("The parameter 'page' cannot be null.");
-    else if (page !== undefined)
-        url_ += "page=" + encodeURIComponent("" + page) + "&";
-    if (limit === null)
-        throw new Error("The parameter 'limit' cannot be null.");
-    else if (limit !== undefined)
-        url_ += "limit=" + encodeURIComponent("" + limit) + "&";
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: RequestInit = {
-        method: "GET",
-        headers: this.getAuthHeaders()
-    };
-
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-        return this.processGetFlaggedReviews(_response);
-    });
-}
-
-protected processGetFlaggedReviews(response: Response): Promise<void> {
-    const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-    if (status === 200) {
-        return response.json();
-    } else if (status !== 200 && status !== 204) {
-        return response.text().then((_responseText) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        });
-    }
-    return Promise.resolve<void>(null as any);
-}
-
-
- /**
-     * @return OK
-     */
- getUserWalletBalance(userId: string): Promise<void> {
-    let url_ = this.baseUrl + "/api/admin/payments/wallet/{userId}";
-    if (userId === undefined || userId === null)
-        throw new Error("The parameter 'userId' must be defined.");
-    url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-    url_ = url_.replace(/[?&]$/, "");
-
-    let options_: RequestInit = {
-        method: "GET",
-        headers: this.getAuthHeaders()
-    };
-
-    return this.http.fetch(url_, options_).then((_response: Response) => {
-        return this.processGetUserWalletBalance(_response);
-    });
-}
-
-protected processGetUserWalletBalance(response: Response): Promise<void> {
-    const status = response.status;
-    let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-    if (status === 200) {
-        return response.json();
-    } else if (status !== 200 && status !== 204) {
-        return response.text().then((_responseText) => {
-        return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        });
-    }
-    return Promise.resolve<void>(null as any);
-}
-
-
-    /**
-     * @return OK
-     */
-    processWithdrawalRequest(requestId: string, body: ProcessWithdrawalRequestDto): Promise<void> {
-        let url_ = this.baseUrl + "/api/admin/payments/withdrawal-requests/{requestId}";
-        if (requestId === undefined || requestId === null)
-            throw new Error("The parameter 'requestId' must be defined.");
-        url_ = url_.replace("{requestId}", encodeURIComponent("" + requestId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
-            headers: {
-                ...this.getAuthHeaders(), // Add auth headers
-                "Content-Type": "application/json",
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processProcessWithdrawalRequest(_response);
-        });
-    }
-
-    protected processProcessWithdrawalRequest(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            return;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-
-        /**
-     * @return OK
-     */
-        createWithdrawalRequest(body: WithdrawalRequestDto): Promise<void> {
-            let url_ = this.baseUrl + "/api/payments/wallet/withdraw";
-            url_ = url_.replace(/[?&]$/, "");
-    
-            const content_ = JSON.stringify(body);
-    
-            let options_: RequestInit = {
-                body: content_,
-                method: "POST",
-                headers: {
-                    ...this.getAuthHeaders(),
-                    "Content-Type": "application/json",
-                }
-            };
-    
-            return this.http.fetch(url_, options_).then((_response: Response) => {
-                return this.processCreateWithdrawalRequest(_response);
-            });
-        }
-    
-        protected processCreateWithdrawalRequest(response: Response): Promise<void> {
-            const status = response.status;
-            let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-            if (status === 200) {
-                return response.text().then((_responseText) => {
-                return;
-                });
-            } else if (status !== 200 && status !== 204) {
-                return response.text().then((_responseText) => {
                 return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-                });
-            }
-            return Promise.resolve<void>(null as any);
+            });
         }
+        return Promise.resolve<void>(null as any);
+    }
 
     /**
      * @param page (optional) 
@@ -554,7 +483,82 @@ protected processGetUserWalletBalance(response: Response): Promise<void> {
             return response.json();
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @param page (optional) 
+     * @param limit (optional) 
+     * @return OK
+     */
+    getPendingWithdrawalRequests(page: number | undefined, limit: number | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/admin/payments/withdrawal-requests?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "page=" + encodeURIComponent("" + page) + "&";
+        if (limit === null)
+            throw new Error("The parameter 'limit' cannot be null.");
+        else if (limit !== undefined)
+            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: this.getAuthHeaders()
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetPendingWithdrawalRequests(_response);
+        });
+    }
+
+    protected processGetPendingWithdrawalRequests(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.json();
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    checkDepositStatus(id: string): Promise<void> {
+        let url_ = this.baseUrl + "/api/payments/wallet/deposit/{id}/status";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: this.getAuthHeaders()
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCheckDepositStatus(_response);
+        });
+    }
+
+    protected processCheckDepositStatus(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+                return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
@@ -573,7 +577,7 @@ protected processGetUserWalletBalance(response: Response): Promise<void> {
             body: content_,
             method: "POST",
             headers: {
-                ...this.getAuthHeaders(), // Add auth headers
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };
@@ -586,142 +590,93 @@ protected processGetUserWalletBalance(response: Response): Promise<void> {
     protected processDepositFunds(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 201) {
-            return response.json();
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+                return;
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<void>(null as any);
     }
-}
 
-export class DepositFundsRequest implements IDepositFundsRequest {
-    amount?: number;
-    description?: string | undefined;
+    /**
+     * @return OK
+     */
+    processSePayWebhook(body: SePayWebhookModel): Promise<void> {
+        let url_ = this.baseUrl + "/api/payments/sepay/webhook";
+        url_ = url_.replace(/[?&]$/, "");
 
-    constructor(data?: IDepositFundsRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Content-Type": "application/json",
             }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processProcessSePayWebhook(_response);
+        });
+    }
+
+    protected processProcessSePayWebhook(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+                return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
+        return Promise.resolve<void>(null as any);
     }
 
-    init(_data?: any) {
-        if (_data) {
-            this.amount = _data["amount"];
-            this.description = _data["description"];
-        }
-    }
+    /**
+     * @return OK
+     */
+    createWithdrawalRequest(body: WithdrawalRequestDto): Promise<void> {
+        let url_ = this.baseUrl + "/api/payments/wallet/withdraw";
+        url_ = url_.replace(/[?&]$/, "");
 
-    static fromJS(data: any): DepositFundsRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new DepositFundsRequest();
-        result.init(data);
-        return result;
-    }
+        const content_ = JSON.stringify(body);
 
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["amount"] = this.amount;
-        data["description"] = this.description;
-        return data;
-    }
-}
-
-export interface IDepositFundsRequest {
-    amount?: number;
-    description?: string | undefined;
-}
-
-export class WithdrawalRequestDto implements IWithdrawalRequestDto {
-    amount!: number;
-    bankName!: string;
-    accountNumber!: string;
-    accountHolderName!: string;
-
-    constructor(data?: IWithdrawalRequestDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Content-Type": "application/json",
             }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateWithdrawalRequest(_response);
+        });
+    }
+
+    protected processCreateWithdrawalRequest(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+                return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
         }
+        return Promise.resolve<void>(null as any);
     }
-
-    init(_data?: any) {
-        if (_data) {
-            this.amount = _data["amount"];
-            this.bankName = _data["bankName"];
-            this.accountNumber = _data["accountNumber"];
-            this.accountHolderName = _data["accountHolderName"];
-        }
-    }
-
-    static fromJS(data: any): WithdrawalRequestDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new WithdrawalRequestDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["amount"] = this.amount;
-        data["bankName"] = this.bankName;
-        data["accountNumber"] = this.accountNumber;
-        data["accountHolderName"] = this.accountHolderName;
-        return data;
-    }
-}
-
-export interface IWithdrawalRequestDto {
-    amount: number;
-    bankName: string;
-    accountNumber: string;
-    accountHolderName: string;
-}
-export class RevenueStatDto implements IRevenueStatDto {
-    period?: string | undefined;
-    revenue?: number;
-
-    constructor(data?: IRevenueStatDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.period = _data["period"];
-            this.revenue = _data["revenue"];
-        }
-    }
-
-    static fromJS(data: any): RevenueStatDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new RevenueStatDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["period"] = this.period;
-        data["revenue"] = this.revenue;
-        return data;
-    }
-}
-
-export interface IRevenueStatDto {
-    period?: string | undefined;
-    revenue?: number;
 }
 
 export class CoachRevenueReportDto implements ICoachRevenueReportDto {
@@ -907,6 +862,87 @@ export interface ICourtRevenueStatDto {
     period?: string | undefined;
     revenue?: number;
 }
+
+export class DateRangeDto implements IDateRangeDto {
+    startDate?: string | undefined;
+    endDate?: string | undefined;
+
+    constructor(data?: IDateRangeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.startDate = _data["startDate"];
+            this.endDate = _data["endDate"];
+        }
+    }
+
+    static fromJS(data: any): DateRangeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DateRangeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["startDate"] = this.startDate;
+        data["endDate"] = this.endDate;
+        return data;
+    }
+}
+
+export interface IDateRangeDto {
+    startDate?: string | undefined;
+    endDate?: string | undefined;
+}
+
+export class DepositFundsRequest implements IDepositFundsRequest {
+    amount?: number;
+    description?: string | undefined;
+
+    constructor(data?: IDepositFundsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): DepositFundsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new DepositFundsRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["description"] = this.description;
+        return data;
+    }
+}
+
+export interface IDepositFundsRequest {
+    amount?: number;
+    description?: string | undefined;
+}
+
 export class ProblemDetails implements IProblemDetails {
     type?: string | undefined;
     title?: string | undefined;
@@ -969,87 +1005,6 @@ export interface IProblemDetails {
     instance?: string | undefined;
 
     [key: string]: any;
-}
-
-export class DateRangeDto implements IDateRangeDto {
-    startDate?: string | undefined;
-    endDate?: string | undefined;
-
-    constructor(data?: IDateRangeDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.startDate = _data["startDate"];
-            this.endDate = _data["endDate"];
-        }
-    }
-
-    static fromJS(data: any): DateRangeDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new DateRangeDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["startDate"] = this.startDate;
-        data["endDate"] = this.endDate;
-        return data;
-    }
-}
-
-export interface IDateRangeDto {
-    startDate?: string | undefined;
-    endDate?: string | undefined;
-}
-
-
-export class ProcessWithdrawalRequestDto implements IProcessWithdrawalRequestDto {
-    status!: string;
-    adminNote?: string | undefined;
-
-    constructor(data?: IProcessWithdrawalRequestDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.status = _data["status"];
-            this.adminNote = _data["adminNote"];
-        }
-    }
-
-    static fromJS(data: any): ProcessWithdrawalRequestDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProcessWithdrawalRequestDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["status"] = this.status;
-        data["adminNote"] = this.adminNote;
-        return data;
-    }
-}
-
-export interface IProcessWithdrawalRequestDto {
-    status: string;
-    adminNote?: string | undefined;
 }
 
 export class ProcessPaymentRequest implements IProcessPaymentRequest {
@@ -1120,6 +1075,229 @@ export interface IProcessPaymentRequest {
     status?: string | undefined;
 }
 
+export class ProcessWithdrawalRequestDto implements IProcessWithdrawalRequestDto {
+    status!: string;
+    adminNote?: string | undefined;
+
+    constructor(data?: IProcessWithdrawalRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.status = _data["status"];
+            this.adminNote = _data["adminNote"];
+        }
+    }
+
+    static fromJS(data: any): ProcessWithdrawalRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProcessWithdrawalRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["status"] = this.status;
+        data["adminNote"] = this.adminNote;
+        return data;
+    }
+}
+
+export interface IProcessWithdrawalRequestDto {
+    status: string;
+    adminNote?: string | undefined;
+}
+
+export class RevenueStatDto implements IRevenueStatDto {
+    period?: string | undefined;
+    revenue?: number;
+
+    constructor(data?: IRevenueStatDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.period = _data["period"];
+            this.revenue = _data["revenue"];
+        }
+    }
+
+    static fromJS(data: any): RevenueStatDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RevenueStatDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["period"] = this.period;
+        data["revenue"] = this.revenue;
+        return data;
+    }
+}
+
+export interface IRevenueStatDto {
+    period?: string | undefined;
+    revenue?: number;
+}
+
+export class SePayWebhookModel implements ISePayWebhookModel {
+    id?: number;
+    gateway?: string | undefined;
+    transactionDate?: string | undefined;
+    accountNumber?: string | undefined;
+    code?: string | undefined;
+    content?: string | undefined;
+    transferType?: string | undefined;
+    transferAmount?: number;
+    accumulated?: number;
+    subAccount?: string | undefined;
+    referenceCode?: string | undefined;
+    description?: string | undefined;
+
+    constructor(data?: ISePayWebhookModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.gateway = _data["gateway"];
+            this.transactionDate = _data["transactionDate"];
+            this.accountNumber = _data["accountNumber"];
+            this.code = _data["code"];
+            this.content = _data["content"];
+            this.transferType = _data["transferType"];
+            this.transferAmount = _data["transferAmount"];
+            this.accumulated = _data["accumulated"];
+            this.subAccount = _data["subAccount"];
+            this.referenceCode = _data["referenceCode"];
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): SePayWebhookModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new SePayWebhookModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["gateway"] = this.gateway;
+        data["transactionDate"] = this.transactionDate;
+        data["accountNumber"] = this.accountNumber;
+        data["code"] = this.code;
+        data["content"] = this.content;
+        data["transferType"] = this.transferType;
+        data["transferAmount"] = this.transferAmount;
+        data["accumulated"] = this.accumulated;
+        data["subAccount"] = this.subAccount;
+        data["referenceCode"] = this.referenceCode;
+        data["description"] = this.description;
+        return data;
+    }
+}
+export class DepositStatusDto {
+    id!: string;
+    code!: string;
+    amount!: number;
+    status!: string;
+    completedAt?: string | null;
+
+    static fromJS(data: any): DepositStatusDto {
+        const dto = new DepositStatusDto();
+        dto.id = data.id;
+        dto.code = data.code;
+        dto.amount = data.amount;
+        dto.status = data.status;
+        dto.completedAt = data.completedAt;
+        return dto;
+    }
+}
+export interface ISePayWebhookModel {
+    id?: number;
+    gateway?: string | undefined;
+    transactionDate?: string | undefined;
+    accountNumber?: string | undefined;
+    code?: string | undefined;
+    content?: string | undefined;
+    transferType?: string | undefined;
+    transferAmount?: number;
+    accumulated?: number;
+    subAccount?: string | undefined;
+    referenceCode?: string | undefined;
+    description?: string | undefined;
+}
+
+export class WithdrawalRequestDto implements IWithdrawalRequestDto {
+    amount!: number;
+    bankName!: string;
+    accountNumber!: string;
+    accountHolderName!: string;
+
+    constructor(data?: IWithdrawalRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.amount = _data["amount"];
+            this.bankName = _data["bankName"];
+            this.accountNumber = _data["accountNumber"];
+            this.accountHolderName = _data["accountHolderName"];
+        }
+    }
+
+    static fromJS(data: any): WithdrawalRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new WithdrawalRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["amount"] = this.amount;
+        data["bankName"] = this.bankName;
+        data["accountNumber"] = this.accountNumber;
+        data["accountHolderName"] = this.accountHolderName;
+        return data;
+    }
+}
+
+export interface IWithdrawalRequestDto {
+    amount: number;
+    bankName: string;
+    accountNumber: string;
+    accountHolderName: string;
+}
 
 export class ApiException extends Error {
     message: string;
