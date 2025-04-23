@@ -499,9 +499,49 @@ export class Client {
     if (response.headers && response.headers.forEach) {
       response.headers.forEach((v: any, k: any) => (_headers[k] = v));
     }
-    if (status === 200) {
-      return response.json();
-    } else if (status !== 200 && status !== 204) {
+    if (status !== 200 && status !== 204) {
+      return response.text().then((_responseText) => {
+        return throwException(
+          "An unexpected server error occurred.",
+          status,
+          _responseText,
+          _headers
+        );
+      });
+    }
+    return Promise.resolve<void>(null as any);
+  }
+
+  /**
+   * @return OK
+   */
+  resetPasswordConfirm(body: ResetPasswordConfirmRequest): Promise<void> {
+    let url_ = this.baseUrl + "/api/identity/users/reset-password-confirm";
+    url_ = url_.replace(/[?&]$/, "");
+
+    const content_ = JSON.stringify(body);
+
+    let options_: RequestInit = {
+      body: content_,
+      method: "POST",
+      headers: {
+        ...this.getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+    };
+
+    return this.http.fetch(url_, options_).then((_response: Response) => {
+      return this.processResetPasswordConfirm(_response);
+    });
+  }
+
+  protected processResetPasswordConfirm(response: Response): Promise<void> {
+    const status = response.status;
+    let _headers: any = {};
+    if (response.headers && response.headers.forEach) {
+      response.headers.forEach((v: any, k: any) => (_headers[k] = v));
+    }
+    if (status !== 200 && status !== 204) {
       return response.text().then((_responseText) => {
         return throwException(
           "An unexpected server error occurred.",
@@ -1842,6 +1882,48 @@ export class ResetPasswordRequest implements IResetPasswordRequest {
 
 export interface IResetPasswordRequest {
   email?: string | undefined;
+}
+
+export class ResetPasswordConfirmRequest
+  implements IResetPasswordConfirmRequest
+{
+  token?: string | undefined;
+  newPassword?: string | undefined;
+
+  constructor(data?: IResetPasswordConfirmRequest) {
+    if (data) {
+      for (var property in data) {
+        if (data.hasOwnProperty(property))
+          (<any>this)[property] = (<any>data)[property];
+      }
+    }
+  }
+
+  init(_data?: any) {
+    if (_data) {
+      this.token = _data["token"];
+      this.newPassword = _data["newPassword"];
+    }
+  }
+
+  static fromJS(data: any): ResetPasswordConfirmRequest {
+    data = typeof data === "object" ? data : {};
+    let result = new ResetPasswordConfirmRequest();
+    result.init(data);
+    return result;
+  }
+
+  toJSON(data?: any) {
+    data = typeof data === "object" ? data : {};
+    data["newPassword"] = this.newPassword;
+    data["token"] = this.token;
+    return data;
+  }
+}
+
+export interface IResetPasswordConfirmRequest {
+  token?: string | undefined;
+  newPassword?: string | undefined;
 }
 
 export class LoginWithGoogleRequest implements ILoginWithGoogleRequest {

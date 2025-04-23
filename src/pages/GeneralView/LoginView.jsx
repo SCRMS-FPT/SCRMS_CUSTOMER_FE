@@ -41,7 +41,7 @@ const LoginView = () => {
 
   const navigate = useNavigate();
 
-  const { status } = useSelector((state) => state.user);
+  const { status, userProfile } = useSelector((state) => state.user);
 
   const client = new Client();
 
@@ -282,7 +282,11 @@ const LoginView = () => {
               name="birthdate"
               label="Ngày sinh"
               rules={[
-                { required: true, message: "Vui lòng chọn ngày sinh" },
+                {
+                  required: true,
+                  message: "Vui lòng chọn ngày sinh",
+                  type: "object",
+                },
                 {
                   validator: (_, value) => {
                     if (!value) {
@@ -292,6 +296,9 @@ const LoginView = () => {
                       return Promise.reject(
                         "Ngày sinh không được lớn hơn ngày hiện tại"
                       );
+                    }
+                    if (dayjs().diff(value, "year") < 18) {
+                      return Promise.reject("Bạn phải đủ 18 tuổi để đăng ký");
                     }
                     return Promise.resolve();
                   },
