@@ -5,15 +5,13 @@ import BookCourtView from "@/pages/UserView/BookCourtView";
 import UserDashboardView from "@/pages/UserView/UserDashboardView";
 import UserCourtBookingManagementView from "@/pages/UserView/UserCourtBookingManagementView";
 import UserBookingDetailView from "@/pages/UserView/UserBookingDetailView";
-import UserTeamMatchingManagementView from "@/pages/UserView/UserTeamMatchingManagementView";
-import UserMatchingDetailView from "@/pages/UserView/UserMatchingDetailView";
 import UserCoachingManagementView from "@/pages/UserView/UserCoachingManagementView";
 import UserCoachDetailView from "@/components/UserPage/UserCoachDetailView";
 import UserCoachScheduleDetailView from "@/pages/UserView/UserCoachScheduleDetailView";
 import UserFeedbackView from "@/pages/UserView/UserFeedbackView";
 import UserFeedbackDetailView from "@/pages/UserView/UserFeedbackDetailView";
 import UserDepositView from "@/pages/UserView/UserDepositView";
-import UserTransactionView from "@/pages/UserView/UserTransactionView";
+import UserSubscriptionsView from "@/pages/UserView/UserSubscriptionsView";
 // import BookCoachSession from "@/pages/BookCoachSession";
 
 import UserSidebar from "@/components/UserPage/UserSidebar";
@@ -22,7 +20,6 @@ import ChatWidget from "../components/Chat/ChatWidget";
 import ProfilePage from "../pages/UserView/ProfilePage";
 import ChangePasswordPage from "../pages/UserView/ChangePasswordPage";
 import FindMatchContainer from "@/pages/UserView/FindMatchContainer";
-import MatchesListPage from "@/pages/UserView/MatchesListPage";
 import UserCoachBookingDetailView from "../pages/UserView/UserCoachBookingDetailView";
 import MessengerPage from "../pages/ChatView/MessengerPage";
 import WalletWithdrawalForm from "@/pages/UserView/WalletWithdrawalForm";
@@ -65,26 +62,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserBookingDetailView />
-        <ChatWidget />
-      </UserSidebar>
-    }
-  />,
-  <Route
-    key="user-matching"
-    path="/user/matching"
-    element={
-      <UserSidebar>
-        <UserTeamMatchingManagementView />
-        <ChatWidget />
-      </UserSidebar>
-    }
-  />,
-  <Route
-    key="user-matching-details"
-    path="/user/matching/:id"
-    element={
-      <UserSidebar>
-        <UserMatchingDetailView />
         <ChatWidget />
       </UserSidebar>
     }
@@ -140,21 +117,21 @@ const UserRoutes = [
     }
   />,
   <Route
-    key="user-feedback-details"
-    path="/user/coachings/:id"
+    key="user-subscriptions"
+    path="/user/subscriptions"
     element={
       <UserSidebar>
-        <UserCoachBookingDetailView />
+        <UserSubscriptionsView />
         <ChatWidget />
       </UserSidebar>
     }
   />,
   <Route
-    key="user-transactions"
-    path="/user/transactions"
+    key="user-feedback-details"
+    path="/user/coachings/:id"
     element={
       <UserSidebar>
-        <UserTransactionView />
+        <UserCoachBookingDetailView />
         <ChatWidget />
       </UserSidebar>
     }
@@ -188,15 +165,6 @@ const UserRoutes = [
     element={
       <Layout>
         <FindMatchContainer />
-      </Layout>
-    }
-  />,
-  <Route
-    key="match-opponents-list"
-    path="/matches/list"
-    element={
-      <Layout>
-        <MatchesListPage />
       </Layout>
     }
   />,

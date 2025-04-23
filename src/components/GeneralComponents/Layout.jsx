@@ -1,10 +1,13 @@
+import React from "react";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 const Layout = ({ children, className = "" }) => {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className={className}>{children}</main>
+      <main className={`flex-grow ${className}`}>{children}</main>
+      <Footer />
     </div>
   );
 };

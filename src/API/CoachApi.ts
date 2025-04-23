@@ -509,6 +509,53 @@ protected processCreateMyPromotion(response: Response): Promise<CreateCoachPromo
         return Promise.resolve<UserBookingHistoryResultPaginatedResult>(null as any);
     }
 
+    /**
+     * Get User Coach Dashboard
+     * @return OK
+     */
+    getUserCoachDashboard(): Promise<UserDashboardResponse> {
+        let url_ = this.baseUrl + "/api/coach/user/dashboard";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUserCoachDashboard(_response);
+        });
+    }
+
+    protected processGetUserCoachDashboard(response: Response): Promise<UserDashboardResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserDashboardResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserDashboardResponse>(null as any);
+    }
+
+
  /**
      * Update My Coach Profile
      * @param request (optional) 
@@ -2343,6 +2390,128 @@ export interface ICoachResponse {
     packages?: CoachPackageResponse[] | undefined;
     weeklySchedule?: CoachWeeklyScheduleResponse[] | undefined;
 }
+
+export class UserDashboardResponse implements IUserDashboardResponse {
+    totalSessions?: number;
+    upcomingSessions?: UpcomingCoachSessionDto[] | undefined;
+
+    constructor(data?: IUserDashboardResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalSessions = _data["totalSessions"];
+            if (Array.isArray(_data["upcomingSessions"])) {
+                this.upcomingSessions = [] as any;
+                for (let item of _data["upcomingSessions"])
+                    this.upcomingSessions!.push(UpcomingCoachSessionDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): UserDashboardResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserDashboardResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalSessions"] = this.totalSessions;
+        if (Array.isArray(this.upcomingSessions)) {
+            data["upcomingSessions"] = [];
+            for (let item of this.upcomingSessions)
+                data["upcomingSessions"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IUserDashboardResponse {
+    totalSessions?: number;
+    upcomingSessions?: UpcomingCoachSessionDto[] | undefined;
+}
+
+
+export class UpcomingCoachSessionDto implements IUpcomingCoachSessionDto {
+    bookingId?: string;
+    coachId?: string;
+    coachName?: string | undefined;
+    coachAvatar?: string | undefined;
+    bookingDate?: Date;
+    startTime?: string;
+    endTime?: string;
+    status?: string | undefined;
+    sportId?: string;
+    packageName?: string | undefined;
+
+    constructor(data?: IUpcomingCoachSessionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.bookingId = _data["bookingId"];
+            this.coachId = _data["coachId"];
+            this.coachName = _data["coachName"];
+            this.coachAvatar = _data["coachAvatar"];
+            this.bookingDate = _data["bookingDate"] ? new Date(_data["bookingDate"].toString()) : <any>undefined;
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
+            this.status = _data["status"];
+            this.sportId = _data["sportId"];
+            this.packageName = _data["packageName"];
+        }
+    }
+
+    static fromJS(data: any): UpcomingCoachSessionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpcomingCoachSessionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["bookingId"] = this.bookingId;
+        data["coachId"] = this.coachId;
+        data["coachName"] = this.coachName;
+        data["coachAvatar"] = this.coachAvatar;
+        data["bookingDate"] = this.bookingDate ? formatDate(this.bookingDate) : <any>undefined;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
+        data["status"] = this.status;
+        data["sportId"] = this.sportId;
+        data["packageName"] = this.packageName;
+        return data;
+    }
+}
+
+export interface IUpcomingCoachSessionDto {
+    bookingId?: string;
+    coachId?: string;
+    coachName?: string | undefined;
+    coachAvatar?: string | undefined;
+    bookingDate?: Date;
+    startTime?: string;
+    endTime?: string;
+    status?: string | undefined;
+    sportId?: string;
+    packageName?: string | undefined;
+}
+
 
 export class CoachSchedulesResponse implements ICoachSchedulesResponse {
     page?: number;

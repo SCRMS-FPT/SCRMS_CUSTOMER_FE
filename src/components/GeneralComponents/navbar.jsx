@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/userSlice";
-import logo from "../../assets/logo.svg";
+import logonav from "../../assets/logonav.png";
 import defaultAvatar from "../../assets/default_avatar.jpg";
+
 import { Client as PaymentClient } from "../../API/PaymentApi";
 import { Client as NotificationClient } from "@/API/NotificationApi";
 import { formatDistanceToNow, isToday } from "date-fns";
+import { motion } from "framer-motion";
 
 // Import MUI components
 import {
@@ -32,7 +34,6 @@ import {
   alpha,
   Paper,
   Fade,
-  Chip,
   useScrollTrigger,
   Zoom,
   Fab,
@@ -349,7 +350,7 @@ const Navbar = () => {
             disableGutters
             sx={{ justifyContent: "space-between", py: 0.5 }}
           >
-            {/* Logo section */}
+            {/* Logo section with enhanced animations */}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Link
                 to="/"
@@ -357,30 +358,80 @@ const Navbar = () => {
                   textDecoration: "none",
                   display: "flex",
                   alignItems: "center",
+                  position: "relative",
                 }}
               >
-                <img
-                  src={logo}
-                  alt="Courtsite"
-                  style={{
-                    height: "36px",
-                    marginRight: "10px",
-                    transition: "transform 0.3s",
-                  }}
-                  className="logo-hover"
-                />
-                <Typography
-                  variant="h5"
-                  component="div"
-                  sx={{
-                    fontWeight: 700,
-                    color: "#2563eb",
-                    display: { xs: "none", md: "flex" },
-                    letterSpacing: "-0.5px",
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  whileHover={{
+                    scale: 1.05,
+                    transition: { duration: 0.2 },
                   }}
                 >
-                  Courtsite
-                </Typography>
+                  <img
+                    src={logonav}
+                    alt="Courtify"
+                    style={{
+                      height: "66px",
+                      marginRight: "10px",
+                      filter: "drop-shadow(0 4px 8px rgba(37, 99, 235, 0.2))",
+                    }}
+                    className="logo-hover"
+                  />
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: -5,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      width: "80%",
+                      height: "4px",
+                      borderRadius: "2px",
+                      background:
+                        "linear-gradient(90deg, rgba(37, 99, 235, 0), rgba(37, 99, 235, 0.8), rgba(37, 99, 235, 0))",
+                      opacity: 0.7,
+                      boxShadow: "0 2px 8px rgba(37, 99, 235, 0.3)",
+                    }}
+                  />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <Typography
+                    variant="h5"
+                    component="div"
+                    sx={{
+                      fontWeight: 700,
+                      background:
+                        "linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%)",
+                      backgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      display: { xs: "none", md: "flex" },
+                      letterSpacing: "-0.5px",
+                      textShadow: "0 2px 10px rgba(37, 99, 235, 0.2)",
+                      position: "relative",
+                      "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        bottom: -3,
+                        left: 0,
+                        width: 0,
+                        height: "2px",
+                        backgroundColor: "#60a5fa",
+                        transition: "width 0.3s ease-in-out",
+                      },
+                      "&:hover::after": {
+                        width: "100%",
+                      },
+                    }}
+                  >
+                    Courtify
+                  </Typography>
+                </motion.div>
               </Link>
             </Box>
 
@@ -418,7 +469,7 @@ const Navbar = () => {
                   onClick={handleAppsMenuOpen}
                   sx={{
                     transition: "all 0.3s",
-                    backgroundColor: Boolean(appsMenuAnchorEl)
+                    backgroundColor: appsMenuAnchorEl
                       ? alpha("#2563eb", 0.08)
                       : "transparent",
                     "&:hover": {

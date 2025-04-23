@@ -513,14 +513,14 @@ const CourtOwnerDashboardView = () => {
                             {formatPercentage(courtUtilization)}
                           </Title>
                         </div>
-                        <Avatar
-                          className="bg-orange-50 p-2"
-                          icon={
-                            <TrophyOutlined
-                              style={{ fontSize: "24px", color: "#fa8c16" }}
-                            />
-                          }
-                        />
+                        <div
+                          className="bg-orange-50 p-2 rounded-full flex items-center justify-center"
+                          style={{ width: 48, height: 48 }}
+                        >
+                          <TrophyOutlined
+                            style={{ fontSize: "24px", color: "#fa8c16" }}
+                          />
+                        </div>
                       </div>
                       <div className="mt-auto pt-2">
                         <Tooltip title="Tổng tỉ lệ đặt sân (đã xác nhận + đã hoàn thành)">

@@ -1846,6 +1846,52 @@ protected processGetCourtOwnerDashboard(response: Response): Promise<GetCourtOwn
         return Promise.resolve<CreateSportCenterResponse>(null as any);
     }
 
+    /**
+     * Get User Dashboard
+     * @return OK
+     */
+    getUserDashboard(): Promise<UserDashboardResponse> {
+        let url_ = this.baseUrl + "/api/bookings/dashboard";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUserDashboard(_response);
+        });
+    }
+
+    protected processGetUserDashboard(response: Response): Promise<UserDashboardResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserDashboardResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserDashboardResponse>(null as any);
+    }
+
 
     /**
      * Get Sport Centers
@@ -4547,6 +4593,236 @@ export interface ITodayBookingDto {
     status?: string | undefined;
 }
 
+export class UserDashboardResponse implements IUserDashboardResponse {
+    upcomingBookings?: UpcomingBookingDto[] | undefined;
+    incompleteTransactions?: IncompleteTransactionDto[] | undefined;
+    stats?: UserBookingStatsDto;
+
+    constructor(data?: IUserDashboardResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["upcomingBookings"])) {
+                this.upcomingBookings = [] as any;
+                for (let item of _data["upcomingBookings"])
+                    this.upcomingBookings!.push(UpcomingBookingDto.fromJS(item));
+            }
+            if (Array.isArray(_data["incompleteTransactions"])) {
+                this.incompleteTransactions = [] as any;
+                for (let item of _data["incompleteTransactions"])
+                    this.incompleteTransactions!.push(IncompleteTransactionDto.fromJS(item));
+            }
+            this.stats = _data["stats"] ? UserBookingStatsDto.fromJS(_data["stats"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UserDashboardResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserDashboardResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.upcomingBookings)) {
+            data["upcomingBookings"] = [];
+            for (let item of this.upcomingBookings)
+                data["upcomingBookings"].push(item.toJSON());
+        }
+        if (Array.isArray(this.incompleteTransactions)) {
+            data["incompleteTransactions"] = [];
+            for (let item of this.incompleteTransactions)
+                data["incompleteTransactions"].push(item.toJSON());
+        }
+        data["stats"] = this.stats ? this.stats.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IUserDashboardResponse {
+    upcomingBookings?: UpcomingBookingDto[] | undefined;
+    incompleteTransactions?: IncompleteTransactionDto[] | undefined;
+    stats?: UserBookingStatsDto;
+}
+
+export class IncompleteTransactionDto implements IIncompleteTransactionDto {
+    bookingId?: string;
+    bookingDate?: Date;
+    sportCenterName?: string | undefined;
+    totalPrice?: number;
+    paidAmount?: number;
+    remainingBalance?: number;
+    status?: string | undefined;
+
+    constructor(data?: IIncompleteTransactionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.bookingId = _data["bookingId"];
+            this.bookingDate = _data["bookingDate"] ? new Date(_data["bookingDate"].toString()) : <any>undefined;
+            this.sportCenterName = _data["sportCenterName"];
+            this.totalPrice = _data["totalPrice"];
+            this.paidAmount = _data["paidAmount"];
+            this.remainingBalance = _data["remainingBalance"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): IncompleteTransactionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new IncompleteTransactionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["bookingId"] = this.bookingId;
+        data["bookingDate"] = this.bookingDate ? this.bookingDate.toISOString() : <any>undefined;
+        data["sportCenterName"] = this.sportCenterName;
+        data["totalPrice"] = this.totalPrice;
+        data["paidAmount"] = this.paidAmount;
+        data["remainingBalance"] = this.remainingBalance;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IIncompleteTransactionDto {
+    bookingId?: string;
+    bookingDate?: Date;
+    sportCenterName?: string | undefined;
+    totalPrice?: number;
+    paidAmount?: number;
+    remainingBalance?: number;
+    status?: string | undefined;
+}
+export class UpcomingBookingDto implements IUpcomingBookingDto {
+    bookingId?: string;
+    bookingDate?: Date;
+    sportCenterName?: string | undefined;
+    courtName?: string | undefined;
+    startTime?: string;
+    endTime?: string;
+    totalPrice?: number;
+    status?: string | undefined;
+
+    constructor(data?: IUpcomingBookingDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.bookingId = _data["bookingId"];
+            this.bookingDate = _data["bookingDate"] ? new Date(_data["bookingDate"].toString()) : <any>undefined;
+            this.sportCenterName = _data["sportCenterName"];
+            this.courtName = _data["courtName"];
+            this.startTime = _data["startTime"];
+            this.endTime = _data["endTime"];
+            this.totalPrice = _data["totalPrice"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UpcomingBookingDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpcomingBookingDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["bookingId"] = this.bookingId;
+        data["bookingDate"] = this.bookingDate ? this.bookingDate.toISOString() : <any>undefined;
+        data["sportCenterName"] = this.sportCenterName;
+        data["courtName"] = this.courtName;
+        data["startTime"] = this.startTime;
+        data["endTime"] = this.endTime;
+        data["totalPrice"] = this.totalPrice;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUpcomingBookingDto {
+    bookingId?: string;
+    bookingDate?: Date;
+    sportCenterName?: string | undefined;
+    courtName?: string | undefined;
+    startTime?: string;
+    endTime?: string;
+    totalPrice?: number;
+    status?: string | undefined;
+}
+
+export class UserBookingStatsDto implements IUserBookingStatsDto {
+    totalBookings?: number;
+    completedBookings?: number;
+    cancelledBookings?: number;
+    upcomingBookings?: number;
+
+    constructor(data?: IUserBookingStatsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalBookings = _data["totalBookings"];
+            this.completedBookings = _data["completedBookings"];
+            this.cancelledBookings = _data["cancelledBookings"];
+            this.upcomingBookings = _data["upcomingBookings"];
+        }
+    }
+
+    static fromJS(data: any): UserBookingStatsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserBookingStatsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalBookings"] = this.totalBookings;
+        data["completedBookings"] = this.completedBookings;
+        data["cancelledBookings"] = this.cancelledBookings;
+        data["upcomingBookings"] = this.upcomingBookings;
+        return data;
+    }
+}
+
+export interface IUserBookingStatsDto {
+    totalBookings?: number;
+    completedBookings?: number;
+    cancelledBookings?: number;
+    upcomingBookings?: number;
+}
 export class RevenueStats implements IRevenueStats {
     amount?: number;
     percentageChange?: number;
