@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
-import { Client } from "@/API/IdentityApi";
+import { ApiException, Client } from "@/API/IdentityApi";
 
 const VerificationView = () => {
   const [verificationState, setVerificationState] = useState("loading"); // loading, success, error
@@ -25,9 +25,23 @@ const VerificationView = () => {
         setMessage("Tài khoản của bạn đã được xác thực thành công!");
       } catch (error) {
         setVerificationState("error");
-        setMessage(
-          "Đã xảy ra lỗi trong quá trình xác thực. Vui lòng thử lại sau."
-        );
+        const errorMsg =
+          "Đã xảy ra lỗi trong quá trình xác thực. Vui lòng thử lại sau.";
+        if (error instanceof ApiException) {
+          try {
+            const errorResponse = JSON.parse(error.response);
+            errorMsg = errorResponse.detail || errorMsg;
+
+            if (errorMsg.includes("not valid")) {
+              errorMsg = "Token không hợp lệ.";
+            } else if (errorMsg.includes("already exists")) {
+              errorMsg = "Người dùng đã tồn tại, không cần xác minh.";
+            }
+          } catch (e) {
+            errorMsg = e.message || errorMsg;
+          }
+        }
+        setMessage(errorMsg);
         console.error("Verification error:", error);
       }
     };
