@@ -1261,6 +1261,62 @@ protected processGetCourtOwnerDashboard(response: Response): Promise<GetCourtOwn
     }
 
     /**
+     * Restore Sport Center
+     * @return OK
+     */
+    restoreSportCenter(centerId: string): Promise<RestoreSportCenterResult> {
+        let url_ = this.baseUrl + "/api/sportcenters/{centerId}/restore";
+        if (centerId === undefined || centerId === null)
+            throw new Error("The parameter 'centerId' must be defined.");
+        url_ = url_.replace("{centerId}", encodeURIComponent("" + centerId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processRestoreSportCenter(_response);
+        });
+    }
+
+    protected processRestoreSportCenter(response: Response): Promise<RestoreSportCenterResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RestoreSportCenterResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<RestoreSportCenterResult>(null as any);
+    }
+
+    /**
      * Cập nhật khuyến mãi
      * @return OK
      */
@@ -4591,6 +4647,48 @@ export interface IGetCourtOwnerDashboardResult {
     todayBookings?: TodayBookingDto[] | undefined;
 }
 
+
+export class RestoreSportCenterResult implements IRestoreSportCenterResult {
+    success?: boolean;
+    message?: string | undefined;
+
+    constructor(data?: IRestoreSportCenterResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.success = _data["success"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): RestoreSportCenterResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new RestoreSportCenterResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["success"] = this.success;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IRestoreSportCenterResult {
+    success?: boolean;
+    message?: string | undefined;
+}
+
+
 export class TodayBookingDto implements ITodayBookingDto {
     bookingId?: string;
     userId?: string;
@@ -5361,6 +5459,8 @@ export class SportCenterListDTO implements ISportCenterListDTO {
     description?: string | undefined;
     avatar?: string | undefined;
     imageUrl?: string[] | undefined;
+    courts?: CourtListDTO[] | undefined;
+    isDeleted?: boolean;
 
     constructor(data?: ISportCenterListDTO) {
         if (data) {
@@ -5389,6 +5489,12 @@ export class SportCenterListDTO implements ISportCenterListDTO {
                 for (let item of _data["imageUrl"])
                     this.imageUrl!.push(item);
             }
+            if (Array.isArray(_data["courts"])) {
+                this.courts = [] as any;
+                for (let item of _data["courts"])
+                    this.courts!.push(CourtListDTO.fromJS(item));
+            }
+            this.isDeleted = _data["isDeleted"];
         }
     }
 
@@ -5417,6 +5523,12 @@ export class SportCenterListDTO implements ISportCenterListDTO {
             for (let item of this.imageUrl)
                 data["imageUrl"].push(item);
         }
+        if (Array.isArray(this.courts)) {
+            data["courts"] = [];
+            for (let item of this.courts)
+                data["courts"].push(item.toJSON());
+        }
+        data["isDeleted"] = this.isDeleted;
         return data;
     }
 }
@@ -5430,6 +5542,68 @@ export interface ISportCenterListDTO {
     description?: string | undefined;
     avatar?: string | undefined;
     imageUrl?: string[] | undefined;
+    courts?: CourtListDTO[] | undefined;
+    isDeleted?: boolean;
+}
+
+export class CourtListDTO implements ICourtListDTO {
+    id?: string;
+    name?: string | undefined;
+    sportId?: string;
+    sportName?: string | undefined;
+    isActive?: boolean;
+    description?: string | undefined;
+    minDepositPercentage?: number | undefined;
+
+    constructor(data?: ICourtListDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.sportId = _data["sportId"];
+            this.sportName = _data["sportName"];
+            this.isActive = _data["isActive"];
+            this.description = _data["description"];
+            this.minDepositPercentage = _data["minDepositPercentage"];
+        }
+    }
+
+    static fromJS(data: any): CourtListDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new CourtListDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["sportId"] = this.sportId;
+        data["sportName"] = this.sportName;
+        data["isActive"] = this.isActive;
+        data["description"] = this.description;
+        data["minDepositPercentage"] = this.minDepositPercentage;
+        return data;
+    }
+}
+
+export interface ICourtListDTO {
+    id?: string;
+    name?: string | undefined;
+    sportId?: string;
+    sportName?: string | undefined;
+    isActive?: boolean;
+    description?: string | undefined;
+    minDepositPercentage?: number | undefined;
 }
 
 export class DeleteSportCenterResult implements IDeleteSportCenterResult {
@@ -5837,6 +6011,7 @@ export class SportCenterDetailDTO implements ISportCenterDetailDTO {
     longitude?: number;
     avatar?: string | undefined;
     imageUrls?: string[] | undefined;
+    isDeleted?: boolean;
     description?: string | undefined;
     createdAt?: Date;
     lastModified?: Date | undefined;
@@ -5868,6 +6043,7 @@ export class SportCenterDetailDTO implements ISportCenterDetailDTO {
                 for (let item of _data["imageUrls"])
                     this.imageUrls!.push(item);
             }
+            this.isDeleted = _data["isDeleted"];
             this.description = _data["description"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
             this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
@@ -5899,6 +6075,7 @@ export class SportCenterDetailDTO implements ISportCenterDetailDTO {
             for (let item of this.imageUrls)
                 data["imageUrls"].push(item);
         }
+        data["isDeleted"] = this.isDeleted;
         data["description"] = this.description;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
         data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
@@ -5919,10 +6096,12 @@ export interface ISportCenterDetailDTO {
     longitude?: number;
     avatar?: string | undefined;
     imageUrls?: string[] | undefined;
+    isDeleted?: boolean;
     description?: string | undefined;
     createdAt?: Date;
     lastModified?: Date | undefined;
 }
+
 
 export class UpdateSportRequest implements IUpdateSportRequest {
     id?: string;

@@ -50,10 +50,31 @@ const WalletView = () => {
   const [error, setError] = useState(null);
   const [depositAmount, setDepositAmount] = useState("");
   const [depositDescription, setDepositDescription] = useState("");
+  const [userProfile, setUserProfile] = useState(null);
+  const [canWithdraw, setCanWithdraw] = useState(false);
 
   // Fetch wallet data on component mount
   useEffect(() => {
     fetchWalletData();
+
+    // Get user profile from localStorage
+    try {
+      const userProfileData = localStorage.getItem("userProfile");
+      if (userProfileData) {
+        const profile = JSON.parse(userProfileData);
+        setUserProfile(profile);
+
+        // Check if user has CourtOwner or Coach role
+        if (profile.roles && Array.isArray(profile.roles)) {
+          const hasWithdrawRole = profile.roles.some(
+            (role) => role === "CourtOwner" || role === "Coach"
+          );
+          setCanWithdraw(hasWithdrawRole);
+        }
+      }
+    } catch (err) {
+      console.error("Error parsing user profile:", err);
+    }
   }, []);
 
   // Fetch both wallet balance and transactions
@@ -161,8 +182,9 @@ const WalletView = () => {
         <Grid
           size={{
             xs: 12,
-            md: 6
-          }}>
+            md: 6,
+          }}
+        >
           <Card
             elevation={3}
             sx={{
@@ -243,6 +265,7 @@ const WalletView = () => {
                       borderColor: "white",
                     },
                   }}
+                  disabled={!canWithdraw}
                 >
                   Rút tiền
                 </Button>
@@ -272,8 +295,9 @@ const WalletView = () => {
         <Grid
           size={{
             xs: 12,
-            md: 6
-          }}>
+            md: 6,
+          }}
+        >
           <Card elevation={3} sx={{ borderRadius: 2, height: "100%" }}>
             <CardContent sx={{ p: 4 }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>

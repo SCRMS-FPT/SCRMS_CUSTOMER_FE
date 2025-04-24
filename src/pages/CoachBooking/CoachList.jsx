@@ -323,7 +323,13 @@ const formatCalendarDate = (date) => {
 const CoachSkeleton = () => (
   <Grid container spacing={3}>
     {[1, 2, 3, 4, 5, 6].map((item) => (
-      <Grid item xs={12} sm={6} md={4} key={item}>
+      <Grid
+        key={item}
+        size={{
+          xs: 12,
+          sm: 6,
+          md: 4
+        }}>
         <Paper
           sx={{ p: 0, height: "100%", borderRadius: 4, overflow: "hidden" }}
         >
@@ -707,7 +713,7 @@ const CoachList = () => {
             }}
           >
             <Grid container spacing={2}>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                   <Avatar
                     src={selectedCoach.avatar}
@@ -720,7 +726,7 @@ const CoachList = () => {
                 </Box>
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <MuiTypography variant="body2" color="text.secondary">
                   Ngày:
                 </MuiTypography>
@@ -733,7 +739,7 @@ const CoachList = () => {
                 </MuiTypography>
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <MuiTypography variant="body2" color="text.secondary">
                   Thời gian:
                 </MuiTypography>
@@ -749,7 +755,7 @@ const CoachList = () => {
                 </MuiTypography>
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <MuiTypography variant="body2" color="text.secondary">
                   Giá buổi tập:
                 </MuiTypography>
@@ -851,7 +857,7 @@ const CoachList = () => {
                   }}
                 >
                   <Grid container spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <MuiTypography
                         variant="body2"
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -860,7 +866,7 @@ const CoachList = () => {
                         {dayjs(selectedSlot.date).format("dddd, DD/MM/YYYY")}
                       </MuiTypography>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                       <MuiTypography
                         variant="body2"
                         sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -972,7 +978,6 @@ const CoachList = () => {
           </Button>
         )}
       </Box>
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -982,7 +987,11 @@ const CoachList = () => {
           <FilterContainer>
             <Grid container spacing={3}>
               {/* Search */}
-              <Grid item xs={12} md={4}>
+              <Grid
+                size={{
+                  xs: 12,
+                  md: 4
+                }}>
                 <MuiTypography
                   variant="subtitle2"
                   fontWeight={600}
@@ -1003,7 +1012,12 @@ const CoachList = () => {
               </Grid>
 
               {/* Sport Filter */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 3
+                }}>
                 <MuiTypography
                   variant="subtitle2"
                   fontWeight={600}
@@ -1031,7 +1045,12 @@ const CoachList = () => {
               </Grid>
 
               {/* Price Range Filter */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 3
+                }}>
                 <MuiTypography
                   variant="subtitle2"
                   fontWeight={600}
@@ -1071,7 +1090,11 @@ const CoachList = () => {
               </Grid>
 
               {/* Sort and Reset */}
-              <Grid item xs={12} md={2}>
+              <Grid
+                size={{
+                  xs: 12,
+                  md: 2
+                }}>
                 <MuiTypography
                   variant="subtitle2"
                   fontWeight={600}
@@ -1115,7 +1138,6 @@ const CoachList = () => {
           </FilterContainer>
         )}
       </motion.div>
-
       {loading ? (
         <CoachSkeleton />
       ) : error ? (
@@ -1135,7 +1157,13 @@ const CoachList = () => {
 
           <Grid container spacing={4} ref={cardRef}>
             {coaches.map((coach, index) => (
-              <Grid item xs={12} sm={6} md={4} key={coach.id}>
+              <Grid
+                key={coach.id}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 4
+                }}>
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 30 }}
@@ -1299,7 +1327,6 @@ const CoachList = () => {
           )}
         </>
       )}
-
       {/* Booking Modal */}
       <Modal
         visible={bookingModalVisible}
@@ -1368,7 +1395,11 @@ const CoachList = () => {
             ) : (
               <>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 6
+                    }}>
                     <MuiTypography
                       variant="subtitle1"
                       fontWeight="medium"
@@ -1557,7 +1588,11 @@ const CoachList = () => {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12} md={6}>
+                  <Grid
+                    size={{
+                      xs: 12,
+                      md: 6
+                    }}>
                     <MuiTypography
                       variant="subtitle1"
                       fontWeight="medium"
@@ -1662,7 +1697,11 @@ const CoachList = () => {
                       </MuiTypography>
 
                       <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid
+                          size={{
+                            xs: 12,
+                            sm: 6
+                          }}>
                           <Box
                             sx={{
                               display: "flex",
@@ -1690,7 +1729,11 @@ const CoachList = () => {
                           </Box>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid
+                          size={{
+                            xs: 12,
+                            sm: 6
+                          }}>
                           <Box
                             sx={{
                               display: "flex",
@@ -1720,7 +1763,11 @@ const CoachList = () => {
                           </Box>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
+                        <Grid
+                          size={{
+                            xs: 12,
+                            sm: 6
+                          }}>
                           <Box
                             sx={{
                               display: "flex",

@@ -1392,7 +1392,7 @@ const BookCourtView = () => {
                         </div>
                       ) : (
                         // Show time slots for each selected court
-                        selectedCourtIds.map((courtId) => {
+                        (selectedCourtIds.map((courtId) => {
                           const court = courts.find((c) => c.id === courtId);
                           const courtSlots = availableSlotsMap[courtId] || [];
 
@@ -1502,7 +1502,7 @@ const BookCourtView = () => {
                               )}
                             </div>
                           );
-                        })
+                        }))
                       )}
                     </>
                   )}
@@ -2529,7 +2529,7 @@ const BookCourtView = () => {
             >
               {getSelectedCourt() ? (
                 // Court Information
-                <>
+                (<>
                   <div style={{ textAlign: "center", marginBottom: 16 }}>
                     <Avatar
                       size={80}
@@ -2629,81 +2629,79 @@ const BookCourtView = () => {
                       </>
                     )}
                   <CourtReviewsSection />
-                </>
+                </>)
               ) : (
                 // Sport Center Information
-                sportCenter && (
-                  <>
-                    <div style={{ textAlign: "center", marginBottom: 16 }}>
-                      <Avatar
-                        size={80}
-                        src={sportCenter.avatar}
-                        style={{
-                          backgroundColor: "#f0f5ff",
-                          marginBottom: 12,
-                        }}
-                      >
-                        {sportCenter.name?.charAt(0)}
-                      </Avatar>
-                      <Title level={4} style={{ margin: 0 }}>
-                        {sportCenter.name}
-                      </Title>
-                      <Text type="secondary">{formatAddress(sportCenter)}</Text>
-                    </div>
-                    <Divider style={{ margin: "16px 0" }} />
-                    <List
-                      itemLayout="horizontal"
-                      dataSource={[
-                        {
-                          title: "Địa chỉ",
-                          description: formatAddress(sportCenter),
-                          icon: (
-                            <EnvironmentOutlined style={{ color: "#1890ff" }} />
-                          ),
-                        },
-                        {
-                          title: "Số điện thoại",
-                          description:
-                            sportCenter.phoneNumber || "Không khả dụng",
-                          icon: <PhoneOutlined style={{ color: "#52c41a" }} />,
-                        },
-                        {
-                          title: "Sân khả dụng",
-                          description: `${courts.length} sân`,
-                          icon: (
-                            <AppstoreOutlined style={{ color: "#faad14" }} />
-                          ),
-                        },
-                      ]}
-                      renderItem={(item) => (
-                        <List.Item>
-                          <List.Item.Meta
-                            avatar={
-                              <Avatar
-                                icon={item.icon}
-                                style={{ backgroundColor: "transparent" }}
-                              />
-                            }
-                            title={item.title}
-                            description={item.description}
-                          />
-                        </List.Item>
-                      )}
-                    />
-                    {sportCenter.description && (
-                      <>
-                        <Divider
-                          orientation="left"
-                          plain
-                          style={{ fontSize: 14 }}
-                        >
-                          Mô tả
-                        </Divider>
-                        <Paragraph>{sportCenter.description}</Paragraph>
-                      </>
+                (sportCenter && (<>
+                  <div style={{ textAlign: "center", marginBottom: 16 }}>
+                    <Avatar
+                      size={80}
+                      src={sportCenter.avatar}
+                      style={{
+                        backgroundColor: "#f0f5ff",
+                        marginBottom: 12,
+                      }}
+                    >
+                      {sportCenter.name?.charAt(0)}
+                    </Avatar>
+                    <Title level={4} style={{ margin: 0 }}>
+                      {sportCenter.name}
+                    </Title>
+                    <Text type="secondary">{formatAddress(sportCenter)}</Text>
+                  </div>
+                  <Divider style={{ margin: "16px 0" }} />
+                  <List
+                    itemLayout="horizontal"
+                    dataSource={[
+                      {
+                        title: "Địa chỉ",
+                        description: formatAddress(sportCenter),
+                        icon: (
+                          <EnvironmentOutlined style={{ color: "#1890ff" }} />
+                        ),
+                      },
+                      {
+                        title: "Số điện thoại",
+                        description:
+                          sportCenter.phoneNumber || "Không khả dụng",
+                        icon: <PhoneOutlined style={{ color: "#52c41a" }} />,
+                      },
+                      {
+                        title: "Sân khả dụng",
+                        description: `${courts.length} sân`,
+                        icon: (
+                          <AppstoreOutlined style={{ color: "#faad14" }} />
+                        ),
+                      },
+                    ]}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <List.Item.Meta
+                          avatar={
+                            <Avatar
+                              icon={item.icon}
+                              style={{ backgroundColor: "transparent" }}
+                            />
+                          }
+                          title={item.title}
+                          description={item.description}
+                        />
+                      </List.Item>
                     )}
-                  </>
-                )
+                  />
+                  {sportCenter.description && (
+                    <>
+                      <Divider
+                        orientation="left"
+                        plain
+                        style={{ fontSize: 14 }}
+                      >
+                        Mô tả
+                      </Divider>
+                      <Paragraph>{sportCenter.description}</Paragraph>
+                    </>
+                  )}
+                </>))
               )}
             </Card>
 

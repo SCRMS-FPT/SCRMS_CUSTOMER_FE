@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Input, Button, notification } from "antd";
-import { MailOutlined } from "@ant-design/icons";
+import { Input, Button, notification, Result } from "antd";
+import { MailOutlined, HomeOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Client } from "@/API/IdentityApi";
 import { API_IDENTITY_URL } from "@/API/config";
 
@@ -11,6 +12,10 @@ const ForgotPasswordView = () => {
   const navigate = useNavigate();
   const client = new Client(API_IDENTITY_URL);
 
+  // Get user login status from Redux store
+  const { userProfile } = useSelector((state) => state.user);
+  const isLoggedIn = !!userProfile;
+
   const showNotification = (type, message, description) => {
     notification[type]({
       message,
@@ -18,6 +23,7 @@ const ForgotPasswordView = () => {
       placement: "topRight",
     });
   };
+
   const handleResetPassword = async () => {
     if (!email.trim()) {
       showNotification(
@@ -48,6 +54,33 @@ const ForgotPasswordView = () => {
       setLoading(false);
     }
   };
+
+  // Show message if user is already logged in
+  if (isLoggedIn) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-100 p-6">
+        <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
+          <Result
+            status="info"
+            title="Bạn đã đăng nhập"
+            subTitle={`Xin chào, ${userProfile.firstName || ""} ${
+              userProfile.lastName || ""
+            }! Bạn đã đăng nhập vào hệ thống nên không cần đặt lại mật khẩu.`}
+            extra={[
+              <Button
+                type="primary"
+                key="home"
+                icon={<HomeOutlined />}
+                onClick={() => navigate("/")}
+              >
+                Về Trang Chủ
+              </Button>,
+            ]}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

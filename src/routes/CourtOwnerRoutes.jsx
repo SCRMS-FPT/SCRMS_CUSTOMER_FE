@@ -11,11 +11,7 @@ import CourtOwnerCourtDetailView from "@/pages/CourtOwnerView/CourtOwnerCourtDet
 import CourtOwnerCourtCreateView from "@/pages/CourtOwnerView/CourtOwnerCourtCreateView";
 import CourtOwnerBookingView from "@/pages/CourtOwnerView/CourtOwnerBookingView";
 import CourtOwnerScheduleView from "@/pages/CourtOwnerView/CourtOwnerScheduleView";
-import CourtOwnerPromotionView from "@/pages/CourtOwnerView/CourtOwnerPromotionView";
-import CourtOwnerPromotionDetailView from "@/pages/CourtOwnerView/CourtOwnerPromotionDetailView";
-import CourtOwnerPromotionCreateView from "@/pages/CourtOwnerView/CourtOwnerPromotionCreateView";
 import CourtOwnerNotificationView from "@/pages/CourtOwnerView/CourtOwnerNotificationView";
-import CourtOwnerReportsView from "@/pages/CourtOwnerView/CourtOwnerReportsView";
 import CourtOwnerSidebar from "@/components/CourtComponents/CourtOwnerSidebar";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
@@ -248,50 +244,6 @@ const CourtOwnerRoutes = [
     }
   />,
   <Route
-    key="court-owner-promotions"
-    path="/court-owner/promotions"
-    element={
-      <ProtectedCourtOwnerRoute>
-        <CourtOwnerSidebar>
-          <CourtOwnerPromotionView />
-        </CourtOwnerSidebar>
-      </ProtectedCourtOwnerRoute>
-    }
-  />,
-  <Route
-    key="court-owner-promotion-create"
-    path="/court-owner/promotions/create"
-    element={
-      <ProtectedCourtOwnerRoute>
-        <CourtOwnerSidebar>
-          <CourtOwnerPromotionCreateView />
-        </CourtOwnerSidebar>
-      </ProtectedCourtOwnerRoute>
-    }
-  />,
-  <Route
-    key="court-owner-promotion-edit"
-    path="/court-owner/promotions/edit/:promotionId"
-    element={
-      <ProtectedCourtOwnerRoute>
-        <CourtOwnerSidebar>
-          <CourtOwnerPromotionCreateView />
-        </CourtOwnerSidebar>
-      </ProtectedCourtOwnerRoute>
-    }
-  />,
-  <Route
-    key="court-owner-promotion-details"
-    path="/court-owner/promotions/details/:promotionId"
-    element={
-      <ProtectedCourtOwnerRoute>
-        <CourtOwnerSidebar>
-          <CourtOwnerPromotionDetailView />
-        </CourtOwnerSidebar>
-      </ProtectedCourtOwnerRoute>
-    }
-  />,
-  <Route
     key="court-owner-notifications"
     path="/court-owner/notifications"
     element={
@@ -301,7 +253,7 @@ const CourtOwnerRoutes = [
         </CourtOwnerSidebar>
       </ProtectedCourtOwnerRoute>
     }
-  />
+  />,
 ];
 
 export default CourtOwnerRoutes;

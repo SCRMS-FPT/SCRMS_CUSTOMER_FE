@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 // Ant Design imports
 import {
   Select,
@@ -17,6 +18,7 @@ import {
   Button,
   Space,
   ConfigProvider,
+  Result,
 } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
@@ -26,6 +28,7 @@ import {
   MailOutlined,
   PhoneOutlined,
   CalendarOutlined,
+  HomeOutlined,
 } from "@ant-design/icons";
 // MUI imports
 import { Box, Container, Paper, Avatar } from "@mui/material";
@@ -59,10 +62,15 @@ const SignUpView = () => {
 
   const navigate = useNavigate();
 
+  // Get user login status from Redux store
+  const { userProfile } = useSelector((state) => state.user);
+  const isLoggedIn = !!userProfile;
+
   const handleGoogleSuccess = async (response) => {
     setGoogleResponse(response);
     setDialogGoogle(true);
   };
+
   const handleSubmit = () => {
     additionForm
       .validateFields()
@@ -168,7 +176,8 @@ const SignUpView = () => {
 
       notification.success({
         message: "Đăng ký thành công",
-        description: "Tài khoản của bạn đã được tạo. Vui lòng đăng nhập.",
+        description:
+          "Tài khoản của bạn đã được tạo. Vui lòng kiểm tra email của bạn để xác thực tài khoản.",
         placement: "topRight",
       });
 
@@ -218,6 +227,52 @@ const SignUpView = () => {
     borderRadius: "8px",
     width: "100%",
   };
+
+  // Show message if user is already logged in
+  if (isLoggedIn) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 2,
+          backgroundColor: "#f0f2f5",
+        }}
+      >
+        <Container maxWidth="sm">
+          <Paper
+            elevation={8}
+            sx={{
+              p: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Result
+              status="info"
+              title="Bạn đã đăng nhập"
+              subTitle={`Xin chào, ${userProfile.firstName || ""} ${
+                userProfile.lastName || ""
+              }! Bạn đã có tài khoản và đang đăng nhập.`}
+              extra={[
+                <Button
+                  type="primary"
+                  key="home"
+                  icon={<HomeOutlined />}
+                  onClick={() => navigate("/")}
+                >
+                  Về Trang Chủ
+                </Button>,
+              ]}
+            />
+          </Paper>
+        </Container>
+      </Box>
+    );
+  }
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
@@ -501,7 +556,7 @@ const SignUpView = () => {
                   >
                     <DatePicker
                       style={{ width: "100%" }}
-                      format="YYYY-MM-DD"
+                      format="DD/MM/YYYY"
                       placeholder="Ngày sinh"
                     />
                   </Form.Item>

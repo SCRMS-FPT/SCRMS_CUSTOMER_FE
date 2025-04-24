@@ -160,9 +160,6 @@ const CourtOwnerVenueCreateView = () => {
     try {
       // Store the file in state
       setAvatarFile(file);
-
-      // In a real implementation, you'd upload to server first
-      // For now, we'll just simulate success
       setTimeout(() => {
         onSuccess("ok");
       }, 500);
@@ -175,10 +172,7 @@ const CourtOwnerVenueCreateView = () => {
   // Custom upload handler for gallery images
   const customGalleryUpload = async ({ file, onSuccess }) => {
     try {
-      // Add the file to gallery files array
       setGalleryFiles((prev) => [...prev, file]);
-
-      // Simulate success
       setTimeout(() => {
         onSuccess("ok");
       }, 500);
@@ -201,10 +195,8 @@ const CourtOwnerVenueCreateView = () => {
     try {
       setLoading(true);
 
-      // Create FormData object for file uploads
       const formData = new FormData();
 
-      // Add all the text fields
       formData.append("name", values.name || sportCenter.name);
       formData.append(
         "phoneNumber",
@@ -214,9 +206,9 @@ const CourtOwnerVenueCreateView = () => {
         "addressLine",
         values.addressLine || sportCenter.addressLine
       );
-      formData.append("city", values.city || sportCenter.city);
-      formData.append("district", values.district || sportCenter.district);
-      formData.append("commune", values.commune || sportCenter.commune);
+      formData.append("city", sportCenter.city || values.city);
+      formData.append("district", sportCenter.district || values.district);
+      formData.append("commune", sportCenter.commune || values.commune);
       formData.append(
         "description",
         values.description || sportCenter.description
@@ -225,7 +217,6 @@ const CourtOwnerVenueCreateView = () => {
       formData.append("latitude", values.latitude || sportCenter.latitude);
       formData.append("longitude", values.longitude || sportCenter.longitude);
 
-      // Add avatar file if it exists
       if (avatarFile) {
         formData.append("avatarImage", avatarFile);
       }
@@ -503,6 +494,14 @@ const CourtOwnerVenueCreateView = () => {
                   newGalleryFiles.splice(index, 1);
                   setGalleryFiles(newGalleryFiles);
                 }}
+                multiple={true}
+                beforeUpload={(file, fileList) => {
+                  if (galleryFiles.length + fileList.length > 5) {
+                    message.error("Chỉ được tải lên tối đa 5 ảnh!");
+                    return false;
+                  }
+                  return true;
+                }}
               >
                 {galleryFiles.length >= 5 ? null : (
                   <div>
@@ -517,7 +516,6 @@ const CourtOwnerVenueCreateView = () => {
 
         <Divider />
 
-        {/* Bản đồ chọn vị trí */}
         <Row>
           <Col span={24}>
             <LocationPicker
@@ -549,12 +547,6 @@ const CourtOwnerVenueCreateView = () => {
             </Col>
           </Row>
         </Form.Item>
-
-        {/* You can keep these existing components if needed */}
-        {/* <VenueSportsAmenitiesForm />
-        <VenueOperatingHoursForm />
-        <VenuePricingForm />
-        <VenueBookingPolicyForm /> */}
 
         <Form.Item className="flex justify-end">
           <Button

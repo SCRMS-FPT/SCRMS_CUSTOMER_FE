@@ -20,7 +20,6 @@ import SubscribePackageView from "@/pages/ServicePackage/SubscribePackageView";
 import SportCenterDetails from "@/pages/UserView/SportCenterDetails";
 
 import NotFoundView from "@/pages/GeneralView/NotFoundView";
-import UserProfileView from "@/pages/GeneralView/UserProfileView";
 import Forbidden403 from "@/pages/Error/Forbidden403";
 import VerificationView from "@/pages/GeneralView/VerificationView";
 
@@ -198,15 +197,6 @@ const GeneralRoutes = [
   />,
   // 403 Forbidden route
   <Route key="forbidden" path="/forbidden" element={<Forbidden403 />} />,
-  <Route
-    key="settings"
-    path="/settings"
-    element={
-      <Layout>
-        <UserProfileView />
-      </Layout>
-    }
-  />,
 ];
 
 export default GeneralRoutes;

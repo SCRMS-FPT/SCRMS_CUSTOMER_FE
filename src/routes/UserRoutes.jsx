@@ -7,13 +7,10 @@ import UserCourtBookingManagementView from "@/pages/UserView/UserCourtBookingMan
 import UserBookingDetailView from "@/pages/UserView/UserBookingDetailView";
 import UserCoachingManagementView from "@/pages/UserView/UserCoachingManagementView";
 import UserCoachDetailView from "@/components/UserPage/UserCoachDetailView";
-import UserCoachScheduleDetailView from "@/pages/UserView/UserCoachScheduleDetailView";
 import UserFeedbackView from "@/pages/UserView/UserFeedbackView";
 import UserFeedbackDetailView from "@/pages/UserView/UserFeedbackDetailView";
 import UserDepositView from "@/pages/UserView/UserDepositView";
 import UserSubscriptionsView from "@/pages/UserView/UserSubscriptionsView";
-// import BookCoachSession from "@/pages/BookCoachSession";
-
 import UserSidebar from "@/components/UserPage/UserSidebar";
 import ChatWidget from "../components/Chat/ChatWidget";
 
@@ -82,16 +79,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserCoachDetailView />
-        <ChatWidget />
-      </UserSidebar>
-    }
-  />,
-  <Route
-    key="user-coaching-schedule-details"
-    path="/user/coachings/schedule/:scheduleId"
-    element={
-      <UserSidebar>
-        <UserCoachScheduleDetailView />
         <ChatWidget />
       </UserSidebar>
     }
@@ -168,17 +155,6 @@ const UserRoutes = [
       </Layout>
     }
   />,
-
-  // <Route
-  //   key="book-coach"
-  //   path="/book-coach/:id"
-  //   element={
-  //     <Layout>
-  //       <BookCoachSession />
-  //     </Layout>
-  //   }
-  // />,
-
   <Route
     key="profile"
     path="/profile"

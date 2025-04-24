@@ -77,8 +77,19 @@ const CourtOwnerVenueListView = () => {
       dataIndex: "name",
       key: "name",
       sorter: (a, b) => a.name.localeCompare(b.name),
-      render: (text) => (
-        <span className="font-semibold text-indigo-600">{text}</span>
+      render: (text, record) => (
+        <span
+          className={`font-semibold ${
+            record.isDeleted ? "text-gray-400" : "text-indigo-600"
+          }`}
+        >
+          {text}
+          {record.isDeleted && (
+            <Tag color="red" className="ml-2">
+              Đã xóa
+            </Tag>
+          )}
+        </span>
       ),
     },
     {
@@ -126,11 +137,8 @@ const CourtOwnerVenueListView = () => {
             type="primary"
             onClick={() => navigate(`/court-owner/venues/${record.id}`)}
           >
-            Quản lý
+            {record.isDeleted ? "Khôi phục" : "Quản lý"}
           </Button>
-          {/* <Button onClick={() => navigate(`/court-owner/venues/${record.id}`)}>
-            Sân
-          </Button> */}
         </Space>
       ),
     },
@@ -196,6 +204,7 @@ const CourtOwnerVenueListView = () => {
             pageSizeOptions: ["10", "20", "50"],
           }}
           locale={{ emptyText: "Không tìm thấy trung tâm thể thao phù hợp" }}
+          rowClassName={(record) => (record.isDeleted ? "bg-gray-100" : "")}
         />
       )}
     </Card>

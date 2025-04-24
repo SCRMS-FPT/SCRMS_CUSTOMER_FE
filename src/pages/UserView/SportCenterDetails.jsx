@@ -41,6 +41,7 @@ import {
   Check,
   Star,
   Info,
+  ArrowForward,
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { Client } from "../../API/CourtApi";
@@ -208,7 +209,7 @@ const SportCenterDetails = () => {
         sx={{ mb: 3 }}
         variant="outlined"
       >
-          Quay trở lại danh sách
+        Quay trở lại danh sách
       </Button>
       {/* Main Info Card - Improved layout */}
       <Paper elevation={3} sx={{ mb: 4, borderRadius: 2, overflow: "hidden" }}>
@@ -217,8 +218,9 @@ const SportCenterDetails = () => {
           <Grid
             size={{
               xs: 12,
-              md: 4
-            }}>
+              md: 4,
+            }}
+          >
             <CardMedia
               component="img"
               height="300"
@@ -234,8 +236,9 @@ const SportCenterDetails = () => {
           <Grid
             size={{
               xs: 12,
-              md: 8
-            }}>
+              md: 8,
+            }}
+          >
             <CardContent sx={{ p: 3, height: "100%" }}>
               <Typography
                 gutterBottom
@@ -286,8 +289,9 @@ const SportCenterDetails = () => {
         <Grid
           size={{
             xs: 12,
-            md: 8
-          }}>
+            md: 8,
+          }}
+        >
           {/* Description */}
           <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
             <Typography
@@ -330,10 +334,13 @@ const SportCenterDetails = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    sm: 6
-                  }}>
+                    sm: 6,
+                  }}
+                >
                   <FormControl fullWidth size="small">
-                    <InputLabel id="sport-select-label">Môn thể thao</InputLabel>
+                    <InputLabel id="sport-select-label">
+                      Môn thể thao
+                    </InputLabel>
                     <Select
                       labelId="sport-select-label"
                       value={selectedSport}
@@ -352,8 +359,9 @@ const SportCenterDetails = () => {
                 <Grid
                   size={{
                     xs: 12,
-                    sm: 6
-                  }}>
+                    sm: 6,
+                  }}
+                >
                   <Tabs
                     value={courtType}
                     onChange={handleCourtTypeChange}
@@ -390,8 +398,9 @@ const SportCenterDetails = () => {
                       key={court.id}
                       size={{
                         xs: 12,
-                        sm: 6
-                      }}>
+                        sm: 6,
+                      }}
+                    >
                       <Card
                         sx={{
                           height: "100%",
@@ -528,30 +537,27 @@ const SportCenterDetails = () => {
             )}
           </Paper>
 
-          {/* Image Gallery - Improved */}
+          {/* Enhanced Image Gallery */}
           {sportCenter.imageUrls && sportCenter.imageUrls.length > 0 && (
-            <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                Ảnh sân
+            <Paper
+              elevation={3}
+              sx={{ p: 3, mt: 3, borderRadius: 2, overflow: "hidden" }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 2,
+                  fontWeight: "bold",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Info sx={{ mr: 1 }} /> Thư viện ảnh
               </Typography>
               <Divider sx={{ mb: 3 }} />
-              <ImageList cols={2} gap={16} sx={{ mb: 2 }}>
-                {sportCenter.imageUrls.map((image, index) => (
-                  <ImageListItem key={index}>
-                    <img
-                      src={image}
-                      alt={`Gallery image ${index + 1}`}
-                      loading="lazy"
-                      style={{
-                        borderRadius: 8,
-                        height: 220,
-                        width: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </ImageListItem>
-                ))}
-              </ImageList>
+              <EnhancedImageGallery
+                images={[sportCenter.avatar, ...(sportCenter.imageUrls || [])]}
+              />
             </Paper>
           )}
         </Grid>
@@ -560,8 +566,9 @@ const SportCenterDetails = () => {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           {/* Map Location - Using OpenStreetMap Embed instead of Google Maps */}
           <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
@@ -666,6 +673,165 @@ const SportCenterDetails = () => {
         </Grid>
       </Grid>
     </Container>
+  );
+};
+
+// Enhanced Image Gallery Component
+const EnhancedImageGallery = ({ images }) => {
+  const [activeImage, setActiveImage] = useState(0);
+
+  const handlePrevImage = () => {
+    setActiveImage((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    setActiveImage((prev) => (prev + 1) % images.length);
+  };
+
+  const handleThumbnailClick = (index) => {
+    setActiveImage(index);
+  };
+
+  return (
+    <Box sx={{ width: "100%" }}>
+      {/* Main Image */}
+      <Box
+        sx={{
+          position: "relative",
+          height: 400,
+          mb: 2,
+          borderRadius: 2,
+          overflow: "hidden",
+          boxShadow: 2,
+        }}
+      >
+        <Box
+          component="img"
+          src={images[activeImage]}
+          alt={`Gallery image ${activeImage}`}
+          sx={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transition: "transform 0.5s ease",
+            "&:hover": {
+              transform: "scale(1.05)",
+            },
+          }}
+        />
+
+        {/* Navigation Arrows */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: 2,
+          }}
+        >
+          <Button
+            onClick={handlePrevImage}
+            sx={{
+              minWidth: "40px",
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              bgcolor: "rgba(255,255,255,0.8)",
+              color: "text.primary",
+              boxShadow: 2,
+              opacity: 0.7,
+              "&:hover": {
+                bgcolor: "rgba(255,255,255,0.95)",
+                opacity: 1,
+              },
+            }}
+          >
+            <ArrowBack fontSize="small" />
+          </Button>
+
+          <Button
+            onClick={handleNextImage}
+            sx={{
+              minWidth: "40px",
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              bgcolor: "rgba(255,255,255,0.8)",
+              color: "text.primary",
+              boxShadow: 2,
+              opacity: 0.7,
+              "&:hover": {
+                bgcolor: "rgba(255,255,255,0.95)",
+                opacity: 1,
+              },
+            }}
+          >
+            <ArrowForward fontSize="small" />
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Thumbnails */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 1,
+          overflowX: "auto",
+          pb: 1,
+          "&::-webkit-scrollbar": {
+            height: "6px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            borderRadius: "10px",
+          },
+        }}
+      >
+        {images.map((image, index) => (
+          <Box
+            key={index}
+            onClick={() => handleThumbnailClick(index)}
+            sx={{
+              width: 80,
+              height: 60,
+              flexShrink: 0,
+              cursor: "pointer",
+              borderRadius: 1,
+              overflow: "hidden",
+              border:
+                activeImage === index
+                  ? "2px solid #1976d2"
+                  : "2px solid transparent",
+              transform: activeImage === index ? "scale(1.05)" : "scale(1)",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                borderColor:
+                  activeImage === index ? "#1976d2" : "rgba(0,0,0,0.2)",
+              },
+            }}
+          >
+            <Box
+              component="img"
+              src={image}
+              alt={`Thumbnail ${index}`}
+              sx={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </Box>
+        ))}
+      </Box>
+    </Box>
   );
 };
 
