@@ -9,7 +9,7 @@ export class SignalRService {
   startConnection = async (accessToken) => {
     try {
       this.connection = new HubConnectionBuilder()
-        .withUrl("http://localhost:5002/notifyHub", {
+        .withUrl("http://localhost:6006/notifyHub", {
           accessTokenFactory: () => accessToken,
           withCredentials: true,
         })

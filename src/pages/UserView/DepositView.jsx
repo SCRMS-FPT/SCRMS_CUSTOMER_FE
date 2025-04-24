@@ -39,11 +39,14 @@ const DepositView = () => {
   const [amount, setAmount] = useState("");
   const [amountError, setAmountError] = useState("");
   const [activeStep, setActiveStep] = useState(0);
+  const [depositResponse, setDepositResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [balanceLoading, setBalanceLoading] = useState(true);
   const [depositSuccess, setDepositSuccess] = useState(false);
   const [depositError, setDepositError] = useState(null);
   const [transactionId, setTransactionId] = useState(null);
+  const [pollingTimeout, setPollingTimeout] = useState(null);
+  const [isDepositCancelled, setIsDepositCancelled] = useState(false);
 
   const steps = ["Nhập thông tin", "Thanh toán", "Hoàn thành"];
 
@@ -97,19 +100,9 @@ const DepositView = () => {
   };
 
   // Handle deposit button click
-  const handleDeposit = () => {
+  const handleDeposit = async () => {
     if (!validateAmount(amount)) return;
 
-    setActiveStep(1);
-
-    // After 3 seconds, proceed to final step
-    setTimeout(() => {
-      processDeposit();
-    }, 3000);
-  };
-
-  // Process the deposit
-  const processDeposit = async () => {
     setLoading(true);
     setDepositError(null);
     try {
@@ -120,27 +113,89 @@ const DepositView = () => {
       });
 
       const response = await apiClient.depositFunds(depositRequest);
-      setDepositSuccess(true);
-      setTransactionId(response?.id || "TXN-" + Date.now());
-      setActiveStep(2);
-      // Refresh wallet balance
-      await fetchWalletBalance();
+      setDepositResponse(response);
+      setActiveStep(1);
+      
+      // Start polling for deposit status
+      startPollingDepositStatus(response.id);
     } catch (error) {
       console.error("Error depositing funds:", error);
-      setDepositError("Không thể hoàn thành giao dịch. Vui lòng thử lại sau.");
+      setDepositError("Không thể khởi tạo giao dịch. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Generate QR code content
-  const generateQRContent = () => {
-    const bankAccount = "0834398268";
-    const accountName = "LE MINH THANG";
-    const bank = "MBBANK";
-    const content = `${bank}|${bankAccount}|${accountName}|${amount}|Nap tien vi Courtsite`;
-    return content;
+  // Start polling
+  const startPollingDepositStatus = (depositId) => {
+    if (!depositId) return;
+    
+    let pollCount = 0;
+    const maxPolls = 180; 
+    const pollInterval = 5000;
+    
+    const checkDepositStatus = async () => {
+      try {
+        const client = new Client();
+        const status = await client.getDepositStatus(depositId);
+        
+        if (status.status === "Completed") {
+          // Deposit successful
+          setDepositSuccess(true);
+          setTransactionId(depositId);
+          setActiveStep(2);
+          fetchWalletBalance(); // Refresh wallet balance
+          clearTimeout(pollingTimeout);
+        } else if (status.status === "Cancelled" || status.status === "Failed") {
+          // Deposit failed or cancelled
+          setDepositError("Giao dịch đã bị hủy hoặc thất bại.");
+          setActiveStep(2);
+          clearTimeout(pollingTimeout);
+        } else {
+          // Still pending
+          pollCount++;
+          
+          if (pollCount >= maxPolls) {
+            // Timeout after 15 minutes
+            setIsDepositCancelled(true);
+            setDepositError("Giao dịch đã hết thời gian chờ (15 phút). Vui lòng kiểm tra lại sau.");
+            setActiveStep(2);
+            clearTimeout(pollingTimeout);
+          } else {
+            // Continue polling
+            const timeout = setTimeout(checkDepositStatus, pollInterval);
+            setPollingTimeout(timeout);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking deposit status:", error);
+        pollCount++;
+        
+        if (pollCount >= maxPolls) {
+          setIsDepositCancelled(true);
+          setDepositError("Giao dịch đã hết thời gian chờ (15 phút). Vui lòng kiểm tra lại sau.");
+          setActiveStep(2);
+          clearTimeout(pollingTimeout);
+        } else {
+          const timeout = setTimeout(checkDepositStatus, pollInterval);
+          setPollingTimeout(timeout);
+        }
+      }
+    };
+    
+    // Start the first check
+    const timeout = setTimeout(checkDepositStatus, pollInterval);
+    setPollingTimeout(timeout);
   };
+
+  // Clean up polling on component unmount
+  useEffect(() => {
+    return () => {
+      if (pollingTimeout) {
+        clearTimeout(pollingTimeout);
+      }
+    };
+  }, [pollingTimeout]);
 
   // Handle go back button
   const handleBack = () => {
@@ -214,11 +269,11 @@ const DepositView = () => {
               elevation={3}
               sx={{ p: 3, mb: 3, mt: 2, maxWidth: 280, width: "100%" }}
             >
-              <Box sx={{ p: 1, bgcolor: "white" }}>
-                <QRCode
-                  value={generateQRContent()}
-                  size={256}
-                  style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+              <Box sx={{ p: 1, bgcolor: "white", display: "flex", justifyContent: "center" }}>
+                <img
+                  src={depositResponse.qrCodeUrl}
+                  alt="QR Code"
+                  style={{ maxWidth: "100%", maxHeight: 256 }}
                 />
               </Box>
             </Paper>
@@ -226,26 +281,42 @@ const DepositView = () => {
               <Typography variant="body1" gutterBottom fontWeight="bold">
                 Thông tin chuyển khoản:
               </Typography>
-              <Typography variant="body2" gutterBottom>
-                Số tài khoản: <strong>0834398268</strong>
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                Tên: <strong>LE MINH THANG</strong>
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                Ngân hàng: <strong>MBBANK</strong>
-              </Typography>
+              {depositResponse?.bankInfo && (
+                <Box sx={{ mb: 1 }}>
+                  {depositResponse.bankInfo.split(",").map((part, idx) => {
+                    const [beforeColon, afterColon] = part.split(/:(.+)/); // split only on the first colon
+                    return (
+                      <Typography variant="body2" gutterBottom key={idx}>
+                        {afterColon !== undefined ? (
+                          <>
+                            {beforeColon.trim()}:
+                            <strong>{afterColon}</strong>
+                          </>
+                        ) : (
+                          part
+                        )}
+                      </Typography>
+                    );
+                  })}
+                </Box>
+              )}
               <Typography variant="body2" gutterBottom>
                 Số tiền:{" "}
-                <strong>{parseFloat(amount).toLocaleString()} VND</strong>
+                <strong>
+                  {depositResponse?.amount
+                    ? parseFloat(depositResponse.amount).toLocaleString()
+                    : parseFloat(amount).toLocaleString()}{" "}
+                  VND
+                </strong>
               </Typography>
               <Typography variant="body2" gutterBottom>
-                Nội dung: <strong>Nap tien vi Courtify</strong>
+                Nội dung chuyển khoản:{" "}
+                <strong>{depositResponse?.code || ""}</strong>
               </Typography>
             </Box>
             <CircularProgress sx={{ mt: 2 }} />
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-              Đang xử lý thanh toán...
+              Đang xử lý thanh toán... (Tối đa 15 phút)
             </Typography>
           </Box>
         );
@@ -361,6 +432,11 @@ const DepositView = () => {
                 <Alert severity="error" sx={{ width: "100%", mb: 3 }}>
                   {depositError}
                 </Alert>
+                {isDepositCancelled ? (
+                  <Typography variant="body2" sx={{ mb: 3 }}>
+                    Nếu bạn đã chuyển khoản, vui lòng liên hệ với bộ phận hỗ trợ và cung cấp mã giao dịch: <strong>{depositResponse?.id || "N/A"}</strong>
+                  </Typography>
+                ) : null}
                 <Button variant="contained" onClick={() => setActiveStep(0)}>
                   Thử lại
                 </Button>

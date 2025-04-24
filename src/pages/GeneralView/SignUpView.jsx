@@ -177,7 +177,7 @@ const SignUpView = () => {
       notification.success({
         message: "Đăng ký thành công",
         description:
-          "Tài khoản của bạn đã được tạo. Vui lòng kiểm tra email của bạn để xác thực tài khoản.",
+          "Tin nhắn chứa đường dẫn xác thực đã gửi vào tài khoản gmail. Vui lòng xác thực.",
         placement: "topRight",
       });
 
@@ -350,7 +350,11 @@ const SignUpView = () => {
               name="birthdate"
               label="Ngày sinh"
               rules={[
-                { required: true, message: "Vui lòng chọn ngày sinh" },
+                {
+                  required: true,
+                  message: "Vui lòng chọn ngày sinh",
+                  type: "object",
+                },
                 {
                   validator: (_, value) => {
                     if (!value) {
@@ -360,6 +364,9 @@ const SignUpView = () => {
                       return Promise.reject(
                         "Ngày sinh không được lớn hơn ngày hiện tại"
                       );
+                    }
+                    if (dayjs().diff(value, "year") < 18) {
+                      return Promise.reject("Bạn phải đủ 18 tuổi để đăng ký");
                     }
                     return Promise.resolve();
                   },
@@ -494,6 +501,12 @@ const SignUpView = () => {
                 rules={[
                   { required: true, message: "Vui lòng nhập mật khẩu" },
                   { min: 8, message: "Mật khẩu phải có ít nhất 8 ký tự" },
+                  {
+                    pattern:
+                      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).*$/,
+                    message:
+                      "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ số và một ký tự đặc biệt",
+                  },
                 ]}
               >
                 <Input.Password
@@ -537,6 +550,10 @@ const SignUpView = () => {
                 label="Số điện thoại"
                 rules={[
                   { required: true, message: "Vui lòng nhập số điện thoại" },
+                  {
+                    pattern: /^\d{10}$/,
+                    message: "Số điện thoại phải có đúng 10 chữ số",
+                  },
                 ]}
               >
                 <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại" />
@@ -551,6 +568,25 @@ const SignUpView = () => {
                       {
                         required: true,
                         message: "Vui lòng chọn ngày sinh",
+                        type: "object",
+                      },
+                      {
+                        validator: (_, value) => {
+                          if (!value) {
+                            return Promise.reject("Ngày sinh không hợp lệ");
+                          }
+                          if (value.isAfter(dayjs())) {
+                            return Promise.reject(
+                              "Ngày sinh không được lớn hơn ngày hiện tại"
+                            );
+                          }
+                          if (dayjs().diff(value, "year") < 18) {
+                            return Promise.reject(
+                              "Bạn phải đủ 18 tuổi để đăng ký"
+                            );
+                          }
+                          return Promise.resolve();
+                        },
                       },
                     ]}
                   >
@@ -573,7 +609,6 @@ const SignUpView = () => {
                       <Option value="Male">Nam</Option>
                       <Option value="Female">Nữ</Option>
                       <Option value="Other">Khác</Option>
-                      <Option value="Undisclosed">Không tiết lộ</Option>
                     </Select>
                   </Form.Item>
                 </Col>

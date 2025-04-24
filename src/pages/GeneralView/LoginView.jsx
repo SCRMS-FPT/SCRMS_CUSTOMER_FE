@@ -6,7 +6,6 @@ import {
   UserOutlined,
   PhoneOutlined,
   CalendarOutlined,
-  HomeOutlined,
 } from "@ant-design/icons";
 import {
   notification,
@@ -18,7 +17,6 @@ import {
   Button,
   Space,
   ConfigProvider,
-  Result,
 } from "antd";
 import { useAuth } from "@/hooks/useAuth";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
@@ -44,7 +42,6 @@ const LoginView = () => {
   const navigate = useNavigate();
 
   const { status, userProfile } = useSelector((state) => state.user);
-  const isLoggedIn = !!userProfile;
 
   const client = new Client();
 
@@ -209,33 +206,6 @@ const LoginView = () => {
     navigate("/");
   };
 
-  // Show message if user is already logged in
-  if (isLoggedIn) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-          <Result
-            status="success"
-            title="Bạn đã đăng nhập"
-            subTitle={`Xin chào, ${userProfile.firstName || ""} ${
-              userProfile.lastName || ""
-            }! Bạn đã đăng nhập vào hệ thống.`}
-            extra={[
-              <Button
-                type="primary"
-                key="home"
-                onClick={() => navigate("/")}
-                icon={<HomeOutlined />}
-              >
-                Về Trang Chủ
-              </Button>,
-            ]}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <ConfigProvider locale={locale}>
@@ -312,7 +282,11 @@ const LoginView = () => {
               name="birthdate"
               label="Ngày sinh"
               rules={[
-                { required: true, message: "Vui lòng chọn ngày sinh" },
+                {
+                  required: true,
+                  message: "Vui lòng chọn ngày sinh",
+                  type: "object",
+                },
                 {
                   validator: (_, value) => {
                     if (!value) {
@@ -322,6 +296,9 @@ const LoginView = () => {
                       return Promise.reject(
                         "Ngày sinh không được lớn hơn ngày hiện tại"
                       );
+                    }
+                    if (dayjs().diff(value, "year") < 18) {
+                      return Promise.reject("Bạn phải đủ 18 tuổi để đăng ký");
                     }
                     return Promise.resolve();
                   },
@@ -406,12 +383,14 @@ const LoginView = () => {
             </p>
           </Link>
 
+          {/* {error && <p className="text-red-500 text-center mt-2">{error}</p>} */}
+
           <button
             onClick={handleLogin}
             className="w-full bg-blue-600 text-white p-2 rounded mt-4 hover:bg-blue-700"
             disabled={status === "loading"}
           >
-            {status === "loading" ? "Đang xử lý..." : "Đăng Nhập"}
+            Đăng Nhập
           </button>
 
           <p className="text-xs text-center text-gray-500 mt-2">

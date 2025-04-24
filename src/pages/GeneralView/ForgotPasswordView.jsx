@@ -84,8 +84,8 @@ const ForgotPasswordView = () => {
 
   return (
     <div
-      className="flex justify-center items-center min-h-screen bg-gray-100 p-6"
-      style={{ marginTop: "2rem", marginBottom: "2rem" }}
+      className="flex justify-center items-center min-h-screen bg-gray-100 bg-[url('/src/assets/soccer.jpg')] bg-cover bg-center"
+      // style={{ marginTop: "2rem", marginBottom: "2rem" }}
     >
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
         <h2 className="text-2xl font-bold text-center text-gray-800">

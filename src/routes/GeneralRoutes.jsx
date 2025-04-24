@@ -22,6 +22,7 @@ import SportCenterDetails from "@/pages/UserView/SportCenterDetails";
 import NotFoundView from "@/pages/GeneralView/NotFoundView";
 import Forbidden403 from "@/pages/Error/Forbidden403";
 import VerificationView from "@/pages/GeneralView/VerificationView";
+import ResetPasswordConfirmPage from "@/pages/GeneralView/ResetPasswordConfirmView";
 
 const GeneralRoutes = [
   <Route
@@ -183,6 +184,15 @@ const GeneralRoutes = [
     element={
       <Layout>
         <DepositView />
+      </Layout>
+    }
+  />,
+  <Route
+    key="reset-password-confirm"
+    path="/resetpasswordconfirm/:token"
+    element={
+      <Layout>
+        <ResetPasswordConfirmPage />
       </Layout>
     }
   />,
