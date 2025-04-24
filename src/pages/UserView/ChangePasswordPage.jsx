@@ -13,14 +13,14 @@ import {
   ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { Client, ChangePasswordRequest } from "@/API/IdentityApi";
+import { Client, ChangePasswordRequest, ApiException } from "@/API/IdentityApi";
 
 const { Title, Text } = Typography;
 
 export default function ChangePasswordPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const client = new Client("http://localhost:6001", null);
+  const client = new Client();
 
   const onFinish = async (values) => {
     if (values.newPassword !== values.confirmPassword) {
@@ -43,6 +43,15 @@ export default function ChangePasswordPage() {
         placement: "topRight",
       });
     } catch (error) {
+      if (error instanceof ApiException) {
+        const errorMsg = "đã có lỗi xảy ra";
+        try {
+          const errorResponse = JSON.parse(error.response);
+          errorMsg = errorResponse.detail || errorMsg;
+        } catch (e) {
+          errorMsg = e.message || errorMsg;
+        }
+      }
       notification.error({
         message: "Lỗi",
         description: `Không thể đổi mật khẩu do ${error.message}.`,
@@ -84,7 +93,13 @@ export default function ChangePasswordPage() {
                     required: true,
                     message: "Vui lòng nhập mật khẩu hiện tại!",
                   },
-                  { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
+                  { min: 8, message: "Mật khẩu phải có ít nhất 8 ký tự" },
+                  {
+                    pattern:
+                      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).*$/,
+                    message:
+                      "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ số và một ký tự đặc biệt",
+                  },
                 ]}
               >
                 <Input.Password
@@ -98,12 +113,12 @@ export default function ChangePasswordPage() {
                 label="Mật khẩu mới"
                 rules={[
                   { required: true, message: "Vui lòng nhập mật khẩu mới!" },
-                  { min: 8, message: "Mật khẩu mới phải có ít nhất 8 ký tự!" },
+                  { min: 8, message: "Mật khẩu phải có ít nhất 8 ký tự" },
                   {
                     pattern:
-                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?]).*$/,
                     message:
-                      "Mật khẩu phải chứa chữ hoa, chữ thường, số và ký tự đặc biệt!",
+                      "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ số và một ký tự đặc biệt",
                   },
                 ]}
               >
