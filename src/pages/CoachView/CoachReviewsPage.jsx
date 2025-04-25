@@ -167,6 +167,47 @@ const EmptyState = styled(Box)(({ theme }) => ({
   textAlign: "center",
 }));
 
+const AnimatedReplyArea = styled(motion.div)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  overflow: "hidden",
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  "& .MuiOutlinedInput-root": {
+    borderRadius: theme.shape.borderRadius,
+    transition: "all 0.3s ease",
+    backgroundColor: theme.palette.background.paper,
+    "&:hover": {
+      boxShadow: "0 0 0 2px rgba(25, 118, 210, 0.2)",
+    },
+    "&.Mui-focused": {
+      boxShadow: "0 0 0 2px rgba(25, 118, 210, 0.3)",
+    },
+  },
+}));
+
+const ActionButton = styled(Button)(({ theme, variant }) => ({
+  borderRadius: 20,
+  transition: "all 0.2s ease",
+  textTransform: "none",
+  boxShadow: variant === "contained" ? theme.shadows[2] : "none",
+  "&:hover": {
+    transform: "translateY(-2px)",
+    boxShadow: variant === "contained" ? theme.shadows[4] : "none",
+  },
+  "&:active": {
+    transform: "translateY(0)",
+  },
+}));
+
+const ReplyHeader = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  marginBottom: theme.spacing(2),
+}));
+
 function CoachReviewsPage() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -542,65 +583,147 @@ function CoachReviewsPage() {
                 )}
 
                 {/* Reply form */}
-                <ReviewActions>
-                  {activeReplyId === review.id ? (
-                    <ReplyArea>
-                      <TextField
+                {activeReplyId === review.id ? (
+                  <AnimatedReplyArea
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Paper
+                      elevation={3}
+                      sx={{
+                        p: 3,
+                        borderRadius: 2,
+                        background: (theme) =>
+                          `linear-gradient(to right bottom, ${theme.palette.background.paper}, ${theme.palette.grey[50]})`,
+                        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
+                        border: "1px solid rgba(255, 255, 255, 0.18)",
+                      }}
+                    >
+                      <ReplyHeader>
+                        <Avatar
+                          sx={{
+                            bgcolor: "primary.main",
+                            width: 36,
+                            height: 36,
+                            mr: 2,
+                          }}
+                        >
+                          <ReplyIcon fontSize="small" />
+                        </Avatar>
+                        <Typography variant="subtitle1" fontWeight="medium">
+                          Viết phản hồi của bạn
+                        </Typography>
+                      </ReplyHeader>
+
+                      <StyledTextField
                         fullWidth
                         multiline
-                        rows={3}
-                        placeholder="Viết phản hồi của bạn..."
+                        rows={4}
+                        placeholder="Phản hồi của bạn đối với đánh giá này..."
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                         disabled={submitting}
                         variant="outlined"
+                        InputProps={{
+                          sx: {
+                            fontSize: "1rem",
+                            lineHeight: 1.6,
+                          },
+                        }}
+                        sx={{ mb: 2 }}
                       />
+
                       <Box
                         sx={{
                           display: "flex",
-                          justifyContent: "flex-end",
+                          justifyContent: "space-between",
+                          alignItems: "center",
                           mt: 2,
-                          gap: 1,
                         }}
                       >
-                        <Button
-                          variant="outlined"
-                          onClick={() => {
-                            setActiveReplyId(null);
-                            setReplyText("");
-                          }}
-                          disabled={submitting}
-                        >
-                          Hủy
-                        </Button>
-                        <Button
-                          variant="contained"
-                          endIcon={<SendIcon />}
-                          onClick={() => handleReply(review.id)}
-                          disabled={!replyText.trim() || submitting}
-                        >
-                          {submitting ? "Đang gửi..." : "Gửi phản hồi"}
-                        </Button>
+                        <Typography variant="caption" color="text.secondary">
+                          Phản hồi chuyên nghiệp sẽ giúp nâng cao uy tín của bạn
+                        </Typography>
+
+                        <Box sx={{ display: "flex", gap: 1.5 }}>
+                          <ActionButton
+                            variant="outlined"
+                            color="inherit"
+                            onClick={() => {
+                              setActiveReplyId(null);
+                              setReplyText("");
+                            }}
+                            disabled={submitting}
+                            sx={{
+                              borderColor: (theme) => theme.palette.grey[300],
+                              color: "text.primary",
+                              "&:hover": {
+                                borderColor: "text.primary",
+                                backgroundColor: "rgba(0, 0, 0, 0.04)",
+                              },
+                            }}
+                          >
+                            Hủy
+                          </ActionButton>
+
+                          <ActionButton
+                            variant="contained"
+                            color="primary"
+                            endIcon={
+                              submitting ? (
+                                <CircularProgress size={16} color="inherit" />
+                              ) : (
+                                <SendIcon />
+                              )
+                            }
+                            onClick={() => handleReply(review.id)}
+                            disabled={!replyText.trim() || submitting}
+                            sx={{
+                              px: 3,
+                              background: (theme) =>
+                                `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+                              "&:hover": {
+                                background: (theme) =>
+                                  `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+                              },
+                              "&.Mui-disabled": {
+                                background: (theme) => theme.palette.grey[300],
+                              },
+                            }}
+                          >
+                            {submitting ? "Đang gửi..." : "Gửi phản hồi"}
+                          </ActionButton>
+                        </Box>
                       </Box>
-                    </ReplyArea>
-                  ) : (
-                    <>
-                      <Button
+                    </Paper>
+                  </AnimatedReplyArea>
+                ) : (
+                  <ReviewActions>
+                    <Tooltip title="Phản hồi đánh giá này" arrow>
+                      <ActionButton
                         size="small"
+                        variant="text"
                         startIcon={<CommentIcon />}
                         onClick={() => setActiveReplyId(review.id)}
                         sx={{
                           borderRadius: 20,
                           px: 2,
+                          color: "primary.main",
                           "&:hover": {
                             backgroundColor: "action.hover",
+                            transform: "translateY(-2px)",
                           },
                         }}
                       >
                         Phản hồi
-                      </Button>
-                      <Button
+                      </ActionButton>
+                    </Tooltip>
+                    <Tooltip title="Báo cáo đánh giá không phù hợp" arrow>
+                      <ActionButton
                         size="small"
+                        variant="text"
                         color="error"
                         startIcon={<FlagIcon />}
                         onClick={() => openFlagModal(review.id)}
@@ -609,14 +732,15 @@ function CoachReviewsPage() {
                           px: 2,
                           "&:hover": {
                             backgroundColor: "error.lighter",
+                            transform: "translateY(-2px)",
                           },
                         }}
                       >
                         Báo cáo
-                      </Button>
-                    </>
-                  )}
-                </ReviewActions>
+                      </ActionButton>
+                    </Tooltip>
+                  </ReviewActions>
+                )}
               </ReviewContent>
             </ReviewCard>
           ))}

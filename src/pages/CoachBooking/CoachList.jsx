@@ -328,8 +328,9 @@ const CoachSkeleton = () => (
         size={{
           xs: 12,
           sm: 6,
-          md: 4
-        }}>
+          md: 4,
+        }}
+      >
         <Paper
           sx={{ p: 0, height: "100%", borderRadius: 4, overflow: "hidden" }}
         >
@@ -890,7 +891,7 @@ const CoachList = () => {
               </Box>
             ),
             okText: "Đi đến lịch đặt",
-            onOk: () => navigate("/user/coachings"),
+            onOk: () => navigate("/user/coachings?tab=2"),
             cancelText: "Ở lại trang này",
             okCancel: true,
           });
@@ -990,8 +991,9 @@ const CoachList = () => {
               <Grid
                 size={{
                   xs: 12,
-                  md: 4
-                }}>
+                  md: 4,
+                }}
+              >
                 <MuiTypography
                   variant="subtitle2"
                   fontWeight={600}
@@ -1016,8 +1018,9 @@ const CoachList = () => {
                 size={{
                   xs: 12,
                   sm: 6,
-                  md: 3
-                }}>
+                  md: 3,
+                }}
+              >
                 <MuiTypography
                   variant="subtitle2"
                   fontWeight={600}
@@ -1049,8 +1052,9 @@ const CoachList = () => {
                 size={{
                   xs: 12,
                   sm: 6,
-                  md: 3
-                }}>
+                  md: 3,
+                }}
+              >
                 <MuiTypography
                   variant="subtitle2"
                   fontWeight={600}
@@ -1093,8 +1097,9 @@ const CoachList = () => {
               <Grid
                 size={{
                   xs: 12,
-                  md: 2
-                }}>
+                  md: 2,
+                }}
+              >
                 <MuiTypography
                   variant="subtitle2"
                   fontWeight={600}
@@ -1162,8 +1167,9 @@ const CoachList = () => {
                 size={{
                   xs: 12,
                   sm: 6,
-                  md: 4
-                }}>
+                  md: 4,
+                }}
+              >
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 30 }}
@@ -1398,8 +1404,9 @@ const CoachList = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      md: 6
-                    }}>
+                      md: 6,
+                    }}
+                  >
                     <MuiTypography
                       variant="subtitle1"
                       fontWeight="medium"
@@ -1591,8 +1598,9 @@ const CoachList = () => {
                   <Grid
                     size={{
                       xs: 12,
-                      md: 6
-                    }}>
+                      md: 6,
+                    }}
+                  >
                     <MuiTypography
                       variant="subtitle1"
                       fontWeight="medium"
@@ -1700,8 +1708,9 @@ const CoachList = () => {
                         <Grid
                           size={{
                             xs: 12,
-                            sm: 6
-                          }}>
+                            sm: 6,
+                          }}
+                        >
                           <Box
                             sx={{
                               display: "flex",
@@ -1732,8 +1741,9 @@ const CoachList = () => {
                         <Grid
                           size={{
                             xs: 12,
-                            sm: 6
-                          }}>
+                            sm: 6,
+                          }}
+                        >
                           <Box
                             sx={{
                               display: "flex",
@@ -1766,8 +1776,9 @@ const CoachList = () => {
                         <Grid
                           size={{
                             xs: 12,
-                            sm: 6
-                          }}>
+                            sm: 6,
+                          }}
+                        >
                           <Box
                             sx={{
                               display: "flex",

@@ -201,7 +201,7 @@ const UserCoachBookingsView = () => {
     // Session is completed if:
     // 1. Either it has status "COMPLETED", OR
     // 2. The session date and end time are in the past (session has already happened)
-    if (record.status === "COMPLETED") return true;
+    if (record.status.toUpperCase() === "COMPLETED") return true;
 
     const sessionDateTime = dayjs(
       `${record.bookingDate} ${record.endTime}`,

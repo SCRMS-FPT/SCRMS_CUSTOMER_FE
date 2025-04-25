@@ -1331,7 +1331,7 @@ const CoachDetails = () => {
               </Box>
             ),
             okText: "Go to Dashboard",
-            onOk: () => navigate("/user/coachings"),
+            onOk: () => navigate("/user/coachings?tab=2"),
             cancelText: "Stay Here",
             okCancel: true,
           });
