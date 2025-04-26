@@ -163,13 +163,12 @@ const UserCoachBookingsView = () => {
       setBookings(response.data || []);
       setTotalCount(response.count || 0);
       setError(null);
-      setError(null);
 
       console.log("Fetched bookings with params:", {
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         status: statusFilter,
-        pageIndex: 0,
+        pageIndex: pageIndex,
       });
     } catch (err) {
       console.error("Error fetching bookings:", err);
@@ -180,32 +179,33 @@ const UserCoachBookingsView = () => {
   };
 
   const getStatusTag = (status) => {
-    switch (status) {
-      case "PENDING":
+    const statusLower = status.toLowerCase();
+
+    switch (statusLower) {
+      case "pending":
         return <Tag color="orange">Đang chờ</Tag>;
-      case "CONFIRMED":
+      case "confirmed":
         return <Tag color="blue">Đã xác nhận</Tag>;
-      case "COMPLETED":
+      case "completed":
         return <Tag color="green">Hoàn thành</Tag>;
-      case "CANCELLED":
+      case "cancelled":
         return <Tag color="red">Đã hủy</Tag>;
-      case "NO_SHOW":
+      case "no_show":
         return <Tag color="gray">Không đến</Tag>;
       default:
         return <Tag color="default">{status}</Tag>;
     }
   };
 
-  // New method to check if a session is completed
-  const isSessionCompleted = (record) => {
-    // Session is completed if:
-    // 1. Either it has status "COMPLETED", OR
-    // 2. The session date and end time are in the past (session has already happened)
-    if (record.status.toUpperCase() === "COMPLETED") return true;
+  // Updated method to check if a session is completed and reviewable
+  const isSessionCompletedAndReviewable = (record) => {
+    // Only completed sessions can be reviewed
+    if (record.status.toLowerCase() !== "completed") return false;
 
+    // Check if the session date and end time are in the past
     const sessionDateTime = dayjs(
       `${record.bookingDate} ${record.endTime}`,
-      "YYYY-MM-DD HH:mm"
+      "YYYY-MM-DD HH:mm:ss"
     );
     return sessionDateTime.isBefore(dayjs());
   };
@@ -276,12 +276,13 @@ const UserCoachBookingsView = () => {
         <Space direction="vertical">
           <Space>
             <CalendarOutlined />
-            <Text>{dayjs(record.bookingDate).format("MMM D, YYYY")}</Text>
+            <Text>{dayjs(record.bookingDate).format("DD/MM/YYYY")}</Text>
           </Space>
           <Space>
             <ClockCircleOutlined />
             <Text>
-              {record.startTime} - {record.endTime}
+              {record.startTime.substring(0, 5)} -{" "}
+              {record.endTime.substring(0, 5)}
             </Text>
           </Space>
         </Space>
@@ -296,7 +297,7 @@ const UserCoachBookingsView = () => {
       title: "Giá tiền",
       dataIndex: "totalPrice",
       key: "price",
-      render: (price) => `$${price.toFixed(2)}`,
+      render: (price) => `${price.toLocaleString()}đ`,
     },
     {
       title: "Trạng thái",
@@ -304,20 +305,23 @@ const UserCoachBookingsView = () => {
       key: "status",
       render: (status) => getStatusTag(status),
       filters: [
-        { text: "Đang chờ", value: "PENDING" },
-        { text: "Đã xác nhận", value: "CONFIRMED" },
-        { text: "Hoàn thành", value: "COMPLETED" },
-        { text: "Đã hủy", value: "CANCELLED" },
-        { text: "Không đến", value: "NO_SHOW" },
+        { text: "Đang chờ", value: "pending" },
+        { text: "Đã xác nhận", value: "confirmed" },
+        { text: "Hoàn thành", value: "completed" },
+        { text: "Đã hủy", value: "cancelled" },
+        { text: "Không đến", value: "no_show" },
       ],
-      onFilter: (value, record) => record.status === value,
+      onFilter: (value, record) =>
+        record.status.toLowerCase() === value.toLowerCase(),
     },
     {
       title: "Hành động",
       key: "actions",
       render: (_, record) => {
-        const sessionCompleted = isSessionCompleted(record);
-        const isNotReviewed = sessionCompleted && !record.hasReview; // Add this field in your API response
+        const canReview = isSessionCompletedAndReviewable(record);
+        const isFutureBooking = dayjs(
+          `${record.bookingDate} ${record.startTime}`
+        ).isAfter(dayjs());
 
         return (
           <Space>
@@ -328,7 +332,7 @@ const UserCoachBookingsView = () => {
               Xem chi tiết
             </Button>
 
-            {isNotReviewed && (
+            {canReview && (
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -355,7 +359,7 @@ const UserCoachBookingsView = () => {
               </motion.div>
             )}
 
-            {!sessionCompleted && record.status === "CONFIRMED" && (
+            {isFutureBooking && record.status.toLowerCase() === "pending" && (
               <Button danger>Hủy</Button>
             )}
           </Space>
@@ -421,11 +425,11 @@ const UserCoachBookingsView = () => {
             value={statusFilter}
             allowClear
           >
-            <Option value="PENDING">Đang chờ</Option>
-            <Option value="CONFIRMED">Đã xác nhận</Option>
-            <Option value="COMPLETED">Hoàn thành</Option>
-            <Option value="CANCELLED">Đã hủy</Option>
-            <Option value="NO_SHOW">Không đến</Option>
+            <Option value="pending">Đang chờ</Option>
+            <Option value="confirmed">Đã xác nhận</Option>
+            <Option value="completed">Hoàn thành</Option>
+            <Option value="cancelled">Đã hủy</Option>
+            <Option value="no_show">Không đến</Option>
           </Select>
 
           <Button onClick={handleResetFilters} icon={<FilterOutlined />}>

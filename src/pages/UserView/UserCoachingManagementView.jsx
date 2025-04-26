@@ -17,16 +17,16 @@ const UserCoachManagementView = () => {
   };
 
   const tabItems = [
+    { key: "1", label: "Lịch sử đặt", children: <UserCoachBookingsView /> },
     {
-      key: "1",
-      label: "Các gói huấn luyện viên đã mua",
-      children: <UserPurchasedPackagesView />,
-    },
-    { key: "2", label: "Lịch sử đặt", children: <UserCoachBookingsView /> },
-    {
-      key: "3",
+      key: "2",
       label: "Lịch",
       children: <UserCoachCalendarView />,
+    },
+    {
+      key: "3",
+      label: "Các gói huấn luyện viên đã mua",
+      children: <UserPurchasedPackagesView />,
     },
   ];
 

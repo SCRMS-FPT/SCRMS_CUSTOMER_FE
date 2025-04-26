@@ -26,6 +26,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { Client } from "@/API/CourtApi";
+import { Client as PaymentClient } from "@/API/PaymentApi"; // Add PaymentApi client
 import dayjs from "dayjs";
 import { CheckCircleOutlined } from "@mui/icons-material";
 
@@ -63,6 +64,8 @@ const CourtOwnerBookingView = () => {
 
   const navigate = useNavigate();
   const client = new Client();
+  const paymentClient = new PaymentClient(); // Initialize PaymentApi client
+
   const handleMarkAsComplete = (bookingId) => {
     Modal.confirm({
       title: "Đánh dấu lịch đặt hoàn thành",
@@ -76,14 +79,33 @@ const CourtOwnerBookingView = () => {
       cancelText: "Hủy",
       onOk: async () => {
         try {
+          // Get the booking details first to access the total price and user ID
+          const bookingDetails = bookings.find((b) => b.id === bookingId);
+          if (!bookingDetails) {
+            throw new Error("Không tìm thấy thông tin lịch đặt sân!");
+          }
+
+          // 1. Update booking status to Completed
           await client.updateBookingStatus(bookingId, {
             status: "Completed",
           });
 
-          message.success("Lịch đặt đã được đánh dấu hoàn thành");
+          // 2. Process the cash payment
+          await paymentClient.processBookingPayment({
+            amount: bookingDetails.remainingBalance,
+            description: `Thanh toán tiền mặt ngoài hệ thống cho booking #${bookingId}`,
+            paymentType: "CourtBookingCash",
+            bookingId: bookingId,
+            referenceId: bookingId,
+            status: "Completed",
+          });
+
+          message.success(
+            "Lịch đặt đã được đánh dấu hoàn thành và thanh toán thành công"
+          );
           fetchBookings(); // Refresh booking list
         } catch (err) {
-          console.error("Error updating booking status:", err);
+          console.error("Error processing booking completion:", err);
           message.error(
             "Gặp lỗi trong quá trình cập nhật thông tin lịch đặt sân: " +
               (err.message || "Lỗi không xác định")
@@ -268,7 +290,8 @@ const CourtOwnerBookingView = () => {
         } catch (err) {
           console.error("Error cancelling booking:", err);
           message.error(
-            "Gặp lỗi trong quá trình hủy lịch đặt: " + (err.message || "Lỗi không xác định")
+            "Gặp lỗi trong quá trình hủy lịch đặt: " +
+              (err.message || "Lỗi không xác định")
           );
         }
       },
@@ -509,10 +532,7 @@ const CourtOwnerBookingView = () => {
               presets={{
                 Today: [dayjs(), dayjs()],
                 "Tuần này": [dayjs().startOf("week"), dayjs().endOf("week")],
-                "Tháng này": [
-                  dayjs().startOf("month"),
-                  dayjs().endOf("month"),
-                ],
+                "Tháng này": [dayjs().startOf("month"), dayjs().endOf("month")],
               }}
             />
 
@@ -544,7 +564,8 @@ const CourtOwnerBookingView = () => {
         <Empty
           description={
             <span>
-              Không có lịch đặt nào phù hợp với bộ lọc hiện tại. Vui lòng thử lại với các bộ lọc khác.
+              Không có lịch đặt nào phù hợp với bộ lọc hiện tại. Vui lòng thử
+              lại với các bộ lọc khác.
             </span>
           }
           image={Empty.PRESENTED_IMAGE_SIMPLE}

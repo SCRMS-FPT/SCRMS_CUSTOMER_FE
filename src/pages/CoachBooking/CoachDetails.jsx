@@ -1235,7 +1235,7 @@ const CoachDetails = () => {
             const paymentRequest = {
               amount: totalPrice,
               description: `Booking with ${coach.fullName}`,
-              paymentType: "Booking",
+              paymentType: "CoachBooking",
               referenceId: bookingResult.id,
               coachId: coach.id,
               bookingId: bookingResult.id,

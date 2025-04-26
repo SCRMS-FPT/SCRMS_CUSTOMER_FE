@@ -28,23 +28,22 @@ import dayjs from "dayjs";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
+// Updated status colors based on the actual API response values
 const statusColors = {
-  Pending: "orange",
-  Confirmed: "green",
-  Completed: "blue",
   Cancelled: "red",
-  NoShow: "black",
-  Expired: "volcano",
+  Completed: "green",
+  Deposited: "blue",
+  PendingPayment: "orange",
+  PaymentFail: "volcano",
 };
 
-// Map API booking status codes to user-friendly names
+// Updated status map based on the actual API response values
 const statusMap = {
-  0: "Đang chờ",
-  1: "Xác nhận",
-  2: "Hoàn thành",
-  3: "Hủy bỏ",
-  4: "Không xuất hiện",
-  5: "Hết hạn",
+  Cancelled: "Đã hủy",
+  Completed: "Hoàn thành",
+  Deposited: "Đã đặt cọc",
+  PendingPayment: "Chờ thanh toán",
+  PaymentFail: "Thanh toán thất bại",
 };
 
 const UserCourtBookingManagementView = () => {
@@ -81,7 +80,7 @@ const UserCourtBookingManagementView = () => {
         undefined,
         courtId,
         sportsCenterId,
-        statusFilter !== undefined ? parseInt(statusFilter) : undefined,
+        statusFilter,
         startDate,
         endDate,
         currentPage,
@@ -93,19 +92,26 @@ const UserCourtBookingManagementView = () => {
         const formattedBookings = response.bookings.map((booking) => ({
           key: booking.id,
           id: booking.id,
-          date: dayjs(booking.bookingDate).format("YYYY-MM-DD"),
+          date: dayjs(booking.bookingDate).format("DD/MM/YYYY"),
           totalPrice: booking.totalPrice,
-          status: statusMap[booking.status] || booking.status,
-          createdAt: dayjs(booking.createdAt).format("YYYY-MM-DD HH:mm"),
+          remainingBalance: booking.remainingBalance,
+          initialDeposit: booking.initialDeposit,
+          // Use the actual status value directly from the API
+          status: booking.status,
+          // For displaying Vietnamese text in the UI
+          statusText: statusMap[booking.status] || booking.status,
+          createdAt: dayjs(booking.createdAt).format("DD/MM/YYYY HH:mm"),
           lastModified: booking.lastModified
-            ? dayjs(booking.lastModified).format("YYYY-MM-DD HH:mm")
+            ? dayjs(booking.lastModified).format("DD/MM/YYYY HH:mm")
             : "-",
           // Extract information from the first booking detail if available
           court: booking.bookingDetails?.[0]?.courtName || "-",
-          time: booking.bookingDetails?.[0]?.startTime || "-",
+          time: booking.bookingDetails?.[0]?.startTime.substring(0, 5) || "-",
           sportsCenter: booking.bookingDetails?.[0]?.sportsCenterName || "-",
           // Store all booking details for reference
           details: booking.bookingDetails || [],
+          // Store total time for reference
+          totalTime: booking.totalTime,
         }));
 
         setBookings(formattedBookings);
@@ -148,7 +154,7 @@ const UserCourtBookingManagementView = () => {
         "Bạn có chắc chắn muốn hủy đặt chỗ này không? Hành động này không thể hoàn tác.",
       okText: "Có, xác nhận hủy.",
       okButtonProps: { danger: true },
-      cancelText: "No",
+      cancelText: "Không",
       onOk: async () => {
         try {
           // Call the cancel booking API
@@ -203,12 +209,12 @@ const UserCourtBookingManagementView = () => {
     },
     {
       title: "Trạng thái",
-      dataIndex: "status",
+      dataIndex: "statusText",
       key: "status",
-      render: (status) => (
-        <Tag color={statusColors[status] || "default"}>{status}</Tag>
+      render: (statusText, record) => (
+        <Tag color={statusColors[record.status] || "default"}>{statusText}</Tag>
       ),
-      width: 100,
+      width: 120,
     },
     {
       title: "Hành động",
@@ -222,7 +228,8 @@ const UserCourtBookingManagementView = () => {
           >
             Xem chi tiết
           </Button>
-          {(record.status === "Đang chờ" || record.status === "Xác nhận") && (
+          {/* Show cancel button for any status that is not "Cancelled" */}
+          {record.status !== "Cancelled" && (
             <Button
               type="primary"
               danger
@@ -240,7 +247,7 @@ const UserCourtBookingManagementView = () => {
 
   return (
     <Card
-      title="My Court Bookings"
+      title="Quản lý đặt sân"
       extra={
         <Button
           type="primary"
@@ -252,7 +259,7 @@ const UserCourtBookingManagementView = () => {
       }
     >
       <div className="mb-4">
-        <p>Xem và quản lý lịch đặt của bạn.</p>
+        <p>Xem và quản lý lịch đặt sân của bạn.</p>
       </div>
 
       {/* Search & Filter Section */}
@@ -276,6 +283,7 @@ const UserCourtBookingManagementView = () => {
                 value={dateRange}
                 onChange={(dates) => setDateRange(dates)}
                 allowClear
+                format="DD/MM/YYYY"
               />
             </Form.Item>
           </Col>
@@ -288,9 +296,9 @@ const UserCourtBookingManagementView = () => {
                 allowClear
                 style={{ width: "100%" }}
               >
-                {Object.entries(statusMap).map(([key, value]) => (
-                  <Option key={key} value={key}>
-                    {value}
+                {Object.entries(statusMap).map(([status, displayName]) => (
+                  <Option key={status} value={status}>
+                    {displayName}
                   </Option>
                 ))}
               </Select>
@@ -323,7 +331,7 @@ const UserCourtBookingManagementView = () => {
             pageSize: pageSize,
             total: totalCount,
             onChange: (page, pageSize) => {
-              setCurrentPage(page);
+              setCurrentPage(page - 1); // API is 0-indexed, UI is 1-indexed
               setPageSize(pageSize);
             },
             showSizeChanger: true,

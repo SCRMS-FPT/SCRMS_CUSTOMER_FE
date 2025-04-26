@@ -66,24 +66,22 @@ import Lottie from "react-lottie";
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 
-// Map API booking status codes to user-friendly names
+// Updated status map based on the new BookingStatus enum
 const statusMap = {
-  0: "Pending",
-  1: "Confirmed",
-  2: "Completed",
-  3: "Cancelled",
-  4: "NoShow",
-  5: "Expired",
+  Cancelled: "Đã hủy",
+  Completed: "Hoàn thành",
+  Deposited: "Đã đặt cọc",
+  PendingPayment: "Chờ thanh toán",
+  PaymentFail: "Thanh toán thất bại",
 };
 
-// Status colors for tags
+// Updated status colors for tags
 const statusColors = {
-  Pending: "orange",
-  Confirmed: "green",
-  Completed: "blue",
   Cancelled: "red",
-  NoShow: "black",
-  Expired: "volcano",
+  Completed: "green",
+  Deposited: "blue",
+  PendingPayment: "orange",
+  PaymentFail: "volcano",
 };
 
 // Styled components for the payment modal
@@ -381,7 +379,8 @@ const UserBookingDetailView = () => {
     );
   }
 
-  const formattedStatus = statusMap[booking.status] || booking.status;
+  // Use status text from the statusMap or fallback to the raw status
+  const statusText = statusMap[booking.status] || booking.status;
   const paymentPercentage = booking.totalPrice
     ? Math.round(
         ((booking.totalPrice - booking.remainingBalance) / booking.totalPrice) *
@@ -406,8 +405,7 @@ const UserBookingDetailView = () => {
         className="shadow-lg rounded-lg"
         extra={
           <>
-            {(formattedStatus === "Pending" ||
-              formattedStatus === "Confirmed") && (
+            {booking.status !== "Cancelled" && (
               <Space>
                 {booking.remainingBalance > 0 && (
                   <Button
@@ -440,10 +438,10 @@ const UserBookingDetailView = () => {
           <Col span={24}>
             <div className="text-center mb-4">
               <Tag
-                color={statusColors[formattedStatus] || "default"}
+                color={statusColors[booking.status] || "default"}
                 style={{ padding: "4px 12px", fontSize: "16px" }}
               >
-                {formattedStatus}
+                {statusText}
               </Tag>
             </div>
           </Col>
@@ -494,12 +492,17 @@ const UserBookingDetailView = () => {
               </Descriptions.Item>
               <Descriptions.Item label="Ngày đặt">
                 {booking.bookingDate
-                  ? dayjs(booking.bookingDate).format("YYYY-MM-DD")
+                  ? dayjs(booking.bookingDate).format("DD/MM/YYYY")
                   : "-"}
               </Descriptions.Item>
               <Descriptions.Item label="Tạo ngày">
                 {booking.createdAt
-                  ? dayjs(booking.createdAt).format("YYYY-MM-DD HH:mm")
+                  ? dayjs(booking.createdAt).format("DD/MM/YYYY HH:mm")
+                  : "-"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Cập nhật lần cuối">
+                {booking.lastModified
+                  ? dayjs(booking.lastModified).format("DD/MM/YYYY HH:mm")
                   : "-"}
               </Descriptions.Item>
               <Descriptions.Item label="Thời lượng">
@@ -523,16 +526,17 @@ const UserBookingDetailView = () => {
               <Descriptions.Item label="Số dư còn lại">
                 <div className="flex items-center">
                   {booking.remainingBalance?.toLocaleString() || 0} VND
-                  {booking.remainingBalance > 0 && (
-                    <Button
-                      type="link"
-                      size="small"
-                      icon={<DollarOutlined />}
-                      onClick={() => setPaymentModalVisible(true)}
-                    >
-                      Thanh toán
-                    </Button>
-                  )}
+                  {booking.remainingBalance > 0 &&
+                    booking.status !== "Cancelled" && (
+                      <Button
+                        type="link"
+                        size="small"
+                        icon={<DollarOutlined />}
+                        onClick={() => setPaymentModalVisible(true)}
+                      >
+                        Thanh toán
+                      </Button>
+                    )}
                 </div>
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái thanh toán">
@@ -566,7 +570,7 @@ const UserBookingDetailView = () => {
                           {detail.courtName || `Đặt sân ${index + 1}`}
                         </span>
                         {/* Only show review button for completed bookings */}
-                        {formattedStatus === "Completed" && (
+                        {booking.status === "Completed" && (
                           <Button
                             type="primary"
                             shape="round"
@@ -596,10 +600,10 @@ const UserBookingDetailView = () => {
                         {detail.sportsCenterName || "-"}
                       </Descriptions.Item>
                       <Descriptions.Item label="Giờ bắt đầu">
-                        {detail.startTime || "-"}
+                        {detail.startTime?.substring(0, 5) || "-"}
                       </Descriptions.Item>
                       <Descriptions.Item label="Giờ kết thúc">
-                        {detail.endTime || "-"}
+                        {detail.endTime?.substring(0, 5) || "-"}
                       </Descriptions.Item>
                       <Descriptions.Item label="Giá tiền">
                         {detail.totalPrice?.toLocaleString() || 0} VND
@@ -627,7 +631,7 @@ const UserBookingDetailView = () => {
         )}
         {/* Action Buttons */}
         <div className="mt-4 flex justify-end gap-2">
-          {formattedStatus === "Completed" && (
+          {booking.status === "Completed" && (
             <Button type="primary" onClick={() => setReviewModalVisible(true)}>
               Viết nhận xét
             </Button>
@@ -637,6 +641,7 @@ const UserBookingDetailView = () => {
           </Button>
         </div>
       </Card>
+
       {/* Review Modal */}
       <Modal
         title="Đánh giá trải nghiệm của bạn"
@@ -667,6 +672,7 @@ const UserBookingDetailView = () => {
           />
         </div>
       </Modal>
+
       {/* Cancel Booking Modal */}
       <Modal
         title="Hủy đặt lịch"
@@ -706,6 +712,7 @@ const UserBookingDetailView = () => {
           />
         </div>
       </Modal>
+
       {/* Additional Payment Modal */}
       <Modal
         title={
@@ -880,6 +887,7 @@ const UserBookingDetailView = () => {
           </div>
         )}
       </Modal>
+
       {/* Court Review Modal */}
       <Modal
         title={
