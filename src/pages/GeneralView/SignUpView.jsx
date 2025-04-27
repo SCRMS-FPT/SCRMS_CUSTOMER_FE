@@ -59,6 +59,8 @@ const SignUpView = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [dialogGoogle, setDialogGoogle] = useState(false);
   const [googleResponse, setGoogleResponse] = useState(null);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
   const navigate = useNavigate();
 
@@ -181,7 +183,9 @@ const SignUpView = () => {
         placement: "topRight",
       });
 
-      navigate("/login");
+      // Set successful registration and store email instead of navigating
+      setRegistrationSuccess(true);
+      setRegisteredEmail(values.email);
     } catch (error) {
       console.error("Registration error:", error);
 
@@ -227,6 +231,63 @@ const SignUpView = () => {
     borderRadius: "8px",
     width: "100%",
   };
+
+  // Show verification message if registration was successful
+  if (registrationSuccess) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 2,
+          backgroundColor: "#f0f2f5",
+        }}
+      >
+        <Container maxWidth="sm">
+          <Paper
+            elevation={8}
+            sx={{
+              p: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Result
+              status="success"
+              title="Đăng ký thành công!"
+              subTitle={
+                <div>
+                  <p>
+                    Chúng tôi đã gửi email xác minh đến{" "}
+                    <strong>{registeredEmail}</strong>
+                  </p>
+                  <p>
+                    Vui lòng kiểm tra hòm thư của bạn và nhấp vào liên kết xác
+                    minh để hoàn tất quá trình đăng ký.
+                  </p>
+                </div>
+              }
+              extra={[
+                <Button
+                  type="primary"
+                  key="login"
+                  onClick={() => navigate("/login")}
+                >
+                  Đi đến Đăng nhập
+                </Button>,
+                <Button key="home" onClick={() => navigate("/")}>
+                  Về Trang Chủ
+                </Button>,
+              ]}
+            />
+          </Paper>
+        </Container>
+      </Box>
+    );
+  }
 
   // Show message if user is already logged in
   if (isLoggedIn) {
