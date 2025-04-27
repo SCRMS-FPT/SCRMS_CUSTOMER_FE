@@ -796,13 +796,26 @@ const CourtOwnerVenueUpdateView = () => {
               <LocationPicker
                 latitude={form.getFieldValue("latitude")}
                 longitude={form.getFieldValue("longitude")}
-                onLocationChange={handleLocationChange}
+                onLocationChange={(lat, lng) => {
+                  form.setFieldsValue({
+                    latitude: lat,
+                    longitude: lng,
+                  });
+                }}
                 address={`${form.getFieldValue(
                   "addressLine"
                 )}, ${form.getFieldValue("district")}, ${form.getFieldValue(
                   "commune"
                 )}, ${form.getFieldValue("city")}`}
               />
+
+              {/* Add hidden form items for latitude and longitude */}
+              <Form.Item name="latitude" hidden={true}>
+                <Input type="hidden" />
+              </Form.Item>
+              <Form.Item name="longitude" hidden={true}>
+                <Input type="hidden" />
+              </Form.Item>
             </Col>
 
             <Col span={24} style={{ marginTop: 24 }}>
