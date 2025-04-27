@@ -42,6 +42,7 @@ import {
   Star,
   Info,
   ArrowForward,
+  BuildCircle,
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { Client } from "../../API/CourtApi";
@@ -75,6 +76,19 @@ const SportCenterDetails = () => {
         return "Rooftop";
       default:
         return "Unknown";
+    }
+  };
+
+  const getCourtStatusInfo = (status) => {
+    switch (status) {
+      case 0:
+        return { label: "Mở cửa", color: "success" };
+      case 1:
+        return { label: "Đóng cửa", color: "error" };
+      case 2:
+        return { label: "Bảo trì", color: "warning" };
+      default:
+        return { label: "Không xác định", color: "default" };
     }
   };
 
@@ -131,7 +145,12 @@ const SportCenterDetails = () => {
           courtTypeValue
         );
 
-        setCourts(response.courts.data || []);
+        // Filter out closed courts (status 1)
+        const filteredCourts = (response.courts.data || []).filter(
+          (court) => court.status !== 1
+        );
+
+        setCourts(filteredCourts);
         setTotalCourts(response.courts.count || 0);
       } catch (err) {
         console.error("Failed to load courts:", err);
@@ -393,133 +412,170 @@ const SportCenterDetails = () => {
             ) : (
               <>
                 <Grid container spacing={3}>
-                  {courts.map((court) => (
-                    <Grid
-                      key={court.id}
-                      size={{
-                        xs: 12,
-                        sm: 6,
-                      }}
-                    >
-                      <Card
-                        sx={{
-                          height: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                          transition: "transform 0.2s, box-shadow 0.2s",
-                          "&:hover": {
-                            transform: "translateY(-4px)",
-                            boxShadow: 4,
-                          },
+                  {courts.map((court) => {
+                    const statusInfo = getCourtStatusInfo(court.status);
+                    const isUnderMaintenance = court.status === 2;
+
+                    return (
+                      <Grid
+                        key={court.id}
+                        size={{
+                          xs: 12,
+                          sm: 6,
                         }}
                       >
-                        <CardContent sx={{ flexGrow: 1 }}>
-                          <Box
-                            display="flex"
-                            justifyContent="space-between"
-                            alignItems="flex-start"
-                          >
-                            <Typography
-                              variant="h6"
-                              component="h3"
-                              gutterBottom
+                        <Card
+                          sx={{
+                            height: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            transition: "transform 0.2s, box-shadow 0.2s",
+                            "&:hover": {
+                              transform: "translateY(-4px)",
+                              boxShadow: 4,
+                            },
+                            opacity: isUnderMaintenance ? 0.9 : 1,
+                          }}
+                        >
+                          <CardContent sx={{ flexGrow: 1 }}>
+                            <Box
+                              display="flex"
+                              justifyContent="space-between"
+                              alignItems="flex-start"
                             >
-                              {court.courtName}
-                            </Typography>
-                            <Chip
-                              size="small"
-                              label={getCourtTypeName(court.courtType)}
-                              color={
-                                court.courtType === 1
-                                  ? "primary"
-                                  : court.courtType === 2
-                                  ? "success"
-                                  : "warning"
-                              }
-                              sx={{ fontWeight: 500 }}
-                            />
-                          </Box>
-
-                          <Box display="flex" alignItems="center" mb={1}>
-                            <Spa
-                              fontSize="small"
-                              sx={{ color: "text.secondary", mr: 1 }}
-                            />
-                            <Typography variant="body2" color="text.secondary">
-                              {court.sportName || "Unknown Sport"}
-                            </Typography>
-                          </Box>
-
-                          <Box display="flex" alignItems="center" mb={1}>
-                            <Event
-                              fontSize="small"
-                              sx={{ color: "text.secondary", mr: 1 }}
-                            />
-                            <Typography variant="body2" color="text.secondary">
-                              Thời gian:{" "}
-                              {court.slotDuration?.substring(0, 5) || "1:00"}{" "}
-                              tiếng
-                            </Typography>
-                          </Box>
-
-                          {court.facilities && court.facilities.length > 0 && (
-                            <Box mt={2}>
-                              <Typography variant="subtitle2" gutterBottom>
-                                Cơ sở vật chất:
+                              <Typography
+                                variant="h6"
+                                component="h3"
+                                gutterBottom
+                              >
+                                {court.courtName}
                               </Typography>
-                              <List dense disablePadding>
-                                {court.facilities
-                                  .slice(0, 3)
-                                  .map((facility, index) => (
-                                    <ListItem
-                                      key={index}
-                                      disablePadding
-                                      sx={{ py: 0.5 }}
-                                    >
-                                      <ListItemIcon sx={{ minWidth: 24 }}>
-                                        <Check
-                                          fontSize="small"
-                                          color="success"
-                                        />
-                                      </ListItemIcon>
-                                      <ListItemText primary={facility.name} />
-                                    </ListItem>
-                                  ))}
-                                {court.facilities.length > 3 && (
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                  >
-                                    +{court.facilities.length - 3} thêm
-                                  </Typography>
+                              <Box>
+                                <Chip
+                                  size="small"
+                                  label={getCourtTypeName(court.courtType)}
+                                  color={
+                                    court.courtType === 1
+                                      ? "primary"
+                                      : court.courtType === 2
+                                      ? "success"
+                                      : "warning"
+                                  }
+                                  sx={{ fontWeight: 500, mr: 1 }}
+                                />
+                                {isUnderMaintenance && (
+                                  <Chip
+                                    size="small"
+                                    icon={<BuildCircle fontSize="small" />}
+                                    label={statusInfo.label}
+                                    color={statusInfo.color}
+                                    sx={{ fontWeight: 500 }}
+                                  />
                                 )}
-                              </List>
+                              </Box>
                             </Box>
-                          )}
-                        </CardContent>
-                        <Box p={2} pt={0}>
-                          <Button
-                            variant="contained"
-                            fullWidth
-                            component={Link}
-                            to={{
-                              pathname: `/book-court/${sportCenter.id}`,
-                              search: `?courtId=${court.id}`,
-                            }}
-                            state={{
-                              preselectedCourt: court.id,
-                              sportCenterId: sportCenter.id,
-                              courtName: court.courtName,
-                              sportName: court.sportName,
-                            }}
-                            color="primary"
-                          >
-                            Đặt sân
-                          </Button>
-                        </Box>
-                      </Card>
-                    </Grid>
-                  ))}
+
+                            <Box display="flex" alignItems="center" mb={1}>
+                              <Spa
+                                fontSize="small"
+                                sx={{ color: "text.secondary", mr: 1 }}
+                              />
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {court.sportName || "Unknown Sport"}
+                              </Typography>
+                            </Box>
+
+                            <Box display="flex" alignItems="center" mb={1}>
+                              <Event
+                                fontSize="small"
+                                sx={{ color: "text.secondary", mr: 1 }}
+                              />
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                Thời gian:{" "}
+                                {court.slotDuration?.substring(0, 5) || "1:00"}{" "}
+                                tiếng
+                              </Typography>
+                            </Box>
+
+                            {court.facilities &&
+                              court.facilities.length > 0 && (
+                                <Box mt={2}>
+                                  <Typography variant="subtitle2" gutterBottom>
+                                    Cơ sở vật chất:
+                                  </Typography>
+                                  <List dense disablePadding>
+                                    {court.facilities
+                                      .slice(0, 3)
+                                      .map((facility, index) => (
+                                        <ListItem
+                                          key={index}
+                                          disablePadding
+                                          sx={{ py: 0.5 }}
+                                        >
+                                          <ListItemIcon sx={{ minWidth: 24 }}>
+                                            <Check
+                                              fontSize="small"
+                                              color="success"
+                                            />
+                                          </ListItemIcon>
+                                          <ListItemText
+                                            primary={facility.name}
+                                          />
+                                        </ListItem>
+                                      ))}
+                                    {court.facilities.length > 3 && (
+                                      <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                      >
+                                        +{court.facilities.length - 3} thêm
+                                      </Typography>
+                                    )}
+                                  </List>
+                                </Box>
+                              )}
+                          </CardContent>
+                          <Box p={2} pt={0}>
+                            <Button
+                              variant={
+                                isUnderMaintenance ? "outlined" : "contained"
+                              }
+                              fullWidth
+                              component={isUnderMaintenance ? Box : Link}
+                              to={
+                                isUnderMaintenance
+                                  ? undefined
+                                  : {
+                                      pathname: `/book-court/${sportCenter.id}`,
+                                      search: `?courtId=${court.id}`,
+                                    }
+                              }
+                              state={
+                                isUnderMaintenance
+                                  ? undefined
+                                  : {
+                                      preselectedCourt: court.id,
+                                      sportCenterId: sportCenter.id,
+                                      courtName: court.courtName,
+                                      sportName: court.sportName,
+                                    }
+                              }
+                              color={isUnderMaintenance ? "warning" : "primary"}
+                              disabled={isUnderMaintenance}
+                            >
+                              {isUnderMaintenance ? "Đang bảo trì" : "Đặt sân"}
+                            </Button>
+                          </Box>
+                        </Card>
+                      </Grid>
+                    );
+                  })}
                 </Grid>
 
                 {/* Pagination */}

@@ -12,7 +12,6 @@ import UserFeedbackDetailView from "@/pages/UserView/UserFeedbackDetailView";
 import UserDepositView from "@/pages/UserView/UserDepositView";
 import UserSubscriptionsView from "@/pages/UserView/UserSubscriptionsView";
 import UserSidebar from "@/components/UserPage/UserSidebar";
-import ChatWidget from "../components/Chat/ChatWidget";
 
 import ProfilePage from "../pages/UserView/ProfilePage";
 import ChangePasswordPage from "../pages/UserView/ChangePasswordPage";
@@ -39,7 +38,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserDashboardView />
-        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -49,7 +47,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserCourtBookingManagementView />
-        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -59,7 +56,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserBookingDetailView />
-        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -69,7 +65,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserCoachingManagementView />
-        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -79,7 +74,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserCoachDetailView />
-        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -89,7 +83,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserFeedbackView />
-        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -99,7 +92,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserFeedbackDetailView />
-        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -109,7 +101,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserSubscriptionsView />
-        <ChatWidget />
       </UserSidebar>
     }
   />,
@@ -119,7 +110,6 @@ const UserRoutes = [
     element={
       <UserSidebar>
         <UserCoachBookingDetailView />
-        <ChatWidget />
       </UserSidebar>
     }
   />,
