@@ -1,5 +1,6 @@
 import { Route } from "react-router-dom";
 import Layout from "@/components/GeneralComponents/Layout";
+import ProtectedRoute from "@/components/Auth/ProtectedRoute";
 
 import BookCourtView from "@/pages/UserView/BookCourtView";
 import UserDashboardView from "@/pages/UserView/UserDashboardView";
@@ -27,156 +28,204 @@ const UserRoutes = [
     key="book-court"
     path="/book-court/:id"
     element={
-      <Layout>
-        <BookCourtView />
-      </Layout>
+      <ProtectedRoute>
+        <Layout>
+          <BookCourtView />
+        </Layout>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="user-dashboard"
     path="/user/dashboard"
     element={
-      <UserSidebar>
-        <UserDashboardView />
-      </UserSidebar>
+      <ProtectedRoute>
+        <UserSidebar>
+          <UserDashboardView />
+        </UserSidebar>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="user-bookings"
     path="/user/bookings"
     element={
-      <UserSidebar>
-        <UserCourtBookingManagementView />
-      </UserSidebar>
+      <ProtectedRoute>
+        <UserSidebar>
+          <UserCourtBookingManagementView />
+        </UserSidebar>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="user-booking-details"
     path="/user/bookings/:id"
     element={
-      <UserSidebar>
-        <UserBookingDetailView />
-      </UserSidebar>
+      <ProtectedRoute>
+        <UserSidebar>
+          <UserBookingDetailView />
+        </UserSidebar>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="user-coachings"
     path="/user/coachings"
     element={
-      <UserSidebar>
-        <UserCoachingManagementView />
-      </UserSidebar>
+      <ProtectedRoute>
+        <UserSidebar>
+          <UserCoachingManagementView />
+        </UserSidebar>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="user-coach-details"
     path="/user/coach/:coachId"
     element={
-      <UserSidebar>
-        <UserCoachDetailView />
-      </UserSidebar>
+      <ProtectedRoute>
+        <UserSidebar>
+          <UserCoachDetailView />
+        </UserSidebar>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="user-feedbacks"
     path="/user/feedbacks"
     element={
-      <UserSidebar>
-        <UserFeedbackView />
-      </UserSidebar>
+      <ProtectedRoute>
+        <UserSidebar>
+          <UserFeedbackView />
+        </UserSidebar>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="user-feedback-details"
     path="/user/feedbacks/:id"
     element={
-      <UserSidebar>
-        <UserFeedbackDetailView />
-      </UserSidebar>
+      <ProtectedRoute>
+        <UserSidebar>
+          <UserFeedbackDetailView />
+        </UserSidebar>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="user-subscriptions"
     path="/user/subscriptions"
     element={
-      <UserSidebar>
-        <UserSubscriptionsView />
-      </UserSidebar>
+      <ProtectedRoute>
+        <UserSidebar>
+          <UserSubscriptionsView />
+        </UserSidebar>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="user-feedback-details"
     path="/user/coachings/:id"
     element={
-      <UserSidebar>
-        <UserCoachBookingDetailView />
-      </UserSidebar>
+      <ProtectedRoute>
+        <UserSidebar>
+          <UserCoachBookingDetailView />
+        </UserSidebar>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="user-deposit"
     path="/wallet/deposit"
-    element={<UserDepositView />}
+    element={
+      <ProtectedRoute>
+        <UserDepositView />
+      </ProtectedRoute>
+    }
   />,
   <Route
     key="wallet-withdraw"
     path="/wallet/withdraw"
     element={
-      <Layout>
-        <WalletWithdrawalForm />
-      </Layout>
+      <ProtectedRoute>
+        <Layout>
+          <WalletWithdrawalForm />
+        </Layout>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="wallet-withdrawals"
     path="/wallet/withdrawals"
     element={
-      <Layout>
-        <WithdrawalsList />
-      </Layout>
+      <ProtectedRoute>
+        <Layout>
+          <WithdrawalsList />
+        </Layout>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="match-opponents"
     path="/find-match"
     element={
-      <Layout>
-        <FindMatchContainer />
-      </Layout>
+      <ProtectedRoute>
+        <Layout>
+          <FindMatchContainer />
+        </Layout>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="profile"
     path="/profile"
     element={
-      <Layout>
-        <ProfilePage />
-      </Layout>
+      <ProtectedRoute>
+        <Layout>
+          <ProfilePage />
+        </Layout>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="changepassword"
     path="/change-password"
     element={
-      <Layout>
-        <ChangePasswordPage />
-      </Layout>
+      <ProtectedRoute>
+        <Layout>
+          <ChangePasswordPage />
+        </Layout>
+      </ProtectedRoute>
     }
   />,
   <Route
     key="notifications"
     path="/notifications"
     element={
-      <Layout>
-        <NotificationPage />
-      </Layout>
+      <ProtectedRoute>
+        <Layout>
+          <NotificationPage />
+        </Layout>
+      </ProtectedRoute>
     }
   />,
-  <Route key="messenger" path="/messenger" element={<MessengerPage />} />,
+  <Route
+    key="messenger"
+    path="/messenger"
+    element={
+      <ProtectedRoute>
+        <MessengerPage />
+      </ProtectedRoute>
+    }
+  />,
   <Route
     key="messenger-conversation"
     path="/messenger/:chatId"
-    element={<MessengerPage />}
+    element={
+      <ProtectedRoute>
+        <MessengerPage />
+      </ProtectedRoute>
+    }
   />,
 ];
 
