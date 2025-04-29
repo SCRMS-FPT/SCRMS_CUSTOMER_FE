@@ -1330,9 +1330,9 @@ const CoachDetails = () => {
                 </Typography>
               </Box>
             ),
-            okText: "Go to Dashboard",
-            onOk: () => navigate("/user/coachings?tab=2"),
-            cancelText: "Stay Here",
+            okText: "Đi đến lịch đặt",
+            onOk: () => navigate("/user/coachings"),
+            cancelText: "Ở lại trang này",
             okCancel: true,
           });
 

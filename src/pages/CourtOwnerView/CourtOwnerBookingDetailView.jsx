@@ -165,20 +165,20 @@ const CourtOwnerBookingDetailView = () => {
 
   const cancelBooking = () => {
     Modal.confirm({
-      title: "Cancel Booking",
+      title: "Hủy Đặt Sân",
       icon: <ExclamationCircleOutlined />,
       content:
-        "Are you sure you want to cancel this booking? This action cannot be undone.",
-      okText: "Yes, Cancel Booking",
-      cancelText: "No",
+        "Bạn có chắc chắn muốn hủy đặt sân này? Hành động này không thể hoàn tác.",
+      okText: "Có, Hủy Đặt Sân",
+      cancelText: "Không",
       onOk: async () => {
         try {
           await client.cancelBooking(bookingId, {
-            cancellationReason: "Cancelled by court owner",
+            cancellationReason: "Bị hủy bởi chủ sân",
             requestedAt: new Date(),
           });
 
-          message.success("Booking has been cancelled successfully");
+          message.success("Đặt sân đã được hủy thành công");
 
           // Refresh booking data
           const updatedBooking = await client.getBookingById(bookingId);
@@ -186,7 +186,7 @@ const CourtOwnerBookingDetailView = () => {
         } catch (err) {
           console.error("Error cancelling booking:", err);
           message.error(
-            "Failed to cancel booking: " + (err.message || "Unknown error")
+            "Không thể hủy đặt sân: " + (err.message || "Lỗi không xác định")
           );
         }
       },

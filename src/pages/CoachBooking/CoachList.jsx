@@ -697,6 +697,7 @@ const CoachList = () => {
       title: "Xác nhận đặt lịch",
       icon: <BookOutlined style={{ color: theme.palette.primary.main }} />,
       width: 500,
+      zIndex: 10600, // Higher z-index than booking modal
       content: (
         <Box sx={{ mt: 2 }}>
           <MuiTypography variant="subtitle1" gutterBottom>
@@ -844,6 +845,7 @@ const CoachList = () => {
           // Success modal
           Modal.success({
             title: "Lịch đã được xác nhận",
+            zIndex: 10600, // Higher z-index than booking modal
             content: (
               <Box sx={{ mt: 2 }}>
                 <MuiTypography variant="subtitle1" gutterBottom>
@@ -891,7 +893,7 @@ const CoachList = () => {
               </Box>
             ),
             okText: "Đi đến lịch đặt",
-            onOk: () => navigate("/user/coachings?tab=2"),
+            onOk: () => navigate("/user/coachings"),
             cancelText: "Ở lại trang này",
             okCancel: true,
           });
@@ -905,6 +907,7 @@ const CoachList = () => {
           Modal.error({
             title: "Đặt lịch thất bại",
             content: errorMessage,
+            zIndex: 10600, // Higher z-index than booking modal
           });
         } finally {
           setBookingInProgress(false);
