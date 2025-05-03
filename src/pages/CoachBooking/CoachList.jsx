@@ -488,7 +488,7 @@ const CoachList = () => {
         console.error("Error parsing favorites from localStorage:", e);
       }
     }
-  }, [pagination.current, selectedSport, priceRange, sortOrder]);
+  }, [pagination.current, selectedSport, priceRange, sortOrder, searchText]);
 
   const fetchCoaches = async () => {
     try {
@@ -554,6 +554,15 @@ const CoachList = () => {
   const handleSearch = (value) => {
     setSearchText(value);
     // Reset pagination when searching
+    setPagination({
+      ...pagination,
+      current: 1,
+    });
+  };
+
+  // Add a function for search button click if there's a separate search button
+  const handleSearchButtonClick = () => {
+    // Just reset pagination, the useEffect will handle the API call
     setPagination({
       ...pagination,
       current: 1,
