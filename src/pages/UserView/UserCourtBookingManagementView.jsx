@@ -14,6 +14,7 @@ import {
   Col,
   Row,
   Spin,
+  Tooltip,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
@@ -59,7 +60,6 @@ const UserCourtBookingManagementView = () => {
   const [pageSize, setPageSize] = useState(8);
 
   // State for filters
-  const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState(undefined);
   const [dateRange, setDateRange] = useState(null);
   const [courtId, setCourtId] = useState(undefined);
@@ -71,8 +71,12 @@ const UserCourtBookingManagementView = () => {
       setLoading(true);
 
       // Format dates if set
-      const startDate = dateRange?.[0]?.toDate();
-      const endDate = dateRange?.[1]?.toDate();
+      let startDate = undefined;
+      let endDate = undefined;
+      if (dateRange && dateRange[0] && dateRange[1]) {
+        startDate = dateRange[0].toDate();
+        endDate = dateRange[1].toDate();
+      }
 
       // Call the API with filters
       const response = await courtClient.getBookings(
@@ -88,31 +92,56 @@ const UserCourtBookingManagementView = () => {
       );
 
       if (response && response.bookings) {
+        console.log("API response:", response.bookings); // This log can help debug
         // Transform API data to the format needed for the table
-        const formattedBookings = response.bookings.map((booking) => ({
-          key: booking.id,
-          id: booking.id,
-          date: dayjs(booking.bookingDate).format("DD/MM/YYYY"),
-          totalPrice: booking.totalPrice,
-          remainingBalance: booking.remainingBalance,
-          initialDeposit: booking.initialDeposit,
-          // Use the actual status value directly from the API
-          status: booking.status,
-          // For displaying Vietnamese text in the UI
-          statusText: statusMap[booking.status] || booking.status,
-          createdAt: dayjs(booking.createdAt).format("DD/MM/YYYY HH:mm"),
-          lastModified: booking.lastModified
-            ? dayjs(booking.lastModified).format("DD/MM/YYYY HH:mm")
-            : "-",
-          // Extract information from the first booking detail if available
-          court: booking.bookingDetails?.[0]?.courtName || "-",
-          time: booking.bookingDetails?.[0]?.startTime.substring(0, 5) || "-",
-          sportsCenter: booking.bookingDetails?.[0]?.sportsCenterName || "-",
-          // Store all booking details for reference
-          details: booking.bookingDetails || [],
-          // Store total time for reference
-          totalTime: booking.totalTime,
-        }));
+        const formattedBookings = response.bookings.map((booking) => {
+          // Extract court names more safely
+          const courtNames = booking.bookingDetails
+            ? booking.bookingDetails
+                .map((detail) => detail.courtName || "Unknown")
+                .filter((name) => name)
+            : [];
+
+          // Format booking date properly
+          const bookingDateObj = booking.bookingDate
+            ? typeof booking.bookingDate === "string"
+              ? dayjs(booking.bookingDate)
+              : dayjs(booking.bookingDate)
+            : dayjs();
+
+          // Format the date part only (YYYY-MM-DD)
+          const bookingDateFormatted = bookingDateObj.format("YYYY-MM-DD");
+
+          // Get the start time from booking details or use default
+          const startTime =
+            booking.bookingDetails?.[0]?.startTime || "00:00:00";
+
+          // Check if booking is in the past by comparing date and time
+          const isPast = dayjs(`${bookingDateFormatted}T${startTime}`).isBefore(
+            dayjs()
+          );
+
+          return {
+            key: booking.id,
+            id: booking.id,
+            date: bookingDateObj.format("DD/MM/YYYY"),
+            totalPrice: booking.totalPrice,
+            remainingBalance: booking.remainingBalance,
+            initialDeposit: booking.initialDeposit,
+            status: booking.status,
+            statusText: statusMap[booking.status] || booking.status,
+            createdAt: dayjs(booking.createdAt).format("DD/MM/YYYY HH:mm"),
+            lastModified: booking.lastModified
+              ? dayjs(booking.lastModified).format("DD/MM/YYYY HH:mm")
+              : "-",
+            courts: courtNames.length > 0 ? courtNames.join(", ") : "-",
+            time: startTime.substring(0, 5) || "-",
+            sportsCenter: booking.bookingDetails?.[0]?.sportsCenterName || "-",
+            details: booking.bookingDetails || [],
+            totalTime: booking.totalTime,
+            isPast: isPast,
+          };
+        });
 
         setBookings(formattedBookings);
         setTotalCount(response.totalCount);
@@ -125,25 +154,27 @@ const UserCourtBookingManagementView = () => {
     }
   };
 
-  // Fetch bookings when component mounts or filters change
+  // Fetch bookings when component mounts or pagination changes
   useEffect(() => {
     fetchBookings();
-  }, [currentPage, pageSize, statusFilter]); // Only auto-fetch on these changes
+  }, [currentPage, pageSize]); // Only auto-fetch on pagination changes
 
-  // Handler for manual search
+  // Handler for manual search with all filters
   const handleSearch = () => {
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(0); // Reset to first page when searching
     fetchBookings();
   };
 
   // Handler for clearing all filters
   const handleClearFilters = () => {
-    setSearchText("");
     setStatusFilter(undefined);
     setDateRange(null);
     setCourtId(undefined);
     setSportsCenterId(undefined);
-    setCurrentPage(1);
+    setCurrentPage(0);
+
+    // Fetch with cleared filters
+    setTimeout(fetchBookings, 0);
   };
 
   // Handler for cancelling a booking
@@ -190,9 +221,18 @@ const UserCourtBookingManagementView = () => {
     },
     {
       title: "Sân",
-      dataIndex: "court",
-      key: "court",
+      dataIndex: "courts",
+      key: "courts",
       ellipsis: true,
+      render: (courts) => {
+        return courts && courts !== "-" ? (
+          <Tooltip title={courts}>
+            <span>{courts}</span>
+          </Tooltip>
+        ) : (
+          <span>-</span>
+        );
+      },
     },
     {
       title: "Trung tâm thể thao",
@@ -204,6 +244,13 @@ const UserCourtBookingManagementView = () => {
       title: "Giá tiền",
       dataIndex: "totalPrice",
       key: "totalPrice",
+      render: (price) => `${price?.toLocaleString()} VND`,
+      width: 120,
+    },
+    {
+      title: "Còn lại",
+      dataIndex: "remainingBalance",
+      key: "remainingBalance",
       render: (price) => `${price?.toLocaleString()} VND`,
       width: 120,
     },
@@ -228,8 +275,7 @@ const UserCourtBookingManagementView = () => {
           >
             Xem chi tiết
           </Button>
-          {/* Show cancel button for any status that is not "Cancelled" */}
-          {record.status !== "Cancelled" && (
+          {record.status !== "Cancelled" && !record.isPast && (
             <Button
               type="primary"
               danger
@@ -265,18 +311,7 @@ const UserCourtBookingManagementView = () => {
       {/* Search & Filter Section */}
       <Form layout="vertical" className="mb-4">
         <Row gutter={16}>
-          <Col xs={24} md={8}>
-            <Form.Item label="Tìm kiếm theo tên sân">
-              <Input
-                placeholder="Nhập tên sân"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                prefix={<SearchOutlined />}
-                allowClear
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={8}>
+          <Col xs={24} md={12}>
             <Form.Item label="Khoảng ngày">
               <RangePicker
                 style={{ width: "100%" }}
@@ -287,7 +322,7 @@ const UserCourtBookingManagementView = () => {
               />
             </Form.Item>
           </Col>
-          <Col xs={24} md={8}>
+          <Col xs={24} md={12}>
             <Form.Item label="Trạng Thái">
               <Select
                 placeholder="Lựa chọn trạng thái"

@@ -102,11 +102,41 @@ const WalletHistoryView = () => {
         color: "warning",
         icon: <Receipt fontSize="small" />,
       };
+    } else if (lowerType === "refund_deduction") {
+      return {
+        label: "Trừ tiền hoàn",
+        color: "error",
+        icon: <ArrowDownward fontSize="small" />,
+      };
+    } else if (lowerType === "coach_booking_refund") {
+      return {
+        label: "Hoàn tiền đặt coach",
+        color: "warning",
+        icon: <Receipt fontSize="small" />,
+      };
+    } else if (lowerType === "coach_refund_deduction") {
+      return {
+        label: "Trừ tiền hoàn coach",
+        color: "error",
+        icon: <ArrowDownward fontSize="small" />,
+      };
     } else if (lowerType.includes("revenue")) {
       return {
         label: "Doanh thu",
         color: "success",
         icon: <ArrowUpward fontSize="small" />,
+      };
+    } else if (lowerType.includes("courtbooking")) {
+      return {
+        label: "Đặt sân",
+        color: "info",
+        icon: <ShoppingCart fontSize="small" />,
+      };
+    } else if (lowerType == "booking") {
+      return {
+        label: "Đặt coach",
+        color: "info",
+        icon: <ShoppingCart fontSize="small" />,
       };
     } else {
       return {
@@ -216,27 +246,41 @@ const WalletHistoryView = () => {
                               sx={{
                                 fontWeight: "bold",
                                 color:
-                                  ["deposit", "refund"].includes(
+                                  [
+                                    "deposit",
+                                    "refund",
+                                    "coach_booking_refund",
+                                  ].includes(
                                     transaction.transactionType?.toLowerCase()
                                   ) ||
                                   transaction.transactionType
                                     ?.toLowerCase()
                                     .includes("revenue")
                                     ? "success.main"
-                                    : transaction.transactionType?.toLowerCase() ===
-                                      "refund"
-                                    ? "warning.dark"
-                                    : "error.main",
+                                    : [
+                                        "refund_deduction",
+                                        "coach_refund_deduction",
+                                        "payment",
+                                        "withdrawal",
+                                      ].includes(
+                                        transaction.transactionType?.toLowerCase()
+                                      )
+                                    ? "error.main"
+                                    : "text.secondary",
                               }}
                             >
-                              {["deposit", "refund"].includes(
+                              {[
+                                "deposit",
+                                "refund",
+                                "coach_booking_refund",
+                              ].includes(
                                 transaction.transactionType?.toLowerCase()
                               ) ||
                               transaction.transactionType
                                 ?.toLowerCase()
                                 .includes("revenue")
                                 ? "+"
-                                : "-"}
+                                : ""}
                               {transaction.amount?.toLocaleString()} VND
                             </Typography>
                           </TableCell>

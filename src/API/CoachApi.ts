@@ -376,6 +376,66 @@ protected processCreateMyPromotion(response: Response): Promise<CreateCoachPromo
     }
 
     /**
+     * Cancel Coach Booking
+     * @return OK
+     */
+    cancelCoachBooking(bookingId: string, body: CancelCoachBookingRequest): Promise<CancelCoachBookingResult> {
+        let url_ = this.baseUrl + "/bookings/{bookingId}/cancel";
+        if (bookingId === undefined || bookingId === null)
+            throw new Error("The parameter 'bookingId' must be defined.");
+        url_ = url_.replace("{bookingId}", encodeURIComponent("" + bookingId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCancelCoachBooking(_response);
+        });
+    }
+
+    protected processCancelCoachBooking(response: Response): Promise<CancelCoachBookingResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CancelCoachBookingResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CancelCoachBookingResult>(null as any);
+    }
+
+    /**
      * Create Booking
      * @return Created
      */
@@ -3355,6 +3415,91 @@ export interface IPurchaseDetail {
     expiryDate?: Date;
     sessionCount?: number;
     sessionUsed?: number;
+}
+
+export class CancelCoachBookingResult implements ICancelCoachBookingResult {
+    bookingId?: string;
+    status?: string | undefined;
+    refundAmount?: number;
+    message?: string | undefined;
+
+    constructor(data?: ICancelCoachBookingResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.bookingId = _data["bookingId"];
+            this.status = _data["status"];
+            this.refundAmount = _data["refundAmount"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): CancelCoachBookingResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new CancelCoachBookingResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["bookingId"] = this.bookingId;
+        data["status"] = this.status;
+        data["refundAmount"] = this.refundAmount;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface ICancelCoachBookingResult {
+    bookingId?: string;
+    status?: string | undefined;
+    refundAmount?: number;
+    message?: string | undefined;
+}
+
+
+export class CancelCoachBookingRequest implements ICancelCoachBookingRequest {
+    cancellationReason?: string | undefined;
+
+    constructor(data?: ICancelCoachBookingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cancellationReason = _data["cancellationReason"];
+        }
+    }
+
+    static fromJS(data: any): CancelCoachBookingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CancelCoachBookingRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cancellationReason"] = this.cancellationReason;
+        return data;
+    }
+}
+
+export interface ICancelCoachBookingRequest {
+    cancellationReason?: string | undefined;
 }
 
 export class PackageResponse implements IPackageResponse {

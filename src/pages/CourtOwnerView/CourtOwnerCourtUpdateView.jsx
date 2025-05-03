@@ -95,7 +95,7 @@ const CourtOwnerCourtUpdateView = () => {
     description: "",
     slotDuration: "01:00:00",
     facilities: [],
-    status: 1,
+    status: 0,
     courtType: 1,
     minDepositPercentage: 30,
     cancellationWindowHours: 24,
@@ -154,8 +154,8 @@ const CourtOwnerCourtUpdateView = () => {
             description: courtResponse.court.description || "",
             slotDuration: courtResponse.court.slotDuration || "01:00:00",
             facilities: courtResponse.court.facilities || [],
-            status: courtResponse.court.status || 1,
-            courtType: courtResponse.court.courtType || 1,
+            status: courtResponse.court.status || 0,
+            courtType: courtResponse.court.courtType || 0,
             minDepositPercentage:
               courtResponse.court.minDepositPercentage || 30,
             cancellationWindowHours:

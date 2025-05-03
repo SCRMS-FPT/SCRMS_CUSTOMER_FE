@@ -126,8 +126,38 @@ const WalletView = () => {
       return { label: "Thanh toán", color: "info", icon: <ShoppingCart /> };
     } else if (lowerType === "refund") {
       return { label: "Hoàn tiền", color: "warning", icon: <Receipt /> };
+    } else if (lowerType === "refund_deduction") {
+      return {
+        label: "Trừ tiền hoàn",
+        color: "error",
+        icon: <ArrowDownward />,
+      };
+    } else if (lowerType === "coach_booking_refund") {
+      return {
+        label: "Hoàn tiền đặt coach",
+        color: "warning",
+        icon: <Receipt />,
+      };
+    } else if (lowerType === "coach_refund_deduction") {
+      return {
+        label: "Trừ tiền hoàn coach",
+        color: "error",
+        icon: <ArrowDownward />,
+      };
     } else if (lowerType.includes("revenue")) {
       return { label: "Doanh thu", color: "success", icon: <ArrowUpward /> };
+    } else if (lowerType == "courtbooking") {
+      return {
+        label: "Đặt sân",
+        color: "info",
+        icon: <ShoppingCart fontSize="small" />,
+      };
+    } else if (lowerType == "booking") {
+      return {
+        label: "Đặt coach",
+        color: "info",
+        icon: <ShoppingCart fontSize="small" />,
+      };
     } else {
       return { label: type || "Khác", color: "default", icon: <Info /> };
     }
@@ -376,24 +406,41 @@ const WalletView = () => {
                                 sx={{
                                   fontWeight: "bold",
                                   color:
-                                    ["deposit", "refund"].includes(
+                                    [
+                                      "deposit",
+                                      "refund",
+                                      "coach_booking_refund",
+                                    ].includes(
                                       transaction.transactionType?.toLowerCase()
                                     ) ||
                                     transaction.transactionType
                                       ?.toLowerCase()
                                       .includes("revenue")
                                       ? "success.main"
+                                      : [
+                                          "refund_deduction",
+                                          "coach_refund_deduction",
+                                          "payment",
+                                          "withdrawal",
+                                        ].includes(
+                                          transaction.transactionType?.toLowerCase()
+                                        )
+                                      ? "error.main"
                                       : "text.primary",
                                 }}
                               >
-                                {["deposit", "refund"].includes(
+                                {[
+                                  "deposit",
+                                  "refund",
+                                  "coach_booking_refund",
+                                ].includes(
                                   transaction.transactionType?.toLowerCase()
                                 ) ||
                                 transaction.transactionType
                                   ?.toLowerCase()
                                   .includes("revenue")
                                   ? "+"
-                                  : "-"}
+                                  : ""}
                                 {transaction.amount?.toLocaleString()} VND
                               </Typography>
                             </Box>
@@ -406,12 +453,14 @@ const WalletView = () => {
                 </List>
               ) : (
                 <Box sx={{ py: 4, textAlign: "center" }}>
-                  <Box sx={{ mb: 2, color: "#637381" }}>
-                    <Error sx={{ fontSize: 40 }} />
+                  <Box sx={{ textAlign: "center" }}>
+                    <Box sx={{ mb: 2, color: "#637381" }}>
+                      <Error sx={{ fontSize: 40 }} />
+                    </Box>
+                    <Typography variant="body1" color="text.secondary">
+                      Chưa có giao dịch nào
+                    </Typography>
                   </Box>
-                  <Typography variant="body1" color="text.secondary">
-                    Chưa có giao dịch nào
-                  </Typography>
                 </Box>
               )}
 

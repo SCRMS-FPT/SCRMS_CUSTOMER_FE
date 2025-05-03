@@ -185,16 +185,28 @@ const UserCoachBookingDetailView = () => {
       cancelText: "Không",
       onOk: async () => {
         try {
-          await coachClient.updateBookingStatus(id, "CANCELLED");
+          // Create a cancellation request with reason
+          const cancellationRequest = {
+            cancellationReason: "Hủy bởi người dùng",
+          };
+
+          // Use the proper cancelCoachBooking method
+          const result = await coachClient.cancelCoachBooking(
+            id,
+            cancellationRequest
+          );
+
           Modal.success({
             title: "Đã Hủy Đặt Lịch",
-            content: "Đặt lịch của bạn đã được hủy thành công.",
+            content:
+              result.message || "Đặt lịch của bạn đã được hủy thành công.",
             onOk: () => {
               // Refresh the booking data
               window.location.reload();
             },
           });
         } catch (error) {
+          console.error("Error cancelling booking:", error);
           Modal.error({
             title: "Hủy Thất Bại",
             content: "Không thể hủy đặt lịch của bạn. Vui lòng thử lại sau.",
