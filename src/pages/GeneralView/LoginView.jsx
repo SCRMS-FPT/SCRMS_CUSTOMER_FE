@@ -132,13 +132,27 @@ const LoginView = () => {
           });
           break;
         default: {
+          if (!errorDetail) {
+            notification.error({
+              message: "Đăng nhập thất bại",
+              description: "Lỗi hệ thống, vui lòng thử lại sau.",
+              placement: "topRight",
+            });
+            return;
+          }
           if (errorDetail.includes("existed")) {
             // HANDLE REGISTER
             setDialogGoogle(true);
+          } else if (errorDetail.includes("removed")) {
+            notification.error({
+              message: "Đăng nhập thất bại",
+              description: "Người dùng không tồn tại",
+              placement: "topRight",
+            });
           } else {
             notification.error({
               message: "Đăng nhập thất bại",
-              description: errorMessage,
+              description: "Lỗi hệ thống, vui lòng thử lại sau.",
               placement: "topRight",
             });
           }
@@ -176,25 +190,11 @@ const LoginView = () => {
     const response = await login(email, password);
 
     if (response.error) {
-      const { payload } = response;
-
-      const [statusCode, errorMessage] = payload.split(": ", 2);
-
-      switch (parseInt(statusCode)) {
-        case 401:
-          notification.error({
-            message: "Đăng nhập thất bại",
-            description: "Mật khẩu hoặc tài khoản không đúng.",
-            placement: "topRight",
-          });
-          break;
-        default:
-          notification.error({
-            message: "Đăng nhập thất bại",
-            description: "Lỗi hệ thống, vui lòng thử lại sau.",
-            placement: "topRight",
-          });
-      }
+      notification.error({
+        message: "Đăng nhập thất bại",
+        description: "Mật khẩu hoặc tài khoản không đúng.",
+        placement: "topRight",
+      });
       return;
     }
 
