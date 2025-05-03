@@ -81,7 +81,7 @@ const CoachPackagesPage = () => {
     description: "",
     price: 0,
     sessionCount: 0,
-    status: "ACTIVE",
+    status: "active",
   });
 
   const client = new CoachClient();
@@ -172,7 +172,7 @@ const CoachPackagesPage = () => {
       description: "",
       price: 0,
       sessionCount: 0,
-      status: "ACTIVE",
+      status: "active",
     });
   };
 
@@ -205,7 +205,7 @@ const CoachPackagesPage = () => {
       description: packageData.description || "",
       price: packageData.price || 0,
       sessionCount: packageData.sessionCount || 0,
-      status: packageData.status || "ACTIVE",
+      status: packageData.status || "active",
     });
     setIsFormModalOpen(true);
   };
@@ -300,17 +300,27 @@ const CoachPackagesPage = () => {
     }).format(price);
   };
 
-  // Helper function to get status color
+  // Helper function to get status color and translated text
   const getStatusColor = (status) => {
     switch (status?.toUpperCase()) {
-      case "ACTIVE":
+      case "active":
         return "green";
-      case "INACTIVE":
+      case "inactive":
         return "red";
-      case "DRAFT":
-        return "orange";
       default:
         return "default";
+    }
+  };
+
+  // Helper function to translate status for display
+  const translateStatus = (status) => {
+    switch (status?.toUpperCase()) {
+      case "active":
+        return "Hoạt động";
+      case "inactive":
+        return "Không hoạt động";
+      default:
+        return status;
     }
   };
 
@@ -366,7 +376,8 @@ const CoachPackagesPage = () => {
               variant="h6"
               sx={{ opacity: 0.8, maxWidth: 800, mx: "auto" }}
             >
-              Nâng cao kỹ năng của bạn với các gói đào tạo được thiết kế chuyên nghiệp.
+              Nâng cao kỹ năng của bạn với các gói đào tạo được thiết kế chuyên
+              nghiệp.
             </MuiTypography>
           </motion.div>
         </Box>
@@ -376,8 +387,9 @@ const CoachPackagesPage = () => {
             <Grid
               size={{
                 xs: 12,
-                md: 4
-              }}>
+                md: 4,
+              }}
+            >
               <Search
                 placeholder="tìm theo tên hoặc mô tả"
                 value={searchTerm}
@@ -391,8 +403,9 @@ const CoachPackagesPage = () => {
             <Grid
               size={{
                 xs: 12,
-                md: 3
-              }}>
+                md: 3,
+              }}
+            >
               <Select
                 style={{ width: "100%" }}
                 placeholder="Lọc theo trạng thái"
@@ -401,17 +414,17 @@ const CoachPackagesPage = () => {
                 allowClear
                 size="large"
               >
-                <Option value="ACTIVE">Hoạt động</Option>
-                <Option value="INACTIVE">Không hoạt động</Option>
-                <Option value="DRAFT">Bản nháp</Option>
+                <Option value="active">Hoạt động</Option>
+                <Option value="inactive">Không hoạt động</Option>
               </Select>
             </Grid>
 
             <Grid
               size={{
                 xs: 12,
-                md: 3
-              }}>
+                md: 3,
+              }}
+            >
               <Select
                 style={{ width: "100%" }}
                 placeholder="Sắp xếp theo"
@@ -430,8 +443,9 @@ const CoachPackagesPage = () => {
             <Grid
               size={{
                 xs: 12,
-                md: 2
-              }}>
+                md: 2,
+              }}
+            >
               <Button
                 type="primary"
                 size="large"
@@ -450,7 +464,7 @@ const CoachPackagesPage = () => {
           <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
         </Box>
       ) : error ? (
-        <Alert message="Error" description={error} type="error" showIcon />
+        <Alert message="Lỗi" description={error} type="error" showIcon />
       ) : filteredPackages.length === 0 ? (
         <Empty
           description="Không tìm thấy gói nào"
@@ -469,8 +483,9 @@ const CoachPackagesPage = () => {
                 size={{
                   xs: 12,
                   sm: 6,
-                  md: 4
-                }}>
+                  md: 4,
+                }}
+              >
                 <motion.div variants={itemVariants}>
                   <AntCard
                     hoverable
@@ -514,23 +529,25 @@ const CoachPackagesPage = () => {
                   >
                     <Meta
                       title={
-                        <div style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
                           <Title level={4} style={{ marginBottom: 8 }}>
                             {pkg.name}
                           </Title>
                           <Badge
-                            count={pkg.status}
+                            count={translateStatus(pkg.status)}
                             style={{
                               backgroundColor:
                                 getStatusColor(pkg.status) === "green"
                                   ? "#52c41a"
                                   : getStatusColor(pkg.status) === "red"
-                                    ? "#f5222d"
-                                    : "#faad14",
+                                  ? "#f5222d"
+                                  : "#faad14",
                             }}
                           />
                         </div>
@@ -541,7 +558,6 @@ const CoachPackagesPage = () => {
                           size="middle"
                           style={{ width: "100%" }}
                         >
-
                           <Paragraph
                             ellipsis={{ rows: 2 }}
                             style={{ height: 40, marginBottom: 16 }}
@@ -563,7 +579,7 @@ const CoachPackagesPage = () => {
                             >
                               <Space>
                                 <DollarOutlined style={{ color: "#1a9f6c" }} />
-                                <Text strong>Price:</Text>
+                                <Text strong>Giá:</Text>
                               </Space>
                               <Text strong style={{ color: "#1a9f6c" }}>
                                 {formatPrice(pkg.price)}
@@ -625,7 +641,7 @@ const CoachPackagesPage = () => {
                 setCurrentPage(1);
               }}
               pageSizeOptions={["6", "9", "12", "24"]}
-              showTotal={(total) => `Total ${total} packages`}
+              showTotal={(total) => `Tổng ${total} gói`}
             />
           </Box>
         </motion.div>
@@ -669,8 +685,9 @@ const CoachPackagesPage = () => {
               <Grid
                 size={{
                   xs: 12,
-                  md: 6
-                }}>
+                  md: 6,
+                }}
+              >
                 <Box sx={{ mb: 3 }}>
                   <Text strong>Giá tiền (VND)</Text>
                   <Input
@@ -692,8 +709,9 @@ const CoachPackagesPage = () => {
               <Grid
                 size={{
                   xs: 12,
-                  md: 6
-                }}>
+                  md: 6,
+                }}
+              >
                 <Box sx={{ mb: 3 }}>
                   <Text strong>Số buổi</Text>
                   <Input
@@ -715,7 +733,7 @@ const CoachPackagesPage = () => {
 
             {currentPackage && (
               <Box sx={{ mb: 3 }}>
-                <Text strong>Status</Text>
+                <Text strong>Trạng thái</Text>
                 <Select
                   style={{ width: "100%", marginTop: 8 }}
                   value={formData.status}
@@ -723,9 +741,8 @@ const CoachPackagesPage = () => {
                     setFormData({ ...formData, status: value })
                   }
                 >
-                  <Option value="ACTIVE">Hoạt động</Option>
-                  <Option value="INACTIVE">Không hoạt động</Option>
-                  <Option value="DRAFT">Bản nháp</Option>
+                  <Option value="active">Hoạt động</Option>
+                  <Option value="inactive">Không hoạt động</Option>
                 </Select>
               </Box>
             )}
@@ -740,7 +757,7 @@ const CoachPackagesPage = () => {
                 mt: 3,
               }}
             >
-              <Button onClick={() => setIsFormModalOpen(false)}>Cancel</Button>
+              <Button onClick={() => setIsFormModalOpen(false)}>Hủy</Button>
               <Button
                 type="primary"
                 onClick={handleFormSubmit}

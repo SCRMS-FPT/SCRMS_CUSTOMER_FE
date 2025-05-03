@@ -84,6 +84,10 @@ const CoachSchedules = () => {
   const [form] = Form.useForm();
   const [blockScheduleForm] = Form.useForm();
 
+  // State for update schedule
+  const [updateScheduleForm] = Form.useForm();
+  const [scheduleToUpdate, setScheduleToUpdate] = useState(null);
+
   // Create Client instance
   const coachClient = useRef(new CoachClient()).current;
   const courtClient = useRef(new CourtClient()).current;
@@ -146,27 +150,39 @@ const CoachSchedules = () => {
       setSports(response.sports || []);
     } catch (err) {
       console.error("Lỗi khi tải danh sách môn thể thao:", err);
-      message.error("Không thể tải danh sách môn thể thao. Vui lòng thử lại sau.");
+      message.error(
+        "Không thể tải danh sách môn thể thao. Vui lòng thử lại sau."
+      );
     }
   };
 
   // Function to check schedule conflicts
-  const checkScheduleConflict = (date, startTime, endTime) => {
+  const checkScheduleConflict = (
+    date,
+    startTime,
+    endTime,
+    excludeScheduleId = null
+  ) => {
     const formattedDate = date.format("YYYY-MM-DD");
-    const existingOnDay = schedules.filter(s => s.date === formattedDate);
-    
+    const existingOnDay = schedules.filter(
+      (s) =>
+        s.date === formattedDate &&
+        (!excludeScheduleId || s.id !== excludeScheduleId)
+    );
+
     const newStart = dayjs(`${formattedDate} ${startTime}`);
     const newEnd = dayjs(`${formattedDate} ${endTime}`);
-    
-    return existingOnDay.some(schedule => {
+
+    return existingOnDay.some((schedule) => {
       const existingStart = dayjs(`${formattedDate} ${schedule.startTime}`);
       const existingEnd = dayjs(`${formattedDate} ${schedule.endTime}`);
-      
+
       return (
         (newStart.isAfter(existingStart) && newStart.isBefore(existingEnd)) ||
         (newEnd.isAfter(existingStart) && newEnd.isBefore(existingEnd)) ||
         (newStart.isBefore(existingStart) && newEnd.isAfter(existingEnd)) ||
-        (newStart.isSame(existingStart) || newEnd.isSame(existingEnd))
+        newStart.isSame(existingStart) ||
+        newEnd.isSame(existingEnd)
       );
     });
   };
@@ -177,12 +193,16 @@ const CoachSchedules = () => {
       setLoading(true);
 
       // Check for conflicts
-      if (checkScheduleConflict(
-        selectedDate,
-        values.timeRange[0].format("HH:mm:ss"),
-        values.timeRange[1].format("HH:mm:ss")
-      )) {
-        message.error("Lịch làm việc bị trùng với lịch khác. Vui lòng chọn thời gian khác.");
+      if (
+        checkScheduleConflict(
+          selectedDate,
+          values.timeRange[0].format("HH:mm:ss"),
+          values.timeRange[1].format("HH:mm:ss")
+        )
+      ) {
+        message.error(
+          "Lịch làm việc bị trùng với lịch khác. Vui lòng chọn thời gian khác."
+        );
         return;
       }
 
@@ -216,8 +236,12 @@ const CoachSchedules = () => {
       const request = {
         sportId: values.sportId,
         blockDate: selectedDate.format("YYYY-MM-DD"),
-        startTime: dayjs(`${selectedDate.format("YYYY-MM-DD")} ${values.schedule.startTime}`).toDate(),
-        endTime: dayjs(`${selectedDate.format("YYYY-MM-DD")} ${values.schedule.endTime}`).toDate(),
+        startTime: dayjs(
+          `${selectedDate.format("YYYY-MM-DD")} ${values.schedule.startTime}`
+        ).toDate(),
+        endTime: dayjs(
+          `${selectedDate.format("YYYY-MM-DD")} ${values.schedule.endTime}`
+        ).toDate(),
         notes: values.notes,
       };
 
@@ -251,6 +275,124 @@ const CoachSchedules = () => {
     }
   };
 
+  // Function to open modal with update tab active
+  const handleUpdateSchedule = (schedule) => {
+    // Make sure we have a valid schedule object with an ID
+    if (!schedule || !schedule.id) {
+      console.error("Invalid schedule object - missing ID:", schedule);
+      message.error("Không thể cập nhật lịch: không tìm thấy ID");
+      return;
+    }
+
+    setSelectedDate(dayjs(schedule.date));
+    setScheduleToUpdate(schedule);
+    setIsModalVisible(true);
+    setActiveModalTab("3"); // New tab for updating schedule
+
+    // Parse time values properly - handle different time formats
+    try {
+      // Fix time format - check if time strings are in HH:mm format and convert to proper format
+      let startTime = schedule.startTime;
+      let endTime = schedule.endTime;
+
+      // Create working time objects using a more flexible format
+      const startTimeMoment = dayjs(startTime, ["HH:mm", "HH:mm:ss"]);
+      const endTimeMoment = dayjs(endTime, ["HH:mm", "HH:mm:ss"]);
+
+      if (startTimeMoment.isValid() && endTimeMoment.isValid()) {
+        console.log("Setting form values:", {
+          dayOfWeek: dayjs(schedule.date).day(),
+          timeRange: [startTimeMoment, endTimeMoment],
+        });
+
+        // Set the form values for the selected schedule
+        updateScheduleForm.setFieldsValue({
+          dayOfWeek: dayjs(schedule.date).day(),
+          timeRange: [startTimeMoment, endTimeMoment],
+        });
+      } else {
+        console.error("Invalid time format:", { startTime, endTime });
+        message.error("Định dạng thời gian không hợp lệ");
+      }
+    } catch (err) {
+      console.error("Error setting time values:", err);
+      message.error("Lỗi khi xử lý dữ liệu thời gian");
+    }
+  };
+
+  // Handle update schedule submission with improved time format handling
+  const handleUpdateScheduleSubmit = async (values) => {
+    try {
+      setLoading(true);
+
+      if (!scheduleToUpdate || !scheduleToUpdate.id) {
+        message.error("Không thể cập nhật: ID lịch không hợp lệ");
+        return;
+      }
+
+      // Make sure we have valid time values
+      if (!values.timeRange || !values.timeRange[0] || !values.timeRange[1]) {
+        message.error("Thời gian không hợp lệ. Vui lòng kiểm tra lại.");
+        return;
+      }
+
+      // Format time values consistently with HH:mm:ss format
+      const newStartTime = values.timeRange[0].format("HH:mm:ss");
+      const newEndTime = values.timeRange[1].format("HH:mm:ss");
+      const formattedDate = selectedDate.format("YYYY-MM-DD");
+
+      // Get all schedules for this day except the one being updated
+      const otherSchedulesOnDay = schedules.filter(
+        (s) => s.date === formattedDate && s.id !== scheduleToUpdate.id
+      );
+
+      // Check for conflicts with other schedules
+      const hasConflict = otherSchedulesOnDay.some((schedule) => {
+        const existingStart = dayjs(`${formattedDate} ${schedule.startTime}`);
+        const existingEnd = dayjs(`${formattedDate} ${schedule.endTime}`);
+        const newStart = dayjs(`${formattedDate} ${newStartTime}`);
+        const newEnd = dayjs(`${formattedDate} ${newEndTime}`);
+
+        return (
+          (newStart.isAfter(existingStart) && newStart.isBefore(existingEnd)) ||
+          (newEnd.isAfter(existingStart) && newEnd.isBefore(existingEnd)) ||
+          (newStart.isBefore(existingStart) && newEnd.isAfter(existingEnd)) ||
+          newStart.isSame(existingStart) ||
+          newEnd.isSame(existingEnd)
+        );
+      });
+
+      if (hasConflict) {
+        message.error(
+          "Lịch làm việc bị trùng với lịch khác. Vui lòng chọn thời gian khác."
+        );
+        return;
+      }
+
+      const request = {
+        dayOfWeek: values.dayOfWeek,
+        startTime: newStartTime,
+        endTime: newEndTime,
+      };
+
+      console.log("Updating schedule with ID:", scheduleToUpdate.id, request);
+      await coachClient.updateCoachSchedule(scheduleToUpdate.id, request);
+      message.success("Đã cập nhật lịch làm việc thành công");
+      setIsModalVisible(false);
+      updateScheduleForm.resetFields();
+      setScheduleToUpdate(null);
+
+      // Reload schedules
+      fetchSchedules();
+      fetchWeeklySchedules();
+    } catch (err) {
+      console.error("Lỗi khi cập nhật lịch làm việc:", err);
+      message.error("Không thể cập nhật lịch làm việc. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Format schedule data for calendar
   const getScheduleData = (value) => {
     const formattedDate = value.format("YYYY-MM-DD");
@@ -273,16 +415,19 @@ const CoachSchedules = () => {
     }));
   };
 
-  // Date cell renderer for calendar
+  // Date cell renderer for calendar - MODIFIED to remove update functionality
   const dateCellRender = (value) => {
     const listData = getScheduleData(value);
 
     return (
       <ul className="schedules-list p-0 m-0 list-none max-h-[80px] overflow-y-auto">
         {listData.map((item, index) => (
-          <li key={index} className="mb-1 text-xs cursor-pointer transition-all hover:opacity-80">
-            <Badge 
-              status={item.type} 
+          <li
+            key={index}
+            className="mb-1 text-xs cursor-default transition-all hover:opacity-80"
+          >
+            <Badge
+              status={item.type}
               text={
                 <span className="flex items-center">
                   {item.content}
@@ -292,12 +437,12 @@ const CoachSchedules = () => {
                     </Tooltip>
                   )}
                 </span>
-              } 
+              }
               className={`
                 py-0.5 px-1 rounded 
-                ${item.type === 'success' ? 'bg-green-50' : ''}
-                ${item.type === 'warning' ? 'bg-yellow-50' : ''}
-                ${item.type === 'error' ? 'bg-red-50' : ''}
+                ${item.type === "success" ? "bg-green-50" : ""}
+                ${item.type === "warning" ? "bg-yellow-50" : ""}
+                ${item.type === "error" ? "bg-red-50" : ""}
               `}
             />
           </li>
@@ -309,8 +454,10 @@ const CoachSchedules = () => {
   // Handle calendar date select
   const handleCalendarSelect = (date) => {
     const formattedDate = date.format("YYYY-MM-DD");
-    const dateSchedules = schedules.filter(schedule => schedule.date === formattedDate);
-    
+    const dateSchedules = schedules.filter(
+      (schedule) => schedule.date === formattedDate
+    );
+
     setSelectedDate(date);
     setExistingSchedules(dateSchedules);
     setIsModalVisible(true);
@@ -350,20 +497,30 @@ const CoachSchedules = () => {
 
   // Get day name in Vietnamese
   const getDayName = (day) => {
-    const days = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+    const days = [
+      "Chủ nhật",
+      "Thứ 2",
+      "Thứ 3",
+      "Thứ 4",
+      "Thứ 5",
+      "Thứ 6",
+      "Thứ 7",
+    ];
     return days[day];
   };
 
   // Format weekly schedules
   const formatWeeklySchedules = () => {
     const days = [0, 1, 2, 3, 4, 5, 6];
-    
-    return days.map(day => {
-      const schedulesForDay = weeklySchedules.filter(schedule => schedule.dayOfWeek === day);
+
+    return days.map((day) => {
+      const schedulesForDay = weeklySchedules.filter(
+        (schedule) => schedule.dayOfWeek === day
+      );
       return {
         day,
         dayName: getDayName(day),
-        schedules: schedulesForDay
+        schedules: schedulesForDay,
       };
     });
   };
@@ -378,7 +535,8 @@ const CoachSchedules = () => {
         const date = dayjs(text);
         return (
           <span className="font-medium">
-            {date.format("DD/MM/YYYY")} ({["CN", "T2", "T3", "T4", "T5", "T6", "T7"][date.day()]})
+            {date.format("DD/MM/YYYY")} (
+            {["CN", "T2", "T3", "T4", "T5", "T6", "T7"][date.day()]})
           </span>
         );
       },
@@ -398,7 +556,11 @@ const CoachSchedules = () => {
       dataIndex: "endTime",
       key: "endTime",
       render: (text) => (
-        <Tag color="geekblue" icon={<ClockCircleOutlined />} className="py-1 px-2">
+        <Tag
+          color="geekblue"
+          icon={<ClockCircleOutlined />}
+          className="py-1 px-2"
+        >
           {text}
         </Tag>
       ),
@@ -427,11 +589,7 @@ const CoachSchedules = () => {
         }
 
         return (
-          <Tag 
-            color={color} 
-            icon={icon} 
-            className="py-1 px-2 font-medium"
-          >
+          <Tag color={color} icon={icon} className="py-1 px-2 font-medium">
             {text}
           </Tag>
         );
@@ -443,29 +601,68 @@ const CoachSchedules = () => {
       render: (_, record) => (
         <div className="flex gap-2">
           {record.status === "available" && (
-            <Tooltip title="Xóa lịch">
-              <Button
-                danger
-                type="primary"
-                shape="circle"
-                icon={<DeleteOutlined />}
-                onClick={() => handleDeleteSchedule(record.id)}
-                className="shadow-sm hover:shadow-md transition-all"
-              />
-            </Tooltip>
+            <>
+              <Tooltip title="Cập nhật lịch">
+                <Button
+                  type="primary"
+                  shape="circle"
+                  icon={<EditOutlined />}
+                  onClick={() => handleUpdateSchedule(record)}
+                  className="shadow-sm hover:shadow-md transition-all"
+                />
+              </Tooltip>
+              <Tooltip title="Xóa lịch">
+                <Button
+                  danger
+                  type="primary"
+                  shape="circle"
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDeleteSchedule(record.id)}
+                  className="shadow-sm hover:shadow-md transition-all"
+                />
+              </Tooltip>
+            </>
           )}
           {record.status === "booked" && (
-            <Tooltip title="Lịch đã được đặt không thể xóa">
-              <Button
-                disabled
-                shape="circle"
-                icon={<InfoCircleOutlined />}
-              />
+            <Tooltip title="Lịch đã được đặt không thể sửa/xóa">
+              <Button disabled shape="circle" icon={<InfoCircleOutlined />} />
             </Tooltip>
           )}
         </div>
       ),
     },
+  ];
+
+  // Update the List.Item actions to include an update button in the weekly schedules section
+  const renderWeeklyScheduleActions = (item) => [
+    <Button
+      key="update"
+      type="primary"
+      onClick={() => {
+        // Create a correctly formatted schedule object from weekly schedule data for the update handler
+        const mockSchedule = {
+          id: item.id,
+          date: dayjs().day(item.dayOfWeek).format("YYYY-MM-DD"), // Use current week
+          startTime: item.startTime || "",
+          endTime: item.endTime || "",
+          status: "available", // Weekly schedules are always available
+        };
+        handleUpdateSchedule(mockSchedule);
+      }}
+      icon={<EditOutlined />}
+      className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600"
+    >
+      Cập nhật
+    </Button>,
+    <Button
+      key="delete"
+      danger
+      onClick={() => handleDeleteSchedule(item.id)}
+      icon={<DeleteOutlined />}
+      className="flex items-center gap-1"
+    >
+      Xóa
+    </Button>,
   ];
 
   return (
@@ -531,8 +728,8 @@ const CoachSchedules = () => {
           />
         )}
 
-        <Tabs 
-          activeKey={activeTab} 
+        <Tabs
+          activeKey={activeTab}
           onChange={handleTabChange}
           type="card"
           className="coach-schedule-tabs"
@@ -575,42 +772,58 @@ const CoachSchedules = () => {
                     return (
                       <div className="calendar-header flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50">
                         <div className="flex items-center gap-2">
-                          <Button 
-                            type="text" 
+                          <Button
+                            type="text"
                             onClick={() => {
-                              const newValue = current.clone().subtract(1, 'month');
+                              const newValue = current
+                                .clone()
+                                .subtract(1, "month");
                               onChange(newValue);
                               setDateRange({
-                                startDate: newValue.startOf("month").format("YYYY-MM-DD"),
-                                endDate: newValue.endOf("month").format("YYYY-MM-DD"),
+                                startDate: newValue
+                                  .startOf("month")
+                                  .format("YYYY-MM-DD"),
+                                endDate: newValue
+                                  .endOf("month")
+                                  .format("YYYY-MM-DD"),
                               });
                             }}
                             icon={<span className="font-medium">{"<"}</span>}
                             className="hover:bg-gray-200 transition-colors"
                           />
-                          <span className="text-lg font-medium">{value.format('MMMM YYYY')}</span>
-                          <Button 
-                            type="text" 
+                          <span className="text-lg font-medium">
+                            {value.format("MMMM YYYY")}
+                          </span>
+                          <Button
+                            type="text"
                             onClick={() => {
-                              const newValue = current.clone().add(1, 'month');
+                              const newValue = current.clone().add(1, "month");
                               onChange(newValue);
                               setDateRange({
-                                startDate: newValue.startOf("month").format("YYYY-MM-DD"),
-                                endDate: newValue.endOf("month").format("YYYY-MM-DD"),
+                                startDate: newValue
+                                  .startOf("month")
+                                  .format("YYYY-MM-DD"),
+                                endDate: newValue
+                                  .endOf("month")
+                                  .format("YYYY-MM-DD"),
                               });
                             }}
                             icon={<span className="font-medium">{">"}</span>}
                             className="hover:bg-gray-200 transition-colors"
                           />
                         </div>
-                        <Button 
+                        <Button
                           type="default"
                           onClick={() => {
                             const today = dayjs();
                             onChange(today);
                             setDateRange({
-                              startDate: today.startOf("month").format("YYYY-MM-DD"),
-                              endDate: today.endOf("month").format("YYYY-MM-DD"),
+                              startDate: today
+                                .startOf("month")
+                                .format("YYYY-MM-DD"),
+                              endDate: today
+                                .endOf("month")
+                                .format("YYYY-MM-DD"),
                             });
                           }}
                           className="hover:bg-blue-50 hover:text-blue-500 transition-colors"
@@ -653,7 +866,7 @@ const CoachSchedules = () => {
               >
                 <div className="weekly-schedules grid grid-cols-1 gap-4 mb-8">
                   {formatWeeklySchedules().map((day) => (
-                    <Card 
+                    <Card
                       key={day.day}
                       title={
                         <div className="flex items-center gap-2">
@@ -663,37 +876,31 @@ const CoachSchedules = () => {
                       }
                       className={`
                         shadow-sm border border-gray-200 hover:shadow-md transition-all
-                        ${day.schedules.length === 0 ? 'opacity-70' : 'border-l-4 border-l-blue-500'}
+                        ${
+                          day.schedules.length === 0
+                            ? "opacity-70"
+                            : "border-l-4 border-l-blue-500"
+                        }
                       `}
                     >
                       {day.schedules.length === 0 ? (
-                        <Empty 
-                          description="Không có lịch làm việc" 
+                        <Empty
+                          description="Không có lịch làm việc"
                           image={Empty.PRESENTED_IMAGE_SIMPLE}
                           className="my-3"
                         />
                       ) : (
                         <List
                           dataSource={day.schedules}
-                          renderItem={item => (
-                            <List.Item 
+                          renderItem={(item) => (
+                            <List.Item
                               key={item.id}
                               className="hover:bg-gray-50 rounded-md transition-colors py-3 px-2"
-                              actions={[
-                                <Button
-                                  key="delete"
-                                  danger
-                                  onClick={() => handleDeleteSchedule(item.id)}
-                                  icon={<DeleteOutlined />}
-                                  className="flex items-center gap-1"
-                                >
-                                  Xóa
-                                </Button>
-                              ]}
+                              actions={renderWeeklyScheduleActions(item)}
                             >
                               <div className="flex items-center gap-3">
-                                <Avatar 
-                                  icon={<ClockCircleOutlined />} 
+                                <Avatar
+                                  icon={<ClockCircleOutlined />}
                                   className="bg-blue-100 text-blue-500 flex items-center justify-center"
                                 />
                                 <div>
@@ -712,14 +919,14 @@ const CoachSchedules = () => {
                     </Card>
                   ))}
                 </div>
-              
+
                 <Divider orientation="left">
                   <div className="flex items-center gap-2">
                     <CalendarOutlined />
                     <span>Lịch theo tháng</span>
                   </div>
                 </Divider>
-                
+
                 <Table
                   columns={columns}
                   dataSource={schedules.map((s) => ({
@@ -734,13 +941,15 @@ const CoachSchedules = () => {
                       setPagination({ ...pagination, current: page });
                     },
                     showSizeChanger: true,
-                    pageSizeOptions: ['10', '20', '50'],
+                    pageSizeOptions: ["10", "20", "50"],
                   }}
                   className="rounded-lg overflow-hidden shadow-sm border border-gray-200"
-                  rowClassName={(record) => 
-                    record.status === 'available' ? 'bg-green-50 hover:bg-green-100' : 
-                    record.status === 'booked' ? 'bg-yellow-50 hover:bg-yellow-100' : 
-                    'bg-red-50 hover:bg-red-100'
+                  rowClassName={(record) =>
+                    record.status === "available"
+                      ? "bg-green-50 hover:bg-green-100"
+                      : record.status === "booked"
+                      ? "bg-yellow-50 hover:bg-yellow-100"
+                      : "bg-red-50 hover:bg-red-100"
                   }
                 />
               </motion.div>
@@ -760,22 +969,34 @@ const CoachSchedules = () => {
           </div>
         }
         open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={() => {
+          setIsModalVisible(false);
+          setScheduleToUpdate(null);
+        }}
         footer={null}
         width={700}
         className="schedule-modal"
         destroyOnClose
       >
-        <Tabs activeKey={activeModalTab} onChange={handleModalTabChange} className="mt-4">
-          <TabPane 
+        <Tabs
+          activeKey={activeModalTab}
+          onChange={handleModalTabChange}
+          className="mt-4"
+        >
+          <TabPane
             tab={
               <span className="flex items-center gap-1">
                 <PlusOutlined /> Thêm lịch mới
               </span>
-            } 
+            }
             key="1"
           >
-            <Form form={form} layout="vertical" onFinish={handleAddSchedule} className="pt-4">
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleAddSchedule}
+              className="pt-4"
+            >
               <Form.Item
                 name="date"
                 label="Ngày"
@@ -807,15 +1028,20 @@ const CoachSchedules = () => {
                   <Divider orientation="left">Lịch đã tồn tại</Divider>
                   <div className="max-h-[200px] overflow-y-auto p-2 border border-gray-200 rounded-md bg-gray-50">
                     {existingSchedules.map((schedule, index) => (
-                      <Tag 
+                      <Tag
                         key={index}
                         className="m-1 py-1"
-                        color={schedule.status === 'available' ? 'green' : 
-                              schedule.status === 'booked' ? 'orange' : 'red'}
+                        color={
+                          schedule.status === "available"
+                            ? "green"
+                            : schedule.status === "booked"
+                            ? "orange"
+                            : "red"
+                        }
                         icon={<ClockCircleOutlined />}
                       >
                         {schedule.startTime} - {schedule.endTime}
-                        {schedule.status === 'booked' && ' (Đã đặt)'}
+                        {schedule.status === "booked" && " (Đã đặt)"}
                       </Tag>
                     ))}
                   </div>
@@ -823,12 +1049,15 @@ const CoachSchedules = () => {
               )}
 
               <div className="flex justify-end mt-6">
-                <Button onClick={() => setIsModalVisible(false)} className="mr-2">
+                <Button
+                  onClick={() => setIsModalVisible(false)}
+                  className="mr-2"
+                >
                   Hủy
                 </Button>
-                <Button 
-                  type="primary" 
-                  htmlType="submit" 
+                <Button
+                  type="primary"
+                  htmlType="submit"
                   loading={loading}
                   className="bg-blue-500 hover:bg-blue-600"
                 >
@@ -838,24 +1067,36 @@ const CoachSchedules = () => {
             </Form>
           </TabPane>
 
-          <TabPane 
+          <TabPane
             tab={
               <span className="flex items-center gap-1">
                 <LockOutlined /> Đánh dấu lịch
               </span>
-            } 
+            }
             key="2"
-            disabled={existingSchedules.filter(s => s.status === 'available').length === 0}
+            disabled={
+              existingSchedules.filter((s) => s.status === "available")
+                .length === 0
+            }
           >
-            <Form form={blockScheduleForm} layout="vertical" onFinish={handleBlockSchedule} className="pt-4">
+            <Form
+              form={blockScheduleForm}
+              layout="vertical"
+              onFinish={handleBlockSchedule}
+              className="pt-4"
+            >
               <Form.Item
                 name="sportId"
                 label="Môn thể thao"
-                rules={[{ required: true, message: "Vui lòng chọn môn thể thao" }]}
+                rules={[
+                  { required: true, message: "Vui lòng chọn môn thể thao" },
+                ]}
               >
                 <Select placeholder="Chọn môn thể thao">
-                  {sports.map(sport => (
-                    <Option key={sport.id} value={sport.id}>{sport.name}</Option>
+                  {sports.map((sport) => (
+                    <Option key={sport.id} value={sport.id}>
+                      {sport.name}
+                    </Option>
                   ))}
                 </Select>
               </Form.Item>
@@ -868,41 +1109,42 @@ const CoachSchedules = () => {
                 <Radio.Group className="w-full">
                   <div className="grid grid-cols-1 gap-2">
                     {existingSchedules
-                      .filter(s => s.status === 'available')
+                      .filter((s) => s.status === "available")
                       .map((schedule, index) => (
-                        <Radio 
-                          key={index} 
+                        <Radio
+                          key={index}
                           value={schedule}
                           className="w-full p-2 border border-gray-200 rounded-md hover:border-blue-300 transition-colors"
                         >
                           <div className="flex items-center gap-2">
                             <ClockCircleOutlined className="text-blue-500" />
-                            <span>{schedule.startTime} - {schedule.endTime}</span>
+                            <span>
+                              {schedule.startTime} - {schedule.endTime}
+                            </span>
                           </div>
                         </Radio>
-                      ))
-                    }
+                      ))}
                   </div>
                 </Radio.Group>
               </Form.Item>
 
-              <Form.Item
-                name="notes"
-                label="Ghi chú (tùy chọn)"
-              >
-                <TextArea 
-                  rows={3} 
+              <Form.Item name="notes" label="Ghi chú (tùy chọn)">
+                <TextArea
+                  rows={3}
                   placeholder="Nhập ghi chú về việc đánh dấu lịch này"
                 />
               </Form.Item>
 
               <div className="flex justify-end mt-6">
-                <Button onClick={() => setIsModalVisible(false)} className="mr-2">
+                <Button
+                  onClick={() => setIsModalVisible(false)}
+                  className="mr-2"
+                >
                   Hủy
                 </Button>
-                <Button 
-                  type="primary" 
-                  htmlType="submit" 
+                <Button
+                  type="primary"
+                  htmlType="submit"
                   loading={loading}
                   className="bg-blue-500 hover:bg-blue-600"
                 >
@@ -911,54 +1153,176 @@ const CoachSchedules = () => {
               </div>
             </Form>
           </TabPane>
+
+          {/* New tab for updating a schedule */}
+          <TabPane
+            tab={
+              <span className="flex items-center gap-1">
+                <EditOutlined /> Cập nhật lịch
+              </span>
+            }
+            key="3"
+            disabled={!scheduleToUpdate}
+          >
+            <Form
+              form={updateScheduleForm}
+              layout="vertical"
+              onFinish={handleUpdateScheduleSubmit}
+              className="pt-4"
+            >
+              <Form.Item
+                name="dayOfWeek"
+                label="Ngày trong tuần"
+                rules={[
+                  { required: true, message: "Cần chọn ngày trong tuần" },
+                ]}
+              >
+                <Select disabled>
+                  <Option value={0}>Chủ nhật</Option>
+                  <Option value={1}>Thứ Hai</Option>
+                  <Option value={2}>Thứ Ba</Option>
+                  <Option value={3}>Thứ Tư</Option>
+                  <Option value={4}>Thứ Năm</Option>
+                  <Option value={5}>Thứ Sáu</Option>
+                  <Option value={6}>Thứ Bảy</Option>
+                </Select>
+              </Form.Item>
+
+              <Form.Item
+                name="timeRange"
+                label="Khung giờ làm việc"
+                rules={[{ required: true, message: "Vui lòng chọn khung giờ" }]}
+                extra="Lịch cập nhật không được trùng với các lịch đã tồn tại"
+              >
+                <TimePicker.RangePicker
+                  format="HH:mm"
+                  className="w-full"
+                  minuteStep={15}
+                  use12Hours={false}
+                />
+              </Form.Item>
+
+              {scheduleToUpdate && (
+                <Alert
+                  message="Thông tin lịch hiện tại"
+                  description={
+                    <div>
+                      <p>
+                        <strong>ID:</strong> {scheduleToUpdate.id}
+                      </p>
+                      <p>
+                        <strong>Thời gian hiện tại:</strong>{" "}
+                        {scheduleToUpdate.startTime} -{" "}
+                        {scheduleToUpdate.endTime}
+                      </p>
+                    </div>
+                  }
+                  type="info"
+                  showIcon
+                  className="mb-4"
+                />
+              )}
+
+              {existingSchedules.length > 1 && (
+                <div className="mb-4">
+                  <Divider orientation="left">Các lịch khác trong ngày</Divider>
+                  <div className="max-h-[150px] overflow-y-auto p-2 border border-gray-200 rounded-md bg-gray-50">
+                    {existingSchedules
+                      .filter(
+                        (s) => !scheduleToUpdate || s.id !== scheduleToUpdate.id
+                      )
+                      .map((schedule, index) => (
+                        <Tag
+                          key={index}
+                          className="m-1 py-1"
+                          color={
+                            schedule.status === "available"
+                              ? "green"
+                              : schedule.status === "booked"
+                              ? "orange"
+                              : "red"
+                          }
+                          icon={<ClockCircleOutlined />}
+                        >
+                          {schedule.startTime} - {schedule.endTime}
+                          {schedule.status === "booked" && " (Đã đặt)"}
+                        </Tag>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end mt-6">
+                <Button
+                  onClick={() => {
+                    setIsModalVisible(false);
+                    setScheduleToUpdate(null);
+                  }}
+                  className="mr-2"
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  className="bg-blue-500 hover:bg-blue-600"
+                >
+                  Cập nhật lịch
+                </Button>
+              </div>
+            </Form>
+          </TabPane>
         </Tabs>
       </Modal>
 
       <style jsx global>{`
-        .coach-calendar .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
+        .coach-calendar
+          .ant-picker-cell-in-view.ant-picker-cell-selected
+          .ant-picker-cell-inner {
           background-color: #4096ff;
         }
-        
+
         .coach-calendar .ant-picker-cell:hover .ant-picker-cell-inner {
           background-color: rgba(64, 150, 255, 0.1);
         }
-        
+
         .coach-calendar .ant-picker-calendar-date-content {
           height: 80px;
           overflow-y: auto;
         }
-        
+
         .coach-schedule-tabs .ant-tabs-nav-list {
           background-color: #f5f5f5;
           border-radius: 4px;
           padding: 2px;
         }
-        
+
         .coach-schedule-tabs .ant-tabs-tab {
           border-radius: 4px !important;
           margin: 0 2px !important;
           padding: 6px 12px;
           transition: all 0.3s;
         }
-        
+
         .coach-schedule-tabs .ant-tabs-tab-active {
           background-color: white !important;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
-        
+
         .schedules-list::-webkit-scrollbar {
           width: 4px;
         }
-        
+
         .schedules-list::-webkit-scrollbar-track {
           background: #f1f1f1;
         }
-        
+
         .schedules-list::-webkit-scrollbar-thumb {
           background: #ccc;
           border-radius: 4px;
         }
-        
+
         .schedule-modal .ant-modal-content {
           border-radius: 8px;
           overflow: hidden;
