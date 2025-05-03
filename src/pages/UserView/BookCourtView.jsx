@@ -515,13 +515,10 @@ const BookCourtView = () => {
     return total;
   };
 
-  const calculateTaxes = () => {
-    return calculateSubtotal() * 0.1;
+  const calculateTotal = () => {
+    return calculateSubtotal();
   };
 
-  const calculateTotal = () => {
-    return calculateSubtotal() + calculateTaxes();
-  };
   const formatPromotion = (promotion) => {
     if (promotion.discountType === "Percentage") {
       return `${promotion.discountValue}% off`;
@@ -2158,15 +2155,8 @@ const BookCourtView = () => {
                     <Col>Tạm tính:</Col>
                     <Col>
                       {new Intl.NumberFormat("vi-VN").format(
-                        calculateSubtotal()
+                        priceDetails.totalPrice
                       )}{" "}
-                      VND
-                    </Col>
-                  </Row>
-                  <Row justify="space-between" style={{ marginBottom: 8 }}>
-                    <Col>Thuế (10%):</Col>
-                    <Col>
-                      {new Intl.NumberFormat("vi-VN").format(calculateTaxes())}{" "}
                       VND
                     </Col>
                   </Row>
@@ -2177,7 +2167,11 @@ const BookCourtView = () => {
                   >
                     <Col>Tổng cộng:</Col>
                     <Col>
-                      {new Intl.NumberFormat("vi-VN").format(calculateTotal())}{" "}
+                      {priceDetails?.totalPrice
+                        ? new Intl.NumberFormat("vi-VN").format(
+                            priceDetails.totalPrice
+                          )
+                        : "0"}
                       VND
                     </Col>
                   </Row>
@@ -2465,28 +2459,6 @@ const BookCourtView = () => {
                     </Radio>
                   </Space>
                 </Radio.Group>
-                {/* Terms & Conditions */}
-                <Form.Item
-                  name="agreement"
-                  valuePropName="checked"
-                  rules={[
-                    {
-                      validator: (_, value) =>
-                        value
-                          ? Promise.resolve()
-                          : Promise.reject(
-                              new Error(
-                                "Vui lòng chấp nhận điều khoản và điều kiện"
-                              )
-                            ),
-                    },
-                  ]}
-                >
-                  <Checkbox>
-                    Tôi đồng ý với <a href="#terms">điều khoản và điều kiện</a>{" "}
-                    và <a href="#privacy">chính sách bảo mật</a>
-                  </Checkbox>
-                </Form.Item>
                 {/* Action Buttons */}
                 <div
                   style={{
