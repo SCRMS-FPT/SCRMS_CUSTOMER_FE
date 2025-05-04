@@ -5,14 +5,12 @@ import {
   Button,
   Tag,
   Skeleton,
-  List,
   Avatar,
   Row,
   Col,
   Input,
   Table,
   Space,
-  Divider,
   Spin,
   Empty,
 } from "antd";
@@ -25,7 +23,6 @@ import {
 } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Client as IdentityClient } from "@/API/IdentityApi";
 import { Client as CoachClient } from "@/API/CoachApi";
 import { Client as CourtClient } from "@/API/CourtApi";
 import { Client as ReviewClient } from "@/API/ReviewApi";
@@ -44,6 +41,7 @@ const UserDashboardView = () => {
     coachSessions: 0,
     pendingReviews: 0,
   });
+  const [sports, setSports] = useState({});
 
   // Loading states
   const [loadingCourt, setLoadingCourt] = useState(true);
@@ -65,7 +63,71 @@ const UserDashboardView = () => {
     fetchCourtBookings();
     fetchCoachSessions();
     fetchReviews();
+    fetchAllSports();
   }, []);
+
+  // Cache for coach and court data to avoid duplicate API calls
+  const [coachCache, setCoachCache] = useState({});
+  const [courtCache, setCourtCache] = useState({});
+
+  const fetchCoachDetails = async (coachId) => {
+    // Return from cache if available
+    if (coachCache[coachId]) return coachCache[coachId];
+
+    try {
+      const client = new CoachClient();
+      const response = await client.getCoachById(coachId);
+
+      // Update cache
+      setCoachCache((prev) => ({
+        ...prev,
+        [coachId]: response,
+      }));
+
+      return response;
+    } catch (error) {
+      console.error(`Error fetching coach details for ID ${coachId}:`, error);
+      return null;
+    }
+  };
+
+  const fetchCourtDetails = async (courtId) => {
+    // Return from cache if available
+    if (courtCache[courtId]) return courtCache[courtId];
+
+    try {
+      const client = new CourtClient();
+      const response = await client.getCourtDetails(courtId);
+
+      // Update cache
+      setCourtCache((prev) => ({
+        ...prev,
+        [courtId]: response?.court || null,
+      }));
+
+      return response?.court || null;
+    } catch (error) {
+      console.error(`Error fetching court details for ID ${courtId}:`, error);
+      return null;
+    }
+  };
+
+  const fetchAllSports = async () => {
+    try {
+      const client = new CourtClient();
+      const response = await client.getSports();
+
+      if (response && response.sports) {
+        const sportsMap = {};
+        response.sports.forEach((sport) => {
+          sportsMap[sport.id] = sport.name;
+        });
+        setSports(sportsMap);
+      }
+    } catch (error) {
+      console.error("Error fetching sports:", error);
+    }
+  };
 
   const fetchCourtBookings = async () => {
     try {
@@ -75,10 +137,13 @@ const UserDashboardView = () => {
 
       if (response && response.upcomingBookings) {
         setCourtBookings(response.upcomingBookings);
-        setDashboardStats((prev) => ({
-          ...prev,
-          upcomingBookings: response.upcomingBookings.length,
-        }));
+
+        if (response.stats) {
+          setDashboardStats((prev) => ({
+            ...prev,
+            upcomingBookings: response.stats.upcomingBookings || 0,
+          }));
+        }
       }
       setLoadingCourt(false);
     } catch (error) {
@@ -115,16 +180,31 @@ const UserDashboardView = () => {
       const client = new ReviewClient();
       const response = await client.getReviewsSubmittedByUser(1, 10);
 
-      // Transform the response to the expected format
-      if (response) {
-        setReviews(Array.isArray(response.data) ? response.data : []);
+      if (response && Array.isArray(response.data)) {
+        // Process each review to add subject name
+        const reviewsWithDetails = await Promise.all(
+          response.data.map(async (review) => {
+            let subjectName = "Không xác định";
 
-        // Count pending reviews
-        const pendingReviews = Array.isArray(response.data)
-          ? response.data.filter((review) => review.status === "Pending").length
-          : 0;
+            // Fetch subject details based on type
+            if (review.subjectType.toLowerCase() === "coach") {
+              const coachDetails = await fetchCoachDetails(review.subjectId);
+              subjectName = coachDetails?.fullName || "HLV không xác định";
+            } else if (review.subjectType.toLowerCase() === "court") {
+              const courtDetails = await fetchCourtDetails(review.subjectId);
+              subjectName = courtDetails?.courtName || "Sân không xác định";
+            }
 
-        setDashboardStats((prev) => ({ ...prev, pendingReviews }));
+            return {
+              ...review,
+              subjectName,
+            };
+          })
+        );
+
+        setReviews(reviewsWithDetails);
+      } else {
+        setReviews([]);
       }
       setLoadingReviews(false);
     } catch (error) {
@@ -140,7 +220,9 @@ const UserDashboardView = () => {
       booking.courtName
         ?.toLowerCase()
         .includes(courtSearchText.toLowerCase()) ||
-      booking.venueName?.toLowerCase().includes(courtSearchText.toLowerCase())
+      booking.sportCenterName
+        ?.toLowerCase()
+        .includes(courtSearchText.toLowerCase())
   );
 
   const filteredCoachSessions = coachSessions.filter((session) =>
@@ -167,8 +249,11 @@ const UserDashboardView = () => {
     {
       title: "Thời gian",
       key: "time",
-      render: (_, record) => `${record.startTime} - ${record.endTime}`,
-      sorter: (a, b) => a.startTime.localeCompare(b.startTime),
+      render: (_, record) =>
+        `${record.startTime.substring(0, 5)} - ${record.endTime.substring(
+          0,
+          5
+        )}`,
     },
     {
       title: "Sân",
@@ -177,13 +262,8 @@ const UserDashboardView = () => {
     },
     {
       title: "Địa điểm",
-      dataIndex: "venueName",
-      key: "venueName",
-    },
-    {
-      title: "Môn thể thao",
-      dataIndex: "sportName",
-      key: "sportName",
+      dataIndex: "sportCenterName",
+      key: "sportCenterName",
     },
     {
       title: "Trạng thái",
@@ -195,7 +275,7 @@ const UserDashboardView = () => {
           case "confirmed":
             color = "green";
             break;
-          case "pending":
+          case "deposited":
             color = "orange";
             break;
           case "cancelled":
@@ -214,7 +294,7 @@ const UserDashboardView = () => {
         <Button
           type="primary"
           size="small"
-          onClick={() => navigate(`/user/bookings/${record.id}`)}
+          onClick={() => navigate(`/user/bookings/${record.bookingId}`)}
         >
           Xem chi tiết
         </Button>
@@ -234,8 +314,11 @@ const UserDashboardView = () => {
     {
       title: "Thời gian",
       key: "time",
-      render: (_, record) => `${record.startTime} - ${record.endTime}`,
-      sorter: (a, b) => a.startTime.localeCompare(b.startTime),
+      render: (_, record) =>
+        `${record.startTime.substring(0, 5)} - ${record.endTime.substring(
+          0,
+          5
+        )}`,
     },
     {
       title: "Huấn luyện viên",
@@ -250,13 +333,8 @@ const UserDashboardView = () => {
     },
     {
       title: "Môn thể thao",
-      dataIndex: "sportName",
-      key: "sportName",
-    },
-    {
-      title: "Gói dịch vụ",
-      dataIndex: "packageName",
-      key: "packageName",
+      key: "sportId",
+      render: (_, record) => sports[record.sportId] || "Chưa có thông tin",
     },
     {
       title: "Trạng thái",
@@ -287,9 +365,7 @@ const UserDashboardView = () => {
         <Button
           type="primary"
           size="small"
-          onClick={() =>
-            navigate(`/user/coachings/schedule/${record.bookingId}`)
-          }
+          onClick={() => navigate(`/user/coachings/${record.bookingId}`)}
         >
           Xem chi tiết
         </Button>
@@ -310,11 +386,11 @@ const UserDashboardView = () => {
       key: "subjectType",
       render: (type) => {
         let text = type;
-        switch (type) {
-          case "Coach":
+        switch (type.toLowerCase()) {
+          case "coach":
             text = "HLV";
             break;
-          case "Court":
+          case "court":
             text = "Sân";
             break;
           default:
@@ -350,15 +426,6 @@ const UserDashboardView = () => {
       dataIndex: "comment",
       key: "comment",
       ellipsis: true,
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => {
-        let color = status === "Reviewed" ? "green" : "orange";
-        return <Tag color={color}>{status}</Tag>;
-      },
     },
     {
       title: "Hành động",
@@ -552,7 +619,7 @@ const UserDashboardView = () => {
               <Table
                 dataSource={filteredCourtBookings}
                 columns={courtColumns}
-                rowKey="id"
+                rowKey="bookingId"
                 pagination={{ pageSize: 5 }}
                 className="animate-fade-in"
                 locale={{
