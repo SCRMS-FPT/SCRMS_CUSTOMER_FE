@@ -1331,7 +1331,7 @@ const CoachDetails = () => {
               </Box>
             ),
             okText: "Đi đến lịch đặt",
-            onOk: () => navigate("/user/coachings"),
+            onOk: () => navigate(`/user/coachings/${bookingResult.id}`),
             cancelText: "Ở lại trang này",
             okCancel: true,
           });

@@ -1,354 +1,381 @@
-"use client"
-import { motion, AnimatePresence } from "framer-motion"
-import BookingStatusBadge from "./booking-status-badge"
-import { userData } from "../../data/userData"
-import { useState, useEffect } from "react"
+import { Fragment, useEffect, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(amount)
-}
+const BookingStatusBadge = ({ status }) => {
+  const statusMap = {
+    pending: {
+      bg: "bg-amber-50",
+      text: "text-amber-600",
+      label: "Đang chờ xác nhận",
+    },
+    confirmed: {
+      bg: "bg-green-50",
+      text: "text-green-600",
+      label: "Đã xác nhận",
+    },
+    cancelled: {
+      bg: "bg-rose-50",
+      text: "text-rose-600",
+      label: "Đã hủy",
+    },
+    completed: {
+      bg: "bg-blue-50",
+      text: "text-blue-600",
+      label: "Đã hoàn thành",
+    },
+  };
 
-const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat("vi-VN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date)
-}
+  const config = statusMap[status] || statusMap.pending;
 
-const formatDateTime = (dateString) => {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat("vi-VN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date)
-}
+  return (
+    <span
+      className={`${config.bg} ${config.text} text-xs font-medium px-2.5 py-0.5 rounded-full inline-flex items-center`}
+    >
+      <span className="w-1.5 h-1.5 mr-1.5 rounded-full bg-current"></span>
+      {config.label}
+    </span>
+  );
+};
 
-const BookingDetailModal = ({ isOpen, onClose, booking, onConfirm, onReject, statusUpdated, bookingStatuses }) => {
-  // Find booking status - Sử dụng useEffect để cập nhật trạng thái khi bookingStatuses thay đổi
-  const [currentStatus, setCurrentStatus] = useState(null)
+const BookingDetailModal = ({
+  isOpen,
+  onClose,
+  booking,
+  bookingDetail,
+  loading,
+  onConfirm,
+  onReject,
+  onCancel,
+  statusUpdated,
+  bookingStatuses,
+}) => {
+  const [status, setStatus] = useState(null);
+  const [cancellationReason, setCancellationReason] = useState("");
+  const [showCancelReasonInput, setShowCancelReasonInput] = useState(false);
 
   useEffect(() => {
     if (booking && bookingStatuses) {
-      const status = bookingStatuses.find((status) => status.id === booking.id) || {
-        status: "pending",
-        updated_at: booking.booking_date,
-        message: "Đang chờ xác nhận từ huấn luyện viên.",
-      }
-      setCurrentStatus(status)
+      const bookingStatus = bookingStatuses.find(
+        (status) => status.id === booking.id
+      );
+      setStatus(bookingStatus);
     }
-  }, [booking, bookingStatuses, statusUpdated])
+  }, [booking, bookingStatuses]);
 
-  if (!booking) return null
+  const canConfirm = booking?.status === "pending";
+  const canReject = booking?.status === "pending";
+  const canCancel =
+    (booking?.status === "pending" || booking?.status === "completed") &&
+    booking?.bookingDate &&
+    new Date(booking.bookingDate) > new Date();
 
-  // Find user data
-  const user = userData.find((u) => u.id === booking.user_id) || {}
-  const userName = user ? `${user.firstName} ${user.lastName}` : "Không xác định"
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      return format(new Date(dateString), "EEEE, dd/MM/yyyy", { locale: vi });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return dateString;
+    }
+  };
 
-  const modalVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  }
+  const handleCancelClick = () => {
+    setShowCancelReasonInput(true);
+  };
 
-  const contentVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0 },
-  }
+  const handleCancelSubmit = () => {
+    if (!cancellationReason.trim()) {
+      alert("Vui lòng nhập lý do hủy buổi học");
+      return;
+    }
 
-  if (!currentStatus) return null
+    onCancel(booking.id, cancellationReason);
+    setShowCancelReasonInput(false);
+    setCancellationReason("");
+  };
+
+  if (!isOpen || !booking) return null;
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          variants={modalVariants}
-          onClick={onClose}
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
         >
-          <motion.div
-            className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
-            variants={contentVariants}
-            transition={{ duration: 0.3 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="sticky top-0 bg-emerald-600 text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
-              <h2 className="text-xl font-bold">Chi tiết đặt lịch</h2>
-              <button onClick={onClose} className="text-white hover:text-gray-200 transition-colors">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
+        </Transition.Child>
 
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-800 mb-1">
-                    Mã booking: <span className="text-emerald-600">{booking.id.split("-").pop()}</span>
-                  </h3>
-                  <p className="text-slate-600 text-sm">Cập nhật: {formatDateTime(currentStatus.updated_at)}</p>
-                </div>
-                <BookingStatusBadge status={currentStatus.status} />
-              </div>
-
-              {/* Thông tin khách hàng */}
-              <div className="bg-slate-50 rounded-lg p-4 mb-6">
-                <h4 className="text-md font-semibold text-slate-800 mb-3 flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-emerald-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <div className="flex justify-between items-start">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                  Thông tin khách hàng
-                </h4>
-                <div className="flex items-center">
-                  <img
-                    src={user.avatar || "/placeholder.svg?height=100&width=100"}
-                    alt={userName}
-                    className="w-16 h-16 rounded-full object-cover mr-4 border-2 border-emerald-100"
-                  />
-                  <div>
-                    <p className="font-medium text-slate-800">{userName}</p>
-                    <p className="text-slate-600 text-sm">{user.email}</p>
-                    <p className="text-slate-600 text-sm">{user.phone}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Thông tin buổi tập */}
-              <div className="bg-slate-50 rounded-lg p-4 mb-6">
-                <h4 className="text-md font-semibold text-slate-800 mb-3 flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-emerald-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  Thông tin buổi tập
-                </h4>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-emerald-600 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <span className="text-slate-700">Ngày: {formatDate(booking.booking_date)}</span>
-                  </div>
-
-                  <div className="flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-emerald-600 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span className="text-slate-700">Thời gian: {booking.time_slot}</span>
-                  </div>
-
-                  <div className="flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-emerald-600 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    <span className="text-slate-700">Địa điểm: Sân vận động ABC</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Thông tin thanh toán */}
-              <div className="bg-slate-50 rounded-lg p-4 mb-6">
-                <h4 className="text-md font-semibold text-slate-800 mb-3 flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-emerald-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                  Thông tin thanh toán
-                </h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Giá buổi tập:</span>
-                    <span className="text-slate-800 font-medium">{formatCurrency(booking.total_price)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Phương thức thanh toán:</span>
-                    <span className="text-slate-800 font-medium">Thanh toán khi đến tập</span>
-                  </div>
-                  <div className="border-t border-slate-200 my-2 pt-2 flex justify-between">
-                    <span className="text-slate-800 font-semibold">Tổng cộng:</span>
-                    <span className="text-emerald-600 font-bold">{formatCurrency(booking.total_price)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Thông tin trạng thái */}
-              <div className="bg-slate-50 rounded-lg p-4 mb-6">
-                <h4 className="text-md font-semibold text-slate-800 mb-2 flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-emerald-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  Trạng thái
-                </h4>
-                <div className="flex items-center mb-2">
-                  <BookingStatusBadge status={currentStatus.status} />
-                  <span className="ml-2 text-slate-700">{currentStatus.message}</span>
-                </div>
-
-                {statusUpdated && (
-                  <div className="mt-2 p-2 bg-emerald-50 border border-emerald-200 rounded-md text-emerald-700 text-sm">
-                    Trạng thái đã được cập nhật thành công!
-                  </div>
-                )}
-              </div>
-
-              {/* Buttons */}
-              <div className="flex justify-end space-x-4 mt-6">
-                {currentStatus.status === "pending" && !statusUpdated && (
-                  <>
-                    <button
-                      onClick={() => onReject(booking.id)}
-                      className="px-6 py-2.5 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors flex items-center"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 mr-2 text-rose-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      Từ chối
-                    </button>
-                    <button
-                      onClick={() => onConfirm(booking.id)}
-                      className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center shadow-sm"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 mr-2"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      Xác nhận
-                    </button>
-                  </>
-                )}
-                {(currentStatus.status !== "pending" || statusUpdated) && (
+                    Chi tiết lịch đặt
+                  </Dialog.Title>
                   <button
                     onClick={onClose}
-                    className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center shadow-sm"
+                    className="text-gray-400 hover:text-gray-500"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Đóng
+                    <XMarkIcon className="h-6 w-6" />
                   </button>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  )
-}
+                </div>
 
-export default BookingDetailModal
+                <div className="mt-4">
+                  {loading ? (
+                    <div className="animate-pulse">
+                      <div className="h-4 bg-slate-200 rounded mb-4"></div>
+                      <div className="h-4 bg-slate-200 rounded w-3/4 mb-4"></div>
+                      <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="mb-6">
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="font-medium text-gray-700">
+                            Thông tin buổi học
+                          </h4>
+                          <BookingStatusBadge status={booking.status} />
+                        </div>
 
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                          <div>
+                            <p className="text-sm text-gray-500">Mã đặt lịch</p>
+                            <p className="font-medium">{booking.id}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Ngày học</p>
+                            <p className="font-medium">
+                              {formatDate(booking.bookingDate)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Thời gian</p>
+                            <p className="font-medium">
+                              {`${booking.startTime || "N/A"} - ${
+                                booking.endTime || "N/A"
+                              }`}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Tổng phí</p>
+                            <p className="font-medium">
+                              {booking.totalPrice
+                                ? booking.totalPrice.toLocaleString("vi-VN") +
+                                  " VND"
+                                : "N/A"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Gói tập</p>
+                            <p className="font-medium">
+                              {booking.packageName || "Buổi tập lẻ"}
+                            </p>
+                          </div>
+                          {booking.status === "cancelled" && (
+                            <div className="col-span-2">
+                              <p className="text-sm text-gray-500">Lý do hủy</p>
+                              <p className="font-medium text-rose-600">
+                                {booking.cancellationReason ||
+                                  "Không có thông tin"}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mb-6">
+                        <h4 className="font-medium text-gray-700 mb-4">
+                          Thông tin học viên
+                        </h4>
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-4 mb-3">
+                            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden">
+                              {booking.user?.avatarUrl ? (
+                                <img
+                                  src={booking.user.avatarUrl}
+                                  alt="User Avatar"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <span className="text-emerald-700 text-lg font-medium">
+                                  {booking.user?.firstName?.[0] || "U"}
+                                </span>
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-medium">
+                                {booking.user?.firstName &&
+                                booking.user?.lastName
+                                  ? `${booking.user.firstName} ${booking.user.lastName}`
+                                  : booking.user?.fullName || "N/A"}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {booking.user?.email || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm text-gray-500">
+                                Số điện thoại
+                              </p>
+                              <p className="font-medium">
+                                {booking.user?.phoneNumber ||
+                                  booking.user?.phone ||
+                                  "N/A"}
+                              </p>
+                            </div>
+                            {booking.user?.birthDate && (
+                              <div>
+                                <p className="text-sm text-gray-500">
+                                  Ngày sinh
+                                </p>
+                                <p className="font-medium">
+                                  {format(
+                                    new Date(booking.user.birthDate),
+                                    "dd/MM/yyyy"
+                                  )}
+                                </p>
+                              </div>
+                            )}
+                            {booking.user?.gender && (
+                              <div>
+                                <p className="text-sm text-gray-500">
+                                  Giới tính
+                                </p>
+                                <p className="font-medium">
+                                  {booking.user.gender === "Male"
+                                    ? "Nam"
+                                    : booking.user.gender === "Female"
+                                    ? "Nữ"
+                                    : "Khác"}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {status && (
+                        <div className="mb-6">
+                          <h4 className="font-medium text-gray-700 mb-2">
+                            Trạng thái gần nhất
+                          </h4>
+                          <div className="text-sm text-gray-600">
+                            {status.message}
+                            <span className="text-xs text-gray-400 ml-2">
+                              {new Date(status.updated_at).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {showCancelReasonInput && (
+                        <div className="mt-4 mb-4">
+                          <label
+                            htmlFor="cancellationReason"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Lý do hủy buổi học
+                          </label>
+                          <textarea
+                            id="cancellationReason"
+                            value={cancellationReason}
+                            onChange={(e) =>
+                              setCancellationReason(e.target.value)
+                            }
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
+                            rows="3"
+                            placeholder="Vui lòng nhập lý do hủy buổi học"
+                          ></textarea>
+                          <div className="mt-3 flex justify-end space-x-3">
+                            <button
+                              type="button"
+                              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowCancelReasonInput(false)}
+                            >
+                              Hủy
+                            </button>
+                            <button
+                              type="button"
+                              className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+                              onClick={handleCancelSubmit}
+                            >
+                              Xác nhận hủy
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {canConfirm && !statusUpdated && !showCancelReasonInput && (
+                    <button
+                      type="button"
+                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                      onClick={() => onConfirm(booking.id)}
+                    >
+                      Xác nhận buổi học
+                    </button>
+                  )}
+                  {canReject && !statusUpdated && !showCancelReasonInput && (
+                    <button
+                      type="button"
+                      className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+                      onClick={() => onReject(booking.id)}
+                    >
+                      Từ chối buổi học
+                    </button>
+                  )}
+                  {canCancel && !statusUpdated && !showCancelReasonInput && (
+                    <button
+                      type="button"
+                      className="px-4 py-2 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                      onClick={handleCancelClick}
+                    >
+                      Hủy buổi học
+                    </button>
+                  )}
+                  {!showCancelReasonInput && (
+                    <button
+                      type="button"
+                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors ml-auto"
+                      onClick={onClose}
+                    >
+                      Đóng
+                    </button>
+                  )}
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};
+
+export default BookingDetailModal;

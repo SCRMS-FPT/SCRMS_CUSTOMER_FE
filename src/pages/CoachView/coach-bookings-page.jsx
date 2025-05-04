@@ -3,76 +3,60 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import BookingCard from "../../components/bookinfo/booking-card";
-// import BookingDetailModal from "../../components/bookinfo/booking-detail-modal";
-import BookingFilter from "../../components/bookinfo/booking-filter";
+import BookingDetailModal from "../../components/bookinfo/booking-detail-modal";
+import BookingFilter from "../../components/bookinfo/BookingFilter";
 import BookingPagination from "../../components/bookinfo/booking-pagination";
 import BookingSkeleton from "../../components/bookinfo/booking-skeleton";
 import ConfirmActionModal from "../../components/bookinfo/confirm-action-modal";
-// Remove static userData import
-// import { userData } from "../../data/userData";
-// Import both APIs
 import { Client } from "../../API/CoachApi";
 import { Client as IdentityClient } from "../../API/IdentityApi";
 import { toast } from "react-hot-toast";
 
 const CoachBookingsPage = () => {
-  // Create API client instances
   const coachClient = new Client();
   const identityClient = new IdentityClient();
 
-  // Create a ref to prevent infinite re-renders
   const isMountedRef = useRef(true);
 
-  // State for bookings data
   const [bookings, setBookings] = useState([]);
   const [bookingStatuses, setBookingStatuses] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Add new state for user profiles
   const [userProfiles, setUserProfiles] = useState({});
-
-  // State for filters
   const [statusFilter, setStatusFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-
-  // State for API pagination
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(8);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
-  // State for modals
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [bookingIdToAction, setBookingIdToAction] = useState(null);
-
-  // State for status updates
+  const [bookingDetail, setBookingDetail] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [statusUpdated, setStatusUpdated] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState("");
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
     };
   }, []);
 
-  // Helper function to fetch user profile by ID
   const fetchUserProfile = async (userId) => {
     try {
-      // Check if we already have the profile
       if (userProfiles[userId]) {
         return userProfiles[userId];
       }
 
-      // Fetch user profile from API
       const profile = await identityClient.profile(userId);
 
-      // Only update state if component is still mounted
       if (isMountedRef.current) {
         setUserProfiles((prev) => ({
           ...prev,
@@ -87,43 +71,74 @@ const CoachBookingsPage = () => {
     }
   };
 
-  // Fetch bookings when filters or pagination changes
+  const formatDateForApi = (dateString) => {
+    if (!dateString) return undefined;
+
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const calculateEndDate = (startDate) => {
+    if (!startDate) return undefined;
+
+    const start = new Date(startDate);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 1);
+
+    const year = end.getFullYear();
+    const month = String(end.getMonth() + 1).padStart(2, "0");
+    const day = String(end.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
   useEffect(() => {
     fetchBookings();
-  }, [currentPage, pageSize, statusFilter, dateFilter]);
+  }, [currentPage, pageSize, statusFilter, startDateFilter, endDateFilter]);
 
-  // Function to fetch bookings from API
   const fetchBookings = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Prepare date filters if present
-      const startDate = dateFilter ? new Date(dateFilter) : undefined;
-      const endDate = dateFilter ? new Date(dateFilter) : undefined;
-      if (endDate) {
-        // Set end date to end of day
-        endDate.setHours(23, 59, 59, 999);
-      }
+      // Format dates as simple strings YYYY-MM-DD for API
+      const startDateFormatted = startDateFilter
+        ? formatDateForApi(startDateFilter)
+        : undefined;
 
-      // Call API with filters - passing currentPage directly (now 0-based)
+      // If endDate is not provided but startDate is, automatically add 1 day to startDate
+      const endDateFormatted = endDateFilter
+        ? formatDateForApi(endDateFilter)
+        : startDateFilter
+        ? calculateEndDate(startDateFilter)
+        : undefined;
+
+      console.log("Sending date filters:", {
+        startDate: startDateFormatted,
+        endDate: endDateFormatted,
+      });
+
+      // Use the API client with string dates instead of Date objects
       const response = await coachClient.getCoachBookings(
-        startDate,
-        endDate,
+        startDateFormatted,
+        endDateFormatted,
         statusFilter || undefined,
-        currentPage, // Zero-based index
+        currentPage,
         pageSize,
-        undefined, // sportId
-        undefined // packageId
+        undefined,
+        undefined
       );
 
       if (response && response.data) {
-        // Set booking data
         setBookings(response.data);
+        setFilteredBookings(response.data);
         setTotalItems(response.count || 0);
         setTotalPages(Math.ceil((response.count || 0) / pageSize));
 
-        // Initialize booking statuses based on API response
         const statuses = response.data.map((booking) => ({
           id: booking.id,
           status: booking.status,
@@ -132,15 +147,12 @@ const CoachBookingsPage = () => {
         }));
         setBookingStatuses(statuses);
 
-        // Fetch user profiles for all bookings
         const userIds = [
           ...new Set(response.data.map((booking) => booking.userId)),
         ];
 
-        // Process each user ID and fetch profile
         for (const userId of userIds) {
           if (!userProfiles[userId]) {
-            // Fetch profile in background without awaiting
             fetchUserProfile(userId);
           }
         }
@@ -153,15 +165,10 @@ const CoachBookingsPage = () => {
     }
   };
 
-  // Helper function to get status message
   const getStatusMessage = (status) => {
     switch (status) {
       case "pending":
         return "Đang chờ xác nhận";
-      case "confirmed":
-        return "Đã xác nhận";
-      case "cancelled":
-        return "Đã hủy";
       case "completed":
         return "Đã hoàn thành";
       default:
@@ -169,7 +176,6 @@ const CoachBookingsPage = () => {
     }
   };
 
-  // Apply search filter locally - update to use real user profiles
   useEffect(() => {
     if (!searchTerm) {
       setFilteredBookings(bookings);
@@ -180,7 +186,6 @@ const CoachBookingsPage = () => {
       const user = userProfiles[booking.userId];
       if (!user) return false;
 
-      // Handle different profile data formats
       const userName =
         user.firstName && user.lastName
           ? `${user.firstName} ${user.lastName}`.toLowerCase()
@@ -192,62 +197,99 @@ const CoachBookingsPage = () => {
     setFilteredBookings(filtered);
   }, [bookings, searchTerm, userProfiles]);
 
-  // Handle page change
   const handlePageChange = (page) => {
-    // Adjust for zero-based indexing (page-1)
     const zeroBasedPage = page - 1;
     if (zeroBasedPage >= 0 && zeroBasedPage < totalPages) {
       setCurrentPage(zeroBasedPage);
     }
   };
 
-  // Handle page size change
   const handlePageSizeChange = (size) => {
     setPageSize(size);
-    setCurrentPage(0); // Reset to first page (index 0) when page size changes
+    setCurrentPage(0);
   };
 
-  // Clear all filters
   const handleClearFilters = () => {
     setStatusFilter("");
-    setDateFilter("");
+    setStartDateFilter("");
+    setEndDateFilter("");
     setSearchTerm("");
-    setCurrentPage(0); // Reset to first page (index 0)
+    setCurrentPage(0);
   };
 
-  // Handle booking click
-  const handleBookingClick = (booking) => {
-    // Include user data with the selected booking
+  const handleStartDateChange = (date) => {
+    setStartDateFilter(date);
+
+    if (endDateFilter && new Date(endDateFilter) < new Date(date)) {
+      setEndDateFilter("");
+    }
+
+    setCurrentPage(0);
+  };
+
+  const handleEndDateChange = (date) => {
+    setEndDateFilter(date);
+    setCurrentPage(0);
+  };
+
+  const fetchBookingDetails = async (bookingId) => {
+    setLoadingDetail(true);
+    try {
+      const detail = await coachClient.getBookingById(bookingId);
+      setBookingDetail(detail);
+      return detail;
+    } catch (err) {
+      console.error("Error fetching booking details:", err);
+      toast.error("Không thể tải chi tiết lịch đặt. Vui lòng thử lại sau.");
+      return null;
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
+  const handleBookingClick = async (booking) => {
+    setSelectedBooking(booking);
+
+    const detail = await fetchBookingDetails(booking.id);
+
     const enrichedBooking = {
       ...booking,
+      ...detail,
       user: userProfiles[booking.userId] || null,
     };
+
     setSelectedBooking(enrichedBooking);
     setStatusUpdated(false);
     setIsDetailModalOpen(true);
   };
 
-  // Handle confirm booking
   const handleConfirmBooking = (bookingId) => {
     setBookingIdToAction(bookingId);
     setIsConfirmModalOpen(true);
   };
 
-  // Handle reject booking
   const handleRejectBooking = (bookingId) => {
     setBookingIdToAction(bookingId);
     setIsRejectModalOpen(true);
   };
 
-  // Confirm action handlers with API calls
+  const handleCancelBooking = (bookingId, reason) => {
+    setBookingIdToAction(bookingId);
+
+    if (reason) {
+      setCancellationReason(reason);
+      cancelBookingWithReason(bookingId, reason);
+    } else {
+      setIsCancelModalOpen(true);
+    }
+  };
+
   const confirmBookingAction = async () => {
     try {
       setLoading(true);
 
-      // Call API to update booking status
       await coachClient.updateBookingStatus(bookingIdToAction, "confirmed");
 
-      // Update local state
       setBookingStatuses((prevStatuses) => {
         const updatedStatuses = [...prevStatuses];
         const statusIndex = updatedStatuses.findIndex(
@@ -273,7 +315,6 @@ const CoachBookingsPage = () => {
         return updatedStatuses;
       });
 
-      // Update booking in the list
       setBookings((prevBookings) =>
         prevBookings.map((booking) =>
           booking.id === bookingIdToAction
@@ -285,6 +326,8 @@ const CoachBookingsPage = () => {
       toast.success("Đã xác nhận lịch đặt thành công");
       setStatusUpdated(true);
       setIsConfirmModalOpen(false);
+      setIsDetailModalOpen(false);
+      fetchBookings();
     } catch (err) {
       console.error("Error confirming booking:", err);
       toast.error("Không thể xác nhận lịch đặt. Vui lòng thử lại sau.");
@@ -297,10 +340,8 @@ const CoachBookingsPage = () => {
     try {
       setLoading(true);
 
-      // Call API to update booking status
       await coachClient.updateBookingStatus(bookingIdToAction, "cancelled");
 
-      // Update local state
       setBookingStatuses((prevStatuses) => {
         const updatedStatuses = [...prevStatuses];
         const statusIndex = updatedStatuses.findIndex(
@@ -312,21 +353,20 @@ const CoachBookingsPage = () => {
             ...updatedStatuses[statusIndex],
             status: "cancelled",
             updated_at: new Date().toISOString(),
-            message: "Booking đã bị hủy bởi huấn luyện viên.",
+            message: "Booking đã bị từ chối bởi huấn luyện viên.",
           };
         } else {
           updatedStatuses.push({
             id: bookingIdToAction,
             status: "cancelled",
             updated_at: new Date().toISOString(),
-            message: "Booking đã bị hủy bởi huấn luyện viên.",
+            message: "Booking đã bị từ chối bởi huấn luyện viên.",
           });
         }
 
         return updatedStatuses;
       });
 
-      // Update booking in the list
       setBookings((prevBookings) =>
         prevBookings.map((booking) =>
           booking.id === bookingIdToAction
@@ -338,6 +378,8 @@ const CoachBookingsPage = () => {
       toast.success("Đã từ chối lịch đặt thành công");
       setStatusUpdated(true);
       setIsRejectModalOpen(false);
+      setIsDetailModalOpen(false);
+      fetchBookings();
     } catch (err) {
       console.error("Error rejecting booking:", err);
       toast.error("Không thể từ chối lịch đặt. Vui lòng thử lại sau.");
@@ -346,7 +388,59 @@ const CoachBookingsPage = () => {
     }
   };
 
-  // Animation variants
+  const cancelBookingWithReason = async (bookingId, reason) => {
+    try {
+      setLoading(true);
+
+      const cancelRequest = {
+        cancellationReason: reason || "Huấn luyện viên hủy lịch đặt",
+      };
+      await coachClient.cancelCoachBooking(bookingId, cancelRequest);
+
+      setBookingStatuses((prevStatuses) => {
+        const updatedStatuses = [...prevStatuses];
+        const statusIndex = updatedStatuses.findIndex(
+          (status) => status.id === bookingId
+        );
+
+        if (statusIndex !== -1) {
+          updatedStatuses[statusIndex] = {
+            ...updatedStatuses[statusIndex],
+            status: "cancelled",
+            updated_at: new Date().toISOString(),
+            message: "Booking đã bị hủy bởi huấn luyện viên.",
+          };
+        }
+
+        return updatedStatuses;
+      });
+
+      setBookings((prevBookings) =>
+        prevBookings.map((booking) =>
+          booking.id === bookingId
+            ? { ...booking, status: "cancelled", cancellationReason: reason }
+            : booking
+        )
+      );
+
+      toast.success("Đã hủy lịch đặt thành công");
+      setStatusUpdated(true);
+      setIsCancelModalOpen(false);
+      setIsDetailModalOpen(false);
+      fetchBookings();
+    } catch (err) {
+      console.error("Error cancelling booking:", err);
+      toast.error("Không thể hủy lịch đặt. Vui lòng thử lại sau.");
+    } finally {
+      setLoading(false);
+      setCancellationReason("");
+    }
+  };
+
+  const cancelBookingAction = async () => {
+    await cancelBookingWithReason(bookingIdToAction, cancellationReason);
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -357,7 +451,6 @@ const CoachBookingsPage = () => {
     },
   };
 
-  // Display error message if there's an error
   if (error) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -393,7 +486,6 @@ const CoachBookingsPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 w-full">
-      {/* Hero Background Image Section */}
       <div className="relative w-full h-[200px] md:h-[250px] overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -425,24 +517,21 @@ const CoachBookingsPage = () => {
       </div>
 
       <div className="w-full px-4 py-8 max-w-[2000px] mx-auto">
-        {/* Filters */}
         <BookingFilter
           statusFilter={statusFilter}
           onStatusFilterChange={(value) => {
             setStatusFilter(value);
-            setCurrentPage(0); // Reset page when filter changes
+            setCurrentPage(0);
           }}
-          dateFilter={dateFilter}
-          onDateFilterChange={(value) => {
-            setDateFilter(value);
-            setCurrentPage(0); // Reset page when filter changes
-          }}
+          startDateFilter={startDateFilter}
+          endDateFilter={endDateFilter}
+          onStartDateFilterChange={handleStartDateChange}
+          onEndDateFilterChange={handleEndDateChange}
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
           onClearFilters={handleClearFilters}
         />
 
-        {/* Bookings count */}
         <div className="mb-4">
           <div className="text-sm text-slate-600">
             {loading ? (
@@ -453,7 +542,6 @@ const CoachBookingsPage = () => {
           </div>
         </div>
 
-        {/* Bookings grid */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, index) => (
@@ -474,17 +562,16 @@ const CoachBookingsPage = () => {
                   booking={booking}
                   onClick={handleBookingClick}
                   bookingStatuses={bookingStatuses}
-                  userData={userProfiles[booking.userId]} // Pass the user data
+                  userData={userProfiles[booking.userId]}
                 />
               ))}
             </motion.div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <BookingPagination
-                currentPage={currentPage + 1} // Convert zero-based index to 1-based for display
+                currentPage={currentPage + 1}
                 totalPages={totalPages}
-                onPageChange={handlePageChange} // This now expects a 1-based page number
+                onPageChange={handlePageChange}
                 pageSize={pageSize}
                 onPageSizeChange={handlePageSizeChange}
                 totalItems={totalItems}
@@ -534,19 +621,22 @@ const CoachBookingsPage = () => {
         )}
       </div>
 
-      {/* Modals */}
-      {/* <BookingDetailModal
+      <BookingDetailModal
         isOpen={isDetailModalOpen}
         onClose={() => {
           setIsDetailModalOpen(false);
           setStatusUpdated(false);
+          setBookingDetail(null);
         }}
         booking={selectedBooking}
+        bookingDetail={bookingDetail}
+        loading={loadingDetail}
         onConfirm={handleConfirmBooking}
         onReject={handleRejectBooking}
+        onCancel={handleCancelBooking}
         statusUpdated={statusUpdated}
         bookingStatuses={bookingStatuses}
-      /> */}
+      />
 
       <ConfirmActionModal
         isOpen={isConfirmModalOpen}
@@ -566,6 +656,22 @@ const CoachBookingsPage = () => {
         message="Bạn có chắc chắn muốn từ chối lịch đặt này? Hành động này không thể hoàn tác."
         confirmText="Từ chối"
         confirmColor="rose"
+      />
+
+      <ConfirmActionModal
+        isOpen={isCancelModalOpen}
+        onClose={() => {
+          setIsCancelModalOpen(false);
+          setCancellationReason("");
+        }}
+        onConfirm={cancelBookingAction}
+        title="Hủy lịch đặt"
+        message="Vui lòng nhập lý do hủy buổi học này:"
+        confirmText="Hủy buổi học"
+        confirmColor="rose"
+        showReasonInput={true}
+        reason={cancellationReason}
+        onReasonChange={(e) => setCancellationReason(e.target.value)}
       />
     </div>
   );

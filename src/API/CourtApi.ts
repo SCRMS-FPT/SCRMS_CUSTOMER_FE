@@ -195,11 +195,11 @@ export class Client {
     if (start_date === null)
         throw new Error("The parameter 'start_date' cannot be null.");
     else if (start_date !== undefined)
-        url_ += "start_date=" + encodeURIComponent(start_date ? "" + start_date.toISOString() : "") + "&";
+        url_ += "start_date=" + encodeURIComponent(start_date ? "" + this.formatLocalDate(start_date) : "") + "&";
     if (end_date === null)
         throw new Error("The parameter 'end_date' cannot be null.");
     else if (end_date !== undefined)
-        url_ += "end_date=" + encodeURIComponent(end_date ? "" + end_date.toISOString() : "") + "&";
+        url_ += "end_date=" + encodeURIComponent(end_date ? "" + this.formatLocalDate(end_date) : "") + "&";
     if (page === null)
         throw new Error("The parameter 'page' cannot be null.");
     else if (page !== undefined)
@@ -638,6 +638,73 @@ protected processCreateOwnerBooking(response: Response): Promise<CreateOwnerBook
             });
         }
         return Promise.resolve<CancelBookingResult>(null as any);
+    }
+
+    /**
+     * Cancel a booking by court owner
+     * @return OK
+     */
+    cancelBookingByOwner(bookingId: string, body: CancelBookingByOwnerRequest): Promise<CancelBookingByOwnerResult> {
+        let url_ = this.baseUrl + "/api/bookings/{bookingId}/cancel-by-owner";
+        if (bookingId === undefined || bookingId === null)
+            throw new Error("The parameter 'bookingId' must be defined.");
+        url_ = url_.replace("{bookingId}", encodeURIComponent("" + bookingId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                ...this.getAuthHeaders(),
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCancelBookingByOwner(_response);
+        });
+    }
+
+    protected processCancelBookingByOwner(response: Response): Promise<CancelBookingByOwnerResult> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CancelBookingByOwnerResult.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CancelBookingByOwnerResult>(null as any);
     }
 
     /**
@@ -4569,6 +4636,94 @@ export class GetCourtDetailsResponse implements IGetCourtDetailsResponse {
 
 export interface IGetCourtDetailsResponse {
     court?: CourtDTO;
+}
+
+export class CancelBookingByOwnerRequest implements ICancelBookingByOwnerRequest {
+    cancellationReason?: string | undefined;
+    requestedAt?: Date;
+
+    constructor(data?: ICancelBookingByOwnerRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cancellationReason = _data["cancellationReason"];
+            this.requestedAt = _data["requestedAt"] ? new Date(_data["requestedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CancelBookingByOwnerRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CancelBookingByOwnerRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cancellationReason"] = this.cancellationReason;
+        data["requestedAt"] = this.requestedAt ? this.requestedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICancelBookingByOwnerRequest {
+    cancellationReason?: string | undefined;
+    requestedAt?: Date;
+}
+
+export class CancelBookingByOwnerResult implements ICancelBookingByOwnerResult {
+    bookingId?: string;
+    status?: string | undefined;
+    refundAmount?: number;
+    message?: string | undefined;
+
+    constructor(data?: ICancelBookingByOwnerResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.bookingId = _data["bookingId"];
+            this.status = _data["status"];
+            this.refundAmount = _data["refundAmount"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): CancelBookingByOwnerResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new CancelBookingByOwnerResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["bookingId"] = this.bookingId;
+        data["status"] = this.status;
+        data["refundAmount"] = this.refundAmount;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface ICancelBookingByOwnerResult {
+    bookingId?: string;
+    status?: string | undefined;
+    refundAmount?: number;
+    message?: string | undefined;
 }
 
 export class GetCourtOwnerDashboardResult implements IGetCourtOwnerDashboardResult {

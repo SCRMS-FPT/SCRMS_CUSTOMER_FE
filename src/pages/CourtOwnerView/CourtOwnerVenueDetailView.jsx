@@ -83,6 +83,9 @@ const CourtOwnerVenueDetailView = () => {
       navigate("/court-owner/venues");
     } catch (err) {
       console.error("Error deleting venue:", err);
+      message.error(
+        `Lỗi: ${error.detail || "Không thể xóa trung tâm thể thao này!"}`
+      );
       setDeleteLoading(false);
     }
   };

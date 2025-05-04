@@ -424,7 +424,7 @@ const UserDashboardView = () => {
                 type="primary"
                 size="large"
                 className="mr-2 hover:scale-105 transition-transform"
-                onClick={() => navigate("/find-court")}
+                onClick={() => navigate("/browse-courts")}
               >
                 Tìm sân
               </Button>

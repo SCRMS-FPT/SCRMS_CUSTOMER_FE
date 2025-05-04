@@ -16,7 +16,6 @@ import {
   Dropdown,
   Menu,
   Modal,
-  Popconfirm,
 } from "antd";
 import {
   StarOutlined,
@@ -45,14 +44,13 @@ const UserFeedbackView = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [filterStatus, setFilterStatus] = useState(null);
   const [filterType, setFilterType] = useState(null);
   const [selectedReview, setSelectedReview] = useState(null);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
 
   useEffect(() => {
     fetchReviews();
-  }, [page, pageSize, filterStatus, filterType]);
+  }, [page, pageSize, filterType]);
 
   const fetchReviews = async () => {
     try {
@@ -61,7 +59,6 @@ const UserFeedbackView = () => {
       const response = await client.getReviewsSubmittedByUser(page, pageSize);
 
       if (response && response.data) {
-        // Transform the response if needed
         setReviews(response.data);
         setTotalRecords(response.totalRecords || response.data.length);
       } else {
@@ -89,7 +86,6 @@ const UserFeedbackView = () => {
         description: "Đánh giá đã được xóa thành công",
       });
 
-      // Refresh reviews
       fetchReviews();
     } catch (error) {
       console.error("Error deleting review:", error);
@@ -106,21 +102,15 @@ const UserFeedbackView = () => {
     setDeleteConfirmVisible(true);
   };
 
-  // Filter the data based on search text and filters
   const filteredReviews = reviews.filter((review) => {
-    // Search filter
     const matchesSearch =
       !searchText ||
       review.subjectName?.toLowerCase().includes(searchText.toLowerCase()) ||
       review.comment?.toLowerCase().includes(searchText.toLowerCase());
 
-    // Status filter
-    const matchesStatus = !filterStatus || review.status === filterStatus;
-
-    // Type filter
     const matchesType = !filterType || review.subjectType === filterType;
 
-    return matchesSearch && matchesStatus && matchesType;
+    return matchesSearch && matchesType;
   });
 
   const handleViewDetails = (reviewId) => {
@@ -175,40 +165,6 @@ const UserFeedbackView = () => {
         </Tooltip>
       ),
       sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => {
-        let color = "default";
-        let text = status;
-
-        switch (status) {
-          case "Published":
-            color = "green";
-            text = "Đã đăng";
-            break;
-          case "Pending":
-            color = "orange";
-            text = "Chờ duyệt";
-            break;
-          case "Rejected":
-            color = "red";
-            text = "Bị từ chối";
-            break;
-          default:
-            break;
-        }
-
-        return <Tag color={color}>{text}</Tag>;
-      },
-      filters: [
-        { text: "Đã đăng", value: "Published" },
-        { text: "Chờ duyệt", value: "Pending" },
-        { text: "Bị từ chối", value: "Rejected" },
-      ],
-      onFilter: (value, record) => record.status === value,
     },
     {
       title: "Hành động",
@@ -283,7 +239,6 @@ const UserFeedbackView = () => {
       animate="visible"
       variants={containerVariants}
     >
-      {/* Header Section */}
       <motion.div variants={itemVariants} className="mb-6">
         <Title level={2} className="text-blue-800">
           Đánh giá của bạn
@@ -293,7 +248,6 @@ const UserFeedbackView = () => {
         </Text>
       </motion.div>
 
-      {/* Search and Filters */}
       <motion.div variants={itemVariants} className="mb-6">
         <Card className="shadow-sm hover:shadow-md transition-shadow">
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -332,39 +286,11 @@ const UserFeedbackView = () => {
                 </Button>
               </Dropdown>
 
-              <Dropdown
-                overlay={
-                  <Menu
-                    selectedKeys={[filterStatus]}
-                    onClick={({ key }) =>
-                      setFilterStatus(key === "all" ? null : key)
-                    }
-                  >
-                    <Menu.Item key="all">Tất cả trạng thái</Menu.Item>
-                    <Menu.Item key="Published">Đã đăng</Menu.Item>
-                    <Menu.Item key="Pending">Chờ duyệt</Menu.Item>
-                    <Menu.Item key="Rejected">Bị từ chối</Menu.Item>
-                  </Menu>
-                }
-                trigger={["click"]}
-              >
-                <Button icon={<FilterOutlined />}>
-                  {!filterStatus
-                    ? "Lọc theo trạng thái"
-                    : filterStatus === "Published"
-                    ? "Đã đăng"
-                    : filterStatus === "Pending"
-                    ? "Chờ duyệt"
-                    : "Bị từ chối"}
-                </Button>
-              </Dropdown>
-
               <Button
                 type="primary"
                 ghost
                 onClick={() => {
                   setSearchText("");
-                  setFilterStatus(null);
                   setFilterType(null);
                 }}
               >
@@ -375,7 +301,6 @@ const UserFeedbackView = () => {
         </Card>
       </motion.div>
 
-      {/* Reviews Table */}
       <motion.div variants={itemVariants}>
         <Card className="shadow-md hover:shadow-lg transition-shadow">
           {loading ? (
@@ -439,7 +364,6 @@ const UserFeedbackView = () => {
         </Card>
       </motion.div>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         title={
           <div className="flex items-center text-red-500">
@@ -485,7 +409,6 @@ const UserFeedbackView = () => {
         </p>
       </Modal>
 
-      {/* CSS for additional styling */}
       <style jsx>{`
         .reviews-table .ant-table-tbody > tr:hover > td {
           background-color: rgba(59, 130, 246, 0.1);

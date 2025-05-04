@@ -310,11 +310,11 @@ protected processCreateMyPromotion(response: Response): Promise<CreateCoachPromo
         if (startDate === null)
             throw new Error("The parameter 'startDate' cannot be null.");
         else if (startDate !== undefined)
-            url_ += "StartDate=" + encodeURIComponent(startDate ? "" + startDate.toISOString() : "") + "&";
+            url_ += "StartDate=" + encodeURIComponent(startDate ? "" + startDate: "") + "&";
         if (endDate === null)
             throw new Error("The parameter 'endDate' cannot be null.");
         else if (endDate !== undefined)
-            url_ += "EndDate=" + encodeURIComponent(endDate ? "" + endDate.toISOString() : "") + "&";
+            url_ += "EndDate=" + encodeURIComponent(endDate ? "" + endDate: "") + "&";
         if (status === null)
             throw new Error("The parameter 'status' cannot be null.");
         else if (status !== undefined)
@@ -1481,7 +1481,7 @@ protected processGetActivePackages(response: Response): Promise<PackageResponse[
         if (promotionId === undefined || promotionId === null)
             throw new Error("The parameter 'promotionId' must be defined and cannot be null.");
         else
-            url_ += "promotionId=" + encodeURIComponent("" + promotionId) + "&";
+        url_ = url_.replace("{promotionId}", encodeURIComponent("" + promotionId));
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -1490,6 +1490,7 @@ protected processGetActivePackages(response: Response): Promise<PackageResponse[
             body: content_,
             method: "PUT",
             headers: {
+                ...this.getAuthHeaders(),
                 "Content-Type": "application/json",
             }
         };

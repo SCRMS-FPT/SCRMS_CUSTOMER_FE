@@ -1,74 +1,109 @@
-"use client"
-import { motion, AnimatePresence } from "framer-motion"
+"use client";
 
-const ConfirmActionModal = ({ isOpen, onClose, onConfirm, title, message, confirmText, confirmColor = "emerald" }) => {
-  const modalVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  }
+import { Fragment } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
-  const contentVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1 },
-  }
-
-  const getColorClasses = () => {
-    switch (confirmColor) {
-      case "rose":
-        return "bg-rose-600 hover:bg-rose-700"
-      case "amber":
-        return "bg-amber-600 hover:bg-amber-700"
-      case "blue":
-        return "bg-blue-600 hover:bg-blue-700"
-      case "emerald":
-      default:
-        return "bg-emerald-600 hover:bg-emerald-700"
-    }
-  }
+const ConfirmActionModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Xác nhận",
+  confirmColor = "emerald",
+  showReasonInput = false,
+  reason = "",
+  onReasonChange = () => {},
+}) => {
+  const colorMap = {
+    emerald: "bg-emerald-600 hover:bg-emerald-700",
+    rose: "bg-rose-600 hover:bg-rose-700",
+    blue: "bg-blue-600 hover:bg-blue-700",
+  };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          variants={modalVariants}
-          onClick={onClose}
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
         >
-          <motion.div
-            className="bg-white rounded-xl shadow-xl w-full max-w-md"
-            variants={contentVariants}
-            transition={{ duration: 0.2 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-center mb-4 text-slate-800">{title}</h3>
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
+        </Transition.Child>
 
-              <p className="text-slate-600 text-center mb-6">{message}</p>
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <div className="flex justify-between items-start">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    {title}
+                  </Dialog.Title>
+                  <button
+                    type="button"
+                    className="rounded-md text-gray-400 hover:text-gray-500"
+                    onClick={onClose}
+                  >
+                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                  </button>
+                </div>
 
-              <div className="flex justify-center space-x-4">
-                <button
-                  onClick={onClose}
-                  className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
-                >
-                  Hủy
-                </button>
-                <button
-                  onClick={onConfirm}
-                  className={`px-6 py-2 text-white rounded-lg transition-colors ${getColorClasses()}`}
-                >
-                  {confirmText}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  )
-}
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500">{message}</p>
 
-export default ConfirmActionModal
+                  {showReasonInput && (
+                    <div className="mt-4">
+                      <textarea
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
+                        rows="3"
+                        placeholder="Nhập lý do hủy..."
+                        value={reason}
+                        onChange={onReasonChange}
+                      />
+                    </div>
+                  )}
+                </div>
 
+                <div className="mt-6 flex flex-row-reverse space-x-2 space-x-reverse">
+                  <button
+                    type="button"
+                    className={`inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${colorMap[confirmColor]} focus-visible:ring-${confirmColor}-500`}
+                    onClick={onConfirm}
+                  >
+                    {confirmText}
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
+                    onClick={onClose}
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};
+
+export default ConfirmActionModal;

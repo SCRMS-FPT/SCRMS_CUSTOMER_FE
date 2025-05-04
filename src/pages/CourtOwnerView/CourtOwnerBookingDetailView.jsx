@@ -173,21 +173,31 @@ const CourtOwnerBookingDetailView = () => {
       cancelText: "Không",
       onOk: async () => {
         try {
-          await client.cancelBooking(bookingId, {
-            cancellationReason: "Bị hủy bởi chủ sân",
+          setLoading(true);
+          const cancelRequest = {
+            cancellationReason: "Chủ sân hủy",
             requestedAt: new Date(),
-          });
+          };
 
-          message.success("Đặt sân đã được hủy thành công");
-
-          // Refresh booking data
-          const updatedBooking = await client.getBookingById(bookingId);
-          setBooking(updatedBooking);
-        } catch (err) {
-          console.error("Error cancelling booking:", err);
-          message.error(
-            "Không thể hủy đặt sân: " + (err.message || "Lỗi không xác định")
+          const response = await client.cancelBookingByOwner(
+            bookingId,
+            cancelRequest
           );
+
+          if (response) {
+            message.success("Đã hủy đặt sân thành công");
+
+            // Refresh booking data
+            const updatedBooking = await client.getBookingById(bookingId);
+            setBooking(updatedBooking);
+          }
+        } catch (error) {
+          console.error("Error cancelling booking:", error);
+          message.error(
+            "Không thể hủy đặt sân: " + (error.message || "Lỗi không xác định")
+          );
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -235,12 +245,6 @@ const CourtOwnerBookingDetailView = () => {
   };
 
   // Determine available actions based on current status
-  const canCancel = [
-    "Pending",
-    "PendingPayment",
-    "Deposited",
-    "Confirmed",
-  ].includes(booking.status);
   const canUpdateStatus = [
     "Pending",
     "PendingPayment",
@@ -284,11 +288,9 @@ const CourtOwnerBookingDetailView = () => {
                 Cập Nhật Trạng Thái
               </Button>
             )}
-            {canCancel && (
-              <Button danger onClick={cancelBooking}>
-                Hủy Đặt Sân
-              </Button>
-            )}
+            <Button danger onClick={cancelBooking}>
+              Hủy Đặt Sân
+            </Button>
           </Space>
         }
       >

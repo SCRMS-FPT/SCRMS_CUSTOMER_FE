@@ -587,7 +587,7 @@ const UserCoachBookingDetailView = () => {
               )}
               {booking.status.toLowerCase() === "completed" && (
                 <Timeline.Item color="green">
-                  <Text strong>Buổi Tập Đã Hoàn Thành</Text>
+                  <Text strong>Thanh Toán Thành Công</Text>
                   <div>{dayjs(booking.bookingDate).format("DD/MM/YYYY")}</div>
                 </Timeline.Item>
               )}
@@ -603,10 +603,8 @@ const UserCoachBookingDetailView = () => {
               )}
               {booking.status.toLowerCase() === "pending" && (
                 <Timeline.Item color="orange">
-                  <Text strong>Đang Chờ Xác Nhận</Text>
-                  <div>
-                    Vui lòng đợi huấn luyện viên xác nhận đặt lịch của bạn
-                  </div>
+                  <Text strong>Đang Chờ Thanh Toán</Text>
+                  <div>Hệ thống đang tiến hành xử lý thanh toán của bạn</div>
                 </Timeline.Item>
               )}
             </Timeline>

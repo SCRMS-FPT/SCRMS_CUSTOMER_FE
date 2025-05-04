@@ -578,7 +578,7 @@ const CourtOwnerCourtDetailView = () => {
       }
     } catch (error) {
       console.error("Error deleting court:", error);
-      message.error(`Lỗi: ${error.message || "Không thể xóa sân"}`);
+      message.error(`Lỗi: ${error.detail || "Không thể xóa sân"}`);
     } finally {
       setDeleteLoading(false);
     }
