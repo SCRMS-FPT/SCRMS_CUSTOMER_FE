@@ -247,7 +247,7 @@ const CoachPromotionManagementPage = () => {
       if (selectedPromotion) {
         // Update existing promotion
         await client.updateCoachPromotion(selectedPromotion.id, {
-          packageId: formData.packageId,
+          packageId: formData.packageId || null, // Make packageId optional
           description: formData.description,
           discountType: formData.discountType,
           discountValue: formData.discountValue,
@@ -262,7 +262,7 @@ const CoachPromotionManagementPage = () => {
       } else {
         // Create new promotion
         const result = await client.createMyPromotion({
-          packageId: formData.packageId,
+          packageId: formData.packageId || null, // Make packageId optional
           description: formData.description,
           discountType: formData.discountType,
           discountValue: formData.discountValue,
@@ -406,7 +406,7 @@ const CoachPromotionManagementPage = () => {
       </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
         <motion.div
           whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}
           className="bg-white p-4 rounded-lg shadow-sm flex items-center border border-transparent hover:border-blue-300 transition-all duration-300"
@@ -485,22 +485,6 @@ const CoachPromotionManagementPage = () => {
           <div>
             <p className="text-sm text-gray-500">KM lịch tập</p>
             <p className="text-2xl font-semibold">{stats.schedulePromotions}</p>
-          </div>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}
-          className="bg-white p-4 rounded-lg shadow-sm flex items-center border border-transparent hover:border-indigo-300 transition-all duration-300"
-        >
-          <div className="rounded-full bg-indigo-50 p-3 mr-4">
-            <User className="h-6 w-6 text-indigo-600" />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Tỷ lệ chuyển đổi</p>
-            <p className="text-2xl font-semibold">
-              {stats.total ? Math.round((stats.active / stats.total) * 100) : 0}
-              %
-            </p>
           </div>
         </motion.div>
       </div>

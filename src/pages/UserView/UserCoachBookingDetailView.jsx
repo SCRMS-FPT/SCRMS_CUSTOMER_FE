@@ -351,12 +351,19 @@ const UserCoachBookingDetailView = () => {
   const canCancel = () => {
     if (!booking) return false;
 
-    const statusLower = booking.status.toLowerCase();
-    const isPending = statusLower === "pending";
-    const isConfirmed = statusLower === "confirmed";
-    const isFuture = dayjs(booking.bookingDate).isAfter(dayjs(), "day");
+    // Check if the session has already happened (booking date and start time are in the past)
+    const sessionDateTime = dayjs(
+      `${booking.bookingDate} ${booking.startTime}`,
+      "YYYY-MM-DD HH:mm:ss"
+    );
 
-    return (isPending || isConfirmed) && isFuture;
+    // If the session time is in the past, don't show cancel button
+    if (sessionDateTime.isBefore(dayjs())) {
+      return false;
+    }
+
+    // Show cancel button for all other statuses
+    return true;
   };
 
   if (loading) {

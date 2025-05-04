@@ -1523,7 +1523,7 @@ protected processGetActivePackages(response: Response): Promise<PackageResponse[
         if (promotionId === undefined || promotionId === null)
             throw new Error("The parameter 'promotionId' must be defined and cannot be null.");
         else
-            url_ += "promotionId=" + encodeURIComponent("" + promotionId) + "&";
+        url_ = url_.replace("{promotionId}", encodeURIComponent("" + promotionId));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {

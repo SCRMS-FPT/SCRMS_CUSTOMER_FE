@@ -188,15 +188,10 @@ const CoachPromotionForm = ({ promotion, onSave, onCancel, coachPackages }) => {
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
             <Box sx={{ flex: "1 1 400px" }}>
               {/* Package Selection */}
-              <Form.Item
-                name="packageId"
-                label="Gói huấn luyện"
-                rules={[
-                  { required: true, message: "Vui lòng chọn gói huấn luyện" },
-                ]}
-              >
+              <Form.Item name="packageId" label="Gói huấn luyện" rules={[]}>
                 <Select
-                  placeholder="Chọn gói huấn luyện"
+                  placeholder="Chọn gói huấn luyện (không bắt buộc)"
+                  allowClear
                   onChange={handlePackageChange}
                   disabled={loading}
                   size="large"
