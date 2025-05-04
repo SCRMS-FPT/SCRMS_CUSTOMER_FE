@@ -254,7 +254,7 @@ const BrowseCourtsView = () => {
   const [loadingCities, setLoadingCities] = useState(false);
 
   // Sports state
-  const [sports, setSports] = useState(null);
+  const [sports, setSports] = useState([]); // Initialize as empty array instead of null
   const [loadingSports, setLoadingSports] = useState(false);
 
   // API client
@@ -750,7 +750,7 @@ const BrowseCourtsView = () => {
                                 // Check if the selected value is an ID
                                 if (selected && selected.includes("-")) {
                                   // Find the sport with this ID
-                                  const sport = sports.find(
+                                  const sport = sports?.find(
                                     (s) => s.id === selected
                                   );
                                   if (sport) {
@@ -775,7 +775,7 @@ const BrowseCourtsView = () => {
                                 }
 
                                 // Default case - show the selected value
-                                const sport = sports.find(
+                                const sport = sports?.find(
                                   (s) => s.name === selected
                                 );
                                 return (
@@ -814,17 +814,18 @@ const BrowseCourtsView = () => {
                               <MenuItem value="">
                                 Tất cả các môn thể thao
                               </MenuItem>
-                              {sports.map((sport) => (
-                                <MenuItem key={sport.id} value={sport.id}>
-                                  <ListItemIcon>
-                                    <Avatar
-                                      src={sport.icon}
-                                      sx={{ width: 24, height: 24 }}
-                                    />
-                                  </ListItemIcon>
-                                  <ListItemText primary={sport.name} />
-                                </MenuItem>
-                              ))}
+                              {sports &&
+                                sports.map((sport) => (
+                                  <MenuItem key={sport.id} value={sport.id}>
+                                    <ListItemIcon>
+                                      <Avatar
+                                        src={sport.icon}
+                                        sx={{ width: 24, height: 24 }}
+                                      />
+                                    </ListItemIcon>
+                                    <ListItemText primary={sport.name} />
+                                  </MenuItem>
+                                ))}
                             </Select>
                           </FormControl>
                         </Grid>

@@ -51,7 +51,12 @@ const FilterForm = () => {
       try {
         const courtApiClient = new Client();
         const response = await courtApiClient.getSports();
-        setSports(response.sports || []);
+        if (response && response.sports) {
+          setSports(response.sports);
+        } else {
+          console.error("Unexpected API response format:", response);
+          setSports([]);
+        }
       } catch (err) {
         console.error("Error fetching sports:", err);
         // Fallback sports data

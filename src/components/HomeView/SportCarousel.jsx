@@ -76,7 +76,16 @@ const SportsCarousel = () => {
   }, []);
 
   const handleSportClick = (sport) => {
-    navigate(`/courts/sport/${encodeURIComponent(sport.name)}`);
+    // Create search params object
+    const searchParams = new URLSearchParams();
+
+    // Add sport ID as parameter
+    if (sport.id) {
+      searchParams.append("sport", sport.id);
+    }
+
+    // Navigate to browse courts page with the search params
+    navigate(`/browse-courts?${searchParams.toString()}`);
   };
 
   // Fallback sports for skeleton loading

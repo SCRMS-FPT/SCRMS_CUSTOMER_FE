@@ -289,16 +289,6 @@ const SportCenterDetails = () => {
                   </Typography>
                 </Box>
               </Stack>
-
-              <Button
-                variant="contained"
-                color="primary"
-                component={Link}
-                to={`/sports-centers/${sportCenter.id}/all-courts`}
-                sx={{ mt: 2 }}
-              >
-                Xem tất cả các sân
-              </Button>
             </CardContent>
           </Grid>
         </Grid>
@@ -711,18 +701,6 @@ const SportCenterDetails = () => {
                 <Typography variant="body2">
                   {new Date(sportCenter.lastModified).toLocaleString()}
                 </Typography>
-              </Box>
-
-              <Box sx={{ mt: 2 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  component={Link}
-                  to={`/sports-centers/${sportCenter.id}/all-courts`}
-                >
-                  Xem tất cả các sân
-                </Button>
               </Box>
             </Stack>
           </Paper>
