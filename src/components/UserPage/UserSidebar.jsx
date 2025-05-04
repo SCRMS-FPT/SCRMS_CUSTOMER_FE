@@ -120,7 +120,7 @@ const UserSidebar = ({ children }) => {
     userProfile?.imageUrls?.length > 0 ? userProfile.imageUrls[0] : null;
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ maxHeight: "100vh" }}>
       {/* Sidebar */}
       <Sider
         collapsible
@@ -187,7 +187,7 @@ const UserSidebar = ({ children }) => {
         </div>
 
         {/* Sidebar Menu */}
-        <div className="sidebar-menu-container flex flex-col h-full justify-between pt-2">
+        <div className="sidebar-menu-container flex flex-col justify-between pt-2">
           <div>
             <Menu
               mode="inline"
@@ -245,13 +245,13 @@ const UserSidebar = ({ children }) => {
         {/* Collapse Button */}
         <Button
           type="text"
-          className="collapse-btn absolute bottom-5 right-4 shadow-md hover:shadow-lg transition-all duration-200"
+          className="collapse-btn absolute bottom-0 left-0 shadow-md hover:shadow-lg transition-all duration-200"
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           onClick={() => setCollapsed(!collapsed)}
           style={{
             borderRadius: "50%",
-            width: "32px",
-            height: "32px",
+            width: "60px",
+            height: "60px",
             background: "#fff",
             display: "flex",
             justifyContent: "center",
