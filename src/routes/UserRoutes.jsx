@@ -22,6 +22,7 @@ import MessengerPage from "../pages/ChatView/MessengerPage";
 import WalletWithdrawalForm from "@/pages/UserView/WalletWithdrawalForm";
 import WithdrawalsList from "@/pages/UserView/WithdrawalsList";
 import NotificationPage from "@/pages/UserView/UserNotification";
+import MyWalletView from "@/pages/UserView/MyWalletView";
 
 const UserRoutes = [
   <Route
@@ -143,6 +144,17 @@ const UserRoutes = [
       </ProtectedRoute>
     }
   />,
+  <Route
+  key="my-wallet"
+  path="/my-wallet"
+  element={
+    <ProtectedRoute>
+      <UserSidebar>
+        <MyWalletView />
+      </UserSidebar>
+    </ProtectedRoute>
+  }
+/>,
   <Route
     key="wallet-withdraw"
     path="/wallet/withdraw"

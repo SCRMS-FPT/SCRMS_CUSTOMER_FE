@@ -47,7 +47,7 @@ const statusMap = {
   PaymentFail: "Thanh toán thất bại",
 };
 
-const UserCourtBookingManagementView = () => {
+const MyBookingView = () => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user.userProfile);
   const courtClient = new Client();
@@ -292,6 +292,7 @@ const UserCourtBookingManagementView = () => {
   ];
 
   return (
+    <div className="mx-auto max-w-7xl px-4 py-6">
     <Card
       title="Quản lý đặt sân"
       extra={
@@ -376,8 +377,8 @@ const UserCourtBookingManagementView = () => {
           scroll={{ x: "max-content" }}
         />
       </Spin>
-    </Card>
+    </Card></div>
   );
 };
 
-export default UserCourtBookingManagementView;
+export default MyBookingView;
