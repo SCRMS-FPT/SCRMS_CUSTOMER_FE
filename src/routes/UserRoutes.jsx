@@ -149,9 +149,9 @@ const UserRoutes = [
   path="/my-wallet"
   element={
     <ProtectedRoute>
-      <UserSidebar>
+      {/* <UserSidebar> */}
         <MyWalletView />
-      </UserSidebar>
+      {/* </UserSidebar> */}
     </ProtectedRoute>
   }
 />,
