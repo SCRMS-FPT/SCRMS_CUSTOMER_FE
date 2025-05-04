@@ -152,8 +152,10 @@ const Navbar = () => {
       pathname.includes("/matches/list")
     ) {
       setTabValue(4);
-    } else if (pathname.includes("/support")) {
+    } else if (pathname.includes("/my-bookings")) {
       setTabValue(5);
+    } else if (pathname.includes("/support")) {
+      setTabValue(6);
     } else {
       setTabValue(false);
     }
@@ -1462,7 +1464,7 @@ const Navbar = () => {
                   icon={<ShoppingCartIcon sx={{ fontSize: "0.9rem" }} />}
                   iconPosition="start"
                   label="Lịch đặt của tôi"
-                  onClick={() => navigate("/user/bookings")}
+                  onClick={() => navigate("/my-bookings")}
                 />
               )}
               <Tab

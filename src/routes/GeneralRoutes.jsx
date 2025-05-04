@@ -23,6 +23,7 @@ import NotFoundView from "@/pages/GeneralView/NotFoundView";
 import Forbidden403 from "@/pages/Error/Forbidden403";
 import VerificationView from "@/pages/GeneralView/VerificationView";
 import ResetPasswordConfirmPage from "@/pages/GeneralView/ResetPasswordConfirmView";
+import MyBookingView from "@/pages/UserView/MyBookingView";
 
 const GeneralRoutes = [
   <Route
@@ -133,6 +134,15 @@ const GeneralRoutes = [
       </Layout>
     }
   />,
+  <Route
+  key="my-bookings"
+  path="/my-bookings"
+  element={
+    <Layout>
+      <MyBookingView />
+    </Layout>
+  }
+/>,
   <Route
     key="coach-details"
     path="/coaches/:id"
