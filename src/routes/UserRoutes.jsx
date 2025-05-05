@@ -1,6 +1,7 @@
 import { Route } from "react-router-dom";
 import Layout from "@/components/GeneralComponents/Layout";
 import ProtectedRoute from "@/components/Auth/ProtectedRoute";
+import RoleProtectedRoute from "@/components/Auth/RoleProtectedRoute";
 
 import BookCourtView from "@/pages/UserView/BookCourtView";
 import UserDashboardView from "@/pages/UserView/UserDashboardView";
@@ -184,16 +185,16 @@ const UserRoutes = [
     }
   />,
   <Route
-  key="my-wallet-withdrawal"
-  path="/user/withdrawal/history"
-  element={
-    <ProtectedRoute>
-      <UserSidebar>
-        <MyUserWithdrawalsList />
-      </UserSidebar>
-    </ProtectedRoute>
-  }
-/>,
+    key="my-wallet-withdrawal"
+    path="/user/withdrawal/history"
+    element={
+      <ProtectedRoute>
+        <UserSidebar>
+          <MyUserWithdrawalsList />
+        </UserSidebar>
+      </ProtectedRoute>
+    }
+  />,
   <Route
     key="my-wallet-history"
     path="/user/wallet/history"
@@ -211,7 +212,9 @@ const UserRoutes = [
     element={
       <ProtectedRoute>
         <Layout>
-          <WalletWithdrawalForm />
+          <RoleProtectedRoute requiredRoles={["CourtOwner", "Coach"]}>
+            <WalletWithdrawalForm />
+          </RoleProtectedRoute>
         </Layout>
       </ProtectedRoute>
     }
