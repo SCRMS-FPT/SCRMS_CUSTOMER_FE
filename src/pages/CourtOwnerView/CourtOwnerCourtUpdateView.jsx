@@ -458,6 +458,18 @@ const CourtOwnerCourtUpdateView = () => {
     }
   };
 
+  // Check if two date ranges overlap
+  const datesOverlap = (startA, endA, startB, endB) => {
+    // Convert to comparable format
+    const startADate = new Date(startA);
+    const endADate = new Date(endA);
+    const startBDate = new Date(startB);
+    const endBDate = new Date(endB);
+
+    // Check for overlap: startA <= endB AND startB <= endA
+    return startADate <= endBDate && startBDate <= endADate;
+  };
+
   const handlePromotionInputChange = (field, value) => {
     setNewPromotion((prev) => ({
       ...prev,
@@ -493,53 +505,76 @@ const CourtOwnerCourtUpdateView = () => {
 
   const handlePromotionSubmit = async () => {
     try {
-      // Validate input
-      if (!newPromotion.description || !newPromotion.discountValue) {
-        message.error("Vui lòng điền đầy đủ thông tin bắt buộc");
+      setPromotionLoading(true);
+
+      // Check for date overlaps with existing promotions
+      const hasOverlap = promotions.some((promotion) => {
+        // Skip checking against the promotion being edited
+        if (editingPromotion && promotion.id === editingPromotion.id) {
+          return false;
+        }
+
+        return datesOverlap(
+          newPromotion.validFrom.format("YYYY-MM-DD"),
+          newPromotion.validTo.format("YYYY-MM-DD"),
+          promotion.validFrom,
+          promotion.validTo
+        );
+      });
+
+      if (hasOverlap) {
+        message.error(
+          "Khuyến mãi mới trùng thời gian hiệu lực với khuyến mãi đã tồn tại."
+        );
+        setPromotionLoading(false);
         return;
       }
 
-      setPromotionLoading(true);
-
-      // Create request object
-      const promotionRequest = {
-        description: newPromotion.description,
-        discountType: newPromotion.discountType,
-        discountValue: newPromotion.discountValue,
-        validFrom: newPromotion.validFrom.toDate(),
-        validTo: newPromotion.validTo.toDate(),
-      };
-
-      let response;
       if (editingPromotion) {
         // Update existing promotion
-        response = await courtClient.updateCourtPromotion(
+        const updateRequest = {
+          description: newPromotion.description,
+          discountType:
+            newPromotion.discountType === "Phần trăm" ? "Percentage" : "Fixed",
+          discountValue: parseFloat(newPromotion.discountValue),
+          validFrom: newPromotion.validFrom.toDate(),
+          validTo: newPromotion.validTo.toDate(),
+        };
+
+        await courtClient.updateCourtPromotion(
           editingPromotion.id,
-          promotionRequest
+          updateRequest
         );
-        if (response) {
-          message.success("Cập nhật khuyến mãi thành công!");
-        }
+        message.success("Cập nhật khuyến mãi thành công!");
       } else {
         // Create new promotion
-        response = await courtClient.createCourtPromotion(
-          courtId,
-          promotionRequest
-        );
-        if (response) {
-          message.success("Tạo khuyến mãi thành công!");
-        }
+        const createRequest = {
+          description: newPromotion.description,
+          discountType:
+            newPromotion.discountType === "Phần trăm" ? "Percentage" : "Fixed",
+          discountValue: parseFloat(newPromotion.discountValue),
+          validFrom: newPromotion.validFrom.toDate(),
+          validTo: newPromotion.validTo.toDate(),
+        };
+
+        await courtClient.createCourtPromotion(courtId, createRequest);
+        message.success("Thêm khuyến mãi thành công!");
       }
 
       // Refresh promotions list
       await fetchPromotions();
       setPromotionModalVisible(false);
+      setEditingPromotion(null);
+      setNewPromotion({
+        description: "",
+        discountType: "Phần trăm",
+        discountValue: 10,
+        validFrom: dayjs(),
+        validTo: dayjs().add(30, "day"),
+      });
     } catch (error) {
-      console.error("Error saving promotion:", error);
-      message.error(
-        "Lưu khuyến mãi không thành công: " +
-          (error.message || "Lỗi không xác định")
-      );
+      console.error("Error submitting promotion:", error);
+      message.error(error.message || "Có lỗi xảy ra khi xử lý khuyến mãi.");
     } finally {
       setPromotionLoading(false);
     }
