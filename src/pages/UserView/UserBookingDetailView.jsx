@@ -383,9 +383,9 @@ const UserBookingDetailView = () => {
   const statusText = statusMap[booking.status] || booking.status;
   const paymentPercentage = booking.totalPrice
     ? Math.round(
-        ((booking.totalPrice - booking.remainingBalance) / booking.totalPrice) *
-          100
-      )
+      ((booking.totalPrice - booking.remainingBalance) / booking.totalPrice) *
+      100
+    )
     : 0;
 
   return (
@@ -731,34 +731,34 @@ const UserBookingDetailView = () => {
         footer={
           paymentSuccess
             ? [
-                <Button
-                  key="close"
-                  type="primary"
-                  onClick={() => {
-                    setPaymentModalVisible(false);
-                    setPaymentSuccess(false);
-                  }}
-                >
-                  Đóng
-                </Button>,
-              ]
+              <Button
+                key="close"
+                type="primary"
+                onClick={() => {
+                  setPaymentModalVisible(false);
+                  setPaymentSuccess(false);
+                }}
+              >
+                Đóng
+              </Button>,
+            ]
             : [
-                <Button
-                  key="back"
-                  onClick={() => setPaymentModalVisible(false)}
-                  disabled={paymentLoading}
-                >
-                  Hủy
-                </Button>,
-                <Button
-                  key="submit"
-                  type="primary"
-                  loading={paymentLoading}
-                  onClick={handleAdditionalPayment}
-                >
-                  Xác nhận thanh toán
-                </Button>,
-              ]
+              <Button
+                key="back"
+                onClick={() => setPaymentModalVisible(false)}
+                disabled={paymentLoading}
+              >
+                Hủy
+              </Button>,
+              <Button
+                key="submit"
+                type="primary"
+                loading={paymentLoading}
+                onClick={handleAdditionalPayment}
+              >
+                Xác nhận thanh toán
+              </Button>,
+            ]
         }
         width={550}
         className="payment-modal"
@@ -847,11 +847,12 @@ const UserBookingDetailView = () => {
                   className="mr-4 flex-1"
                   tipFormatter={(value) => `${value.toLocaleString()} VND`}
                   marks={{
-                    0: "0",
-                    [booking.remainingBalance]: "Đủ",
+                    0: "0%",
+                    [booking.remainingBalance]: "100%",
                   }}
                 />
                 <InputNumber
+                  className="ml-4"
                   min={0}
                   max={booking.remainingBalance}
                   value={paymentAmount}
@@ -860,7 +861,7 @@ const UserBookingDetailView = () => {
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                   }
                   parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
-                  style={{ width: 120 }}
+                  style={{ width: 135 }}
                   addonAfter="VND"
                 />
               </div>
@@ -916,38 +917,38 @@ const UserBookingDetailView = () => {
         footer={
           reviewSuccess
             ? [
-                <Button
-                  key="close"
-                  type="primary"
-                  onClick={() => {
-                    setCourtReviewModalVisible(false);
-                    setReviewSuccess(false);
-                    setCourtRating(0);
-                    setCourtFeedback("");
-                  }}
-                >
-                  Đóng
-                </Button>,
-              ]
+              <Button
+                key="close"
+                type="primary"
+                onClick={() => {
+                  setCourtReviewModalVisible(false);
+                  setReviewSuccess(false);
+                  setCourtRating(0);
+                  setCourtFeedback("");
+                }}
+              >
+                Đóng
+              </Button>,
+            ]
             : [
-                <Button
-                  key="back"
-                  onClick={() => setCourtReviewModalVisible(false)}
-                  disabled={reviewLoading}
-                >
-                  Hủy
-                </Button>,
-                <Button
-                  key="submit"
-                  type="primary"
-                  loading={reviewLoading}
-                  onClick={handleCourtReviewSubmit}
-                  icon={<SendOutlined />}
-                  disabled={!courtRating}
-                >
-                  Gửi đánh giá
-                </Button>,
-              ]
+              <Button
+                key="back"
+                onClick={() => setCourtReviewModalVisible(false)}
+                disabled={reviewLoading}
+              >
+                Hủy
+              </Button>,
+              <Button
+                key="submit"
+                type="primary"
+                loading={reviewLoading}
+                onClick={handleCourtReviewSubmit}
+                icon={<SendOutlined />}
+                disabled={!courtRating}
+              >
+                Gửi đánh giá
+              </Button>,
+            ]
         }
         width={500}
         className="court-review-modal"

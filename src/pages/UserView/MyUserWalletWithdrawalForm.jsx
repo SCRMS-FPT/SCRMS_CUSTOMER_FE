@@ -39,7 +39,7 @@ import {
 } from "@mui/icons-material";
 import { Client, WithdrawalRequestDto } from "@/API/PaymentApi";
 
-const WalletWithdrawalForm = () => {
+const MyUserWalletWithdrawalForm = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -271,7 +271,7 @@ const WalletWithdrawalForm = () => {
       {/* Page header */}
       <Box sx={{ mb: 4, display: "flex", alignItems: "center" }}>
         <IconButton
-          onClick={() => navigate("/wallet")}
+          onClick={() => navigate("/user/withdrawal/history")}
           sx={{ mr: 2, color: "primary.main" }}
         >
           <ArrowBack />
@@ -645,4 +645,4 @@ const WalletWithdrawalForm = () => {
   );
 };
 
-export default WalletWithdrawalForm;
+export default MyUserWalletWithdrawalForm;

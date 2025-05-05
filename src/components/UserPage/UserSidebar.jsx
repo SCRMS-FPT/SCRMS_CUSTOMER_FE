@@ -23,6 +23,7 @@ import { Icon } from "@iconify/react";
 const { Sider, Content } = Layout;
 
 const UserSidebar = ({ children }) => {
+  const [canWithdraw, setCanWithdraw] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const location = useLocation();
@@ -30,6 +31,7 @@ const UserSidebar = ({ children }) => {
   const { logout } = useAuth();
 
   useEffect(() => {
+    checkWithdrawPermission();
     const profile = localStorage.getItem("userProfile");
     if (profile) {
       setUserProfile(JSON.parse(profile));
@@ -39,6 +41,23 @@ const UserSidebar = ({ children }) => {
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const checkWithdrawPermission = () => {
+    try {
+      const userProfileData = localStorage.getItem("userProfile");
+      if (userProfileData) {
+        const profile = JSON.parse(userProfileData);
+        if (profile.roles && Array.isArray(profile.roles)) {
+          const hasWithdrawRole = profile.roles.some(
+            (role) => role === "CourtOwner" || role === "Coach"
+          );
+          setCanWithdraw(hasWithdrawRole);
+        }
+      }
+    } catch (err) {
+      console.error("Error checking withdraw permission:", err);
+    }
   };
 
   const menuItems = [
@@ -68,24 +87,36 @@ const UserSidebar = ({ children }) => {
       label: "Gói dịch vụ",
     },
     {
-      key: "/wallet",
+      key: "/user/my-wallet",
       icon: <Icon icon="mdi:wallet" className="text-lg" />,
       label: "Ví của tôi",
       children: [
         {
-          key: "/wallet/deposit",
+          key: "/user/my-wallet",  // Same as parent key
+          icon: <Icon icon="mdi:wallet" />,
+          label: "Tổng quan ví",
+        },
+        {
+          key: "/user/deposit",
           icon: <Icon icon="mdi:cash-plus" />,
           label: "Nạp tiền",
         },
-        {
-          key: "/wallet/withdraw",
-          icon: <Icon icon="mdi:cash-minus" />,
-          label: "Rút tiền",
-        },
-        {
-          key: "/wallet/withdrawals",
+        ...(canWithdraw ? [
+          {
+            key: "/user/withdrawal",
+            icon: <Icon icon="mdi:cash-minus" />,
+            label: "Rút tiền",
+          },
+          {
+            key: "/user/withdrawal/history",
+            icon: <Icon icon="mdi:history" />,
+            label: "Lịch sử rút tiền",
+          }
+        ] : [])
+        , {
+          key: "/user/wallet/history",
           icon: <Icon icon="mdi:history" />,
-          label: "Lịch sử rút tiền",
+          label: "Lịch sử giao dịch",
         },
       ],
     },
@@ -245,7 +276,7 @@ const UserSidebar = ({ children }) => {
         {/* Collapse Button */}
         <Button
           type="text"
-          className="collapse-btn absolute bottom-0 left-0 shadow-md hover:shadow-lg transition-all duration-200"
+          className="collapse-btn fixed shadow-md hover:shadow-lg transition-all duration-200"
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           onClick={() => setCollapsed(!collapsed)}
           style={{
@@ -256,6 +287,12 @@ const UserSidebar = ({ children }) => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            position: "fixed",
+            bottom: "20vh",
+            left: collapsed ? "5vh" : "25vh",
+            zIndex: 9999,
+            transition: "all 0.3s ease",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
           }}
         />
       </Sider>
