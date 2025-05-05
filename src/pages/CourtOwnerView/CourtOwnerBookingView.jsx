@@ -523,7 +523,7 @@ const CourtOwnerBookingView = () => {
 
           <Space wrap>
             <RangePicker
-              placeholder={["NGày bắt đầu", "Ngày kết thúc"]}
+              placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
               value={dateRange}
               onChange={(dates) => handleFilterChange("dateRange", dates)}
               style={{ width: 300 }}
