@@ -264,7 +264,6 @@ const DepositView = () => {
             <Typography variant="body2" color="text.secondary" gutterBottom>
               Sử dụng ứng dụng ngân hàng để quét mã QR bên dưới
             </Typography>
-
             <Paper
               elevation={3}
               sx={{ p: 3, mb: 3, mt: 2, maxWidth: 280, width: "100%" }}

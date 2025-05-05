@@ -28,10 +28,22 @@ import logoImg from "@/assets/logo.png";
 
 // Footer social media links
 const socialMedia = [
-  { name: "Facebook", icon: "eva:facebook-fill", url: "#" },
+  {
+    name: "Facebook",
+    icon: "eva:facebook-fill",
+    url: "https://www.facebook.com/lethangd/",
+  },
   { name: "Twitter", icon: "ic:baseline-x-twitter", url: "#" },
-  { name: "Instagram", icon: "eva:instagram-fill", url: "#" },
-  { name: "LinkedIn", icon: "eva:linkedin-fill", url: "#" },
+  {
+    name: "Instagram",
+    icon: "eva:instagram-fill",
+    url: "https://www.instagram.com/lethangd058",
+  },
+  {
+    name: "LinkedIn",
+    icon: "eva:linkedin-fill",
+    url: "https://www.linkedin.com/in/l%C3%AA-th%E1%BA%AFng-249162302/",
+  },
 ];
 
 // Footer quick links
@@ -104,8 +116,9 @@ const Footer = () => {
           <Grid
             size={{
               xs: 12,
-              md: 4
-            }}>
+              md: 4,
+            }}
+          >
             <Box
               sx={{
                 position: "relative",
@@ -206,7 +219,7 @@ const Footer = () => {
                     variant="body2"
                     color={alpha(theme.palette.common.white, 0.75)}
                   >
-                    Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội
+                    Khu Công Nghệ Cao Hòa Lạc, km 29
                   </Typography>
                 </Box>
 
@@ -241,7 +254,7 @@ const Footer = () => {
                     variant="body2"
                     color={alpha(theme.palette.common.white, 0.75)}
                   >
-                    +84 123 456 789
+                    0834398268
                   </Typography>
                 </Box>
 
@@ -276,7 +289,7 @@ const Footer = () => {
                     variant="body2"
                     color={alpha(theme.palette.common.white, 0.75)}
                   >
-                    contact@courtsite.com
+                    lthang.forwork@gmail.com
                   </Typography>
                 </Box>
               </Stack>
@@ -323,14 +336,16 @@ const Footer = () => {
           <Grid
             size={{
               xs: 12,
-              md: 5
-            }}>
+              md: 5,
+            }}
+          >
             <Grid container spacing={3}>
               <Grid
                 size={{
                   xs: 12,
-                  sm: 4
-                }}>
+                  sm: 4,
+                }}
+              >
                 <Typography
                   variant="h6"
                   gutterBottom
@@ -406,8 +421,9 @@ const Footer = () => {
               <Grid
                 size={{
                   xs: 12,
-                  sm: 4
-                }}>
+                  sm: 4,
+                }}
+              >
                 <Typography
                   variant="h6"
                   gutterBottom
@@ -483,8 +499,9 @@ const Footer = () => {
               <Grid
                 size={{
                   xs: 12,
-                  sm: 4
-                }}>
+                  sm: 4,
+                }}
+              >
                 <Typography
                   variant="h6"
                   gutterBottom
@@ -563,8 +580,9 @@ const Footer = () => {
           <Grid
             size={{
               xs: 12,
-              md: 3
-            }}>
+              md: 3,
+            }}
+          >
             <Box
               sx={{
                 position: "relative",

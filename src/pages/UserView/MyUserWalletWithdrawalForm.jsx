@@ -287,7 +287,11 @@ const MyUserWalletWithdrawalForm = () => {
       )}
       <Grid container spacing={3} alignItems="stretch">
         {/* Balance card */}
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -350,7 +354,11 @@ const MyUserWalletWithdrawalForm = () => {
         </Grid>
 
         {/* Withdrawal form */}
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

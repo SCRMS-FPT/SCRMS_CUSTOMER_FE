@@ -641,7 +641,6 @@ const UserBookingDetailView = () => {
           </Button>
         </div>
       </Card>
-
       {/* Review Modal */}
       <Modal
         title="Đánh giá trải nghiệm của bạn"
@@ -672,7 +671,6 @@ const UserBookingDetailView = () => {
           />
         </div>
       </Modal>
-
       {/* Cancel Booking Modal */}
       <Modal
         title="Hủy đặt lịch"
@@ -712,7 +710,6 @@ const UserBookingDetailView = () => {
           />
         </div>
       </Modal>
-
       {/* Additional Payment Modal */}
       <Modal
         title={
@@ -888,7 +885,6 @@ const UserBookingDetailView = () => {
           </div>
         )}
       </Modal>
-
       {/* Court Review Modal */}
       <Modal
         title={

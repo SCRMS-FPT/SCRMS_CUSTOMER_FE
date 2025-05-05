@@ -400,7 +400,7 @@ const MyWalletView = () => {
                                         </Box>
                                         <Box sx={{ py: 3 }}>
                                             <Grid container spacing={3}>
-                                                <Grid item xs={6}>
+                                                <Grid size={6}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                                         <SwapHoriz sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
                                                         <Typography variant="subtitle1" color="text.secondary" fontWeight="medium">
@@ -416,7 +416,7 @@ const MyWalletView = () => {
                                                     )}
                                                 </Grid>
                                                 {canWithdraw && (
-                                                    <Grid item xs={6}>
+                                                    <Grid size={6}>
                                                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                                             <ArrowDownward sx={{ fontSize: 20, mr: 1, color: 'text.secondary' }} />
                                                             <Typography variant="subtitle1" color="text.secondary" fontWeight="medium">
