@@ -74,7 +74,7 @@ const PricingView = () => {
         "Kết nối với khách hàng tiềm năng",
         "Hệ thống lịch trình tích hợp",
       ];
-    } else if (pkg.associatedRole === "Venue") {
+    } else if (pkg.associatedRole === "CourtOwner") {
       return [
         ...baseFeatures,
         "Liệt kê và quảng bá sân của bạn",
@@ -107,11 +107,7 @@ const PricingView = () => {
 
   // Determine if a package should be highlighted
   const isPopular = (pkg) => {
-    return (
-      pkg.name.toLowerCase().includes("premium") ||
-      pkg.price > 200000 ||
-      pkg.associatedRole === "Coach"
-    );
+    return pkg.name.toLowerCase().includes("premium") || pkg.price > 200000;
   };
 
   // Handle subscription button click
@@ -187,8 +183,9 @@ const PricingView = () => {
                 size={{
                   xs: 12,
                   sm: 6,
-                  md: 4
-                }}>
+                  md: 4,
+                }}
+              >
                 <Card
                   sx={{
                     height: "100%",
