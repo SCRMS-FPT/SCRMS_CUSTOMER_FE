@@ -267,7 +267,7 @@ const WalletWithdrawalForm = () => {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth="md" sx={{ py: 4 }}>
       {/* Page header */}
       <Box sx={{ mb: 4, display: "flex", alignItems: "center" }}>
         <IconButton
@@ -285,14 +285,18 @@ const WalletWithdrawalForm = () => {
           {error}
         </Alert>
       )}
-      <Grid container spacing={3} alignItems="stretch">
+      <Grid container spacing={4}>
         {/* Balance card */}
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4,
+          }}
+        >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            style={{ height: "100%" }}
           >
             <Card
               elevation={3}
@@ -301,7 +305,6 @@ const WalletWithdrawalForm = () => {
                 background: "linear-gradient(135deg, #1976d2 0%, #0d47a1 100%)",
                 color: "white",
                 height: "100%",
-                width: "100%",
               }}
             >
               <CardContent sx={{ p: 3 }}>
@@ -350,21 +353,22 @@ const WalletWithdrawalForm = () => {
         </Grid>
 
         {/* Withdrawal form */}
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 8,
+          }}
+        >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            style={{ height: "100%" }}
           >
             <Paper
               elevation={3}
               sx={{
                 borderRadius: 2,
                 p: 4,
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
               }}
             >
               <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
