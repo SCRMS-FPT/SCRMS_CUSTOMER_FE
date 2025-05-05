@@ -23,6 +23,12 @@ import WalletWithdrawalForm from "@/pages/UserView/WalletWithdrawalForm";
 import WithdrawalsList from "@/pages/UserView/WithdrawalsList";
 import NotificationPage from "@/pages/UserView/UserNotification";
 import MyWalletView from "@/pages/UserView/MyWalletView";
+import DepositView from "@/pages/UserView/DepositView";
+import MyUserDepositView from "@/pages/UserView/MyUserDepositView";
+import MyUserWalletHistoryView from "@/pages/UserView/MyUserWalletHistoryView";
+import MyUserWalletWithdrawalForm from "@/pages/UserView/MyUserWalletWithdrawalForm";
+import MyUserWithdrawalsList from "@/pages/UserView/MyUserWithdrawalsList";
+import { User } from "lucide-react";
 
 const UserRoutes = [
   <Route
@@ -145,16 +151,60 @@ const UserRoutes = [
     }
   />,
   <Route
-  key="my-wallet"
-  path="/my-wallet"
+    key="my-wallet"
+    path="/user/my-wallet"
+    element={
+      <ProtectedRoute>
+        <UserSidebar>
+          <MyWalletView />
+        </UserSidebar>
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key="my-wallet-deposit"
+    path="/user/deposit"
+    element={
+      <ProtectedRoute>
+        <UserSidebar>
+          <MyUserDepositView />
+        </UserSidebar>
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key="my-wallet-withdrawal"
+    path="/user/withdrawal"
+    element={
+      <ProtectedRoute>
+        <UserSidebar>
+          <MyUserWalletWithdrawalForm />
+        </UserSidebar>
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+  key="my-wallet-withdrawal"
+  path="/user/withdrawal/history"
   element={
     <ProtectedRoute>
-      {/* <UserSidebar> */}
-        <MyWalletView />
-      {/* </UserSidebar> */}
+      <UserSidebar>
+        <MyUserWithdrawalsList />
+      </UserSidebar>
     </ProtectedRoute>
   }
 />,
+  <Route
+    key="my-wallet-history"
+    path="/user/wallet/history"
+    element={
+      <ProtectedRoute>
+        <UserSidebar>
+          <MyUserWalletHistoryView />
+        </UserSidebar>
+      </ProtectedRoute>
+    }
+  />,
   <Route
     key="wallet-withdraw"
     path="/wallet/withdraw"
@@ -193,9 +243,9 @@ const UserRoutes = [
     path="/profile"
     element={
       <ProtectedRoute>
-        <Layout>
+        <UserSidebar>
           <ProfilePage />
-        </Layout>
+        </UserSidebar>
       </ProtectedRoute>
     }
   />,
@@ -204,9 +254,9 @@ const UserRoutes = [
     path="/change-password"
     element={
       <ProtectedRoute>
-        <Layout>
+        <UserSidebar>
           <ChangePasswordPage />
-        </Layout>
+        </UserSidebar>
       </ProtectedRoute>
     }
   />,
@@ -215,9 +265,9 @@ const UserRoutes = [
     path="/notifications"
     element={
       <ProtectedRoute>
-        <Layout>
+        <UserSidebar>
           <NotificationPage />
-        </Layout>
+        </UserSidebar>
       </ProtectedRoute>
     }
   />,
