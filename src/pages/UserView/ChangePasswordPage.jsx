@@ -44,7 +44,7 @@ export default function ChangePasswordPage() {
       });
     } catch (error) {
       if (error instanceof ApiException) {
-        const errorMsg = "đã có lỗi xảy ra";
+        let errorMsg = "đã có lỗi xảy ra";
         try {
           const errorResponse = JSON.parse(error.response);
           errorMsg = errorResponse.detail || errorMsg;

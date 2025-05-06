@@ -365,14 +365,12 @@ const UserSubscriptionsView = () => {
                   layout
                 >
                   <Card
-                    className="h-full"
-                    bodyStyle={{ padding: "24px", height: "100%" }}
-                    style={{
-                      borderRadius: "12px",
-                      overflow: "hidden",
+                    className="h-full shadow-md hover:shadow-xl transition-shadow duration-300"
+                    styles={{
+                      body: { padding: "24px", height: "100%" },
+                      card: { borderRadius: "12px", overflow: "hidden" },
                     }}
-                    bordered={false}
-                    className="shadow-md hover:shadow-xl transition-shadow duration-300"
+                    variant="outlined"
                   >
                     <div className="flex flex-col h-full">
                       {/* Header with name and price */}

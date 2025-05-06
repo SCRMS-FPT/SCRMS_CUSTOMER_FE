@@ -25,7 +25,7 @@ const VerificationView = () => {
         setMessage("Tài khoản của bạn đã được xác thực thành công!");
       } catch (error) {
         setVerificationState("error");
-        const errorMsg =
+        let errorMsg =
           "Đã xảy ra lỗi trong quá trình xác thực. Vui lòng thử lại sau.";
         if (error instanceof ApiException) {
           try {
